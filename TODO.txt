@@ -1,0 +1,18 @@
+AVUpdate
+	- DONE
+
+AVTestDispatcher
+	- preso da vmman
+
+VMAVTest : vmtestav.py
+	- ConsoleAPI: aggiungere
+		- createTarget
+		- createFactory
+		- deleteTarget
+		sistemare config e build
+	- documentazione rest api? prese da rcs-core.
+
+	path: c:\Users\avtest\Desktop\avtest
+	output: result.txt
+	args: target,factory,
+
