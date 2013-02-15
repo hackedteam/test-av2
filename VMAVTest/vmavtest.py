@@ -16,12 +16,12 @@ def unzip( filename):
     for name in zfile.namelist():
         (dirname, filename) = os.path.split(name)
         print "Decompressing " + filename + " on " + dirname
-        if not os.path.exists(dirname) and dirname:
-            os.mkdir(dirname)
-            fd = open(name,"w")
-            fd.write(zfile.read(name))
-            fd.close()
-            names.append(name)
+        #if not os.path.exists(dirname) and dirname:
+        #    os.mkdir(dirname)
+        fd = open(name,"w")
+        fd.write(zfile.read(name))
+        fd.close()
+        names.append(name)
     return names
 
 def internet_off():
@@ -47,18 +47,26 @@ class VMAVTest:
     def create_new_factory(self, operation, target, factory, config):
         c = self.connection
         operation = c.operation(operation)
+        print "operation: " , operation
+
         #TODO: delete target if exists
-        print "targets: " + c.targets(target)
+        targets = c.targets(operation, target)
+        print "targets: ",  targets
+        #for t in targets:
+        #    c.target_delete(target)
 
         target = c.target_create(operation, target, 'made by vmavtest')
         factory = c.factory_create(operation, target, 'desktop', factory, 'made by vmavtest')
-        c.factory_add_config(factory, config)
+
+        conf = open(config).read()
+        c.factory_add_config(factory, conf)
         print "factory: ", factory
         return factory
 
-    def build_agent(self):
+    def build_agent(self, factory, demo = False):
+        c = self.connection
         param = { 'platform': 'windows',
-              'binary': { 'demo' : False, 'admin' : False},
+              'binary': { 'demo' : demo, 'admin' : False},
               'melt' : {'scout' : True, 'admin' : False, 'bit64' : True, 'codec' : True },
               'sign' : {}
               }
@@ -66,7 +74,7 @@ class VMAVTest:
         #{"admin"=>false, "bit64"=>true, "codec"=>true, "scout"=>true}
         try:
             filename = 'build.out'
-            r = conn.build(factory, param, filename)
+            r = c.build(factory, param, filename)
             contentnames = unzip(filename)
             return [n for n in contentnames if n.endswith('.exe')]
         except Exception, e:
@@ -86,38 +94,45 @@ class VMAVTest:
             raise
 
     def check_instance(self, factory):
-        return self.connection.enum_instances(factory)
+        c = self.connection
+        return c.enum_instances(factory)
 
-    def execute_test(self):
+    def execute_av(self):
         if not internet_off():
             print "ERROR: I don't want to reach Internet"
         #exit(0)
 
         print "Network unreachable"
         hostname = socket.gethostname()
+
+        print "Hostname: ", hostname
         operation = 'AVMonitor'
         target = hostname
         factory = hostname
         config = "config.json"
 
-        self.connection = API(host, user, passwd)
+        self.connection = API(self.host, self.user, self.passwd)
         self.connection.login()
         try:
         
-            factory = create_new_factory(operation, target, factory, config)
-            exe = build_agent( factory )
-            execute_build(exe)
+            factory = self.create_new_factory(operation, target, factory, config)
+            exe = self.build_agent( factory, True )
+            self.execute_build(exe)
             sleep(60 * 5)
-            mouse_move()
+            self.mouse_move()
             sleep(60 * 2)
-            result = checkInstance( factory )
+            result = self.checkInstance( factory )
         except Exception, e:
-            l("Error: " + e)
+            print "Error: ", e
+            raise e
         finally:
             self.connection.logout()
 
 def test_api():
     print 'test'
+    host = "rcs-castore"
+    user = "avmonitor"
+    passwd = "avmonitorp1234"
     conn = API(host, user, passwd)
     print conn.login()
 
@@ -131,7 +146,7 @@ def test_api():
         print "factory: ", factory
         #sleep(10)
 
-        config = open('assets/basic_config_castore.json').read()
+        config = open('config.json').read()
         conn.factory_add_config(factory, config)
 
     param = { 'platform': 'windows',
@@ -149,7 +164,7 @@ def test_api():
     r = unzip('build.out')
     print r
 
-    r = check_instance( factory )
+    r = conn.enum_instances( factory )
     print r
 
     #sleep(5)
@@ -163,8 +178,7 @@ def main():
         exit(0)
     
     vmavtest = VMAVTest()
-    vmavtest.execute_test()
-
+    vmavtest.execute_av()
 
 if __name__ == "__main__":
     main()

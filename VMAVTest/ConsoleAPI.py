@@ -103,9 +103,15 @@ class API:
         ret = [ op['_id'] for op in operations if op['name'] == operation ]
         return ret[0] if ret else None
 
-    def targets(self, target):
+    #def targets(self, target):
+    #    operations = self.call_get('target')
+    #    print operations
+    #    ret = [ op['_id'] for op in operations if op['name'] == target ]
+    #    return ret
+
+    def targets(self, operation, target):
         operations = self.call_get('target')
-        ret = [ op['_id'] for op in operations if op['name'] == target ]
+        ret = [ op['_id'] for op in operations if op['name'] == target and op['path'] == operation ]
         return ret
 
     def target_delete(self, target_id):
