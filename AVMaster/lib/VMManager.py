@@ -19,25 +19,25 @@ class VMManagerVS:
 		self.passwd = self._getPasswd(config_file)
 
 
-	def _getPath(conf_file):
+	def _getPath(self, conf_file):
 		config = ConfigParser()
 		config.read( conf_file )
 		return config.get("vsphere", "path")
 
 
-	def _getHost(config_file):
+	def _getHost(self, conf_file):
 		config = ConfigParser()
 		config.read( conf_file )
 		return config.get("vsphere", "host")
 
 		
-	def _getUser(config_file):
+	def _getUser(self, conf_file):
 		config = ConfigParser()
 		config.read( conf_file )
 		return config.get("vsphere", "user")
 
 		
-	def _getPasswd(config_file):
+	def _getPasswd(self, conf_file):
 		config = ConfigParser()
 		config.read( conf_file )
 		return config.get("vsphere", "passwd")
