@@ -2,22 +2,47 @@ import subprocess
 import sys
 import os
 
+from ConfigParser import ConfigParser
+
 class VMManagerVS:
-	def __init__(self, path, host=None, user=None, passwd=None):
-		'''
-		if not host and not user and not passwd:
-			self.path = path
-		else:
-			self.path = path
-			self.host = host
-			self.user = user
-			self.passwd = passwd
+	#def __init__(self, path, host=None, user=None, passwd=None):
+	def __init__(self, config_file):
 		'''
 		self.path = path
 		self.host = host
 		self.user = user
 		self.passwd = passwd
+		'''
+		self.path   = self._getPath(config_file)
+		self.host   = self._getHost(config_file)
+		self.user   = self._getUser(config_file)
+		self.passwd = self._getPasswd(config_file)
 
+
+	def _getPath(conf_file):
+		config = ConfigParser()
+		config.read( conf_file )
+		return config.get("vsphere", "path")
+
+
+	def _getHost(config_file):
+		config = ConfigParser()
+		config.read( conf_file )
+		return config.get("vsphere", "host")
+
+		
+	def _getUser(config_file):
+		config = ConfigParser()
+		config.read( conf_file )
+		return config.get("vsphere", "user")
+
+		
+	def _getPasswd(config_file):
+		config = ConfigParser()
+		config.read( conf_file )
+		return config.get("vsphere", "passwd")
+
+		
 	def startup(self, vmx):
 		sys.stdout.write("[*] Startup %s!\r\n" % vmx)
 		subprocess.call([self.path,
@@ -50,19 +75,25 @@ class VMManagerVS:
 						"-u", self.user, "-p", self.passwd,
 						"suspend", vmx.path, "soft"])
 
-	def refreshSnapshot(self, vmx, snapshot):
-		sys.stdout.write("[*] Deleting current snapshot.\n")
-		subprocess.call([self.path,
-						"-T", "vc",
-						"-h", self.host,
-						"-u", self.user, "-p", self.passwd,
-						"deleteSnapshot", vmx, snapshot])
+	def createSnapshot(self, vmx, snapshot):
 		sys.stdout.write("[*] Creating new current snapshot.\n")
 		subprocess.call([self.path,
 						"-T", "vc",
 						"-h", self.host,
 						"-u", self.user, "-p", self.passwd,
 						"snapshot", vmx.path, snapshot])
+	
+	def deleteSnapshot(self, vmx, snapshot):
+		sys.stdout.write("[*] Deleting current snapshot.\n")
+		subprocess.call([self.path,
+						"-T", "vc",
+						"-h", self.host,
+						"-u", self.user, "-p", self.passwd,
+						"deleteSnapshot", vmx, snapshot])
+						
+	def refreshSnapshot(self, vmx, snapshot):
+		self.deleteSnapshot(vmx, snapshot)
+		self.createSnapshot(vmx, snapshot)
 						
 	def revertSnapshot(self, vmx, snapshot):
 		sys.stdout.write("[*] Reverting to current snapshot.\n")
