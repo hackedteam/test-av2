@@ -12,7 +12,7 @@ VMAVTest : vmtestav.py
 		sistemare config e build
 	- documentazione rest api? prese da rcs-core.
 
-	path: c:\Users\avtest\Desktop\avtest
-	output: result.txt
-	args: target,factory,
+	path: c:\Users\avtest\Desktop\vmavtest
+	input: vmavtest.py, ConsoleAPI.py mouse_emu.exe, config.json
+       	output: result.txt
 

@@ -8,22 +8,21 @@ import urllib2
 import zipfile
 import os.path
 
+import subprocess
 
-host = "rcs-castore"
-user = "avmonitor"
-passwd = "avmonitorp1234"
-connection = None
-
-def unzip(filename):
+def unzip( filename):
     zfile = zipfile.ZipFile(filename)
+    names = []
     for name in zfile.namelist():
-      (dirname, filename) = os.path.split(name)
-      print "Decompressing " + filename + " on " + dirname
-      if not os.path.exists(dirname) and dirname:
-        os.mkdir(dirname)
-      fd = open(name,"w")
-      fd.write(zfile.read(name))
-      fd.close()
+        (dirname, filename) = os.path.split(name)
+        print "Decompressing " + filename + " on " + dirname
+        if not os.path.exists(dirname) and dirname:
+            os.mkdir(dirname)
+            fd = open(name,"w")
+            fd.write(zfile.read(name))
+            fd.close()
+            names.append(name)
+    return names
 
 def internet_off():
     ips = [ '87.248.112.181', '173.194.35.176', '176.32.98.166']
@@ -31,39 +30,93 @@ def internet_off():
     ret = False
     for rep in ips:
         try:
-            l(rep)
+            print rep
             response=urllib2.urlopen('http://' + rep, timeout=5)
             return False
         except urllib2.URLError as err:
             ret = True
     return ret
 
-def l(message):
-    print message
+class VMAVTest:
 
-def produceOutput(message):
-    l(message)
+    host = "rcs-castore"
+    user = "avmonitor"
+    passwd = "avmonitorp1234"
+    connection = None
 
-def createNewFactory(target, factory):
-    id = connection.get_target_id(target)
-    l(id)
+    def create_new_factory(self, operation, target, factory, config):
+        c = self.connection
+        operation = c.operation(operation)
+        #TODO: delete target if exists
+        print "targets: " + c.targets(target)
 
-def copyConfig(config):
-    pass
+        target = c.target_create(operation, target, 'made by vmavtest')
+        factory = c.factory_create(operation, target, 'desktop', factory, 'made by vmavtest')
+        c.factory_add_config(factory, config)
+        print "factory: ", factory
+        return factory
 
-def buildAgent(kind):
-    pass
-    
-def executeBuild():
-    pass
+    def build_agent(self):
+        param = { 'platform': 'windows',
+              'binary': { 'demo' : False, 'admin' : False},
+              'melt' : {'scout' : True, 'admin' : False, 'bit64' : True, 'codec' : True },
+              'sign' : {}
+              }
 
-def mouseMove():
-    pass
+        #{"admin"=>false, "bit64"=>true, "codec"=>true, "scout"=>true}
+        try:
+            filename = 'build.out'
+            r = conn.build(factory, param, filename)
+            contentnames = unzip(filename)
+            return [n for n in contentnames if n.endswith('.exe')]
+        except Exception, e:
+            print e
+        
+    def execute_build(self, exenames):
+        for n in exenames:
+            os.system(n)
 
-def checkInstance(target, factory):
-    pass
+    def mouse_move(self, timeout=60):
+        subp = subprocess.Popen(['mouse_emu.exe'])
+        p = psutil.Process(subp.pid)
+        try:
+            p.wait(timeout)
+        except psutil.TimeoutExpired:
+            p.kill()
+            raise
 
-def test():
+    def check_instance(self, factory):
+        return self.connection.enum_instances(factory)
+
+    def execute_test(self):
+        if not internet_off():
+            print "ERROR: I don't want to reach Internet"
+        #exit(0)
+
+        print "Network unreachable"
+        hostname = socket.gethostname()
+        operation = 'AVMonitor'
+        target = hostname
+        factory = hostname
+        config = "config.json"
+
+        self.connection = API(host, user, passwd)
+        self.connection.login()
+        try:
+        
+            factory = create_new_factory(operation, target, factory, config)
+            exe = build_agent( factory )
+            execute_build(exe)
+            sleep(60 * 5)
+            mouse_move()
+            sleep(60 * 2)
+            result = checkInstance( factory )
+        except Exception, e:
+            l("Error: " + e)
+        finally:
+            self.connection.logout()
+
+def test_api():
     print 'test'
     conn = API(host, user, passwd)
     print conn.login()
@@ -93,7 +146,11 @@ def test():
     except Exception, e:
         print e
     
-    unzip('build.out')
+    r = unzip('build.out')
+    print r
+
+    r = check_instance( factory )
+    print r
 
     #sleep(5)
     conn.target_delete(target)
@@ -102,34 +159,11 @@ def test():
 
 def main():
     if(sys.argv.__contains__('test')):
-        test()
+        test_api()
         exit(0)
     
-    if not internet_off():
-        produceOutput("ERROR: I don't want to reach Internet")
-        #exit(0)
-
-    l("Network unreachable")
-    hostname = socket.gethostname()
-    l(hostname)
-
-    target = hostname
-    factory = hostname
-    config = "config.json"
-
-    self.connection = API(host, user, passwd)
-    
-    createNewFactory(target,factory)
-    copyConfig(config)
-    buildAgent("silent")
-    executeBuild()
-    #sleep(60 * 5)
-    mouseMove()
-    #sleep(60)
-    checkInstance(target,factory)
-
-    self.connection.do_logout()
-
+    vmavtest = VMAVTest()
+    vmavtest.execute_test()
 
 
 if __name__ == "__main__":

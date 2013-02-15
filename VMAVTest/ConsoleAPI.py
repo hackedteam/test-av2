@@ -103,6 +103,11 @@ class API:
         ret = [ op['_id'] for op in operations if op['name'] == operation ]
         return ret[0] if ret else None
 
+    def targets(self, target):
+        operations = self.call_get('target')
+        ret = [ op['_id'] for op in operations if op['name'] == target ]
+        return ret
+
     def target_delete(self, target_id):
         """ Delete a given target """
         return self.call('target/destroy', {'_id': target_id })
