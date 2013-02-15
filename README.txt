@@ -69,3 +69,9 @@ TestAV.py
   verify $target contains instances
 
 
+
+zenoav : 192.168.100.110 avtest
+puppet : 172.20.20.167 zeno, zenop
+
+
+
