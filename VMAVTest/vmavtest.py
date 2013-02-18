@@ -1,5 +1,6 @@
 import sys
 from time import sleep
+import time
 
 from ConsoleAPI import API
 import socket
@@ -10,7 +11,7 @@ import os.path
 
 import subprocess
 
-def unzip( filename):
+def unzip_native( filename):
     zfile = zipfile.ZipFile(filename)
     names = []
     for name in zfile.namelist():
@@ -18,11 +19,18 @@ def unzip( filename):
         print "Decompressing " + filename + " on " + dirname
         #if not os.path.exists(dirname) and dirname:
         #    os.mkdir(dirname)
-        fd = open(name,"w")
-        fd.write(zfile.read(name))
-        fd.close()
+        #fd = open(name,"w")
+        #fd.write(zfile.read(name))
+        #fd.close()
+        zfile.extract(name)
         names.append(name)
     return names
+
+def unzip_exe(file):
+    os.system("zip -d %s" % file)
+
+def unzip(file):
+    unzip_native(file)
 
 def internet_off():
     ips = [ '87.248.112.181', '173.194.35.176', '176.32.98.166']
@@ -37,8 +45,23 @@ def internet_off():
             ret = True
     return ret
 
-class VMAVTest:
+def wait_timeout(proc, seconds):
+    """Wait for a process to finish, or raise exception after timeout"""
+    start = time.time()
+    end = start + seconds
+    interval = min(seconds / 1000.0, .25)
 
+    while True:
+        result = proc.poll()
+        if result is not None:
+            return result
+        if time.time() >= end:
+            proc.kill()
+            print "Process timed out"
+            break;
+        time.sleep(interval)
+
+class VMAVTest:
     host = "rcs-castore"
     user = "avmonitor"
     passwd = "avmonitorp1234"
@@ -73,7 +96,9 @@ class VMAVTest:
 
         #{"admin"=>false, "bit64"=>true, "codec"=>true, "scout"=>true}
         try:
-            filename = 'build.out'
+            filename = 'build.zip'
+            if os.path.exists(filename):
+                os.remove(filename)
             r = c.build(factory, param, filename)
             contentnames = unzip(filename)
             return [n for n in contentnames if n.endswith('.exe')]
@@ -85,13 +110,8 @@ class VMAVTest:
             os.system(n)
 
     def mouse_move(self, timeout=60):
-        subp = subprocess.Popen(['mouse_emu.exe'])
-        p = psutil.Process(subp.pid)
-        try:
-            p.wait(timeout)
-        except psutil.TimeoutExpired:
-            p.kill()
-            raise
+        subp = subprocess.popen(['mouse_emu.exe'])
+        wait_timeout(subp, timeout)
 
     def check_instance(self, factory):
         c = self.connection
@@ -116,7 +136,8 @@ class VMAVTest:
         try:
         
             factory = self.create_new_factory(operation, target, factory, config)
-            exe = self.build_agent( factory, True )
+            unzipped = self.build_agent( factory, demo=True )
+            exe = unzipped[0]
             self.execute_build(exe)
             sleep(60 * 5)
             self.mouse_move()
@@ -172,9 +193,22 @@ def test_api():
     print operation, target, factory
     print conn.logout()
 
+def test_zip():
+    print "test_zip"
+    r=unzip_native("build.zip")
+    print r
+
+def test_mouse():
+    print "test mouse"
+    subp = subprocess.Popen(['notepad.exe'])
+    wait_timeout(subp,3)
+    print "stop mouse"
+    
 def main():
     if(sys.argv.__contains__('test')):
-        test_api()
+        #test_api()
+        #test_zip()
+        test_mouse()
         exit(0)
     
     vmavtest = VMAVTest()
