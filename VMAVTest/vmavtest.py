@@ -57,9 +57,9 @@ def wait_timeout(proc, seconds):
         time.sleep(interval)
 
 class VMAVTest:
-    host = "rcs-castore"
+    host = "rcs-minotauro"
     user = "avmonitor"
-    passwd = "avmonitorp1234"
+    passwd = "avmonitorp123"
     connection = None
 
     def __init__(self, melt = False):
@@ -74,7 +74,7 @@ class VMAVTest:
         targets = c.targets(operation_id, target)
         print "delete targets: ",  targets
         for t in targets:
-            c.target_delete(target)
+            c.target_delete(t)
 
         target = c.target_create(operation_id, target, 'made by vmavtest at %s' % time.ctime())
         factory = c.factory_create(operation_id, target, 'desktop', factory, 'made by vmavtestat at %s' % time.ctime())
@@ -180,6 +180,7 @@ def test_mouse():
     print "stop mouse"
     
 def main():
+
     if(sys.argv.__contains__('test')):
         #test_api()
         #test_zip()
@@ -191,7 +192,7 @@ def main():
         os.remove(results)
         
     #sys.stdout = open(results,'w')
-    vmavtest = VMAVTest(True)
+    vmavtest = VMAVTest(melt = True)
     vmavtest.execute_av()
 
 if __name__ == "__main__":

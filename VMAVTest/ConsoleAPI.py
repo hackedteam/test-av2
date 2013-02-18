@@ -47,9 +47,10 @@ class API:
 
     def call(self, api_name, data={}, binary = False, argjson = True):
         link = 'https://%s/%s' % (self.host, api_name)
+        print "binary %s, argjson %s" % (binary, argjson)
         arg = data
         if argjson:
-            #print "json arg: " , data
+            
             arg = json.dumps(data)
         resp = self.post_response(link, self.cookie, arg)
         if binary:
@@ -60,7 +61,7 @@ class API:
             return result
         except Exception, e:
             print e
-            print "call error: ",resp
+            print "call error: ", resp
             raise e
 
     def call_get(self, api_name):
@@ -256,10 +257,10 @@ class API:
         """
 
         params['factory'] = { "_id": "%s" % factory } 
-        print "[*] Build params: \n%s" % json.dumps(params)
+        print "[*] Build params: \n%s" % params
         #link  = 'https://%s/build' % self.host
         #resp = self.post_response(link, json.dumps(params))
-        resp = self.call('build', params, True)
+        resp = self.call('build', params, binary = True)
         
         out = open(out_file, 'wb')
         out.write(resp)
@@ -275,16 +276,19 @@ class API:
 
         params['factory'] = { "_id": "%s" % factory } 
 
-        f = open(melt_file)
-        melt_id = self.call('upload', f.read(), binary = True, argjson = False)
+        f = open(melt_file, "rb")
+        payload = f.read()
+        print "payload size: ", len(payload), " file: ", melt_file
+        melt_id = self.call('upload', payload, binary = True, argjson = False)
+        print "uploaded: ", melt_id
 
         params['melt']['input'] = melt_id
         #:  Build: melting: {"admin"=>false, "bit64"=>true, "codec"=>true, "scout"=>true, "input"=>"4f60909baef1de0e4800000a-1361192221.897401094"}
 
-        print "[*] Build params: \n%s" % json.dumps(params)
+        print "[*] Build melt params: \n%s" % params
         #link  = 'https://%s/build' % self.host
         #resp = self.post_response(link, json.dumps(params))
-        resp = self.call('build', params)
+        resp = self.call('build', params,  binary = True)
         
         out = open(out_file, 'wb')
         out.write(resp)
@@ -294,9 +298,9 @@ class API:
 
 def test():
     print 'test'
-    host = "rcs-castore"
+    host = "rcs-minotauro"
     user = "avmonitor"
-    passwd = "avmonitorp1234"
+    passwd = "avmonitorp123"
     conn = API(host, user, passwd)
     print conn.login()
  
