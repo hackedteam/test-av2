@@ -4,7 +4,7 @@
         {
             "subactions": [
                 {
-                    "host": "rcs-castore",
+                    "host": "rcs-minotauro",
                     "stop": false,
                     "cell": false,
                     "mindelay": 0,

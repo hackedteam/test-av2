@@ -159,11 +159,11 @@ class VMAVTest:
             exe = self.build_agent( factory, meltfile )
 
             self.execute_build(exe)
-            print "wait for 6 minutes"
+            print time.ctime(), " wait for 6 minutes"
             sleep(60 * 6)
-            print "move mouse for 10 seconds"
+            print time.ctime(), "move mouse for 10 seconds"
             self.mouse_move()
-            print "wait for 1 minute"
+            print time.ctime(), "wait for 1 minute"
             sleep(60 * 1)
             result = self.check_instance( factory )
 
