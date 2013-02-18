@@ -33,7 +33,7 @@ def internet_off():
     for rep in ips:
         try:
             print rep
-            response=urllib2.urlopen('http://' + rep, timeout=5)
+            response=urllib2.urlopen('http://' + rep, timeout=10)
             return False
         except urllib2.URLError as err:
             ret = True
@@ -62,26 +62,29 @@ class VMAVTest:
     passwd = "avmonitorp1234"
     connection = None
 
+    def __init__(self, melt = False):
+        self.melt = melt
+
     def create_new_factory(self, operation, target, factory, config):
         c = self.connection
-        operation = c.operation(operation)
-        print "operation: " , operation
+        operation_id = c.operation(operation)
+        print "operation: " , operation, "target: ", target
 
         #TODO: delete target if exists
-        targets = c.targets(operation, target)
-        print "targets: ",  targets
-        #for t in targets:
-        #    c.target_delete(target)
+        targets = c.targets(operation_id, target)
+        print "delete targets: ",  targets
+        for t in targets:
+            c.target_delete(target)
 
-        target = c.target_create(operation, target, 'made by vmavtest at %s' % time.ctime())
-        factory = c.factory_create(operation, target, 'desktop', factory, 'made by vmavtestat at %s' % time.ctime())
+        target = c.target_create(operation_id, target, 'made by vmavtest at %s' % time.ctime())
+        factory = c.factory_create(operation_id, target, 'desktop', factory, 'made by vmavtestat at %s' % time.ctime())
 
         conf = open(config).read()
         c.factory_add_config(factory, conf)
         print "factory: ", factory
         return factory
 
-    def build_agent(self, factory, demo = False):
+    def build_agent(self, factory, melt=None, demo = False):
         c = self.connection
         param = { 'platform': 'windows',
               'binary': { 'demo' : demo, 'admin' : False},
@@ -94,7 +97,14 @@ class VMAVTest:
             filename = 'build.zip'
             if os.path.exists(filename):
                 os.remove(filename)
-            r = c.build(factory, param, filename)
+
+            if melt:
+                print "Melt build with: ", melt
+                r = c.build_melt(factory, param, melt, filename)
+            else:
+                print "Silent build"
+                r = c.build(factory, param, filename)
+
             contentnames = unzip(filename)
             print "contents: %s" % contentnames
             return [n for n in contentnames if n.endswith('.exe')]
@@ -108,7 +118,7 @@ class VMAVTest:
             subp = subprocess.Popen([exe])
 
     def mouse_move(self, timeout=10):
-        subp = subprocess.Popen(['mouse_emu.exe'])
+        subp = subprocess.Popen(['assets/mouse_emu.exe'])
         wait_timeout(subp, timeout)
 
     def check_instance(self, factory):
@@ -135,14 +145,19 @@ class VMAVTest:
         operation = 'AVMonitor'
         target = hostname
         factory = hostname
-        config = "config.json"
+        config = "assets/config.json"
 
         self.connection = API(self.host, self.user, self.passwd)
         self.connection.login()
         try:
         
             factory = self.create_new_factory(operation, target, factory, config)
-            exe = self.build_agent( factory, demo=True )
+
+            if self.melt:
+                meltfile = 'assets/meltapp.exe'
+
+            exe = self.build_agent( factory, meltfile )
+
             self.execute_build(exe)
             print "wait for 6 minutes"
             sleep(60 * 6)
@@ -176,7 +191,7 @@ def main():
         os.remove(results)
         
     #sys.stdout = open(results,'w')
-    vmavtest = VMAVTest()
+    vmavtest = VMAVTest(True)
     vmavtest.execute_av()
 
 if __name__ == "__main__":
