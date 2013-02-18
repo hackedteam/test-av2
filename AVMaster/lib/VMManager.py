@@ -109,6 +109,7 @@ class VMManagerVS:
 						"-T", "vc",
 						"-h", self.host,
 						"-u", self.user, "-p", self.passwd,
+						"-gu", "%s" % vmx.user, "-gp", "%s" % vmx.passwd,
 						"CopyFileFromHostToGuest", vmx.path, src_file, dst_file])
 
 	def executeCmd(self, vmx, cmd, script=None):

@@ -31,6 +31,25 @@ def update(vm):
 	except:
 		return "ERROR: %s is not updated"
 
+def dispatch(vm):
+	try:
+		vm = VMachine(vm_conf_file, vm_name)
+		vmman.revertSnapshot(vm, vm.snapshot)
+		sleep(10)
+		vmman.startup(vm)
+		sleep(30)
+		#	Copying files to guest
+		# TODO: File list
+		#vmman.copyFileToGuest()
+		#
+		#	Then execute
+		vmman.executeCmd(vm, cmd)
+
+		return "[*] %s test started" % vm
+
+	except:
+		return "Error: cannot dispatch tests for %s" % vm
+
 def main():
 
 	vm_conf_file = os.path.join("conf", "vms.cfg")
@@ -40,14 +59,22 @@ def main():
 
 	vmman = VMManagerVS(vm_conf_file)
 
+	#operation = sys.argv[1]
+	operation = "dispatch"
+
 	# get vm names
 	c = ConfigParser()
 	c.read(op_conf_file)
 	vm_names = c.get("test", "machines").split(",")
 
 	pool = Pool()
-	r = pool.map_async(do_update, ((vm) for vm in vm_names)) 
-	print r.get()
+	if operation == "update": 
+		print pool.map_async(do_update, ((vm) for vm in vm_names)).get()
+	if operation == "dispatch": 
+		print pool.map_async(do_dispatch, ((vm) for vm in vm_names)).get()
+	#print pool.map_async(do_update, ((vm) for vm in vm_names)).get() if operation is "update"
+	#print pool.map_async(do_dispatch, ((vm) for vm in vm_names)).get() if operation is "dispatch"
+	#print r.get()
 
 #if __name__ == "__main___":
 main()
