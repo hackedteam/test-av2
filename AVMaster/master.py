@@ -54,13 +54,16 @@ def dispatch(vm_name):
                         - build_silent_polluce.bat
                         - lib/ConsoleAPI.py
                         - lib/vmavtest.py
-                        - assets/*
+                        - assets/keyinject.exe
+                        - assets/meltapp.exe
+                        - assets/config.json
                 '''
-
+                # make directories where push scripts for tests
                 vmman.mkdirInGuest(vm, "C:\\Users\\avtest\\Desktop\\AVTEST")
                 vmman.mkdirInGuest(vm, "C:\\Users\\avtest\\Desktop\\AVTEST\\lib")
                 vmman.mkdirInGuest(vm, "C:\\Users\\avtest\\Desktop\\AVTEST\\assets")
 
+                # copy files
                 vmman.copyFileToGuest(vm, 
                         "../VMAVTest/build_silent_polluce.bat", 
                         "c:\\Users\\avtest\\Desktop\\AVTEST\\build_silent_polluce.bat")
@@ -73,18 +76,22 @@ def dispatch(vm_name):
                 vmman.copyFileToGuest(vm, 
                         "../VMAVTest/assets/config.json", 
                         "c:\\Users\\avtest\\Desktop\\AVTEST\\assets\\config.json")
-                #
                 vmman.copyFileToGuest(vm, 
                         "../VMAVTest/assets/keyinject.exe", 
                         "c:\\Users\\avtest\\Desktop\\AVTEST\\assets\\keyinject.exe")
-                #       Then execute
                 vmman.copyFileToGuest(vm, 
                         "../VMAVTest/assets/meltapp.exe", 
                         "c:\\Users\\avtest\\Desktop\\AVTEST\\assets\\meltapp.exe")
-                #vmman.executeCmd(vm, cmd)
+
+                # executing bat
+                vmman.executeCmd(vm, "c:\\Users\\avtest\\Desktop\\AVTEST\\build_silent_polluce.bat")
+                
+                '''
+                # suspend & refresh snapshot
                 vmman.suspend(vm)
                 sleep(5)
                 vmman.refreshSnapshot(vm, vm.snapshot)
+                '''
                 return "[*] test files dispatched for %s" % vm_name
 
         except Exception, ex:
