@@ -103,6 +103,15 @@ class VMManagerVS:
 						"-u", self.user, "-p", self.passwd,
 						"revertToSnapshot", vmx.path, snapshot])
 
+	def mkdirInGuest(self, vmx, dir_path):
+		sys.stdout.write("[*] Creating %s into guest.\n" % dir_path)
+		subprocess.call([self.path,
+						"-T", "vc",
+						"-h", self.host,
+						"-u", self.user, "-p", self.passwd,
+						"-gu", "%s" % vmx.user, "-gp", "%s" % vmx.passwd,
+						"CreateDirectoryInGuest", vmx.path, dir_path])
+
 	def copyFileToGuest(self, vmx, src_file, dst_file):
 		sys.stdout.write("[*] Copying file %s into guest (on dir %s).\n" % (src_file, dst_file))
 		subprocess.call([self.path,
