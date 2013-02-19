@@ -28,7 +28,7 @@ def internet_off():
     for rep in ips:
         try:
             print "- Check connection to: %s:" % rep
-            response=urllib2.urlopen('http://' + rep, timeout = 10)
+            response = urllib2.urlopen('http://' + rep, timeout = 10)
             return False
         except urllib2.URLError as err:
             ret = True
@@ -87,7 +87,7 @@ class VMAVTest:
         #print "factory: ", factory
         return factory
 
-    def build_agent(self, factory, melt=None, demo = False):
+    def build_agent(self, factory, melt = None, demo = False):
         c = self.connection
         param = { 'platform': 'windows',
               'binary': { 'demo' : demo, 'admin' : False},
@@ -177,8 +177,9 @@ class VMAVTest:
 
 def test_mouse():
     print "test mouse"
-    subp = subprocess.Popen(['notepad.exe'])
-    wait_timeout(subp,3)
+    sleep(10)
+    subp = subprocess.Popen(['assets/mouse_emu.exe'])
+    wait_timeout(subp, 3)
     print "stop mouse"
     
 def main():
