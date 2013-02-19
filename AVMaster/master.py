@@ -100,8 +100,8 @@ def dispatch(vm_name):
 
 def main():
 
-		# shut down network
-		os.system('sudo ./net_disable.sh')
+        # shut down network
+        os.system('sudo ./net_disable.sh')
 
         vm_conf_file = os.path.join("conf", "vms.cfg")
         op_conf_file = os.path.join("conf", "operations.cfg")
@@ -133,7 +133,7 @@ def main():
         if operation == "dispatch": 
                 r = pool.map_async(dispatch, ((vm) for vm in vm_names))
                 print r.get() 
-        
+
 
 if __name__ == "__main__":
 	main()
