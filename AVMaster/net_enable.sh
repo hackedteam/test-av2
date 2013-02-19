@@ -1,0 +1,1 @@
+shorewall restart /etc/shorewall-nat-enabled/
