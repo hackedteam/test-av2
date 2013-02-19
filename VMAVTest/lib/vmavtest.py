@@ -167,9 +167,9 @@ class VMAVTest:
 
             sleep(60 * 6)
 
-            print time.ctime(), "- move mouse for 10 seconds"
+            print time.ctime(), "- move mouse for 30 seconds"
             sys.stdout.flush()
-            self.mouse_move()
+            self.mouse_move(timeout = 30)
 
             print time.ctime(), "- wait for 1 minute"
             sys.stdout.flush()
