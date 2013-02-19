@@ -257,15 +257,14 @@ class API:
         """
 
         params['factory'] = { "_id": "%s" % factory } 
-        print "+ Build params: \n%s" % params
-        #link  = 'https://%s/build' % self.host
-        #resp = self.post_response(link, json.dumps(params))
+        #print "+ Build params: \n%s" % params
+
         resp = self.call('build', params, binary = True)
         
         out = open(out_file, 'wb')
         l = out.write(resp)
         
-        print "+ %s bytes saved to %s" % (l,  out_file)
+        #print "+ %s bytes saved to %s" % (len(out),  out_file)
 
     def build_melt(self, factory, params, melt_file, out_file):
         """ Build Silent or Melted Exe 
@@ -285,7 +284,7 @@ class API:
         params['melt']['input'] = melt_id
         #:  Build: melting: {"admin"=>false, "bit64"=>true, "codec"=>true, "scout"=>true, "input"=>"4f60909baef1de0e4800000a-1361192221.897401094"}
 
-        print "+ Build melt params: \n%s" % params
+        #print "+ Build melt params: \n%s" % params
         #link  = 'https://%s/build' % self.host
         #resp = self.post_response(link, json.dumps(params))
         resp = self.call('build', params,  binary = True)
@@ -293,7 +292,7 @@ class API:
         out = open(out_file, 'wb')
         l = out.write(resp)
         
-        print "+ %s bytes saved to %s" % (l,  out_file)
+        #print "+ %s bytes saved to %s" % (len(out),  out_file)
 
 
 def test():

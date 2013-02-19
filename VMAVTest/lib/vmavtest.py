@@ -1,8 +1,6 @@
 import sys
 from time import sleep
 import time
-from multiprocessing import Pool
-
 import socket
 
 import urllib2
@@ -10,6 +8,8 @@ import zipfile
 import os.path
 
 import subprocess
+import Queue
+import threading
 
 from ConsoleAPI import API
 
@@ -18,27 +18,31 @@ def unzip(filename):
     names = []
     for name in zfile.namelist():
         (dirname, filename) = os.path.split(name)
-        print "- Decompressing " + filename + " on " + dirname
+        print "- Decompressing " + filename 
         zfile.extract(name)
         names.append(name)
     return names
 
-def check_internet(address):
+def check_internet(address, queue):
     try:
         print "- Check connection to: %s" % address
         response = urllib2.urlopen('http://' + address, timeout = 10)
-        return True
+        queue.put(True)
+
     except urllib2.URLError as err:
-        return False
+        queue.put(False)
 
-def internet_off():
+
+def internet_on():
     ips = [ '87.248.112.181', '173.194.35.176', '176.32.98.166', 'www.reddit.com', 'www.bing.com', 'www.facebook.com']
-    pool = Pool()
+    q = Queue.Queue()
+    for i in ips:
+        t = threading.Thread(target = check_internet, args = (i, q) )
+        t.daemon = True
+        t.start()
 
-    async = pool.map_async(check_internet, ips)
-    res = async.get()
-    print "-- ",res
-    return not any(res)
+    s = [ q.get() for i in ips ]
+    return any(s)
 
 def wait_timeout(proc, seconds):
     """Wait for a process to finish, or raise exception after timeout"""
@@ -135,16 +139,9 @@ class VMAVTest:
         c = self.connection
         return c.enum_instances(factory)
         
-    def execute_av(self, let_connect = False):
+    def execute_av(self):
         hostname = socket.gethostname()
         print "%s %s\n" % (hostname, time.ctime())
-        
-        if not internet_off() and not let_connect:
-            print "ERROR: I don't want to reach Internet"
-            exit(0)
-
-        print "- Network unreachable"
-       
 
         print "- Hostname: ", hostname
         operation = 'AVMonitor'
@@ -190,11 +187,32 @@ def test_mouse():
     subp = subprocess.Popen(['assets/keyinject.exe'])
     wait_timeout(subp, 3)
     print "stop mouse"
+
+def test_multithread():
+    ips = [ '87.248.112.181', '173.194.35.176', '176.32.98.166', 'www.reddit.com', 'www.bing.com', 'www.facebook.com']
     
+    q = Queue.Queue()
+    for i in ips:
+        t = threading.Thread(target=check_internet, args=(i, q) )
+        t.daemon = True
+        t.start()
+
+    s = [ q.get() for i in ips ]
+    print s
+    
+
 def main():
     if(sys.argv.__contains__('test')):
-        test_internet()
+        test_multithread()
+        #test_internet()
         exit(0)
+
+    if internet_on():
+        print "== ERROR: I reach Internet =="
+        exit(0)
+
+    print "- Network unreachable"
+
 
     melt = False
     if len(sys.argv) == 3:
@@ -211,7 +229,7 @@ def main():
         
     print "- Server: ", server, " Melt: ", melt
     vmavtest = VMAVTest(server, melt )
-    vmavtest.execute_av(let_connect = False)
+    vmavtest.execute_av()
 
 if __name__ == "__main__":
     main()
