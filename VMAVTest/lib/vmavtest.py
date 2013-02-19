@@ -38,7 +38,7 @@ def internet_off():
     async = pool.map_async(check_internet, ips)
     res = async.get()
     print "-- ",res
-    return any(res)
+    return not any(res)
 
 def wait_timeout(proc, seconds):
     """Wait for a process to finish, or raise exception after timeout"""
