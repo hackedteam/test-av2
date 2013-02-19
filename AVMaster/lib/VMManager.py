@@ -89,7 +89,7 @@ class VMManagerVS:
 						"-T", "vc",
 						"-h", self.host,
 						"-u", self.user, "-p", self.passwd,
-						"deleteSnapshot", vmx, snapshot])
+						"deleteSnapshot", vmx.path, snapshot])
 						
 	def refreshSnapshot(self, vmx, snapshot):
 		self.deleteSnapshot(vmx, snapshot)
