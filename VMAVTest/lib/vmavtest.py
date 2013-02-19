@@ -28,8 +28,7 @@ def check_internet(address, queue):
         print "- Check connection to: %s" % address
         response = urllib2.urlopen('http://' + address, timeout = 10)
         queue.put(True)
-
-    except urllib2.URLError as err:
+    except:
         queue.put(False)
 
 

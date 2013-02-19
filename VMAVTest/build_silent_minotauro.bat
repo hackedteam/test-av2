@@ -1,3 +1,1 @@
-copy \\tsclient\RCSAVT1\VMAVTest\vmavtest.py lib
-copy \\tsclient\RCSAVT1\VMAVTest\ConsoleApi.py lib
-lib\vmavtest.py rcs-minotauro silent 
+c:\users\avtest\desktop\avtest\lib\vmavtest.py 192.168.100.201 silent 
