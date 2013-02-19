@@ -201,7 +201,7 @@ def main():
         
     print "- Server: ", server, " Melt: ", melt
     vmavtest = VMAVTest(server, melt )
-    vmavtest.execute_av(let_connect = True)
+    vmavtest.execute_av(let_connect = False)
 
 if __name__ == "__main__":
     main()
