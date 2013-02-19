@@ -207,8 +207,9 @@ def main():
         #test_internet()
         exit(0)
 
-    if path.exists('results.txt'):
-        os.remove('results.txt')
+    results = 'results.txt'
+    if os.path.exists(results):
+        os.remove(results)
     sys.stdout = open('results.txt', 'w')
 
     if internet_on():
@@ -222,10 +223,6 @@ def main():
         
     if kind == "melt":
         melt = True
-
-    results = 'results.txt'
-    if os.path.exists(results):
-        os.remove(results)
         
     print "- Server: ", server, " Melt: ", melt
     vmavtest = VMAVTest(server, melt )
