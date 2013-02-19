@@ -159,7 +159,7 @@ class VMAVTest:
 
             exe = self.build_agent( factory, meltfile )
 
-            #self.execute_build(exe)
+            self.execute_build(exe)
             print time.ctime(), "- wait for 6 minutes"
             sleep(60 * 6)
             print time.ctime(), "- move mouse for 10 seconds"
