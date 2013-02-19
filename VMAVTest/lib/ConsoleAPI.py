@@ -13,7 +13,7 @@ class API:
         self.passwd = passwd
         #self.cookie = self.do_login()
         
-    def get_response(self, link, cookies = None):
+    def _get_response(self, link, cookies = None):
         """ Basic HTTP Request/Response with Cookie
         @param link
         @param cookie
@@ -29,7 +29,7 @@ class API:
         except HTTPError as e:
             print "Error processing %s: %s" % (link, e)
             
-    def post_response(self, link, cj, data=None):
+    def _post_response(self, link, cj, data=None):
         """ Basic POST Request / Response
         @param link
         @param data
@@ -45,14 +45,14 @@ class API:
         except HTTPError as e:
             print "Error processing %s: %s" % (link, e)
 
-    def call(self, api_name, data={}, binary = False, argjson = True):
+    def _call(self, api_name, data={}, binary = False, argjson = True):
         link = 'https://%s/%s' % (self.host, api_name)
         #print "binary %s, argjson %s" % (binary, argjson)
         arg = data
         if argjson:
             
             arg = json.dumps(data)
-        resp = self.post_response(link, self.cookie, arg)
+        resp = self._post_response(link, self.cookie, arg)
         if binary:
             return resp 
 
@@ -64,9 +64,9 @@ class API:
             print "call error: ", resp
             raise e
 
-    def call_get(self, api_name):
+    def _call_get(self, api_name):
         link = 'https://%s/%s' % (self.host, api_name)
-        resp = self.get_response(link, self.cookie)
+        resp = self._get_response(link, self.cookie)
         result = json.loads(resp)
         return result
         
@@ -82,7 +82,7 @@ class API:
         link = "https://%s/auth/login" % self.host
         data = json.dumps(login)
         cj = cookielib.CookieJar()
-        resp = self.post_response(link, cj, data)
+        resp = self._post_response(link, cj, data)
         '''
         opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj), 
                 urllib2.HTTPHandler() )
@@ -98,22 +98,18 @@ class API:
         @param session cookie
         @return True/False
         """
-        self.call('auth/logout')
+        self._call('auth/logout')
         return True
 
     def operation(self, operation):
-        operations = self.call_get('operation')
+        """ gets the operation id of an operation """
+        operations = self._call_get('operation')
         ret = [ op['_id'] for op in operations if op['name'] == operation ]
         return ret[0] if ret else None
 
-    #def targets(self, target):
-    #    operations = self.call_get('target')
-    #    print operations
-    #    ret = [ op['_id'] for op in operations if op['name'] == target ]
-    #    return ret
-
     def targets(self, operation_id, target):
-        operations = self.call_get('target')
+         """ gets the targets id of an operation, matching the target name """
+        operations = self._call_get('target')
         #pp = pprint.PrettyPrinter(indent=4)
         #pp.pprint(operations)
         ret = [ op['_id'] for op in operations if op['name'] == target and op['path'][0] == operation_id ]
@@ -121,23 +117,24 @@ class API:
 
     def target_delete(self, target_id):
         """ Delete a given target """
-        return self.call('target/destroy', {'_id': target_id })
+        return self._call('target/destroy', {'_id': target_id })
 
     def target_create(self, operation_id, name, desc):
         """ Create a given target """
         data = {'name': name, 'desc': desc, 'operation': operation_id }
-        target =  self.call('target/create', data)
+        target =  self._call('target/create', data)
         return target['_id']
 
     def factory_create(self, operation_id, target_id, ftype, name, desc):
         """ Create a factory """
         data = {'name': name, 'desc': desc, 'operation': operation_id, 'target': target_id, 'type': ftype }
-        factory = self.call('agent/create', data)
+        factory = self._call('agent/create', data)
         return factory['_id']
 
     def factory_add_config(self, factory_id, config):
+        """ adds a config to a factory """
         data = {'_id': factory_id, 'config': config }
-        return self.call('agent/add_config', data)
+        return self._call('agent/add_config', data)
 
     def update_conf(self, conf_file, factory):
         """ Update sync configuration
@@ -149,7 +146,7 @@ class API:
             base = 'https://%s' % self.host
             
             faclink = '%s/factory' % base
-            resp = self.get_response(faclink, self.cookie)
+            resp = self._get_response(faclink, self.cookie)
             facts = json.loads(resp)
             for fact in facts:
                 if fact["ident"] == factory:
@@ -163,28 +160,13 @@ class API:
             cnf = f.read()
             data = {'_id':fct["_id"], 'config':cnf }
             #print data
-            resp = self.post_response(addlink, self.cookie, json.dumps(data))
+            resp = self._post_response(addlink, self.cookie, json.dumps(data))
 
             return True
         except Exception as e:
             print e
             return False
-    
-    
-    def target(self, target_name):
         
-        baselink = "https://%s/target" % self.host
-        targets = self.get_response(baselink, self.cookie)
-        
-        t = json.loads(targets)
-
-        #[ s['id'] for s in t if s['name'] == target_name][0]
-        for s in t:
-            if s['name'] == target_name:
-                return s['_id']
-        return None
-        
-#   def enum_instances(self, device, factory, timeout):
     def enum_instances(self, factory):
         """ Enumerate all instances for given factory
         @param factory
@@ -193,19 +175,24 @@ class API:
 
         ins = {}
         baselink = 'https://%s/agent' % self.host
-        resp = self.get_response(baselink, self.cookie)
+        resp = self._get_response(baselink, self.cookie)
         agents = json.loads(resp)
 
-        [  ]
+        instances = [  ]
         for agent in agents:
-            
             if agent["ident"] == factory and agent["_kind"] == "agent":
                 link = '%s/%s' % (baselink, agent["_id"])
-                resp = self.get_response(link, self.cookie)
+                resp = self._get_response(link, self.cookie)
                 dev = json.loads(resp)
                 ins[device] = dev
 
-                return (agent["ident"],agent['_id'])
+                instances.append(agent["ident"],agent['_id'])
+        return instances
+
+    def update_agent(self, agent_id):
+        params = {'_id': agent_id }
+        resp = self._call('agent/upgrade', params)
+        return resp
 
     def delete_instance(self, instance):
         """ Delete a given instance
@@ -213,7 +200,7 @@ class API:
         """
         data = {'_id': instance, 'permanent':True }
         link = 'https://%s/agent/destroy'
-        resp = self.post_response(link, self.cookie, json.dumps(data))
+        resp = self._post_response(link, self.cookie, json.dumps(data))
         
         #print resp
         
@@ -228,29 +215,12 @@ class API:
         filter = json.dumps(f)
         #print urllib.quote(filter)
         link  = 'https://%s/evidence?filter=%s' % (self.host, filter)
-        resp  = self.get_response(link, self.cookie)
+        resp  = self._get_response(link, self.cookie)
         
         print resp
     
-    
-    def config(self, factory_id, param_file):
-        '''
-        jcontent = File.open(param_file, 'r') {|f| f.read}
-
-        resp = @http.request_post("/agent/add_config", {_id: @factory['_id'], config: jcontent}.to_json, {'Cookie' => @cookie})
-        resp.kind_of? Net::HTTPSuccess or raise(resp.body)
-
-        puts "Configuration saved"
-        '''     
-        jcontent = open(param_file, 'r').read()
-        link  = 'https://%s/agent/add_config' % (self.host, filter)
-        data = '{"_id":"%s", "config":"%s"}' % (factory_id, jcontent)
-        resp = self.post_response(link, json.dumps(data))
-        
-        print "+ Conf saved"
-    
     def build(self, factory, params, out_file):
-        """ Build Silent or Melted Exe 
+        """ Build Silent Exe 
         @param param_file 
         @param factory
         @param out_file
@@ -259,7 +229,7 @@ class API:
         params['factory'] = { "_id": "%s" % factory } 
         #print "+ Build params: \n%s" % params
 
-        resp = self.call('build', params, binary = True)
+        resp = self._call('build', params, binary = True)
         
         out = open(out_file, 'wb')
         l = out.write(resp)
@@ -267,7 +237,7 @@ class API:
         #print "+ %s bytes saved to %s" % (len(out),  out_file)
 
     def build_melt(self, factory, params, melt_file, out_file):
-        """ Build Silent or Melted Exe 
+        """ Build Melted Exe 
         @param param_file 
         @param factory
         @param out_file
@@ -278,7 +248,7 @@ class API:
         f = open(melt_file, "rb")
         payload = f.read()
         #print "payload size: ", len(payload), " file: ", melt_file
-        melt_id = self.call('upload', payload, binary = True, argjson = False)
+        melt_id = self._call('upload', payload, binary = True, argjson = False)
         #print "uploaded: ", melt_id
 
         params['melt']['input'] = melt_id
@@ -287,15 +257,29 @@ class API:
         #print "+ Build melt params: \n%s" % params
         #link  = 'https://%s/build' % self.host
         #resp = self.post_response(link, json.dumps(params))
-        resp = self.call('build', params,  binary = True)
+        resp = self._call('build', params,  binary = True)
         
         out = open(out_file, 'wb')
         l = out.write(resp)
         
         #print "+ %s bytes saved to %s" % (len(out),  out_file)
 
-
 def test():
+    print 'test'
+    host = "rcs-polluce"
+    user = "avmonitor"
+    passwd = "avmonitorp123"
+    conn = API(host, user, passwd)
+    print conn.login()
+
+    hostname = socket.gethostname()
+    print "%s %s\n" % (hostname, time.ctime())
+    target = 'VM_%s' % hostname
+
+    operation = conn.operation('AVMonitor')
+    targets = conn.targets(operation, target)
+
+def testMelt():
     print 'test'
     host = "rcs-minotauro"
     user = "avmonitor"

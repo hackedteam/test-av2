@@ -207,22 +207,22 @@ def main():
         #test_internet()
         exit(0)
 
+    if path.exists('results.txt'):
+        os.remove('results.txt')
+    sys.stdout = open('results.txt', 'w')
+
     if internet_on():
         print "== ERROR: I reach Internet =="
         exit(0)
 
     print "- Network unreachable"
-
-
-    melt = False
-    if len(sys.argv) == 3:
-        server, kind = sys.argv[1:3]
-        
-        if kind == "melt":
-            melt = True
-    else:
-        server = "rcs-minotauro"
     
+    melt = False
+    server, kind = sys.argv[1:3]
+        
+    if kind == "melt":
+        melt = True
+
     results = 'results.txt'
     if os.path.exists(results):
         os.remove(results)
