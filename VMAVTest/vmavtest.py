@@ -17,11 +17,6 @@ def unzip(filename):
     for name in zfile.namelist():
         (dirname, filename) = os.path.split(name)
         print "- Decompressing " + filename + " on " + dirname
-        #if not os.path.exists(dirname) and dirname:
-        #    os.mkdir(dirname)
-        #fd = open(name,"w")
-        #fd.write(zfile.read(name))
-        #fd.close()
         zfile.extract(name)
         names.append(name)
     return names
@@ -73,19 +68,22 @@ class VMAVTest:
 
         #TODO: delete target if exists
         targets = c.targets(operation_id, target)
-        print "- delete targets: ",  targets
+        print "- Delete targets: ",  targets
         for t in targets:
             c.target_delete(t)
 
         target = c.target_create(operation_id, target, 'made by vmavtest at %s' % time.ctime())
         factory = c.factory_create(operation_id, target, 'desktop', factory, 'made by vmavtestat at %s' % time.ctime())
 
-        conf = open(config).read()
+        with open(config) as f:
+            conf = f.read()
         conf.replace('$(HOSTNAME)','host')
-        f = open('build/config.actual.json','w+')
-        f.write(conf)
-
         c.factory_add_config(factory, conf)
+
+        print "open config to write"
+        with open('build/config.actual.json','wb') as f:
+            f.write(conf)
+
         #print "factory: ", factory
         return factory
 
@@ -131,13 +129,13 @@ class VMAVTest:
         c = self.connection
         return c.enum_instances(factory)
         
-    def execute_av(self):
+    def execute_av(self, let_connect = False):
         hostname = socket.gethostname()
         print "%s %s\n" % (hostname, time.ctime())
         
-        if not internet_off():
+        if not internet_off() and not let_connect:
             print "ERROR: I don't want to reach Internet"
-        #exit(0)
+            exit(0)
 
         print "- Network unreachable"
        
@@ -161,7 +159,7 @@ class VMAVTest:
 
             exe = self.build_agent( factory, meltfile )
 
-            self.execute_build(exe)
+            #self.execute_build(exe)
             print time.ctime(), "- wait for 6 minutes"
             sleep(60 * 6)
             print time.ctime(), "- move mouse for 10 seconds"
@@ -184,29 +182,26 @@ def test_mouse():
     print "stop mouse"
     
 def main():
-    print "main"
-    server = "rcs-minotauro"
-    melt = False
-    
     if(sys.argv.__contains__('test')):
-        #test_api()
-        #test_zip()
         test_mouse()
         exit(0)
 
+    melt = False
     if len(sys.argv) == 3:
         server, kind = sys.argv[1:3]
-        print "- Server: ", server, " Kind: ", kind
+        
         if kind == "melt":
             melt = True
+    else:
+        server = "rcs-minotauro"
     
     results = 'results.txt'
     if os.path.exists(results):
         os.remove(results)
         
-    #sys.stdout = open(results,'w')
+    print "- Server: ", server, " Melt: ", melt
     vmavtest = VMAVTest(server, melt )
-    vmavtest.execute_av()
+    vmavtest.execute_av(let_connect = True)
 
 if __name__ == "__main__":
     main()
