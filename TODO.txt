@@ -5,7 +5,7 @@ lib/ConsoleAPI.py
 lib/vmavtest.py
 assets/config.json
 assets/key.exe
-assets/meltapp.ex
+assets/meltapp.exe
 
 
 
