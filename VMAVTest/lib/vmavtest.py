@@ -206,12 +206,19 @@ def main():
         #test_internet()
         exit(0)
 
+    results = 'results.txt'
+    if os.path.exists(results):
+        os.remove(results)
+    sys.stdout = open(results, 'w')
+    sys.stderr = open('results.err.txt', 'w')
+
     if internet_on():
         print "== ERROR: I reach Internet =="
-        exit(0)
+        #exit(0)
 
     print "- Network unreachable"
 
+    sys.stdout.flush()
 
     melt = False
     if len(sys.argv) == 3:
@@ -221,11 +228,7 @@ def main():
             melt = True
     else:
         server = "rcs-minotauro"
-    
-    results = 'results.txt'
-    if os.path.exists(results):
-        os.remove(results)
-        
+
     print "- Server: ", server, " Melt: ", melt
     vmavtest = VMAVTest(server, melt )
     vmavtest.execute_av()
