@@ -29,7 +29,9 @@ La macchina Template (DEV 192.168.100.110, AV 10.0.20.61) è Windows 7 enterpris
  - Aggiunte le rotte statiche per raggiungere i DNS e  
 	route -p ADD 172.20.20.0 MASK 255.255.255.0 192.168.100.1
 	route -p ADD 192.168.200.0 MASK 255.255.255.0 192.168.100.1
- - impostato il DNS su 192.168.200.50
+
+  elevate -c route -p DELETE 192.168.200.0 MASK 255.255.255.0 192.168.100.1
+  elevate netsh interface ip set dns name="Local Area Connection 2" static None
 
 Matteo sta cominciando a migrare le VM esistenti secondo questo paradigma e a realizzare quelle mancanti, per arrivare ad avere, se ce la facciamo, entro domani o dopo, tutte e 20 le VM richieste.
 SERVE AIUTO PER L'INSTALLAZIONE, CERCHIAMO VOLONTARI.
@@ -70,8 +72,6 @@ TestAV.py
 
 
 
-zenoav : 192.168.100.110 avtest
-puppet : 172.20.20.167 zeno, zenop
 
 
 

