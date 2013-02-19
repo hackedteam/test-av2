@@ -1,4 +1,3 @@
-
 Segue una descrizione di un piano di realizzazione di una rete di macchine virtuali atte alla verifica di visibilità delle build RCS su un insieme significativo di Antivirus e Antimalware. 
 
 Obiettivo:
