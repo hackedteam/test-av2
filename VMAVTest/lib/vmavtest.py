@@ -1,8 +1,8 @@
 import sys
 from time import sleep
 import time
+from multiprocessing import Pool
 
-from ConsoleAPI import API
 import socket
 
 import urllib2
@@ -10,6 +10,8 @@ import zipfile
 import os.path
 
 import subprocess
+
+from ConsoleAPI import API
 
 def unzip(filename):
     zfile = zipfile.ZipFile(filename)
@@ -21,18 +23,22 @@ def unzip(filename):
         names.append(name)
     return names
 
-def internet_off():
-    ips = [ '87.248.112.181', '173.194.35.176', '176.32.98.166']
+def check_internet(address):
+    try:
+        print "- Check connection to: %s" % address
+        response = urllib2.urlopen('http://' + address, timeout = 10)
+        return True
+    except urllib2.URLError as err:
+        return False
 
-    ret = False
-    for rep in ips:
-        try:
-            print "- Check connection to: %s:" % rep
-            response = urllib2.urlopen('http://' + rep, timeout = 10)
-            return False
-        except urllib2.URLError as err:
-            ret = True
-    return ret
+def internet_off():
+    ips = [ '87.248.112.181', '173.194.35.176', '176.32.98.166', 'www.reddit.com', 'www.bing.com', 'www.facebook.com']
+    pool = Pool()
+
+    async = pool.map_async(check_internet, ips)
+    res = async.get()
+    print "-- ",res
+    return any(res)
 
 def wait_timeout(proc, seconds):
     """Wait for a process to finish, or raise exception after timeout"""
@@ -122,7 +128,7 @@ class VMAVTest:
             subp = subprocess.Popen([exe])
 
     def mouse_move(self, timeout=10):
-        subp = subprocess.Popen(['assets/mouse_emu.exe'])
+        subp = subprocess.Popen(['assets/keyinject.exe'])
         wait_timeout(subp, timeout)
 
     def check_instance(self, factory):
@@ -175,16 +181,19 @@ class VMAVTest:
         finally:
             self.connection.logout()
 
+def test_internet():
+    print internet_off()
+
 def test_mouse():
     print "test mouse"
     sleep(10)
-    subp = subprocess.Popen(['assets/mouse_emu.exe'])
+    subp = subprocess.Popen(['assets/keyinject.exe'])
     wait_timeout(subp, 3)
     print "stop mouse"
     
 def main():
     if(sys.argv.__contains__('test')):
-        test_mouse()
+        test_internet()
         exit(0)
 
     melt = False

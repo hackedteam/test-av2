@@ -3,7 +3,9 @@ Nella dir VMAVTest
 build_silent_polluce.bat
 lib/ConsoleAPI.py
 lib/vmavtest.py
-assets/*
+assets/config.json
+assets/key.exe
+assets/meltapp.ex
 
 
 
