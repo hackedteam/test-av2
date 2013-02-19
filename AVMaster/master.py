@@ -100,6 +100,9 @@ def dispatch(vm_name):
 
 def main():
 
+		# shut down network
+		os.system('sudo ./net_disable.sh')
+
         vm_conf_file = os.path.join("conf", "vms.cfg")
         op_conf_file = os.path.join("conf", "operations.cfg")
 
@@ -115,6 +118,7 @@ def main():
         c.read(op_conf_file)
         vm_names = c.get("test", "machines").split(",")
 
+        '''
         if operation == "update":
                 map(do_update, vm_names)
         if operation == "dispatch":
@@ -122,14 +126,14 @@ def main():
                 map(dispatch, vm_names)
 
         '''
-        pool = Pool()
+        pool = Pool(2)
         if operation == "update": 
                 r = pool.map_async(do_update, ((vm) for vm in vm_names))
                 print r.get()
         if operation == "dispatch": 
-                r = pool.map_async(do_dispatch, ((vm) for vm in vm_names))
+                r = pool.map_async(dispatch, ((vm) for vm in vm_names))
                 print r.get() 
-        '''
+        
 
 if __name__ == "__main__":
 	main()
