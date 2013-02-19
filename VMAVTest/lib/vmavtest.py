@@ -77,7 +77,7 @@ class VMAVTest:
 
         with open(config) as f:
             conf = f.read()
-        conf = conf.replace('$(HOSTNAME)', host)
+        conf = conf.replace('$(HOSTNAME)', self.host)
         c.factory_add_config(factory, conf)
 
         print "open config to write"
