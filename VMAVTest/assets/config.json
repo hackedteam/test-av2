@@ -4,7 +4,7 @@
         {
             "subactions": [
                 {
-                    "host": "rcs-minotauro",
+                    "host": "$(HOSTNAME)",
                     "stop": false,
                     "cell": false,
                     "mindelay": 0,

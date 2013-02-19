@@ -47,7 +47,7 @@ class API:
 
     def call(self, api_name, data={}, binary = False, argjson = True):
         link = 'https://%s/%s' % (self.host, api_name)
-        print "binary %s, argjson %s" % (binary, argjson)
+        #print "binary %s, argjson %s" % (binary, argjson)
         arg = data
         if argjson:
             
@@ -215,7 +215,7 @@ class API:
         link = 'https://%s/agent/destroy'
         resp = self.post_response(link, self.cookie, json.dumps(data))
         
-        print resp
+        #print resp
         
 
     def get_evidences(self, target, agent, type):
@@ -226,7 +226,7 @@ class API:
         """
         f = { "type":"['']", "target":target, "agent":agent[1] }
         filter = json.dumps(f)
-        print urllib.quote(filter)
+        #print urllib.quote(filter)
         link  = 'https://%s/evidence?filter=%s' % (self.host, filter)
         resp  = self.get_response(link, self.cookie)
         
@@ -278,9 +278,9 @@ class API:
 
         f = open(melt_file, "rb")
         payload = f.read()
-        print "payload size: ", len(payload), " file: ", melt_file
+        #print "payload size: ", len(payload), " file: ", melt_file
         melt_id = self.call('upload', payload, binary = True, argjson = False)
-        print "uploaded: ", melt_id
+        #print "uploaded: ", melt_id
 
         params['melt']['input'] = melt_id
         #:  Build: melting: {"admin"=>false, "bit64"=>true, "codec"=>true, "scout"=>true, "input"=>"4f60909baef1de0e4800000a-1361192221.897401094"}

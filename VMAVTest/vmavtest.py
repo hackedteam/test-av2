@@ -16,7 +16,7 @@ def unzip(filename):
     names = []
     for name in zfile.namelist():
         (dirname, filename) = os.path.split(name)
-        print "Decompressing " + filename + " on " + dirname
+        print "- Decompressing " + filename + " on " + dirname
         #if not os.path.exists(dirname) and dirname:
         #    os.mkdir(dirname)
         #fd = open(name,"w")
@@ -32,8 +32,8 @@ def internet_off():
     ret = False
     for rep in ips:
         try:
-            print rep
-            response=urllib2.urlopen('http://' + rep, timeout=10)
+            print "- Check connection to: %s:" % rep
+            response=urllib2.urlopen('http://' + rep, timeout = 10)
             return False
         except urllib2.URLError as err:
             ret = True
@@ -45,34 +45,35 @@ def wait_timeout(proc, seconds):
     end = start + seconds
     interval = min(seconds / 1000.0, .25)
 
-    print "wait for: %s sec" % seconds
+    print "- wait for: %s sec" % seconds
     while True:
         result = proc.poll()
         if result is not None:
             return result
         if time.time() >= end:
             proc.kill()
-            print "Process timed out, killed"
+            print "- Process timed out, killed"
             break;
         time.sleep(interval)
 
 class VMAVTest:
-    host = "rcs-minotauro"
+
     user = "avmonitor"
     passwd = "avmonitorp123"
     connection = None
 
-    def __init__(self, melt = False):
+    def __init__(self, host, melt = False):
         self.melt = melt
+        self.host = host
 
     def create_new_factory(self, operation, target, factory, config):
         c = self.connection
         operation_id = c.operation(operation)
-        print "operation: " , operation, "target: ", target
+        #print "operation: " , operation, "target: ", target
 
         #TODO: delete target if exists
         targets = c.targets(operation_id, target)
-        print "delete targets: ",  targets
+        print "- delete targets: ",  targets
         for t in targets:
             c.target_delete(t)
 
@@ -80,8 +81,12 @@ class VMAVTest:
         factory = c.factory_create(operation_id, target, 'desktop', factory, 'made by vmavtestat at %s' % time.ctime())
 
         conf = open(config).read()
+        conf.replace('$(HOSTNAME)','host')
+        f = open('build/config.actual.json','w+')
+        f.write(conf)
+
         c.factory_add_config(factory, conf)
-        print "factory: ", factory
+        #print "factory: ", factory
         return factory
 
     def build_agent(self, factory, melt=None, demo = False):
@@ -94,19 +99,20 @@ class VMAVTest:
 
         #{"admin"=>false, "bit64"=>true, "codec"=>true, "scout"=>true}
         try:
-            filename = 'build.zip'
+            
+            filename = 'build/build.zip'
             if os.path.exists(filename):
                 os.remove(filename)
 
             if melt:
-                print "Melt build with: ", melt
+                print "- Melt build with: ", melt
                 r = c.build_melt(factory, param, melt, filename)
             else:
-                print "Silent build"
+                print "- Silent build"
                 r = c.build(factory, param, filename)
 
             contentnames = unzip(filename)
-            print "contents: %s" % contentnames
+            #print "contents: %s" % contentnames
             return [n for n in contentnames if n.endswith('.exe')]
         except Exception, e:
             print "Error: ", e
@@ -114,7 +120,7 @@ class VMAVTest:
         
     def execute_build(self, exenames):
         for exe in exenames:
-            print "execute: " + exe
+            print "- execute: " + exe
             subp = subprocess.Popen([exe])
 
     def mouse_move(self, timeout=10):
@@ -124,11 +130,6 @@ class VMAVTest:
     def check_instance(self, factory):
         c = self.connection
         return c.enum_instances(factory)
-
-    def report_results(self, results):
-        r=open("results.txt", "w+")
-        r.write(result)
-        r.close()
         
     def execute_av(self):
         hostname = socket.gethostname()
@@ -138,34 +139,37 @@ class VMAVTest:
             print "ERROR: I don't want to reach Internet"
         #exit(0)
 
-        print "Network unreachable"
+        print "- Network unreachable"
        
 
-        print "Hostname: ", hostname
+        print "- Hostname: ", hostname
         operation = 'AVMonitor'
-        target = hostname
+        target = 'VM_%s' % hostname
         factory = hostname
         config = "assets/config.json"
 
         self.connection = API(self.host, self.user, self.passwd)
         self.connection.login()
         try:
-        
+            if not os.path.exists('build'):
+                os.mkdir('build')
             factory = self.create_new_factory(operation, target, factory, config)
 
+            meltfile = None
             if self.melt:
                 meltfile = 'assets/meltapp.exe'
 
             exe = self.build_agent( factory, meltfile )
 
             self.execute_build(exe)
-            print time.ctime(), " wait for 6 minutes"
+            print time.ctime(), "- wait for 6 minutes"
             sleep(60 * 6)
-            print time.ctime(), "move mouse for 10 seconds"
+            print time.ctime(), "- move mouse for 10 seconds"
             self.mouse_move()
-            print time.ctime(), "wait for 1 minute"
+            print time.ctime(), "- wait for 1 minute"
             sleep(60 * 1)
             result = self.check_instance( factory )
+            print "- Result: ", result
 
         except Exception, e:
             print "Error: ", e
@@ -180,19 +184,28 @@ def test_mouse():
     print "stop mouse"
     
 def main():
-
+    print "main"
+    server = "rcs-minotauro"
+    melt = False
+    
     if(sys.argv.__contains__('test')):
         #test_api()
         #test_zip()
         test_mouse()
         exit(0)
 
+    if len(sys.argv) == 3:
+        server, kind = sys.argv[1:3]
+        print "- Server: ", server, " Kind: ", kind
+        if kind == "melt":
+            melt = True
+    
     results = 'results.txt'
     if os.path.exists(results):
         os.remove(results)
         
     #sys.stdout = open(results,'w')
-    vmavtest = VMAVTest(melt = True)
+    vmavtest = VMAVTest(server, melt )
     vmavtest.execute_av()
 
 if __name__ == "__main__":
