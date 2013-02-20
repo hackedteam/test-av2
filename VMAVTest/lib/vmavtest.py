@@ -24,16 +24,27 @@ def unzip(filename):
     return names
 
 def check_internet(address, queue):
-    try:
-        print "- Check connection to: %s" % address
-        response = urllib2.urlopen('http://' + address, timeout = 10)
-        queue.put(True)
+    """ True if dns or http are reachable """
+    print "- Check connection: %s" % address
+
+    ret = False
+    try:    
+        response = socket.gethostbyaddr( address )
+        ret |= True
     except:
-        queue.put(False)
+        ret |= False
+
+    try:    
+        response = urllib2.urlopen('http://' + address, timeout = 10)
+        ret |= True
+    except:
+        ret |= False
+
+    queue.put(ret)
 
 
 def internet_on():
-    ips = [ '87.248.112.181', '173.194.35.176', '176.32.98.166', 'www.reddit.com', 'www.bing.com', 'www.facebook.com']
+    ips = [ '87.248.112.181', '173.194.35.176', '176.32.98.166', 'www.reddit.com', 'www.bing.com', 'www.facebook.com','stackoverflow.com']
     q = Queue.Queue()
     for i in ips:
         t = threading.Thread(target = check_internet, args = (i, q) )
@@ -224,7 +235,7 @@ def main():
 
     if internet_on():
         print "== ERROR: I reach Internet =="
-        #exit(0)
+        exit(0)
 
     print "- Network unreachable"
 
