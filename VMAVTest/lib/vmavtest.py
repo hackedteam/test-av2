@@ -11,7 +11,7 @@ import subprocess
 import Queue
 import threading
 
-from rcs_client_lib import Rcs_client
+from rcs_client import Rcs_client
 import logger
 
 def unzip(filename):
@@ -201,7 +201,7 @@ class VMAVTest:
 
 def test_internet():
     print time.ctime()
-    print internet_on()
+    print "internet on: ", internet_on()
     print time.ctime()
 
 def test_mouse():
