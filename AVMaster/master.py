@@ -66,7 +66,7 @@ def dispatch(vm_name):
                 # copy files
                 vmman.copyFileToGuest(vm, 
                         "../VMAVTest/build_silent_polluce.bat", 
-                        "c:\\Users\\avtest\\Desktop\\AVTEST\\build_silent_polluce.bat")
+                        "c:\\Users\\avtest\\Desktop\\AVTEST\\build_silent_minotauro.bat")
                 vmman.copyFileToGuest(vm, 
                         "../VMAVTest/lib/ConsoleAPI.py", 
                         "c:\\Users\\avtest\\Desktop\\AVTEST\\lib\\ConsoleAPI.py")
@@ -84,7 +84,7 @@ def dispatch(vm_name):
                         "c:\\Users\\avtest\\Desktop\\AVTEST\\assets\\meltapp.exe")
 
                 # executing bat
-                vmman.executeCmd(vm, "c:\\Users\\avtest\\Desktop\\AVTEST\\build_silent_polluce.bat")
+                vmman.executeCmd(vm, "c:\\Users\\avtest\\Desktop\\AVTEST\\build_silent_minotauro.bat")
                 
                 '''
                 # suspend & refresh snapshot
