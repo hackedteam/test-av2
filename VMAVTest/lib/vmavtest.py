@@ -12,6 +12,7 @@ import Queue
 import threading
 
 from rcs_client_lib import Rcs_client
+import logger
 
 def unzip(filename):
     zfile = zipfile.ZipFile(filename)
@@ -224,16 +225,18 @@ def test_multithread():
     
 
 def main():
+    logger.setLogger()
+
     if(sys.argv.__contains__('test')):
         #test_multithread()
         test_internet()
         exit(0)
 
-    results = 'results.txt'
-    if os.path.exists(results):
-        os.remove(results)
-    sys.stdout = open(results, 'w')
-    sys.stderr = open('results.err.txt', 'w')
+    #results = 'results.txt'
+    #if os.path.exists(results):
+    #    os.remove(results)
+    #sys.stdout = open(results, 'w')
+    #sys.stderr = open('results.err.txt', 'w')
 
     if internet_on():
         print "== ERROR: I reach Internet =="
