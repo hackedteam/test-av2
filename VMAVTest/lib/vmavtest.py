@@ -24,17 +24,27 @@ def unzip(filename):
     return names
 
 def check_internet(address, queue):
-    try:
-        print "- Check connection to: %s" % address
-        response = urllib2.urlopen('http://' + address, timeout = 10)
-        queue.put(True)
+    """ True if dns or http are reachable """
+    print "- Check connection: %s" % address
 
-    except urllib2.URLError as err:
-        queue.put(False)
+    ret = False
+    try:    
+        response = socket.gethostbyaddr( address )
+        ret |= True
+    except:
+        ret |= False
+
+    try:    
+        response = urllib2.urlopen('http://' + address, timeout = 10)
+        ret |= True
+    except:
+        ret |= False
+
+    queue.put(ret)
 
 
 def internet_on():
-    ips = [ '87.248.112.181', '173.194.35.176', '176.32.98.166', 'www.reddit.com', 'www.bing.com', 'www.facebook.com']
+    ips = [ '87.248.112.181', '173.194.35.176', '176.32.98.166', 'www.reddit.com', 'www.bing.com', 'www.facebook.com','stackoverflow.com']
     q = Queue.Queue()
     for i in ips:
         t = threading.Thread(target = check_internet, args = (i, q) )
@@ -67,9 +77,9 @@ class VMAVTest:
     passwd = "avmonitorp123"
     connection = None
 
-    def __init__(self, host, melt = False):
+    def __init__(self, backend, frontend, melt = False):
         self.melt = melt
-        self.host = host
+        self.host = (backend, frontend)
 
     def create_new_factory(self, operation, target, factory, config):
         c = self.connection
@@ -87,7 +97,7 @@ class VMAVTest:
 
         with open(config) as f:
             conf = f.read()
-        conf = conf.replace('$(HOSTNAME)', self.host)
+        conf = conf.replace('$(HOSTNAME)', self.host[1])
         c.factory_add_config(factory, conf)
 
         print "open config to write"
@@ -149,7 +159,7 @@ class VMAVTest:
         factory = hostname
         config = "assets/config.json"
 
-        self.connection = API(self.host, self.user, self.passwd)
+        self.connection = API(self.host[0], self.user, self.passwd)
         self.connection.login()
         try:
             if not os.path.exists('build'):
@@ -164,11 +174,19 @@ class VMAVTest:
 
             self.execute_build(exe)
             print time.ctime(), "- wait for 6 minutes"
+            sys.stdout.flush()
+
             sleep(60 * 6)
-            print time.ctime(), "- move mouse for 10 seconds"
-            self.mouse_move()
+
+            print time.ctime(), "- move mouse for 30 seconds"
+            sys.stdout.flush()
+            self.mouse_move(timeout = 30)
+
             print time.ctime(), "- wait for 1 minute"
+            sys.stdout.flush()
+            
             sleep(60 * 1)
+            
             result = self.check_instance( factory )
             print "- Result: ", result
 
@@ -210,22 +228,30 @@ def main():
     results = 'results.txt'
     if os.path.exists(results):
         os.remove(results)
-    sys.stdout = open('results.txt', 'w')
+    sys.stdout = open(results, 'w')
+    sys.stderr = open('results.err.txt', 'w')
+
 
     if internet_on():
         print "== ERROR: I reach Internet =="
         exit(0)
 
     print "- Network unreachable"
-    
+
+    sys.stdout.flush()
+
     melt = False
-    server, kind = sys.argv[1:3]
+    if len(sys.argv) == 4:
+        backend, frontend, kind = sys.argv[1:4]
         
-    if kind == "melt":
-        melt = True
-        
-    print "- Server: ", server, " Melt: ", melt
-    vmavtest = VMAVTest(server, melt )
+        if kind == "melt":
+             melt = True
+    else:
+        print "Usage: %s [backend] [frontend] [silent/melt]" % sys.argv[0]
+        exit(0)
+
+    print "- Server: ", backend, "/", frontend, " Melt: ", melt
+    vmavtest = VMAVTest( backend, frontend , melt )
     vmavtest.execute_av()
 
 if __name__ == "__main__":
