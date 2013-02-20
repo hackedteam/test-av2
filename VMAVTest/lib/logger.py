@@ -12,6 +12,9 @@ class StreamToLogger(object):
       self.log_level = log_level
       self.linebuf = ''
  
+   def flush(self):
+      pass
+
    def write(self, buf):
       self.terminal.write(buf)
       for line in buf.rstrip().splitlines():

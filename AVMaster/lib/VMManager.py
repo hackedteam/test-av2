@@ -23,8 +23,8 @@ class VMManagerVS:
 		'''
 		self.path = self.config.get("vsphere", "path")
 		self.host = self.config.get("vsphere", "host")
-		self.path = self.config.get("vsphere", "user")
-		self.host = self.config.get("vsphere", "passwd")
+		self.user = self.config.get("vsphere", "user")
+		self.passwd = self.config.get("vsphere", "passwd")
 
 	def _getPath(self, conf_file):
 		config = ConfigParser()

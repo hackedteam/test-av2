@@ -1,0 +1,16 @@
+2013-02-20 15:51:49,934: INFO: go dispatch
+2013-02-20 15:51:49,935: INFO: avast
+2013-02-20 15:51:49,937: INFO: go dispatch
+2013-02-20 15:51:49,938: INFO: avira
+2013-02-20 15:51:49,947: INFO: [*] Reverting snapshot readyfor avast.
+2013-02-20 15:51:49,947: INFO: exception inside
+2013-02-20 15:51:49,947: INFO: VMManagerVS instance has no attribute 'user'
+2013-02-20 15:51:49,948: INFO: go dispatch
+2013-02-20 15:51:49,948: INFO: drweb
+2013-02-20 15:51:49,953: INFO: [*] Reverting snapshot readyfor avira.
+2013-02-20 15:51:49,953: INFO: exception inside
+2013-02-20 15:51:49,953: INFO: VMManagerVS instance has no attribute 'user'
+2013-02-20 15:51:49,954: INFO: [*] Reverting snapshot readyfor drweb.
+2013-02-20 15:51:49,954: INFO: exception inside
+2013-02-20 15:51:49,954: INFO: VMManagerVS instance has no attribute 'user'
+2013-02-20 15:51:49,954: INFO: ['Error: cannot dispatch tests for avast', 'Error: cannot dispatch tests for avira', 'Error: cannot dispatch tests for drweb']

@@ -8,8 +8,8 @@ from multiprocessing import Pool
 
 from lib.VMachine import VMachine
 from lib.VMManager import VMManagerVS
-from lib.logger import logger
-
+#from lib.logger import logger
+import lib.logger
 
 vm_conf_file = os.path.join("conf", "vms.cfg")
 op_conf_file = os.path.join("conf", "operations.cfg")
@@ -66,17 +66,29 @@ def dispatch(vm_name):
                 build_silent_script_src = "../VMAVTest/build_silent_minotauro.bat"
                 build_silent_script_dst = "c:\\Users\\avtest\\Desktop\\AVTEST\\build_silent_minotauro.bat"
 
-                filestocopy =["lib/ConsoleAPI.py", "assets/config.json"]
+                vmman.mkdirInGuest(vm, test_dir)
+
+                filestocopy =[  "./build_silent_minotauro.bat",
+                                "lib/ConsoleAPI.py", 
+                                "lib/vmavtest.py",
+                                "lib/logger.py",
+                                "lib/rcs_client.py",
+                                "assets/config.json",
+                                "assets/keyinject.exe",
+                                "assets/meltapp.exe"    ]
                 memo = []
                 for filetocopy in filestocopy:
                         d,f = filetocopy.split("/")
                         src = "%s/%s/%s" % (vmavtest,d,f)
-                        dst =  "%s\\%s\\%s" % (test_dir,d,f)
 
-                        rdir = "%s\\%s" % (test_dir,d)
-                        if not memo.__contains__(rdir)
-                                vmman.mkdirInGuest( vm, rdir )
-                                memo.append( rdir )
+                        if d == ".":
+                                dst =  "%s\\%s" % (test_dir,f)
+                        else:
+                                dst =  "%s\\%s\\%s" % (test_dir,d,f)
+                                rdir = "%s\\%s" % (test_dir,d)
+                                if not memo.__contains__(rdir):
+                                        vmman.mkdirInGuest( vm, rdir )
+                                        memo.append( rdir )
 
                         print src, dst
                         vmman.copyFileToGuest(vm, src, dst)
@@ -117,17 +129,16 @@ def dispatch(vm_name):
                 vmman.copyFileToGuest(vm, vmavtest_py_src, vmavtest_py_dst)
                 vmman.copyFileToGuest(vm, config_json_src, config_json_dst)
                 vmman.copyFileToGuest(vm, keyinject_src, keyinject_dst)
-                vmman.copyFileToGuest(vm, meltapp_src, meltapp_dst)
-
+                 vmman.copyFileToGuest(vm, meltapp_src, meltapp_dst)
+                '''
                 # executing bat
                 vmman.executeCmd(vm, build_silent_script_dst)
-                '''
-                '''
+                
                 # suspend & refresh snapshot
-                vmman.suspend(vm)
-                sleep(5)
+                #vmman.suspend(vm)
+                #sleep(5)
                 #vmman.refreshSnapshot(vm, vm.snapshot)
-                '''
+                
                 return "[*] test files dispatched for %s" % vm_name
 
         except Exception, ex:
@@ -135,7 +146,7 @@ def dispatch(vm_name):
                 return "Error: cannot dispatch tests for %s" % vm_name
 
 def main():
-        logger.setLogger()
+        lib.logger.setLogger()
         # shut down network
         os.system('sudo ./net_disable.sh')
 
