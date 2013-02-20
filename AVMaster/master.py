@@ -8,7 +8,7 @@ from multiprocessing import Pool
 
 from lib.VMachine import VMachine
 from lib.VMManager import VMManagerVS
-
+from lib.logger import logger
 
 
 vm_conf_file = os.path.join("conf", "vms.cfg")
@@ -61,15 +61,40 @@ def dispatch(vm_name):
                 test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
                 lib_dir = "%s\\lib" % test_dir
                 assets_dir = "%s\\assets" % test_dir
+                vmavtest = "../VMAVTest/"
 
                 build_silent_script_src = "../VMAVTest/build_silent_minotauro.bat"
                 build_silent_script_dst = "c:\\Users\\avtest\\Desktop\\AVTEST\\build_silent_minotauro.bat"
+
+                filestocopy =["lib/ConsoleAPI.py", "assets/config.json"]
+                memo = []
+                for filetocopy in filestocopy:
+                        d,f = filetocopy.split("/")
+                        src = "%s/%s/%s" % (vmavtest,d,f)
+                        dst =  "%s\\%s\\%s" % (test_dir,d,f)
+
+                        rdir = "%s\\%s" % (test_dir,d)
+                        if not memo.__contains__(rdir)
+                                vmman.mkdirInGuest( vm, rdir )
+                                memo.append( rdir )
+
+                        print src, dst
+                        vmman.copyFileToGuest(vm, src, dst)
+                #sys.exit(0)
+
+                '''
 
                 api_py_src = "../VMAVTest/lib/ConsoleAPI.py"
                 api_py_dst = "c:\\Users\\avtest\\Desktop\\AVTEST\\lib\\ConsoleAPI.py"
 
                 vmavtest_py_src = "../VMAVTest/lib/vmavtest.py"
                 vmavtest_py_dst = "c:\\Users\\avtest\\Desktop\\AVTEST\\lib\\vmavtest.py"
+
+                vmavtest_py_src = "../VMAVTest/lib/logger.py"
+                vmavtest_py_dst = "c:\\Users\\avtest\\Desktop\\AVTEST\\lib\\logger.py"
+
+                vmavtest_py_src = "../VMAVTest/lib/rcs_client.py"
+                vmavtest_py_dst = "c:\\Users\\avtest\\Desktop\\AVTEST\\lib\\rcs_client.py"
 
                 config_json_src = "../VMAVTest/assets/config.json"
                 config_json_dst = "c:\\Users\\avtest\\Desktop\\AVTEST\\assets\\config.json"
@@ -96,7 +121,7 @@ def dispatch(vm_name):
 
                 # executing bat
                 vmman.executeCmd(vm, build_silent_script_dst)
-                
+                '''
                 '''
                 # suspend & refresh snapshot
                 vmman.suspend(vm)
@@ -110,7 +135,7 @@ def dispatch(vm_name):
                 return "Error: cannot dispatch tests for %s" % vm_name
 
 def main():
-
+        logger.setLogger()
         # shut down network
         os.system('sudo ./net_disable.sh')
 

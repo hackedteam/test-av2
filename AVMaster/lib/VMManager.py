@@ -49,11 +49,14 @@ class VMManagerVS:
 		config.read( conf_file )
 		return config.get("vsphere", "passwd")
 
-	def _run_cmd(vmx, cmd, args=[]):
+	def _run_cmd(vmx, cmd, args=[], vmx_creds=[]):
 		pargs = [   path,
 					"-T", "vc",
 					"-h", self.host,
 					"-u", self.user, "-p", self.passwd, cmd, vmx.path ]
+		if vm_cred != [] and len(vm_cred) == 2:
+			idx = pargs.index("-p")+2
+			
 		pargs.extend(args)
 		subprocess.call(pargs)
 
@@ -70,9 +73,34 @@ class VMManagerVS:
 		sys.stdout.write("[*] Rebooting %s!\r\n" % vmx)
 		self._run_cmd(vmx, "reset", ["soft"])
 
+	def suspend(self, vmx):
+		sys.stdout.write("[*] Rebooting %s!\r\n" % vmx)
+		self._run_cmd(vmx, "suspend", ["soft"])
+
 	def copyFileToGuest(self, vmx, file_path = []):
 		sys.stdout.write("[*] Copying file %s to %s on %s).\n" % (src_file, dst_file,  vmx))
 		self._run_cmd(vmx, "CopyFileFromHostToGuest", file_path)
+
+	def copyFileFromGuest(self, vmx, file_path = []):
+		sys.stdout.write("[*] Copying file %s to %s from %s).\n" % (src_file, dst_file,  vmx))
+		self._run_cmd(vmx, "CopyFileFromHostFromGuest", file_path)
+
+	def createSnapshot(self, vmx, snapshot):
+		sys.stdout.write("[*] Creating snapshot %sfor %s.\n" % (vmx.snapshot,vmx))
+		self._run_cmd(vmx, "snapshot", [snapshot])
+
+	def deleteSnapshot(self, vmx, snapshot):
+		sys.stdout.write("[*] Deleting snapshot %sfor %s.\n" % (vmx.snapshot,vmx))
+		self._run_cmd(vmx, "deleteSnapshot", [snapshot])
+
+	def revertSnapshot(self, vmx, snapshot):
+		sys.stdout.write("[*] Reverting snapshot %sfor %s.\n" % (vmx.snapshot,vmx))
+		self._run_cmd(vmx, "revertToSnapshot", [snapshot])
+
+	def refreshSnapshot(self, vmx):
+		sys.stdout.write("[*] Refreshing snapshot %sfor %s.\n" % (vmx.snapshot,vmx))
+		self.deleteSnapshot(vmx, vmx.snapshot)
+		self.createSnapshot(vmx, vmx.snapshot)
 
 	'''
 
