@@ -11,7 +11,7 @@ import subprocess
 import Queue
 import threading
 
-from ConsoleAPI import API
+from rcs_client_lib import Rcs_client
 
 def unzip(filename):
     zfile = zipfile.ZipFile(filename)
@@ -29,6 +29,8 @@ def check_internet(address, queue):
 
     ret = False
     try:    
+        if hasattr(socket, 'setdefaulttimeout'):
+            socket.setdefaulttimeout(5)
         response = socket.gethostbyaddr( address )
         ret |= True
     except:
@@ -159,7 +161,7 @@ class VMAVTest:
         factory = hostname
         config = "assets/config.json"
 
-        self.connection = API(self.host[0], self.user, self.passwd)
+        self.connection = Rcs_client(self.host[0], self.user, self.passwd)
         self.connection.login()
         try:
             if not os.path.exists('build'):
@@ -197,7 +199,9 @@ class VMAVTest:
             self.connection.logout()
 
 def test_internet():
-    print internet_off()
+    print time.ctime()
+    print internet_on()
+    print time.ctime()
 
 def test_mouse():
     print "test mouse"
@@ -221,8 +225,8 @@ def test_multithread():
 
 def main():
     if(sys.argv.__contains__('test')):
-        test_multithread()
-        #test_internet()
+        #test_multithread()
+        test_internet()
         exit(0)
 
     results = 'results.txt'
@@ -230,7 +234,6 @@ def main():
         os.remove(results)
     sys.stdout = open(results, 'w')
     sys.stderr = open('results.err.txt', 'w')
-
 
     if internet_on():
         print "== ERROR: I reach Internet =="

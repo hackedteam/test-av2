@@ -5,7 +5,7 @@ import json
 import subprocess,os
 import pprint
 
-class API:
+class Rcs_client:
 
     def __init__(self, host, user, passwd):
         self.host = host
@@ -108,7 +108,7 @@ class API:
         return ret[0] if ret else None
 
     def targets(self, operation_id, target):
-         """ gets the targets id of an operation, matching the target name """
+        """ gets the targets id of an operation, matching the target name """
         operations = self._call_get('target')
         #pp = pprint.PrettyPrinter(indent=4)
         #pp.pprint(operations)
