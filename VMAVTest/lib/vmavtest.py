@@ -30,8 +30,8 @@ def check_internet(address, queue):
 
     ret = False
     try:    
-        if hasattr(socket, 'setdefaulttimeout'):
-            socket.setdefaulttimeout(5)
+        #if hasattr(socket, 'setdefaulttimeout'):
+        #    socket.setdefaulttimeout(5)
         response = socket.gethostbyaddr( address )
         ret |= True
     except:
@@ -231,12 +231,6 @@ def main():
         #test_multithread()
         test_internet()
         exit(0)
-
-    #results = 'results.txt'
-    #if os.path.exists(results):
-    #    os.remove(results)
-    #sys.stdout = open(results, 'w')
-    #sys.stderr = open('results.err.txt', 'w')
 
     if internet_on():
         print "== ERROR: I reach Internet =="
