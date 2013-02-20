@@ -13,11 +13,18 @@ class VMManagerVS:
 		self.user = user
 		self.passwd = passwd
 		'''
+		self.config = ConfigParser()
+		self.config.read(config_file)
+		'''
 		self.path   = self._getPath(config_file)
 		self.host   = self._getHost(config_file)
 		self.user   = self._getUser(config_file)
 		self.passwd = self._getPasswd(config_file)
-
+		'''
+		self.path = self.config.get("vsphere", "path")
+		self.host = self.config.get("vsphere", "host")
+		self.path = self.config.get("vsphere", "user")
+		self.host = self.config.get("vsphere", "passwd")
 
 	def _getPath(self, conf_file):
 		config = ConfigParser()
@@ -42,7 +49,33 @@ class VMManagerVS:
 		config.read( conf_file )
 		return config.get("vsphere", "passwd")
 
-		
+	def _run_cmd(vmx, cmd, args=[]):
+		pargs = [   path,
+					"-T", "vc",
+					"-h", self.host,
+					"-u", self.user, "-p", self.passwd, cmd, vmx.path ]
+		pargs.extend(args)
+		subprocess.call(pargs)
+
+	'''
+	def startup(self, vmx):
+		sys.stdout.write("[*] Starting %s!\r\n" % vmx)
+		self._run_cmd(vmx, "start")
+
+	def shutdown(self, vmx):
+		sys.stdout.write("[*] Stopping %s!\r\n" % vmx)
+		self._run_cmd(vmx, "stop")
+
+	def reboot(self, vmx):
+		sys.stdout.write("[*] Rebooting %s!\r\n" % vmx)
+		self._run_cmd(vmx, "reset", ["soft"])
+
+	def copyFileToGuest(self, vmx, file_path = []):
+		sys.stdout.write("[*] Copying file %s to %s on %s).\n" % (src_file, dst_file,  vmx))
+		self._run_cmd(vmx, "CopyFileFromHostToGuest", file_path)
+
+	'''
+
 	def startup(self, vmx):
 		sys.stdout.write("[*] Startup %s!\r\n" % vmx)
 		subprocess.call([self.path,
@@ -76,7 +109,7 @@ class VMManagerVS:
 						"suspend", vmx.path, "soft"])
 
 	def createSnapshot(self, vmx, snapshot):
-		sys.stdout.write("[*] Creating new current snapshot.\n")
+		sys.stdout.write("[*] Creating snapshot %sfor %s.\n" % (vmx.snapshot,vmx))
 		subprocess.call([self.path,
 						"-T", "vc",
 						"-h", self.host,
@@ -84,7 +117,7 @@ class VMManagerVS:
 						"snapshot", vmx.path, snapshot])
 	
 	def deleteSnapshot(self, vmx, snapshot):
-		sys.stdout.write("[*] Deleting current snapshot.\n")
+		sys.stdout.write("[*] Deleting snapshot %sfor %s.\n" % (vmx.snapshot,vmx))
 		subprocess.call([self.path,
 						"-T", "vc",
 						"-h", self.host,
@@ -92,11 +125,12 @@ class VMManagerVS:
 						"deleteSnapshot", vmx.path, snapshot])
 						
 	def refreshSnapshot(self, vmx, snapshot):
+		sys.stdout.write("[*] Refreshing snapshot %sfor %s.\n" % (vmx.snapshot,vmx))
 		self.deleteSnapshot(vmx, snapshot)
 		self.createSnapshot(vmx, snapshot)
 						
 	def revertSnapshot(self, vmx, snapshot):
-		sys.stdout.write("[*] Reverting to current snapshot.\n")
+		sys.stdout.write("[*] Reverting snapshot %sfor %s.\n" % (vmx.snapshot,vmx))
 		subprocess.call([self.path,
 						"-T", "vc",
 						"-h", self.host,
@@ -104,7 +138,7 @@ class VMManagerVS:
 						"revertToSnapshot", vmx.path, snapshot])
 
 	def mkdirInGuest(self, vmx, dir_path):
-		sys.stdout.write("[*] Creating %s into guest.\n" % dir_path)
+		sys.stdout.write("[*] Creating directory %s into %s.\n" % (dir_path,vmx))
 		subprocess.call([self.path,
 						"-T", "vc",
 						"-h", self.host,
@@ -113,7 +147,7 @@ class VMManagerVS:
 						"CreateDirectoryInGuest", vmx.path, dir_path])
 
 	def copyFileToGuest(self, vmx, src_file, dst_file):
-		sys.stdout.write("[*] Copying file %s into guest (on dir %s).\n" % (src_file, dst_file))
+		sys.stdout.write("[*] Copying file %s to %s on %s).\n" % (src_file, dst_file,  vmx))
 		subprocess.call([self.path,
 						"-T", "vc",
 						"-h", self.host,
@@ -121,8 +155,17 @@ class VMManagerVS:
 						"-gu", "%s" % vmx.user, "-gp", "%s" % vmx.passwd,
 						"CopyFileFromHostToGuest", vmx.path, src_file, dst_file])
 
+	def copyFileFromGuest(self, vmx, src_file, dst_file):
+		sys.stdout.write("[*] Copying file %s to %s from %s).\n" % (src_file, dst_file,  vmx))
+		subprocess.call([self.path,
+						"-T", "vc",
+						"-h", self.host,
+						"-u", self.user, "-p", self.passwd,
+						"-gu", "%s" % vmx.user, "-gp", "%s" % vmx.passwd,
+						"CopyFileFromGuestToHost", vmx.path, src_file, dst_file])
+
 	def executeCmd(self, vmx, cmd, script=None):
-		sys.stdout.write("[*] Executing %s %s.\r\n" % (cmd, script))
+		sys.stdout.write("[*] Executing %s %s in %s.\r\n" % (cmd, script, vmx))
 		if script is not None:
 			subprocess.call([self.path,
 						"-T", "vc",
@@ -139,7 +182,7 @@ class VMManagerVS:
 						"runProgramInGuest", vmx.path, cmd])
 						
 	def takeScreenshot(self, vmx, out_img):
-		sys.stdout.write("[*] Taking screenshot of %s.\n" % vmx)
+		sys.stdout.write("[*] Taking screenshot from %s.\n" % vmx)
 		subprocess.call([self.path,
 						"-T", "vc",
 						"-h", self.host,
@@ -180,32 +223,32 @@ class VMManagerFus:
 		subprocess.call([self.path,
 						"-T", "fusion",
 						"deleteSnapshot", vmx.path, vmx.snapshot])
-		sys.stdout.write("[*] Creating new current snapshot.\n")
+		sys.stdout.write("[*] Creating new snapshot %s for %s.\n" % (vmx.snapshot,vmx))
 		subprocess.call([self.path,
 						"-T", "fusion",
 						"snapshot", vmx.path, vmx.snapshot])
 						
 	def revertSnapshot(self, vmx):
-		sys.stdout.write("[*] Reverting to current snapshot.\n")
+		sys.stdout.write("[*] Reverting %s to snapshot %s.\n" % (vmx, vmx.snapshot))
 		subprocess.call([self.path,
 						"-T", "fusion",
 						"revertToSnapshot", vmx.path, vmx.snapshot])
 
 	def copyFileToGuest(self, vmx, src_file, dst_file):
-		sys.stdout.write("[*] Copying file %s into guest (on dir %s).\n" % (src_file, dst_file))
+		sys.stdout.write("[*] Copying file %s to %s on %s.\n" % (src_file, dst_file, vmx))
 		subprocess.call([self.path,
 						"-T", "fusion",
 						"CopyFileFromHostToGuest", vmx.path, src_file, dst_file])
 
 	def executeCmd(self, vmx, cmd, script=None):
 		if script is not None:
-			sys.stdout.write("[*] Executing %s %s.\r\n" % (cmd, script))
+			sys.stdout.write("[*] Executing %s %s in %s.\r\n" % (cmd, script, vmx))
 			proc = subprocess.call([self.path,
 						"-T", "fusion",
 						"-gu", vmx.user, "-gp", vmx.passwd,
 						"runProgramInGuest", vmx.path, cmd, script])			
 		else:
-			sys.stdout.write("[*] Executing %s.\r\n" % cmd)
+			sys.stdout.write("[*] Executing %s in %s.\r\n" % cmd, vmx)
 			proc = subprocess.call([self.path,
 						"-T", "fusion",
 						"-gu", vmx.user, "-gp", vmx.passwd,

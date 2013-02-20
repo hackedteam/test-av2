@@ -58,39 +58,50 @@ def dispatch(vm_name):
                         - assets/meltapp.exe
                         - assets/config.json
                 '''
+                test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
+                lib_dir = "%s\\lib" % test_dir
+                assets_dir = "%s\\assets" % test_dir
+
+                build_silent_script_src = "../VMAVTest/build_silent_minotauro.bat"
+                build_silent_script_dst = "c:\\Users\\avtest\\Desktop\\AVTEST\\build_silent_minotauro.bat"
+
+                api_py_src = "../VMAVTest/lib/ConsoleAPI.py"
+                api_py_dst = "c:\\Users\\avtest\\Desktop\\AVTEST\\lib\\ConsoleAPI.py"
+
+                vmavtest_py_src = "../VMAVTest/lib/vmavtest.py"
+                vmavtest_py_dst = "c:\\Users\\avtest\\Desktop\\AVTEST\\lib\\vmavtest.py"
+
+                config_json_src = "../VMAVTest/assets/config.json"
+                config_json_dst = "c:\\Users\\avtest\\Desktop\\AVTEST\\assets\\config.json"
+
+                keyinject_src = "../VMAVTest/assets/keyinject.exe"
+                keyinject_dst = "c:\\Users\\avtest\\Desktop\\AVTEST\\assets\\keyinject.exe"
+
+                meltapp_src = "../VMAVTest/assets/meltapp.exe"
+                meltapp_dst = "c:\\Users\\avtest\\Desktop\\AVTEST\\assets\\meltapp.exe"
+
+
                 # make directories where push scripts for tests
-                vmman.mkdirInGuest(vm, "C:\\Users\\avtest\\Desktop\\AVTEST")
-                vmman.mkdirInGuest(vm, "C:\\Users\\avtest\\Desktop\\AVTEST\\lib")
-                vmman.mkdirInGuest(vm, "C:\\Users\\avtest\\Desktop\\AVTEST\\assets")
+                vmman.mkdirInGuest(vm, test_dir)
+                vmman.mkdirInGuest(vm, lib_dir)
+                vmman.mkdirInGuest(vm, assets_dir)
 
                 # copy files
-                vmman.copyFileToGuest(vm, 
-                        "../VMAVTest/build_silent_polluce.bat", 
-                        "c:\\Users\\avtest\\Desktop\\AVTEST\\build_silent_minotauro.bat")
-                vmman.copyFileToGuest(vm, 
-                        "../VMAVTest/lib/ConsoleAPI.py", 
-                        "c:\\Users\\avtest\\Desktop\\AVTEST\\lib\\ConsoleAPI.py")
-                vmman.copyFileToGuest(vm, 
-                        "../VMAVTest/lib/vmavtest.py", 
-                        "c:\\Users\\avtest\\Desktop\\AVTEST\\lib\\vmavtest.py")
-                vmman.copyFileToGuest(vm, 
-                        "../VMAVTest/assets/config.json", 
-                        "c:\\Users\\avtest\\Desktop\\AVTEST\\assets\\config.json")
-                vmman.copyFileToGuest(vm, 
-                        "../VMAVTest/assets/keyinject.exe", 
-                        "c:\\Users\\avtest\\Desktop\\AVTEST\\assets\\keyinject.exe")
-                vmman.copyFileToGuest(vm, 
-                        "../VMAVTest/assets/meltapp.exe", 
-                        "c:\\Users\\avtest\\Desktop\\AVTEST\\assets\\meltapp.exe")
+                vmman.copyFileToGuest(vm, build_silent_script_src, build_silent_script_dst)
+                vmman.copyFileToGuest(vm, api_py_src, api_py_dst)
+                vmman.copyFileToGuest(vm, vmavtest_py_src, vmavtest_py_dst)
+                vmman.copyFileToGuest(vm, config_json_src, config_json_dst)
+                vmman.copyFileToGuest(vm, keyinject_src, keyinject_dst)
+                vmman.copyFileToGuest(vm, meltapp_src, meltapp_dst)
 
                 # executing bat
-                vmman.executeCmd(vm, "c:\\Users\\avtest\\Desktop\\AVTEST\\build_silent_minotauro.bat")
+                vmman.executeCmd(vm, build_silent_script_dst)
                 
                 '''
                 # suspend & refresh snapshot
                 vmman.suspend(vm)
                 sleep(5)
-                vmman.refreshSnapshot(vm, vm.snapshot)
+                #vmman.refreshSnapshot(vm, vm.snapshot)
                 '''
                 return "[*] test files dispatched for %s" % vm_name
 
