@@ -22,23 +22,23 @@ vmman = VMManagerVS(vm_conf_file)
 def update(vm_name):
         try:
             vm = VMachine(vm_conf_file, vm_name)
-            #vmman.revertSnapshot(vm, vm.snapshot)
-            #sleep(10)
-            #vmman.startup(vm)
+            vmman.revertSnapshot(vm, vm.snapshot)
+            sleep(10)
+            vmman.startup(vm)
             # executing scripts for vm and wait 3 hours
-            #vmman.executeCmd(vm, cmd)
-            #sys.stdout.write("[%s] waiting for Updates")
-            #sleep(3600)
-            #vmman.reboot(vm)
-            #sys.stdout.write("[%s] waiting for reconfigurations")
-            #sleep(300)
+            vmman.executeCmd(vm, cmd)
+            sys.stdout.write("[%s] waiting for Updates")
+            sleep(3600)
+            vmman.reboot(vm)
+            sys.stdout.write("[%s] waiting for reconfigurations")
+            sleep(300)
             #sleep(60)
             vmman.suspend(vm)
+            sleep(3)
             vmman.refreshSnapshot(vm)
-
             return "[%s] Updated!"  % vm_name
         except Exception as e:
-            return "ERROR: %s is not updated: %s" % (vm_name, e)
+            return "ERROR: %s is not updated. Reason: %s" % (vm_name, e)
 
 
 def revert(vm_name):
