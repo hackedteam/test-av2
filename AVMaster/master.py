@@ -41,30 +41,27 @@ def update(vm_name):
         except:
                 return "ERROR: %s is not updated" % vm_name
 
+
+def revert(vm_name):
+    vm = VMachine(vm_conf_file, vm_name)
+    vmman.revertSnapshot(vm, vm.snapshot)
+    sleep(2)
+    return "[*] %s reverted!"
+
+
 def dispatch(vm_name):
         print "go dispatch " , vm_name
         try:
                 vm = VMachine(vm_conf_file, vm_name)
                 vmman.revertSnapshot(vm, vm.snapshot)
-                sleep(10)
+                sleep(5)
                 vmman.startup(vm)
-                sleep(10)
-                '''
-                        Copying files to guest:
-                        - build_silent_polluce.bat
-                        - lib/ConsoleAPI.py
-                        - lib/vmavtest.py
-                        - assets/keyinject.exe
-                        - assets/meltapp.exe
-                        - assets/config.json
-                '''
+                sleep(5)
+
                 test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
                 lib_dir = "%s\\lib" % test_dir
                 assets_dir = "%s\\assets" % test_dir
                 vmavtest = "../VMAVTest/"
-
-                build_silent_script_src = "../VMAVTest/build_silent_minotauro.bat"
-                build_silent_script_dst = "c:\\Users\\avtest\\Desktop\\AVTEST\\build_silent_minotauro.bat"
 
                 vmman.mkdirInGuest(vm, test_dir)
 
@@ -92,50 +89,12 @@ def dispatch(vm_name):
 
                         print src, dst
                         vmman.copyFileToGuest(vm, src, dst)
-                #sys.exit(0)
 
-                '''
-
-                api_py_src = "../VMAVTest/lib/ConsoleAPI.py"
-                api_py_dst = "c:\\Users\\avtest\\Desktop\\AVTEST\\lib\\ConsoleAPI.py"
-
-                vmavtest_py_src = "../VMAVTest/lib/vmavtest.py"
-                vmavtest_py_dst = "c:\\Users\\avtest\\Desktop\\AVTEST\\lib\\vmavtest.py"
-
-                vmavtest_py_src = "../VMAVTest/lib/logger.py"
-                vmavtest_py_dst = "c:\\Users\\avtest\\Desktop\\AVTEST\\lib\\logger.py"
-
-                vmavtest_py_src = "../VMAVTest/lib/rcs_client.py"
-                vmavtest_py_dst = "c:\\Users\\avtest\\Desktop\\AVTEST\\lib\\rcs_client.py"
-
-                config_json_src = "../VMAVTest/assets/config.json"
-                config_json_dst = "c:\\Users\\avtest\\Desktop\\AVTEST\\assets\\config.json"
-
-                keyinject_src = "../VMAVTest/assets/keyinject.exe"
-                keyinject_dst = "c:\\Users\\avtest\\Desktop\\AVTEST\\assets\\keyinject.exe"
-
-                meltapp_src = "../VMAVTest/assets/meltapp.exe"
-                meltapp_dst = "c:\\Users\\avtest\\Desktop\\AVTEST\\assets\\meltapp.exe"
-
-
-                # make directories where push scripts for tests
-                vmman.mkdirInGuest(vm, test_dir)
-                vmman.mkdirInGuest(vm, lib_dir)
-                vmman.mkdirInGuest(vm, assets_dir)
-
-                # copy files
-                vmman.copyFileToGuest(vm, build_silent_script_src, build_silent_script_dst)
-                vmman.copyFileToGuest(vm, api_py_src, api_py_dst)
-                vmman.copyFileToGuest(vm, vmavtest_py_src, vmavtest_py_dst)
-                vmman.copyFileToGuest(vm, config_json_src, config_json_dst)
-                vmman.copyFileToGuest(vm, keyinject_src, keyinject_dst)
-                 vmman.copyFileToGuest(vm, meltapp_src, meltapp_dst)
-                '''
                 # executing bat
                 vmman.executeCmd(vm, build_silent_script_dst)
                 
                 # suspend & refresh snapshot
-                #vmman.suspend(vm)
+                vmman.suspend(vm)
                 #sleep(5)
                 #vmman.refreshSnapshot(vm, vm.snapshot)
                 
@@ -145,7 +104,20 @@ def dispatch(vm_name):
                 print "exception inside ", ex
                 return "Error: cannot dispatch tests for %s" % vm_name
 
+
+def get_results(vm_name, resume=True):
+    vm = VMachine(vm_conf_file, vm_name)
+    if resume:
+        vmman.startup(vm)
+    vmman.copyFileFromGuest(vm, "c:\\Users\\avtest\\Desktop\\AVTEST\\results.txt", "results.%s.txt" % vm_name)
+    vmman.suspend(vm)
+
+
 def main():
+        if sys.argv.__contains__("test"):
+            get_results("eset")
+            exit(0)
+
         lib.logger.setLogger()
         # shut down network
         os.system('sudo ./net_disable.sh')
@@ -157,30 +129,31 @@ def main():
 
         vmman = VMManagerVS(vm_conf_file)
 
-        #operation = sys.argv[1]
-        operation = "dispatch"
+        operation = sys.argv[1]
+        #operation = "dispatch"
 
         # get vm names
         c = ConfigParser()
         c.read(op_conf_file)
         vm_names = c.get("test", "machines").split(",")
 
-        '''
-        if operation == "update":
-                map(do_update, vm_names)
-        if operation == "dispatch":
-                print "Dispatchin tests"
-                map(dispatch, vm_names)
-
-        '''
         pool = Pool(2)
+
+        print "[*] selected operation %s" % operation
+
         if operation == "update": 
                 r = pool.map_async(do_update, ((vm) for vm in vm_names))
+                print r.get()
+        if operation == "revert": 
+                r = pool.map_async(revert, ((vm) for vm in vm_names))
                 print r.get()
         if operation == "dispatch": 
                 r = pool.map_async(dispatch, ((vm) for vm in vm_names))
                 print r.get() 
 
+                map(get_results, vm_names)
+
 
 if __name__ == "__main__":
-	main()
+    if len(sys.argv) > 1:
+    	main()
