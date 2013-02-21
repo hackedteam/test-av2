@@ -117,7 +117,7 @@ class Rcs_client:
         if target:
             ret = [ op['_id'] for op in targets if op['name'] == target and op['path'][0] == operation_id ]
         else:
-            ret = [ op['_id'] for op in targets if op['name'] == target ]
+            ret = [ op['_id'] for op in targets if op['path'][0] == operation_id ]
         return ret
 
     def factories(self, target_id):

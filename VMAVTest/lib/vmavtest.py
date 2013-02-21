@@ -89,12 +89,17 @@ class VMAVTest:
         self.host = (backend, frontend)
 
     def delete_targets(self, operation):
-        c = self.connection
+        c = Rcs_client(self.host[0], self.user, self.passwd)
+        
+        c.login()
         operation_id = c.operation(operation)
+        print "operation_id: %s" % operation_id
         targets = c.targets(operation_id)
         for t_id in targets:
             print "- Delete target: %s" % t_id
-            c.target_delete(t) 
+            c.target_delete(t_id) 
+        c.logout()
+
 
     def create_new_factory(self, operation, target, factory, config):
         c = self.connection
@@ -198,7 +203,6 @@ class VMAVTest:
         operation = 'AVMonitor'
         target = 'VM_%s' % hostname
         factory ='%s_%s' % (hostname, self.kind)
-
         config = "assets/config.json"
 
         self.connection = Rcs_client(self.host[0], self.user, self.passwd)
@@ -245,6 +249,7 @@ def internet(args):
 
 def clean(args):
     operation = 'AVMonitor'
+    print "- Server: %s/%s %s" % (args.backend,args.frontend, args.kind)
     vmavtest = VMAVTest( args.backend, args.frontend , args.kind )
     vmavtest.delete_targets(operation)
 
@@ -255,7 +260,6 @@ def scout(args):
             exit(0)
 
     print "- Network unreachable"
-    melt = args.kind=='melt'
 
     print "- Server: %s/%s %s" % (args.backend,args.frontend, args.kind)
     vmavtest = VMAVTest( args.backend, args.frontend , args.kind )
