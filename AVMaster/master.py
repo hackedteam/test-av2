@@ -5,6 +5,7 @@ import string
 from time import sleep
 from ConfigParser import ConfigParser
 from multiprocessing import Pool
+import argparse
 
 from lib.VMachine import VMachine
 from lib.VMManager import VMManagerVS
@@ -90,9 +91,12 @@ def dispatch(vm_name):
                         print src, dst
                         vmman.copyFileToGuest(vm, src, dst)
 
-                # executing bat
+                # executing bat synchronized
                 vmman.executeCmd(vm, build_silent_script_dst)
                 
+                # save results.txt locally
+                save_results(vm)
+
                 # suspend & refresh snapshot
                 vmman.suspend(vm)
                 #sleep(5)
@@ -105,20 +109,24 @@ def dispatch(vm_name):
                 return "Error: cannot dispatch tests for %s" % vm_name
 
 
-def get_results(vm_name, resume=True):
-    vm = VMachine(vm_conf_file, vm_name)
-    if resume:
-        vmman.startup(vm)
+def save_results(vm):
     vmman.copyFileFromGuest(vm, "c:\\Users\\avtest\\Desktop\\AVTEST\\results.txt", "results.%s.txt" % vm_name)
-    vmman.suspend(vm)
 
 
 def main():
-        if sys.argv.__contains__("test"):
+        lib.logger.setLogger()
+
+        parser = argparse.ArgumentParser(description='AVMonitor master.')
+    
+        parser.add_argument('action', choices=['update', 'revert', 'dispatch', 'test'])
+        parser.add_argument('--vm', required=False)
+        parser.add_argument('-p', '--pool', default=2)
+        args = parser.parse_args()
+
+        if args.action == "test":
             get_results("eset")
             exit(0)
 
-        lib.logger.setLogger()
         # shut down network
         os.system('sudo ./net_disable.sh')
 
@@ -129,29 +137,18 @@ def main():
 
         vmman = VMManagerVS(vm_conf_file)
 
-        operation = sys.argv[1]
-        #operation = "dispatch"
-
         # get vm names
         c = ConfigParser()
         c.read(op_conf_file)
         vm_names = c.get("test", "machines").split(",")
 
-        pool = Pool(2)
+        pool = Pool(args.pool)
 
         print "[*] selected operation %s" % operation
 
-        if operation == "update": 
-                r = pool.map_async(do_update, ((vm) for vm in vm_names))
-                print r.get()
-        if operation == "revert": 
-                r = pool.map_async(revert, ((vm) for vm in vm_names))
-                print r.get()
-        if operation == "dispatch": 
-                r = pool.map_async(dispatch, ((vm) for vm in vm_names))
-                print r.get() 
-
-                map(get_results, vm_names)
+        actions = { "update" : update, "revert": revert, "dispatch": dispatch }
+        r = pool.map_async(action[args.action], vm_names)
+        print r.get()
 
 
 if __name__ == "__main__":

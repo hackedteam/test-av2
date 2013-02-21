@@ -33,13 +33,16 @@ def check_internet(address, queue):
         #if hasattr(socket, 'setdefaulttimeout'):
         #    socket.setdefaulttimeout(5)
         response = socket.gethostbyaddr( address )
+        print "i resolve dns: ", address
         ret |= True
     except:
         ret |= False
 
     try:    
-        response = urllib2.urlopen('http://' + address, timeout = 10)
-        ret |= True
+        if(ret == False):
+            response = urllib2.urlopen('http://' + address, timeout = 10)
+            print "i reach url: ", address
+            ret |= True
     except:
         ret |= False
 
