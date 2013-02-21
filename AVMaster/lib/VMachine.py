@@ -10,6 +10,7 @@ class VMachine:
 			self.snapshot = self._getSnapshot(conf_file, name)	
 			self.user = self._getUser(conf_file, name)
 			self.passwd = self._getPasswd(conf_file, name)
+			
 		except NoSectionError:
 			print "[!] VM or VM stuff not found on %s" % conf_file
 			

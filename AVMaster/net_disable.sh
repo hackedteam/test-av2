@@ -1,1 +1,1 @@
-shorewall restart /etc/shorewall-nat-disabled/
+shorewall restart /etc/shorewall-nat-disabled/ > networking_log.txt

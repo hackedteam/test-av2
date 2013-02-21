@@ -19,28 +19,26 @@ op_conf_file = os.path.join("conf", "operations.cfg")
 
 vmman = VMManagerVS(vm_conf_file)
 
-def do_update(vm):
-        return "updating %s" % vm
-
-def do_dispatch(vm):
-        print "dispatching tests for %s" % vm
-        return dispatch(vm)
-
 def update(vm_name):
         try:
-                vm = VMachine(vm_conf_file, vm_name)
-                vmman.revertSnapshot(vm, vm.snapshot)
-                sleep(10)
-                vmman.startup(vm)
-                # executing scripts for vm and wait 3 hours
-                vmman.executeCmd(vm, cmd)
-                sleep(3600*3)
-                vmman.reboot(vm)
-                vmman.refreshSnapshot(vm)
+            vm = VMachine(vm_conf_file, vm_name)
+            #vmman.revertSnapshot(vm, vm.snapshot)
+            #sleep(10)
+            #vmman.startup(vm)
+            # executing scripts for vm and wait 3 hours
+            #vmman.executeCmd(vm, cmd)
+            #sys.stdout.write("[%s] waiting for Updates")
+            #sleep(3600)
+            #vmman.reboot(vm)
+            #sys.stdout.write("[%s] waiting for reconfigurations")
+            #sleep(300)
+            #sleep(60)
+            vmman.suspend(vm)
+            vmman.refreshSnapshot(vm)
 
-                return "%s updated"  % vm_name
-        except:
-                return "ERROR: %s is not updated" % vm_name
+            return "[%s] Updated!"  % vm_name
+        except Exception as e:
+            return "ERROR: %s is not updated: %s" % (vm_name, e)
 
 
 def revert(vm_name):
@@ -118,9 +116,12 @@ def main():
 
         parser = argparse.ArgumentParser(description='AVMonitor master.')
     
-        parser.add_argument('action', choices=['update', 'revert', 'dispatch', 'test'])
-        parser.add_argument('--vm', required=False)
-        parser.add_argument('-p', '--pool', default=2)
+        parser.add_argument('action', choices=['update', 'revert', 'dispatch', 'test'],
+            help="The operation to perform")
+        parser.add_argument('--vm', required=False, 
+            help="Virtual Machine where execute the operation")
+        parser.add_argument('-p', '--pool', default=2, type=int, 
+            help="This is the number of parallel process (default 2)")
         args = parser.parse_args()
 
         if args.action == "test":
@@ -128,7 +129,12 @@ def main():
             exit(0)
 
         # shut down network
-        os.system('sudo ./net_disable.sh')
+        if args.action == "update":
+            os.system('sudo ./net_enable.sh')
+            print "[!] Enabling NETWORKING!"
+        else:
+            os.system('sudo ./net_disable.sh')
+            print "[!] Disabling NETWORKING!"
 
         vm_conf_file = os.path.join("conf", "vms.cfg")
         op_conf_file = os.path.join("conf", "operations.cfg")
@@ -142,15 +148,15 @@ def main():
         c.read(op_conf_file)
         vm_names = c.get("test", "machines").split(",")
 
-        pool = Pool(args.pool)
+        pool = Pool(int(args.pool))
 
-        print "[*] selected operation %s" % operation
+        print "[*] selected operation %s" % args.action
 
         actions = { "update" : update, "revert": revert, "dispatch": dispatch }
-        r = pool.map_async(action[args.action], vm_names)
+        r = pool.map_async(actions[args.action], vm_names)
         print r.get()
 
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
+    #if len(sys.argv) > 1:
     	main()
