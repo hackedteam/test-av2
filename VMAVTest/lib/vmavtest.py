@@ -11,6 +11,7 @@ import subprocess
 import Queue
 import threading
 import argparse
+import random
 
 from rcs_client import Rcs_client
 import logger
@@ -222,14 +223,10 @@ class VMAVTest:
             print "- Wait for 6 minutes: %s" % time.ctime() 
             sys.stdout.flush()
 
-            sleep(60 * 6)
+            sleep(random.randint(300, 400))
 
             print "- Move mouse for 30 seconds"
-            sys.stdout.flush()
             self.mouse_move(timeout = 30)
-
-            print "- wait for 1 minute: %s" % time.ctime() 
-            sys.stdout.flush()
 
         except Exception, e:
             print "ERROR: ", e
@@ -237,6 +234,7 @@ class VMAVTest:
         finally:
             self.connection.logout()
 
+        print "- wait for 1 minute: %s" % time.ctime() 
         sleep(60 * 1)
         self.connection.login()
         try:
