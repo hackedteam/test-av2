@@ -5,6 +5,8 @@ import json
 import subprocess,os
 import pprint
 
+pp = pprint.PrettyPrinter(indent=4)
+
 class Rcs_client:
 
     def __init__(self, host, user, passwd):
@@ -107,12 +109,15 @@ class Rcs_client:
         ret = [ op['_id'] for op in operations if op['name'] == operation ]
         return ret[0] if ret else None
 
-    def targets(self, operation_id, target):
+    def targets(self, operation_id, target=None):
         """ gets the targets id of an operation, matching the target name """
         targets = self._call_get('target')
         #pp = pprint.PrettyPrinter(indent=4)
         #pp.pprint(targets)
-        ret = [ op['_id'] for op in targets if op['name'] == target and op['path'][0] == operation_id ]
+        if target:
+            ret = [ op['_id'] for op in targets if op['name'] == target and op['path'][0] == operation_id ]
+        else:
+            ret = [ op['_id'] for op in targets if op['name'] == target ]
         return ret
 
     def factories(self, target_id):
@@ -120,19 +125,25 @@ class Rcs_client:
         name, ident
         """
         factories = self._call_get('factory')
-        pp = pprint.PrettyPrinter(indent=4)
-        pp.pprint(factories)
-        ret = [ op['_id'] for op in factories if op['path'].__contains__(target_id) ]
+
+        #pp.pprint(factories)
+        ret = [ (op['_id'], op['ident']) for op in factories if op['path'].__contains__(target_id) ]
         return ret
 
-    def instances(self, target_id):
-        """ gets the targets id of an operation, matching the target name 
-        name, ident
+    def instances(self, ident):
+        """ gets the instances id of an operation, matching the ident
         """
-        agents = self._call_get('agents')
-        pp = pprint.PrettyPrinter(indent=4)
-        pp.pprint(agents)
-        ret = [ op['_id'] for op in factories if op['path'].__contains__(target_id) ]
+        agents = self._call_get('agent')
+
+        #pp.pprint(agents)
+        ret = [ op['_id'] for op in agents if op['ident'].__contains__(ident) and op['_kind'] == 'agent' ]
+        return ret
+
+    def agents(self, target_id):
+        agents = self._call_get('agent')
+        
+        #pp.pprint(agents)
+        ret = [ (op['_id'], op['ident'], op['name']) for op in agents if op['path'].__contains__(target_id)]
         return ret
 
     def target_delete(self, target_id):
@@ -149,7 +160,7 @@ class Rcs_client:
         """ Create a factory """
         data = {'name': name, 'desc': desc, 'operation': operation_id, 'target': target_id, 'type': ftype }
         factory = self._call('agent/create', data)
-        return factory['_id']
+        return factory['_id'], factory['ident']
 
     def factory_add_config(self, factory_id, config):
         """ adds a config to a factory """
@@ -209,23 +220,21 @@ class Rcs_client:
                 instances.append(agent["ident"],agent['_id'])
         return instances
 
-    def update_agent(self, agent_id):
+    def agent_upgrade(self, agent_id):
         params = {'_id': agent_id }
         resp = self._call('agent/upgrade', params)
         return resp
 
-    def delete_instance(self, instance):
+    def instance_delete(self, instance_id):
         """ Delete a given instance
         @param instance
         """
-        data = {'_id': instance, 'permanent':True }
-        link = 'https://%s/agent/destroy'
-        resp = self._post_response(link, self.cookie, json.dumps(data))
-        
+        data = {'_id': instance_id, 'permanent':True }
+        return self._call('agent/destroy', data)
         #print resp
         
 
-    def get_evidences(self, target, agent, type):
+    def evidences(self, target, agent, type):
         """ Get evidences of given agent and target
         @param target
         @param agent
@@ -307,8 +316,10 @@ def test():
         factories = conn.factories( target_id )
         print "factories: ", factories
 
-        instances = conn.instances( target_id )
-        print "instances: ", instances
+        for factory_id, ident in factories:
+            print "factory_id ", factory_id, ident
+            instances = conn.instances( ident )
+            print "instances: ", instances
 
 def testMelt():
     print 'test'

@@ -10,6 +10,7 @@ import os.path
 import subprocess
 import Queue
 import threading
+import argparse
 
 from rcs_client import Rcs_client
 import logger
@@ -19,7 +20,7 @@ def unzip(filename):
     names = []
     for name in zfile.namelist():
         (dirname, filename) = os.path.split(name)
-        print "- Decompressing " + filename 
+        print "- Decompress: " + filename 
         zfile.extract(name)
         names.append(name)
     return names
@@ -33,7 +34,7 @@ def check_internet(address, queue):
         #if hasattr(socket, 'setdefaulttimeout'):
         #    socket.setdefaulttimeout(5)
         response = socket.gethostbyaddr( address )
-        print "i resolve dns: ", address
+        #print "i resolve dns: ", address
         ret |= True
     except:
         ret |= False
@@ -41,7 +42,7 @@ def check_internet(address, queue):
     try:    
         if(ret == False):
             response = urllib2.urlopen('http://' + address, timeout = 10)
-            print "i reach url: ", address
+            #print "i reach url: ", address
             ret |= True
     except:
         ret |= False
@@ -66,14 +67,14 @@ def wait_timeout(proc, seconds):
     end = start + seconds
     interval = min(seconds / 1000.0, .25)
 
-    print "- wait for: %s sec" % seconds
+    print "DBG wait for: %s sec" % seconds
     while True:
         result = proc.poll()
         if result is not None:
             return result
         if time.time() >= end:
             proc.kill()
-            print "- Process timed out, killed"
+            print "DBG Process timed out, killed"
             break;
         time.sleep(interval)
 
@@ -83,35 +84,57 @@ class VMAVTest:
     passwd = "avmonitorp123"
     connection = None
 
-    def __init__(self, backend, frontend, melt = False):
-        self.melt = melt
+    def __init__(self, backend, frontend, kind):
+        self.kind = kind
         self.host = (backend, frontend)
+
+    def delete_targets(self, operation):
+        c = self.connection
+        operation_id = c.operation(operation)
+        targets = c.targets(operation_id)
+        for t_id in targets:
+            print "- Delete target: %s" % t_id
+            c.target_delete(t) 
 
     def create_new_factory(self, operation, target, factory, config):
         c = self.connection
         operation_id = c.operation(operation)
-        #print "operation: " , operation, "target: ", target
+        print "DBG operation: " , operation, " target: ", target, " factory: ", factory
 
-        #TODO: delete target if exists
+        # gets all the target with our name in an operation
         targets = c.targets(operation_id, target)
-        print "- Delete targets: ",  targets
-        for t in targets:
-            c.target_delete(t)
 
-        target = c.target_create(operation_id, target, 'made by vmavtest at %s' % time.ctime())
-        factory = c.factory_create(operation_id, target, 'desktop', factory, 'made by vmavtestat at %s' % time.ctime())
+        if len(targets) > 0:
+            # keep only one target
+            for t in targets[1:]:
+                c.target_delete(t)    
+
+            target_id = targets[0]
+            
+            #print "target_id: ", target_id
+            agents = c.agents( target_id )
+
+            for agent_id, ident, name in agents:
+                print "DBG   ", agent_id, ident, name
+                if name.startswith(factory):
+                    print "- Delete instance: %s %s" % (ident, name)
+                    c.instance_delete(agent_id)
+        else:
+            print "- Create target: %s" % target
+            target_id = c.target_create(operation_id, target, 'made by vmavtest at %s' % time.ctime())
+        factory_id, ident = c.factory_create(operation_id, target_id, 'desktop', factory, 'made by vmavtestat at %s' % time.ctime())
 
         with open(config) as f:
             conf = f.read()
         conf = conf.replace('$(HOSTNAME)', self.host[1])
-        c.factory_add_config(factory, conf)
+        c.factory_add_config(factory_id, conf)
 
-        print "open config to write"
+        #print "open config to write"
         with open('build/config.actual.json','wb') as f:
             f.write(conf)
 
         #print "factory: ", factory
-        return factory
+        return (target, factory_id, ident)
 
     def build_agent(self, factory, melt = None, demo = False):
         c = self.connection
@@ -137,32 +160,45 @@ class VMAVTest:
 
             contentnames = unzip(filename)
             #print "contents: %s" % contentnames
+
+            print "+ SUCCESS GHOST BUILD"
             return [n for n in contentnames if n.endswith('.exe')]
         except Exception, e:
-            print "Error: ", e
+            print "+ FAILED GHOST BUILD: "
             raise e
         
     def execute_build(self, exenames):
-        for exe in exenames:
-            print "- execute: " + exe
+        try:
+            exe = exenames[0]
+            print "- Execute: " + exe
             subp = subprocess.Popen([exe])
+            print "+ SUCCESS GHOST EXECUTE"
+        except Exception, e:
+            print "+ FAILED GHOST EXECUTE"
+            raise e
 
     def mouse_move(self, timeout=10):
         subp = subprocess.Popen(['assets/keyinject.exe'])
         wait_timeout(subp, timeout)
 
-    def check_instance(self, factory):
+    def check_instance(self, ident):
         c = self.connection
-        return c.enum_instances(factory)
+        instances = c.instances( ident )
+        print "instances: ", instances
+        if len(instances) > 0:
+            print "+ SUCCESS GHOST SYNC"
+            return True
+        else:
+            print "+ FAILED GHOST SYNC"
+            return False
         
     def execute_av(self):
         hostname = socket.gethostname()
-        print "%s %s\n" % (hostname, time.ctime())
-
-        print "- Hostname: ", hostname
+        print "- Host: %s %s\n" % (hostname, time.ctime())
         operation = 'AVMonitor'
         target = 'VM_%s' % hostname
-        factory = hostname
+        factory ='%s_%s' % (hostname, self.kind)
+
         config = "assets/config.json"
 
         self.connection = Rcs_client(self.host[0], self.user, self.passwd)
@@ -170,51 +206,62 @@ class VMAVTest:
         try:
             if not os.path.exists('build'):
                 os.mkdir('build')
-            factory = self.create_new_factory(operation, target, factory, config)
+            target_id, factory_id, ident = self.create_new_factory(operation, target, factory, config)
 
             meltfile = None
-            if self.melt:
+            if self.kind == 'melt':
                 meltfile = 'assets/meltapp.exe'
 
-            exe = self.build_agent( factory, meltfile )
+            exe = self.build_agent( factory_id, meltfile )
 
             self.execute_build(exe)
-            print time.ctime(), "- wait for 6 minutes"
+            print "- Wait for 6 minutes: %s" % time.ctime() 
             sys.stdout.flush()
 
             sleep(60 * 6)
 
-            print time.ctime(), "- move mouse for 30 seconds"
+            print "- Move mouse for 30 seconds"
             sys.stdout.flush()
             self.mouse_move(timeout = 30)
 
-            print time.ctime(), "- wait for 1 minute"
+            print "- wait for 1 minute: %s" % time.ctime() 
             sys.stdout.flush()
             
             sleep(60 * 1)
             
-            result = self.check_instance( factory )
+            result = self.check_instance( ident )
             print "- Result: ", result
 
         except Exception, e:
-            print "Error: ", e
+            print "ERROR: ", e
             raise e
         finally:
             self.connection.logout()
 
-def test_internet():
+def internet(args):
     print time.ctime()
     print "internet on: ", internet_on()
     print time.ctime()
 
-def test_mouse():
-    print "test mouse"
-    sleep(10)
-    subp = subprocess.Popen(['assets/keyinject.exe'])
-    wait_timeout(subp, 3)
-    print "stop mouse"
+def clean(args):
+    operation = 'AVMonitor'
+    vmavtest = VMAVTest( args.backend, args.frontend , args.kind )
+    vmavtest.delete_targets(operation)
 
-def test_multithread():
+def scout(args):
+    if socket.gethostname() != 'zenovm':
+        if internet_on():
+            print "== ERROR: I reach Internet =="
+            exit(0)
+
+    print "- Network unreachable"
+    melt = args.kind=='melt'
+
+    print "- Server: %s/%s %s" % (args.backend,args.frontend, args.kind)
+    vmavtest = VMAVTest( args.backend, args.frontend , args.kind )
+    vmavtest.execute_av()
+
+def test(args):
     ips = [ '87.248.112.181', '173.194.35.176', '176.32.98.166', 'www.reddit.com', 'www.bing.com', 'www.facebook.com']
     
     q = Queue.Queue()
@@ -225,37 +272,29 @@ def test_multithread():
 
     s = [ q.get() for i in ips ]
     print s
+
+    print "test mouse"
+    sleep(10)
+    subp = subprocess.Popen(['assets/keyinject.exe'])
+    wait_timeout(subp, 3)
+    print "stop mouse"
     
 
 def main():
-    logger.setLogger()
+    logger.setLogger(debug=False)
 
-    if(sys.argv.__contains__('test')):
-        #test_multithread()
-        test_internet()
-        exit(0)
+    # scout -b 123 -f 123 -k silent/melt
+    parser = argparse.ArgumentParser(description='AVMonitor avtest.')
 
-    if internet_on():
-        print "== ERROR: I reach Internet =="
-        exit(0)
+    parser.add_argument('action', choices=['scout', 'internet', 'test', 'clean']) #'elite'
+    parser.add_argument('-b', '--backend')
+    parser.add_argument('-f', '--frontend')
+    parser.add_argument('-k', '--kind', choices=['silent', 'melt'])
+    args = parser.parse_args()
 
-    print "- Network unreachable"
-
-    sys.stdout.flush()
-
-    melt = False
-    if len(sys.argv) == 4:
-        backend, frontend, kind = sys.argv[1:4]
-        
-        if kind == "melt":
-             melt = True
-    else:
-        print "Usage: %s [backend] [frontend] [silent/melt]" % sys.argv[0]
-        exit(0)
-
-    print "- Server: ", backend, "/", frontend, " Melt: ", melt
-    vmavtest = VMAVTest( backend, frontend , melt )
-    vmavtest.execute_av()
+    actions = {'scout': scout, 'internet': internet, 'test': test, 'clean': clean}
+    actions[args.action](args)
+  
 
 if __name__ == "__main__":
     main()
