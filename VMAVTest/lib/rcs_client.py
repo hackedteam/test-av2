@@ -134,7 +134,6 @@ class Rcs_client:
         """ gets the instances id of an operation, matching the ident
         """
         agents = self._call_get('agent')
-
         #pp.pprint(agents)
         ret = [ op['_id'] for op in agents if op['ident'].__contains__(ident) and op['_kind'] == 'agent' ]
         return ret

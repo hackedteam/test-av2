@@ -189,7 +189,7 @@ class VMAVTest:
     def check_instance(self, ident):
         c = self.connection
         instances = c.instances( ident )
-        print "instances: ", instances
+        print "DBG instances: %s" % instances
         if len(instances) > 0:
             print "+ SUCCESS GHOST SYNC"
             return True
