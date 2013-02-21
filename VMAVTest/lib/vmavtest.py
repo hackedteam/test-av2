@@ -230,17 +230,24 @@ class VMAVTest:
 
             print "- wait for 1 minute: %s" % time.ctime() 
             sys.stdout.flush()
-            
-            sleep(60 * 1)
-            
-            result = self.check_instance( ident )
-            print "- Result: ", result
 
         except Exception, e:
             print "ERROR: ", e
             raise e
         finally:
             self.connection.logout()
+
+        sleep(60 * 1)
+        self.connection.login()
+        try:
+            result = self.check_instance( ident )
+            print "- Result: ", result
+        except Exception, e:
+            print "ERROR: ", e
+            raise e
+        finally:
+            self.connection.logout()
+
 
 def internet(args):
     print time.ctime()
