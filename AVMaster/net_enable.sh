@@ -1,1 +1,1 @@
-shorewall restart /etc/shorewall-nat-enabled/
+shorewall restart /etc/shorewall-nat-enabled/ > networking_log.txt
