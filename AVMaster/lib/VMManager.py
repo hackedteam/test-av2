@@ -58,26 +58,24 @@ class VMManagerVS:
 
 	def refreshSnapshot(self, vmx):
 		sys.stdout.write("[%s] Refreshing snapshot %s.\n" % (vmx, vmx.snapshot))
-		print "calling del"
 		self.deleteSnapshot(vmx, vmx.snapshot)
-		print "calling create"
 		self.createSnapshot(vmx, vmx.snapshot)
 
 	def mkdirInGuest(self, vmx, dir_path):
 		sys.stdout.write("[%s] Creating directory %s.\n" % (vmx,dir_path))
-		self._run_cmd(vmx, CreateDirectoryInGuest, [dir_path], [vmx.user,vmx.passwd])
+		self._run_cmd(vmx, "CreateDirectoryInGuest", [dir_path], [vmx.user,vmx.passwd])
 
-	def copyFileToGuest(self, vmx, file_path = []):
+	def copyFileToGuest(self, vmx, src_file, dst_file):
 		sys.stdout.write("[%s] Copying file from %s to %s.\n" % (vmx, src_file, dst_file))
-		self._run_cmd(vmx, "CopyFileFromHostToGuest", file_path)
+		self._run_cmd(vmx, "CopyFileFromHostToGuest", [src_file, dst_file], [vmx.user, vmx.passwd])
 
-	def copyFileFromGuest(self, vmx, file_path = []):
+	def copyFileFromGuest(self, vmx, src_file, dst_file):
 		sys.stdout.write("[%s] Copying file from %s to %s.\n" % (vmx, src_file, dst_file))
-		self._run_cmd(vmx, "CopyFileFromHostFromGuest", [file_path], [vmx.user, vmx.passwd])
+		self._run_cmd(vmx, "CopyFileFromGuestToHost", [src_file, dst_file], [vmx.user, vmx.passwd])
 
-	def executeCmd(self, vmx, cmd, args=[]):
-		sys.stdout.write("[%s] Executing %s %s" % (vmx, cmd, str(args)))
-		self._run_cmd(vmx, "runProgramInGuest", [cmd,args], [vmx.user, vmx.passwd])
+	def executeCmd(self, vmx, cmd): ##### args=[]):
+		sys.stdout.write("[%s] Executing %s" % (vmx,cmd)) # eith args %s" % (vmx, cmd, args))
+		self._run_cmd(vmx, "runProgramInGuest", [cmd], [vmx.user, vmx.passwd])
 
 	def takeScreenshot(self, vmx, out_img):
 		sys.stdout.write("[%s] Taking screenshot.\n" % vmx)

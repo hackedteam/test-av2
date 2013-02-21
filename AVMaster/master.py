@@ -6,6 +6,7 @@ from time import sleep
 from ConfigParser import ConfigParser
 from multiprocessing import Pool
 import argparse
+import random
 
 from lib.VMachine import VMachine
 from lib.VMManager import VMManagerVS
@@ -23,18 +24,21 @@ def update(vm_name):
         try:
             vm = VMachine(vm_conf_file, vm_name)
             vmman.revertSnapshot(vm, vm.snapshot)
-            sleep(10)
+            sleep(random.randint(10,60))
             vmman.startup(vm)
             # executing scripts for vm and wait 3 hours
-            vmman.executeCmd(vm, cmd)
-            sys.stdout.write("[%s] waiting for Updates")
-            sleep(3600)
-            vmman.reboot(vm)
-            sys.stdout.write("[%s] waiting for reconfigurations")
-            sleep(300)
-            #sleep(60)
+            print "[%s] waiting for Updatess" % vm_name
+            sleep(50 * 60)
+            sleep(random.randint(10,600))
+            print "[%s] Shutdown for reconfigurations" % vm_name
+            vmman.shutdown(vm)
+            sleep(30 * 60)
+            print "[%s] Startup" % vm_name
+            vmman.startup(vm)
+            sleep(10 * 60)
+            print "[%s] Suspending and saving new snapshot" % vm_name
             vmman.suspend(vm)
-            sleep(3)
+            sleep(30)
             vmman.refreshSnapshot(vm)
             return "[%s] Updated!"  % vm_name
         except Exception as e:
@@ -47,6 +51,52 @@ def revert(vm_name):
     sleep(2)
     return "[*] %s reverted!"
 
+
+def test_internet(vm_name):
+    #try:
+    vm = VMachine(vm_conf_file, vm_name)
+
+    vmman.revertSnapshot(vm, vm.snapshot)
+    sleep(5)
+    vmman.startup(vm)
+    sleep(60)
+    
+    test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
+    lib_dir = "%s\\lib" % test_dir
+    assets_dir = "%s\\assets" % test_dir
+    vmavtest = "../VMAVTest"
+    
+    vmman.mkdirInGuest(vm, test_dir)
+
+    filestocopy =[  "./test_internet.bat",
+                    "lib/vmavtest.py",
+                    "lib/logger.py",
+                    "lib/rcs_client.py",
+                    "assets/config.json",
+                    "assets/keyinject.exe",
+                    "assets/meltapp.exe"    ]
+    memo = []
+    for filetocopy in filestocopy:
+        d,f = filetocopy.split("/")
+
+        if d == ".":
+            src = "%s/%s" % (vmavtest,f)
+            dst =  "%s\\%s" % (test_dir,f)
+        else:
+            src = "%s/%s/%s" % (vmavtest,d,f)
+            dst =  "%s\\%s\\%s" % (test_dir,d,f)
+            rdir = "%s\\%s" % (test_dir,d)
+            if not memo.__contains__(rdir):
+                vmman.mkdirInGuest( vm, rdir )
+                memo.append( rdir )
+
+        #print src, dst
+        vmman.copyFileToGuest(vm, src, dst)
+    
+    # executing bat synchronized
+    vmman.executeCmd(vm, "%s\\test_internet.bat" % test_dir)
+    return "[%s] dispatched test internet" % vm_name
+ 
 
 def dispatch(vm_name):
         print "go dispatch " , vm_name
@@ -65,7 +115,6 @@ def dispatch(vm_name):
                 vmman.mkdirInGuest(vm, test_dir)
 
                 filestocopy =[  "./build_silent_minotauro.bat",
-                                "lib/ConsoleAPI.py", 
                                 "lib/vmavtest.py",
                                 "lib/logger.py",
                                 "lib/rcs_client.py",
@@ -75,22 +124,23 @@ def dispatch(vm_name):
                 memo = []
                 for filetocopy in filestocopy:
                         d,f = filetocopy.split("/")
-                        src = "%s/%s/%s" % (vmavtest,d,f)
 
                         if d == ".":
-                                dst =  "%s\\%s" % (test_dir,f)
+                            src = "%s/%s" % (vmavtest,f)
+                            dst =  "%s\\%s" % (test_dir,f)
                         else:
-                                dst =  "%s\\%s\\%s" % (test_dir,d,f)
-                                rdir = "%s\\%s" % (test_dir,d)
-                                if not memo.__contains__(rdir):
-                                        vmman.mkdirInGuest( vm, rdir )
-                                        memo.append( rdir )
+                            src = "%s/%s/%s" % (vmavtest,d,f)
+                            dst =  "%s\\%s\\%s" % (test_dir,d,f)
+                            rdir = "%s\\%s" % (test_dir,d)
+                            if not memo.__contains__(rdir):
+                                    vmman.mkdirInGuest( vm, rdir )
+                                    memo.append( rdir )
 
                         print src, dst
                         vmman.copyFileToGuest(vm, src, dst)
 
                 # executing bat synchronized
-                vmman.executeCmd(vm, build_silent_script_dst)
+                vmman.executeCmd(vm, "%s\\build_silent_minotauro.bat" % test_dir )
                 
                 # save results.txt locally
                 save_results(vm)
@@ -100,7 +150,7 @@ def dispatch(vm_name):
                 #sleep(5)
                 #vmman.refreshSnapshot(vm, vm.snapshot)
                 
-                return "[*] test files dispatched for %s" % vm_name
+                return "[%s] test files dispatched" % vm_name
 
         except Exception, ex:
                 print "exception inside ", ex
@@ -108,15 +158,23 @@ def dispatch(vm_name):
 
 
 def save_results(vm):
-    vmman.copyFileFromGuest(vm, "c:\\Users\\avtest\\Desktop\\AVTEST\\results.txt", "results.%s.txt" % vm_name)
+    filename = "results.%s.txt" % vm
+    vmman.copyFileFromGuest(vm, "c:\\Users\\avtest\\Desktop\\AVTEST\\results.txt", filename)
 
+    last = "Error save"
+    f = open(filename, 'rb')
+    for l in f.readlines():
+        if l.__contains__(" + "):
+            last = l
+
+    return "%s %s" % (vm, last)
 
 def main():
         lib.logger.setLogger()
 
         parser = argparse.ArgumentParser(description='AVMonitor master.')
     
-        parser.add_argument('action', choices=['update', 'revert', 'dispatch', 'test'],
+        parser.add_argument('action', choices=['update', 'revert', 'dispatch', 'test', 'test_internet'],
             help="The operation to perform")
         parser.add_argument('--vm', required=False, 
             help="Virtual Machine where execute the operation")
@@ -152,8 +210,10 @@ def main():
 
         print "[*] selected operation %s" % args.action
 
-        actions = { "update" : update, "revert": revert, "dispatch": dispatch }
+        actions = { "update" : update, "revert": revert, 
+                    "dispatch": dispatch, "test_internet": test_internet }
         r = pool.map_async(actions[args.action], vm_names)
+        print "[*] RESULTS: "
         print r.get()
 
 
