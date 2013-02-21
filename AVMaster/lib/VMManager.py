@@ -5,49 +5,15 @@ import os
 from ConfigParser import ConfigParser
 
 class VMManagerVS:
-	#def __init__(self, path, host=None, user=None, passwd=None):
 	def __init__(self, config_file):
-		'''
-		self.path = path
-		self.host = host
-		self.user = user
-		self.passwd = passwd
-		'''
 		self.config = ConfigParser()
 		self.config.read(config_file)
-		'''
-		self.path   = self._getPath(config_file)
-		self.host   = self._getHost(config_file)
-		self.user   = self._getUser(config_file)
-		self.passwd = self._getPasswd(config_file)
-		'''
+
 		self.path = self.config.get("vsphere", "path")
 		self.host = self.config.get("vsphere", "host")
 		self.user = self.config.get("vsphere", "user")
 		self.passwd = self.config.get("vsphere", "passwd")
 
-	def _getPath(self, conf_file):
-		config = ConfigParser()
-		config.read( conf_file )
-		return config.get("vsphere", "path")
-
-
-	def _getHost(self, conf_file):
-		config = ConfigParser()
-		config.read( conf_file )
-		return config.get("vsphere", "host")
-
-		
-	def _getUser(self, conf_file):
-		config = ConfigParser()
-		config.read( conf_file )
-		return config.get("vsphere", "user")
-
-		
-	def _getPasswd(self, conf_file):
-		config = ConfigParser()
-		config.read( conf_file )
-		return config.get("vsphere", "passwd")
 
 	def _run_cmd(vmx, cmd, args=[], vmx_creds=[]):
 		pargs = [   path,
@@ -56,6 +22,8 @@ class VMManagerVS:
 					"-u", self.user, "-p", self.passwd, cmd, vmx.path ]
 		if vm_cred != [] and len(vm_cred) == 2:
 			idx = pargs.index("-p")+2
+			cred = "-gu %s -gp %s" % ( vmx_creds[0], vmx_creds[1] )
+			pargs = pargs[0:idx] + cred.split() + pargs[idx:]
 			
 		pargs.extend(args)
 		subprocess.call(pargs)
