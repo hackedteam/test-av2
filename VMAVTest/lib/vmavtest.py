@@ -212,7 +212,7 @@ class VMAVTest:
         with connection() as c:
             info = c.instance_info(instance_id)
             print 'DBG _check_elite %s' % info
-            ret = info['upgradable'] == False and info['scout'] == True
+            ret = info['upgradable'] == False and info['scout'] == False
 
             if ret:
                 print "+ SUCCESS ELITE SYNC"
@@ -255,13 +255,9 @@ class VMAVTest:
             print "+ FAILED ELITE UPGRADE"
             return
 
-        print "- Elite, Wait for 20 minutes: %s" % time.ctime() 
-        sleep(random.randint(20, 22) * 60)
-        print "- Elite,Trigger sync for 30 seconds"
-        self._trigger_sync(timeout = 30)
-        print "- Elite, wait for 1 minute: %s" % time.ctime() 
-        sleep(60 * 1)
-
+        print "- Elite, Wait for 25 minutes: %s" % time.ctime() 
+        sleep(25 * 60)
+        
         elite = self._check_elite( instance )
         if elite:
             print "+ SUCCESS ELITE INSTALL"

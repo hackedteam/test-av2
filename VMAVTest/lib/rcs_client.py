@@ -28,7 +28,7 @@ class Rcs_client:
             
             return resp
         except HTTPError as e:
-            print "Error processing %s: %s" % (link, e)
+            print "ERROR: processing %s: %s, %s" % (link, e, e.read())
             
     def _post_response(self, link, cj, data=None):
         """ Basic POST Request / Response
@@ -44,7 +44,7 @@ class Rcs_client:
             resp = opener.open(req).read()
             return resp
         except HTTPError as e:
-            print "Error processing %s: %s, %s" % (link, e, e.reason)
+            print "ERROR: processing %s: %s, %s" % (link, e, e.read())
 
     def _call(self, api_name, data={}, binary = False, argjson = True):
         link = 'https://%s/%s' % (self.host, api_name)
