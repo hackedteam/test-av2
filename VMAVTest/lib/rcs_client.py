@@ -135,7 +135,6 @@ class Rcs_client:
     def agents(self, target_id):
         """ gets the agents (agents and factories) of an operation, matching the target id """
         agents = self._call_get('agent')
-        
         #pp.pprint(agents)
         ret = [ (op['_id'], op['ident'], op['name']) for op in agents if op['path'].__contains__(target_id)]
         return ret
@@ -207,7 +206,7 @@ class Rcs_client:
         return ret[0] if ret else None
 
     def instance_close(self, instance_id):
-        params = {'_id': instance_id, 'status':'close' }
+        params = {'_id': instance_id, 'status':'closed' }
         self._call('agent/update', params)
 
     def instance_delete(self, instance_id):
