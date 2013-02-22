@@ -33,8 +33,8 @@ def update(vm_name):
         vmman.reboot(vm)
         
         print "[%s] waiting for Updates" % vm_name
-        sleep(50 * 60)
-        sleep(random.randint(10,600))
+        #sleep(50 * 60)
+        sleep(random.randint(10,300))
 
         print "[%s] Shutdown for reconfigurations" % vm_name
         running = True
@@ -105,10 +105,10 @@ def dispatch(vm_name):
     print "go dispatch " , vm_name
     try:
         vm = VMachine(vm_conf_file, vm_name)
-        vmman.revertSnapshot(vm, vm.snapshot)
+        vmman.revertLastSnapshot(vm)
         sleep(5)
         vmman.startup(vm)
-        sleep(5)
+        sleep(120)
 
         test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
 
@@ -127,7 +127,7 @@ def dispatch(vm_name):
                         "assets/keyinject.exe",
                         "assets/meltapp.exe"    ]
 
-        copy_to_guest(vm, vmman, test_dir, filestocopy)
+        copy_to_guest(vm, test_dir, filestocopy)
 
         # executing bat synchronized
         vmman.executeCmd(vm, "%s\\%s" % (test_dir, buildbat))

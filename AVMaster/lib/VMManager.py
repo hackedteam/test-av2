@@ -73,23 +73,23 @@ class VMManagerVS:
 
 	def refreshSnapshot(self, vmx, delete=True):
 		sys.stdout.write("[%s] Refreshing snapshot.\n" % vmx)
-		'''
-		self.deleteSnapshot(vmx, vmx.snapshot)
-		self.createSnapshot(vmx, vmx.snapshot)
-		'''
+
 		# create new snapshot
 		date = datetime.now().strftime('%Y%m%d-%H%M')
 		self.createSnapshot(vmx, "%s" % date)
 		if delete == True:
 			snaps = self.listSnapshots(vmx)
-			#print "i want to delete the snap %s or %s" % (snaps[-2],snaps[-1])
-			self.deleteSnapshot(vmx, snaps[-2])
+			if len(snaps) > 0 and snaps[-2] != "ready":
+				self.deleteSnapshot(vmx, snaps[-2])
 
 
 
 	def revertLastSnapshot(self,vmx):
 		snap = self.listSnapshots(vmx)
-		self.revertSnapshot(vmx, snap[-1])
+		if len(snap) > 0:
+			self.revertSnapshot(vmx, snap[-1])
+		else:
+			return "[%s] ERROR: no snapshots!" % vmx
 
 	def mkdirInGuest(self, vmx, dir_path):
 		sys.stdout.write("[%s] Creating directory %s.\n" % (vmx,dir_path))
@@ -122,7 +122,6 @@ class VMManagerVS:
 
 	def listSnapshots(self, vmx):
 		out = self._run_cmd(vmx, "listSnapshots", popen=True).split("\n")
-		#return (out[0][-1:], out[1:-1])
 		return out[1:-1]
 
 
