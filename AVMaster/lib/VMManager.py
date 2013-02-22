@@ -53,7 +53,7 @@ class VMManagerVS:
 
 	def reboot(self, vmx):
 		sys.stdout.write("[%s] Rebooting!\r\n" % vmx)
-		self._run_cmd(vmx, "reset", ["soft"])
+		self._run_cmd(vmx, "reset", ["hard"])
 
 	def suspend(self, vmx):
 		sys.stdout.write("[%s] Suspending!\r\n" % vmx)

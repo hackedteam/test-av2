@@ -52,8 +52,12 @@ def update(vm_name):
         sleep(10 * 60)
 
         print "[%s] Suspending and saving new snapshot" % vm_name
-        vmman.suspend(vm)
-        sleep(30)
+        #vmman.suspend(vm)
+        running = True
+        vmman.shutdown(vm)
+        while running == True:
+            sleep(30)
+            running = vmman.VMisRunning(vm)
 
         vmman.refreshSnapshot(vm)
         return "[%s] Updated!"  % vm_name
