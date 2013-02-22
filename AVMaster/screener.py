@@ -1,13 +1,8 @@
 import subprocess
 import os
-import shutil
-import hashlib, md5
-import string, random
 from time import sleep
 from threading import Thread
 
-from lib.cuckoo.common.exceptions import CuckooAnalysisError, CuckooMachineError, CuckooGuestError
-from lib.cuckoo.common.utils import File
 
 class Screener(Thread):
     

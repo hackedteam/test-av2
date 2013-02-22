@@ -12,8 +12,8 @@ class Rcs_client:
         self.host = host
         self.user = user
         self.passwd = passwd
-        #self.cookie = self.do_login()
-        
+        #self.cookie = self.do_login
+
     def _get_response(self, link, cookies = None):
         """ Basic HTTP Request/Response with Cookie
         @param link
@@ -44,15 +44,15 @@ class Rcs_client:
             resp = opener.open(req).read()
             return resp
         except HTTPError as e:
-            print "Error processing %s: %s" % (link, e)
+            print "Error processing %s: %s, %s" % (link, e, e.reason)
 
     def _call(self, api_name, data={}, binary = False, argjson = True):
         link = 'https://%s/%s' % (self.host, api_name)
         #print "binary %s, argjson %s" % (binary, argjson)
         arg = data
         if argjson:
-            
             arg = json.dumps(data)
+
         resp = self._post_response(link, self.cookie, arg)
         if binary:
             return resp 
@@ -61,8 +61,8 @@ class Rcs_client:
             result = json.loads(resp)
             return result
         except Exception, e:
-            print e
-            print "call error: ", resp
+            print "ERROR: %s" % e
+            print "call error: %s" % resp
             raise e
 
     def _call_get(self, api_name):
@@ -87,7 +87,6 @@ class Rcs_client:
 
         self.cookie = cj
         return cj
-
         
     def logout(self):
         """ Logout for session
@@ -96,6 +95,10 @@ class Rcs_client:
         """
         self._call('auth/logout')
         return True
+
+    def server_status(self):
+        status = self._call_get('status/counters')
+        return status
 
     def operation(self, operation):
         """ gets the operation id of an operation """
@@ -115,9 +118,7 @@ class Rcs_client:
         return ret
 
     def factories(self, target_id):
-        """ gets the targets id of an operation, matching the target name 
-        name, ident
-        """
+        """ gets the factories of an operation, matching the target id """
         factories = self._call_get('factory')
 
         #pp.pprint(factories)
@@ -125,14 +126,14 @@ class Rcs_client:
         return ret
 
     def instances(self, ident):
-        """ gets the instances id of an operation, matching the ident
-        """
+        """ gets the instances id of an operation, matching the ident """
         agents = self._call_get('agent')
         #pp.pprint(agents)
         ret = [ op['_id'] for op in agents if op['ident'].__contains__(ident) and op['_kind'] == 'agent' ]
         return ret
 
     def agents(self, target_id):
+        """ gets the agents (agents and factories) of an operation, matching the target id """
         agents = self._call_get('agent')
         
         #pp.pprint(agents)
@@ -191,10 +192,23 @@ class Rcs_client:
             print e
             return False
 
-    def agent_upgrade(self, agent_id):
-        params = {'_id': agent_id }
-        resp = self._call('agent/upgrade', params)
-        return resp
+    def instance_upgrade(self, instance_id):
+        params = {'_id': instance_id }
+        try:
+            self._call('agent/upgrade', params)
+            return True
+        except:
+            return False
+
+    def instance_info(self, instance_id):
+        agents = self._call_get('agent')
+        #pp.pprint(agents)
+        ret = [ op for op in agents if op['_id'] == instance_id ]
+        return ret[0] if ret else None
+
+    def instance_close(self, instance_id):
+        params = {'_id': instance_id, 'status':'close' }
+        self._call('agent/update', params)
 
     def instance_delete(self, instance_id):
         """ Delete a given instance
@@ -264,33 +278,7 @@ class Rcs_client:
         
         #print "+ %s bytes saved to %s" % (len(out),  out_file)
 
-def test():
-    import socket
-    import time
 
-    print 'test'
-    host = "rcs-minotauro"
-    user = "avmonitor"
-    passwd = "avmonitorp123"
-    conn = Rcs_client(host, user, passwd)
-    print conn.login()
-
-    hostname = socket.gethostname()
-    print "%s %s\n" % (hostname, time.ctime())
-    target = 'VM_%s' % hostname
-
-    operation_id = conn.operation('AVMonitor')
-    targets = conn.targets(operation_id, target)
-    for target_id in targets:
-        print "targets: ", targets
-
-        factories = conn.factories( target_id )
-        print "factories: ", factories
-
-        for factory_id, ident in factories:
-            print "factory_id ", factory_id, ident
-            instances = conn.instances( ident )
-            print "instances: ", instances
 
 def testMelt():
     print 'test'
@@ -350,5 +338,52 @@ def testMelt():
     print "'%s','%s','%s' " % (operation, target, factory)
     print conn.logout()
 
+def test():
+    import socket
+    import time
+
+    print 'test'
+    host = "rcs-minotauro"
+    user = "avmonitor"
+    passwd = "avmonitorp123"
+    conn = Rcs_client(host, user, passwd)
+    print conn.login()
+
+    print conn.server_status()
+
+    hostname = socket.gethostname()
+    print "%s %s\n" % (hostname, time.ctime())
+    target = 'VM_%s' % hostname
+
+    operation_id = conn.operation('AVMonitor')
+    targets = conn.targets(operation_id, target)
+    for target_id in targets:
+        print "targets: ", targets
+
+        factories = conn.factories( target_id )
+        print "factories: ", factories
+
+        for factory_id, ident in factories:
+            print "factory_id ", factory_id, ident
+            instances = conn.instances( ident )
+            print "instances: ", instances
+
+            for instance_id in instances:
+                print "info %s" % instance_id
+                info = conn.instance_info(instance_id)
+                print info
+                assert info['scout'] == True
+
+                print "upgrade elite"
+                res = conn.instance_upgrade(instance_id)
+                print "res: %s" % res
+
+                info = conn.instance_info(instance_id)
+                print info
+                if res:
+                    assert info['upgradable'] == True
+
 if __name__ == "__main__":
+    import logger
+    logger.setLogger(debug=True)
     test()
