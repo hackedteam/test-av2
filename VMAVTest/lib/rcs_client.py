@@ -1,8 +1,7 @@
-import urllib,urllib2
+import urllib2
 from urllib2 import HTTPError
 import cookielib
 import json
-import subprocess,os
 import pprint
 
 pp = pprint.PrettyPrinter(indent=4)
@@ -84,13 +83,8 @@ class Rcs_client:
         link = "https://%s/auth/login" % self.host
         data = json.dumps(login)
         cj = cookielib.CookieJar()
-        resp = self._post_response(link, cj, data)
-        '''
-        opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj), 
-                urllib2.HTTPHandler() )
-        req = urllib2.Request(link)
-        resp = opener.open(req)
-        '''
+        self._post_response(link, cj, data)
+
         self.cookie = cj
         return cj
 
@@ -196,28 +190,6 @@ class Rcs_client:
         except Exception as e:
             print e
             return False
-        
-    def enum_instances(self, factory):
-        """ Enumerate all instances for given factory
-        @param factory
-        @return dict of instances
-        """
-
-        ins = {}
-        baselink = 'https://%s/agent' % self.host
-        resp = self._get_response(baselink, self.cookie)
-        agents = json.loads(resp)
-
-        instances = [  ]
-        for agent in agents:
-            if agent["ident"] == factory and agent["_kind"] == "agent":
-                link = '%s/%s' % (baselink, agent["_id"])
-                resp = self._get_response(link, self.cookie)
-                dev = json.loads(resp)
-                ins[device] = dev
-
-                instances.append(agent["ident"],agent['_id'])
-        return instances
 
     def agent_upgrade(self, agent_id):
         params = {'_id': agent_id }
@@ -260,7 +232,7 @@ class Rcs_client:
         resp = self._call('build', params, binary = True)
         
         out = open(out_file, 'wb')
-        l = out.write(resp)
+        out.write(resp)
         
         #print "+ %s bytes saved to %s" % (len(out),  out_file)
 
@@ -288,7 +260,7 @@ class Rcs_client:
         resp = self._call('build', params,  binary = True)
         
         out = open(out_file, 'wb')
-        l = out.write(resp)
+        out.write(resp)
         
         #print "+ %s bytes saved to %s" % (len(out),  out_file)
 
