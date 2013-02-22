@@ -1,3 +1,0 @@
-2013-02-21 15:20:08,724: ERROR: usage: master.py [-h] [--vm VM] [-p POOL]
-2013-02-21 15:20:08,724: ERROR:                  {update,revert,dispatch,test,test_internet}
-2013-02-21 15:20:08,724: ERROR: master.py: error: too few arguments
