@@ -26,7 +26,7 @@ def update(vm_name):
     try:
         vm = VMachine(vm_conf_file, vm_name)
         
-        vmman.revertSnapshot(vm, vm.snapshot)
+        vmman.revertLastSnapshot(vm)
 
         sleep(random.randint(10,60))
         vmman.startup(vm)
@@ -36,7 +36,7 @@ def update(vm_name):
         
         print "[%s] waiting for Updates" % vm_name
         #sleep(50 * 60)
-        sleep(random.randint(10,300))
+        #sleep(random.randint(10,300))
 
         print "[%s] Shutdown for reconfigurations" % vm_name
         running = True
@@ -70,7 +70,7 @@ def revert(vm_name):
 def copy_to_guest(vm, test_dir, filestocopy):
     #lib_dir = "%s\\lib" % test_dir
     #assets_dir = "%s\\assets" % test_dir
-    vmavtest = "../VMAVTest/"
+    vmavtest = "../VMAVTest"
 
     memo = []
     for filetocopy in filestocopy:
