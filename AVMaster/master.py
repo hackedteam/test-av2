@@ -7,6 +7,8 @@ from ConfigParser import ConfigParser
 from multiprocessing import Pool
 import argparse
 import random
+import time
+import os.path
 
 from lib.VMachine import VMachine
 from lib.VMManager import VMManagerVS
@@ -223,9 +225,18 @@ def main():
     actions = { "update" : update, "revert": revert, 
                 "dispatch": dispatch, "test_internet": test_internet }
     r = pool.map_async(actions[args.action], vm_names)
-    print "[*] RESULTS: "
+    
 
-    print r.get()
+    results = r.get()
+    print "[*] RESULTS: %s" % results
+
+    timestamp = time.strftime("%Y%m%d_%H%M", time.gmtime())
+    if not os.path.exists("reports"):
+        os.mkdir("reports")
+    with open( "reports/master_%s.txt" % timestamp, "wb") as f:
+        f.write("REPORT\n")
+        for l in results:
+            f.write("%s\n" % l)
 
 
 if __name__ == "__main__":	
