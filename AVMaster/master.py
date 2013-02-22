@@ -26,6 +26,8 @@ def update(vm_name):
             vmman.revertSnapshot(vm, vm.snapshot)
             sleep(random.randint(10,60))
             vmman.startup(vm)
+            sleep(random.randint(60,2*60))
+            vmman.reboot(vm)
             # executing scripts for vm and wait 3 hours
             print "[%s] waiting for Updatess" % vm_name
             sleep(50 * 60)
