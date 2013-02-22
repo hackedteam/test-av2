@@ -23,6 +23,7 @@ vmman = VMManagerVS(vm_conf_file)
 def update(vm_name):
     try:
         vm = VMachine(vm_conf_file, vm_name)
+        
         vmman.revertSnapshot(vm, vm.snapshot)
 
         sleep(random.randint(10,60))
@@ -30,18 +31,23 @@ def update(vm_name):
 
         sleep(random.randint(60,2*60))
         vmman.reboot(vm)
-
+        
         print "[%s] waiting for Updates" % vm_name
         sleep(50 * 60)
         sleep(random.randint(10,600))
 
         print "[%s] Shutdown for reconfigurations" % vm_name
-        vmman.shutdown(vm)
-        sleep(30 * 60)
+        running = True
+        vmman.shutdownUpgrade(vm)
+
+        while running == True:
+            sleep(60)
+            running = vmman.VMisRunning(vm)
+
 
         print "[%s] Startup" % vm_name
         vmman.startup(vm)
-        sleep(30 * 60)
+        sleep(10 * 60)
 
         print "[%s] Suspending and saving new snapshot" % vm_name
         vmman.suspend(vm)
@@ -156,10 +162,7 @@ def test_internet(vm_name):
     filestocopy =[  "./test_internet.bat",
                     "lib/vmavtest.py",
                     "lib/logger.py",
-                    "lib/rcs_client.py",
-                    "assets/config.json",
-                    "assets/keyinject.exe",
-                    "assets/meltapp.exe"    ]
+                    "lib/rcs_client.py" ]
     copy_to_guest(vm, test_dir, filestocopy)
     
     # executing bat synchronized
@@ -168,22 +171,12 @@ def test_internet(vm_name):
 
 def test():
     #vm_conf_file = os.path.join("conf", "vms.cfg")
-    vm_name = "panda"
+    vm_name = "sophos"
 
     #vmman = VMManagerVS(vm_conf_file)
     vm = VMachine(vm_conf_file, vm_name)
-    test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
-    
-    filestocopy =[  "./build_silent_minotauro.bat",
-                                "lib/vmavtest.py",
-                                "lib/logger.py",
-                                "lib/rcs_client.py",
-                                "assets/config.json",
-                                "assets/keyinject.exe",
-                                "assets/meltapp.exe"   
-                                 ]
-    copy_to_guest(vm, test_dir, filestocopy)
-
+    snaps = vmman.listSnapshots(vm)
+    print "VM %s snapshots: %s" % (vm,snaps)
 def main():
     lib.logger.setLogger()
 

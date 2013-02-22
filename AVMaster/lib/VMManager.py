@@ -15,7 +15,7 @@ class VMManagerVS:
 		self.passwd = self.config.get("vsphere", "passwd")
 
 
-	def _run_cmd(self, vmx, cmd, args=[], vmx_creds=[]):
+	def _run_cmd(self, vmx, cmd, args=[], vmx_creds=[], popen=False):
 		pargs = [   self.path,
 					"-T", "vc",
 					"-h", self.host,
@@ -26,7 +26,18 @@ class VMManagerVS:
 			pargs = pargs[0:idx] + cred.split() + pargs[idx:]
 			
 		pargs.extend(args)
+		if popen == True:
+			return self._run_popen(pargs)
+		else:
+			self._run_call(pargs)
+
+	def _run_call(self, pargs):
 		subprocess.call(pargs)
+
+	def _run_popen(self, pargs):
+		p = subprocess.Popen(pargs, stdout=subprocess.PIPE)
+		return p.communicate()[0]
+
 
 	def startup(self, vmx):
 		sys.stdout.write("[%s] Starting!\r\n" % vmx)
@@ -35,6 +46,9 @@ class VMManagerVS:
 	def shutdown(self, vmx):
 		sys.stdout.write("[%s] Stopping!\r\n" % vmx)
 		self._run_cmd(vmx, "stop")
+
+	def shutdownUpgrade(self, vmx):
+		self.executeCmd(vmx, "c:\\WINDOWS\\system32\\shutdown.exe", ["/s","/t","0"])
 
 	def reboot(self, vmx):
 		sys.stdout.write("[%s] Rebooting!\r\n" % vmx)
@@ -73,13 +87,30 @@ class VMManagerVS:
 		sys.stdout.write("[%s] Copying file from %s to %s.\n" % (vmx, src_file, dst_file))
 		self._run_cmd(vmx, "CopyFileFromGuestToHost", [src_file, dst_file], [vmx.user, vmx.passwd])
 
-	def executeCmd(self, vmx, cmd): ##### args=[]):
-		sys.stdout.write("[%s] Executing %s" % (vmx,cmd)) # eith args %s" % (vmx, cmd, args))
-		self._run_cmd(vmx, "runProgramInGuest", [cmd], [vmx.user, vmx.passwd])
+	def executeCmd(self, vmx, cmd, args=[]): 
+		sys.stdout.write("[%s] Executing %s\n" % (vmx,cmd))
+		cmds = []
+		cmds.append(cmd)
+		cmds.extend(args)
+		self._run_cmd(vmx, "runProgramInGuest", cmds, [vmx.user, vmx.passwd])
 
 	def takeScreenshot(self, vmx, out_img):
 		sys.stdout.write("[%s] Taking screenshot.\n" % vmx)
 		self._run_cmd(vmx, "captureScreen", [out_img], [vmx.user, vmx.passwd])
+
+	def VMisRunning(self, vmx):
+		res = self._run_cmd(vmx, "list", popen=True)
+		if res.__contains__(vmx.path[1:-1]):
+			return True
+		return False
+
+	def listSnapshots(self, vmx):
+		out = self._run_cmd(vmx, "listSnapshots", popen=True).split("\n")
+		#return (out[0][-1:], out[1:-1])
+		return out[1:-1]
+
+
+
 
 
 class VMManagerFus:
