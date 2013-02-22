@@ -119,7 +119,7 @@ def dispatch(vm_name):
         kind = "silent"
         host = "minotauro"
 
-        buildbat = "build_%s_%s.bat" % (host, kind)
+        buildbat = "build_%s_%s.bat" % (kind, host)
 
         filestocopy =[  "./%s" % buildbat,
                         "lib/vmavtest.py",
