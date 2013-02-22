@@ -2,6 +2,7 @@ import subprocess
 import sys
 import os
 
+from datetime import datetime
 from ConfigParser import ConfigParser
 
 class VMManagerVS:
@@ -59,21 +60,36 @@ class VMManagerVS:
 		self._run_cmd(vmx, "suspend", ["soft"])
 
 	def createSnapshot(self, vmx, snapshot):
-		sys.stdout.write("[%s] Creating snapshot %s.\n" % (vmx, vmx.snapshot))
+		sys.stdout.write("[%s] Creating snapshot %s.\n" % (vmx, snapshot))
 		self._run_cmd(vmx, "snapshot", [snapshot])
 
 	def deleteSnapshot(self, vmx, snapshot):
-		sys.stdout.write("[%s] Deleting snapshot %s.\n" % (vmx, vmx.snapshot))
+		sys.stdout.write("[%s] Deleting snapshot %s.\n" % (vmx, snapshot))
 		self._run_cmd(vmx, "deleteSnapshot", [snapshot])
 
 	def revertSnapshot(self, vmx, snapshot):
-		sys.stdout.write("[%s] Reverting snapshot %s.\n" % (vmx, vmx.snapshot))
+		sys.stdout.write("[%s] Reverting snapshot %s.\n" % (vmx, snapshot))
 		self._run_cmd(vmx, "revertToSnapshot", [snapshot])
 
-	def refreshSnapshot(self, vmx):
-		sys.stdout.write("[%s] Refreshing snapshot %s.\n" % (vmx, vmx.snapshot))
+	def refreshSnapshot(self, vmx, delete=True):
+		sys.stdout.write("[%s] Refreshing snapshot.\n" % vmx)
+		'''
 		self.deleteSnapshot(vmx, vmx.snapshot)
 		self.createSnapshot(vmx, vmx.snapshot)
+		'''
+		# create new snapshot
+		date = datetime.now().strftime('%Y%m%d-%H%M')
+		self.createSnapshot(vmx, "%s" % date)
+		if delete == True:
+			snaps = self.listSnapshots(vmx)
+			#print "i want to delete the snap %s or %s" % (snaps[-2],snaps[-1])
+			self.deleteSnapshot(vmx, snaps[-2])
+
+
+
+	def revertLastSnapshot(self,vmx):
+		snap = self.listSnapshots(vmx)
+		self.revertSnapshot(vmx, snap[-1])
 
 	def mkdirInGuest(self, vmx, dir_path):
 		sys.stdout.write("[%s] Creating directory %s.\n" % (vmx,dir_path))

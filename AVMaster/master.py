@@ -175,8 +175,9 @@ def test():
 
     #vmman = VMManagerVS(vm_conf_file)
     vm = VMachine(vm_conf_file, vm_name)
-    snaps = vmman.listSnapshots(vm)
-    print "VM %s snapshots: %s" % (vm,snaps)
+    #vmman.refreshSnapshot(vm)
+    vmman.revertLastSnapshot(vm)
+
 def main():
     lib.logger.setLogger()
 
