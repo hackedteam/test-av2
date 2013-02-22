@@ -28,7 +28,7 @@ class Rcs_client:
             
             return resp
         except HTTPError as e:
-            print "Error processing %s: %s" % (link, e)
+            print "ERROR: processing %s: %s, %s" % (link, e, e.read())
             
     def _post_response(self, link, cj, data=None):
         """ Basic POST Request / Response
@@ -44,7 +44,7 @@ class Rcs_client:
             resp = opener.open(req).read()
             return resp
         except HTTPError as e:
-            print "Error processing %s: %s, %s" % (link, e, e.reason)
+            print "ERROR: processing %s: %s, %s" % (link, e, e.read())
 
     def _call(self, api_name, data={}, binary = False, argjson = True):
         link = 'https://%s/%s' % (self.host, api_name)
@@ -260,14 +260,14 @@ class Rcs_client:
 
         f = open(melt_file, "rb")
         payload = f.read()
-        #print "payload size: ", len(payload), " file: ", melt_file
+        print "DBG payload size: ", len(payload), " file: ", melt_file
         melt_id = self._call('upload', payload, binary = True, argjson = False)
-        #print "uploaded: ", melt_id
+        print "DBG uploaded: ", melt_id
 
         params['melt']['input'] = melt_id
         #:  Build: melting: {"admin"=>false, "bit64"=>true, "codec"=>true, "scout"=>true, "input"=>"4f60909baef1de0e4800000a-1361192221.897401094"}
 
-        #print "+ Build melt params: \n%s" % params
+        print "DBG Build melt params: \n%s" % params
         #link  = 'https://%s/build' % self.host
         #resp = self.post_response(link, json.dumps(params))
         resp = self._call('build', params,  binary = True)
@@ -276,8 +276,6 @@ class Rcs_client:
         out.write(resp)
         
         #print "+ %s bytes saved to %s" % (len(out),  out_file)
-
-
 
 def testMelt():
     print 'test'

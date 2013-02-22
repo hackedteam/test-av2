@@ -29,13 +29,13 @@ class StreamToLogger(object):
          for line in buf.rstrip().splitlines():
             self.logger.log(self.log_level, line.rstrip())
 
-def setLogger(debug=True):
+def setLogger( debug=True, filelog="results.txt"):
    logging.basicConfig(
       
       level=logging.DEBUG if debug else logging.INFO,
       #format='%(asctime)s: %(levelname)s: %(name)s: %(message)s',
       format='%(asctime)s: %(levelname)s: %(message)s',
-      filename="results.txt",
+      filename=filelog,
       filemode='w'
    )
    terminal = sys.stdout
