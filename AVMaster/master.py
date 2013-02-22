@@ -24,23 +24,29 @@ def update(vm_name):
     try:
         vm = VMachine(vm_conf_file, vm_name)
         vmman.revertSnapshot(vm, vm.snapshot)
+
         sleep(random.randint(10,60))
         vmman.startup(vm)
+
         sleep(random.randint(60,2*60))
         vmman.reboot(vm)
-        # executing scripts for vm and wait 3 hours
-        print "[%s] waiting for Updatess" % vm_name
+
+        print "[%s] waiting for Updates" % vm_name
         sleep(50 * 60)
         sleep(random.randint(10,600))
+
         print "[%s] Shutdown for reconfigurations" % vm_name
         vmman.shutdown(vm)
         sleep(30 * 60)
+
         print "[%s] Startup" % vm_name
         vmman.startup(vm)
-        sleep(10 * 60)
+        sleep(30 * 60)
+
         print "[%s] Suspending and saving new snapshot" % vm_name
         vmman.suspend(vm)
         sleep(30)
+
         vmman.refreshSnapshot(vm)
         return "[%s] Updated!"  % vm_name
     except Exception as e:
@@ -53,52 +59,41 @@ def revert(vm_name):
     sleep(2)
     return "[*] %s reverted!"
 
+def copy_to_guest(vm, test_dir, filestocopy):
+    #lib_dir = "%s\\lib" % test_dir
+    #assets_dir = "%s\\assets" % test_dir
+    vmavtest = "../VMAVTest/"
 
-def test_internet(vm_name):
-    #try:
-    vm = VMachine(vm_conf_file, vm_name)
-
-    vmman.revertSnapshot(vm, vm.snapshot)
-    sleep(5)
-    vmman.startup(vm)
-    sleep(60)
-    
-    test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
-    lib_dir = "%s\\lib" % test_dir
-    assets_dir = "%s\\assets" % test_dir
-    vmavtest = "../VMAVTest"
-    
-    vmman.mkdirInGuest(vm, test_dir)
-
-    filestocopy =[  "./test_internet.bat",
-                    "lib/vmavtest.py",
-                    "lib/logger.py",
-                    "lib/rcs_client.py",
-                    "assets/config.json",
-                    "assets/keyinject.exe",
-                    "assets/meltapp.exe"    ]
     memo = []
     for filetocopy in filestocopy:
         d,f = filetocopy.split("/")
+        src = "%s/%s/%s" % (vmavtest, d, f)
 
         if d == ".":
-            src = "%s/%s" % (vmavtest,f)
-            dst =  "%s\\%s" % (test_dir,f)
+            dst =  "%s\\%s" % (test_dir, f)
         else:
-            src = "%s/%s/%s" % (vmavtest,d,f)
-            dst =  "%s\\%s\\%s" % (test_dir,d,f)
-            rdir = "%s\\%s" % (test_dir,d)
-            if not memo.__contains__(rdir):
-                vmman.mkdirInGuest( vm, rdir )
-                memo.append( rdir )
+            dst =  "%s\\%s\\%s" % (test_dir, d, f)
 
-        #print src, dst
+        rdir = "%s\\%s" % (test_dir, d)
+        if not memo.__contains__(rdir):
+            print "DBG mkdir %s " % (rdir)
+            vmman.mkdirInGuest( vm, rdir )
+            memo.append( rdir )
+
+        print "DBG copy %s -> %s" % (src, dst)
         vmman.copyFileToGuest(vm, src, dst)
-    
-    # executing bat synchronized
-    vmman.executeCmd(vm, "%s\\test_internet.bat" % test_dir)
-    return "[%s] dispatched test internet" % vm_name
- 
+
+def save_results(vm):
+    filename = "results.%s.txt" % vm
+    vmman.copyFileFromGuest(vm, "c:\\Users\\avtest\\Desktop\\AVTEST\\results.txt", filename)
+
+    last = "Error save"
+    f = open(filename, 'rb')
+    for l in f.readlines():
+        if l.__contains__(" + "):
+            last = l
+
+    return "%s %s" % (vm, last)
 
 def dispatch(vm_name):
     print "go dispatch " , vm_name
@@ -110,39 +105,26 @@ def dispatch(vm_name):
         sleep(5)
 
         test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
-        lib_dir = "%s\\lib" % test_dir
-        assets_dir = "%s\\assets" % test_dir
-        vmavtest = "../VMAVTest/"
 
         vmman.mkdirInGuest(vm, test_dir)
 
-        filestocopy =[  "./build_silent_minotauro.bat",
+        kind = "silent"
+        host = "minotauro"
+
+        buildbat = "build_%s_%s.bat" % (host, kind)
+
+        filestocopy =[  "./%s" % buildbat,
                         "lib/vmavtest.py",
                         "lib/logger.py",
                         "lib/rcs_client.py",
                         "assets/config.json",
                         "assets/keyinject.exe",
                         "assets/meltapp.exe"    ]
-        memo = []
-        for filetocopy in filestocopy:
-            d,f = filetocopy.split("/")
 
-            if d == ".":
-                src = "%s/%s" % (vmavtest,f)
-                dst =  "%s\\%s" % (test_dir,f)
-            else:
-                src = "%s/%s/%s" % (vmavtest,d,f)
-                dst =  "%s\\%s\\%s" % (test_dir,d,f)
-                rdir = "%s\\%s" % (test_dir,d)
-                if not memo.__contains__(rdir):
-                        vmman.mkdirInGuest( vm, rdir )
-                        memo.append( rdir )
-
-            print src, dst
-            vmman.copyFileToGuest(vm, src, dst)
+        copy_to_guest(vm, vmman, test_dir, filestocopy)
 
         # executing bat synchronized
-        vmman.executeCmd(vm, "%s\\build_silent_minotauro.bat" % test_dir )
+        vmman.executeCmd(vm, "%s\\%s" % (test_dir, buildbat))
         
         # save results.txt locally
         save_results(vm)
@@ -158,18 +140,49 @@ def dispatch(vm_name):
             print "exception inside ", ex
             return "Error: cannot dispatch tests for %s" % vm_name
 
+def test_internet(vm_name):
+    #try:
+    vm = VMachine(vm_conf_file, vm_name)
 
-def save_results(vm):
-    filename = "results.%s.txt" % vm
-    vmman.copyFileFromGuest(vm, "c:\\Users\\avtest\\Desktop\\AVTEST\\results.txt", filename)
+    vmman.revertSnapshot(vm, vm.snapshot)
+    sleep(5)
+    vmman.startup(vm)
+    sleep(60)
+    
+    test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
 
-    last = "Error save"
-    f = open(filename, 'rb')
-    for l in f.readlines():
-        if l.__contains__(" + "):
-            last = l
+    vmman.mkdirInGuest(vm, test_dir)
 
-    return "%s %s" % (vm, last)
+    filestocopy =[  "./test_internet.bat",
+                    "lib/vmavtest.py",
+                    "lib/logger.py",
+                    "lib/rcs_client.py",
+                    "assets/config.json",
+                    "assets/keyinject.exe",
+                    "assets/meltapp.exe"    ]
+    copy_to_guest(vm, test_dir, filestocopy)
+    
+    # executing bat synchronized
+    vmman.executeCmd(vm, "%s\\test_internet.bat" % test_dir)
+    return "[%s] dispatched test internet" % vm_name
+
+def test():
+    #vm_conf_file = os.path.join("conf", "vms.cfg")
+    vm_name = "panda"
+
+    #vmman = VMManagerVS(vm_conf_file)
+    vm = VMachine(vm_conf_file, vm_name)
+    test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
+    
+    filestocopy =[  "./build_silent_minotauro.bat",
+                                "lib/vmavtest.py",
+                                "lib/logger.py",
+                                "lib/rcs_client.py",
+                                "assets/config.json",
+                                "assets/keyinject.exe",
+                                "assets/meltapp.exe"   
+                                 ]
+    copy_to_guest(vm, test_dir, filestocopy)
 
 def main():
     lib.logger.setLogger()
@@ -185,7 +198,8 @@ def main():
     args = parser.parse_args()
 
     if args.action == "test":
-        get_results("eset")
+        #get_results("eset")
+        test()
         exit(0)
 
     # shut down network
@@ -196,12 +210,12 @@ def main():
         os.system('sudo ./net_disable.sh')
         print "[!] Disabling NETWORKING!"
 
-    vm_conf_file = os.path.join("conf", "vms.cfg")
+    #vm_conf_file = os.path.join("conf", "vms.cfg")
     op_conf_file = os.path.join("conf", "operations.cfg")
 
     # get configuration for AV update process (exe, vms, etc)
 
-    vmman = VMManagerVS(vm_conf_file)
+    #vmman = VMManagerVS(vm_conf_file)
 
     # get vm names
     c = ConfigParser()
@@ -216,9 +230,9 @@ def main():
                 "dispatch": dispatch, "test_internet": test_internet }
     r = pool.map_async(actions[args.action], vm_names)
     print "[*] RESULTS: "
+
     print r.get()
 
 
-if __name__ == "__main__":
-    #if len(sys.argv) > 1:
-    	main()
+if __name__ == "__main__":	
+    main()
