@@ -108,7 +108,7 @@ def dispatch(vm_name):
         vmman.revertLastSnapshot(vm)
         sleep(5)
         vmman.startup(vm)
-        sleep(120)
+        sleep(5* 60)
 
         test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
 
@@ -126,6 +126,8 @@ def dispatch(vm_name):
                         "assets/config.json",
                         "assets/keyinject.exe",
                         "assets/meltapp.exe"    ]
+
+        print "ooook lets copy files on %s!" % vm
 
         copy_to_guest(vm, test_dir, filestocopy)
 
