@@ -1,7 +1,5 @@
 import argparse
-import sys
 import os
-import string
 from time import sleep
 from ConfigParser import ConfigParser
 from multiprocessing import Pool
@@ -20,6 +18,7 @@ op_conf_file = os.path.join("conf", "operations.cfg")
 
 # get configuration for AV update process (exe, vms, etc)
 
+logdir = ""
 vmman = VMManagerVS(vm_conf_file)
 
 def update(vm_name):
@@ -96,7 +95,8 @@ def copy_to_guest(vm, test_dir, filestocopy):
         vmman.copyFileToGuest(vm, src, dst)
 
 def save_results(vm):
-    filename = "results.%s.txt" % vm
+    timestamp = time.strftime("%Y%m%d_%H%M", time.gmtime())
+    filename = "%s/results_%s_%s.txt" % (logdir, vm, timestamp)
     vmman.copyFileFromGuest(vm, "c:\\Users\\avtest\\Desktop\\AVTEST\\results.txt", filename)
 
     last = "Error save"
@@ -135,9 +135,21 @@ def dispatch(vm_name):
 
     # executing bat synchronized
     vmman.executeCmd(vm, "%s\\%s" % (test_dir, buildbat))
+
+    timestamp = time.strftime("%Y%m%d_%H%M", time.gmtime())
+    out_img = "%s/screenshot_%s_%s.png" % (logdir, vm, timestamp)
+    vmman.takeScreenshot(vm, out_img)
     
     # save results.txt locally
-    save_results(vm)
+    result = save_results(vm)
+
+    # suspend & refresh snapshot
+    vmman.suspend(vm)
+    #sleep(5)
+    #vmman.refreshSnapshot(vm, vm.snapshot)
+    
+    return result
+
 
     # suspend & refresh snapshot
     vmman.suspend(vm)
@@ -170,7 +182,10 @@ def test_internet(vm_name):
         raise FailedExecutionException("Error is ", e )
         
 
-def test(vm_name=None):
+def test(args):
+    print logdir
+    print args.vm.split(',')
+
     #vm_conf_file = os.path.join("conf", "vms.cfg")
     if vm_name is None:
         vm_name = "sophos"
@@ -198,23 +213,30 @@ def wait_for_startup(vm, max_count=20):
 
 
 def main():
-    logdir = "/var/log/avmonitor/report"
-
-    lib.logger.setLogger(filelog = "%s.txt" % logdir )
+    global logdir
 
     parser = argparse.ArgumentParser(description='AVMonitor master.')
 
     parser.add_argument('action', choices=['update', 'revert', 'dispatch', 'test', 'test_internet'],
         help="The operation to perform")
-    parser.add_argument('--vm', required=False, 
+    parser.add_argument('-m', '--vm', required=False, 
         help="Virtual Machine where execute the operation")
-    parser.add_argument('-p', '--pool', default=2, type=int, 
+    parser.add_argument('-p', '--pool', default=4, type=int, 
         help="This is the number of parallel process (default 2)")
+
+    parser.add_argument('-l', '--logdir', default="/var/log/avmonitor/report",  
+        help="Log folder")
+
     args = parser.parse_args()
+
+    logdir = args.logdir
+    if not os.path.exists(logdir):
+        os.mkdir(logdir)
+    lib.logger.setLogger(filelog = "%s.txt" % logdir )
 
     if args.action == "test":
         #get_results("eset")
-        test()
+        test(args)
         exit(0)
 
     # shut down network
@@ -244,23 +266,19 @@ def main():
     actions = { "update" : update, "revert": revert, 
                 "dispatch": dispatch, "test_internet": test_internet }
     if args.vm:
-        r = pool.map_async(actions[args.action], [args.vm])
+        r = pool.map_async(actions[args.action], args.vm.split(','))
     else:
         r = pool.map_async(actions[args.action], vm_names)
     
-
     results = r.get()
     print "[*] RESULTS: %s" % results
 
     timestamp = time.strftime("%Y%m%d_%H%M", time.gmtime())
 
-    
-    if not os.path.exists(logdir):
-        os.mkdir(logdir)
-    with open( "%s/master_%s.txt" % (logdir, timestamp), "wb") as f:
+    with open( "%s/master_%s_%s.txt" % (logdir, args.action, timestamp), "wb") as f:
         f.write("REPORT\n")
         for l in results:
-            f.write("%s\n" % l)
+            f.write("%s" % l)
 
 
 if __name__ == "__main__":	

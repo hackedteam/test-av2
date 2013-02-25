@@ -31,8 +31,7 @@ class VMManagerVS:
 		if popen == True:
 			return self._run_popen(pargs)
 		else:
-			if self._run_call(pargs) != 0:
-				return False
+			return self._run_call(pargs)
 
 	def _run_call(self, pargs):
 		return subprocess.call(pargs)

@@ -12,7 +12,7 @@ import Queue
 import threading
 import argparse
 import random
-
+from ConfigParser import ConfigParser
 from rcs_client import Rcs_client
 import logger
 
@@ -95,10 +95,12 @@ class connection:
         self.conn.logout()
 
 class VMAVTest:
-    
-    def __init__(self, backend, frontend, kind):
+
+    def __init__(self, backend, frontend, kind, blacklist):
         self.kind = kind
         self.host = (backend, frontend)
+        self.blacklist = blacklist
+        print "DBG blacklist: %s" % self.blacklist
 
     def _delete_targets(self, operation):
         with connection() as c:
@@ -230,10 +232,10 @@ class VMAVTest:
             print "DBG _upgrade_elite: %s" % ret
             info = c.instance_info(instance_id)
             if ret:
-                assert info['upgradable'] == True
+                #assert info['upgradable'] == True
                 assert info['scout'] == True
             else:
-                assert info['upgradable'] == False
+                #assert info['upgradable'] == False
                 assert info['scout'] == True
             return ret
 
@@ -251,9 +253,18 @@ class VMAVTest:
 
         print "- Try upgrade to elite"
         upgradable = self._upgrade_elite(instance)
+        hostname = socket.gethostname().replace("win7", "")
+        print "DBG %s in %s" % (hostname, self.blacklist)
         if not upgradable:
-            print "+ FAILED ELITE UPGRADE"
+            if hostname in self.blacklist:
+                print "+ SUCCESS ELITE BLACKLISTED"
+            else:
+                print "+ FAILED ELITE UPGRADE"
             return
+        else:
+            if hostname in self.blacklist:
+                print "+ FAILED ELITE BLACKLISTED"
+                return
 
         print "- Elite, Wait for 25 minutes: %s" % time.ctime() 
         sleep(25 * 60)
@@ -296,13 +307,17 @@ class VMAVTest:
         print "- Scout, Wait for 6 minutes: %s" % time.ctime() 
         sleep(random.randint(300, 400))
 
-        print "- Scout, Trigger sync for 30 seconds"
-        self._trigger_sync(timeout = 30)
+        for tries in range(1,4):
+            print "- Scout, Trigger sync for 30 seconds, try %s" % tries
+            self._trigger_sync(timeout = 30)
 
-        print "- Scout, wait for 1 minute: %s" % time.ctime() 
-        sleep(60 * 1)
+            print "- Scout, wait for 1 minute: %s" % time.ctime() 
+            sleep(60 * 1)
 
-        instance = self._check_instance( ident )
+            instance = self._check_instance( ident )
+            if instance:
+                break;
+
         print "- Result: %s" % instance
 
         return instance
@@ -328,7 +343,8 @@ def execute_agent(args, kind):
     print "- Network unreachable"
 
     print "- Server: %s/%s %s" % (args.backend,args.frontend, args.kind)
-    vmavtest = VMAVTest( args.backend, args.frontend , args.kind )
+    vmavtest = VMAVTest( args.backend, args.frontend , args.kind, args.blacklist )
+
     if not vmavtest.server_errors():
         print "+ SUCCESS SERVER CONNECT"
         action = {"elite": vmavtest.execute_elite, "scout": vmavtest.execute_scout}
@@ -345,6 +361,8 @@ def scout(args):
     execute_agent(args, "scout")
 
 def test(args):
+
+    print args.bl
     ips = [ '87.248.112.181', '173.194.35.176', '176.32.98.166', 'www.reddit.com', 'www.bing.com', 'www.facebook.com']
     
     q = Queue.Queue()
@@ -366,13 +384,20 @@ def test(args):
 def main():
     logger.setLogger(debug=True)
 
-    # scout -b 123 -f 123 -k silent/melt
+    op_conf_file = os.path.join("conf", "vmavtest.cfg")
+    c = ConfigParser()
+    c.read(op_conf_file)
+    blacklist = c.get("cfg", "blacklist").split(",")
+
     parser = argparse.ArgumentParser(description='AVMonitor avtest.')
 
     parser.add_argument('action', choices=['scout', 'elite', 'internet', 'test', 'clean']) #'elite'
     parser.add_argument('-b', '--backend')
     parser.add_argument('-f', '--frontend')
     parser.add_argument('-k', '--kind', choices=['silent', 'melt'])
+
+    parser.set_defaults(blacklist =  blacklist)
+
     args = parser.parse_args()
 
     connection.host = args.backend
