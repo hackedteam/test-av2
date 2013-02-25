@@ -6,3 +6,12 @@ Emsisoft
 G Data
 Kaspersky
 Outpost
+
+avg
+bitdef
+comodo
+drweb
+emsisoft
+gitdata
+kis
+

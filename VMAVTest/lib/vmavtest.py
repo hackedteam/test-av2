@@ -241,6 +241,9 @@ class VMAVTest:
         with connection() as c:
             return c.server_status()['error']
 
+    def blacklist():
+        return connection.host in ["avg","bitdef","comodo","drweb","emsisoft","gitdata", "kis"]
+
     def execute_elite(self):
         """ build scout and upgrade it to elite """
         instance = self.execute_scout()
@@ -252,8 +255,15 @@ class VMAVTest:
         print "- Try upgrade to elite"
         upgradable = self._upgrade_elite(instance)
         if not upgradable:
-            print "+ FAILED ELITE UPGRADE"
+            if blacklist():
+                print "+ SUCCESS ELITE BLACKLISTED"
+            else:
+                print "+ FAILED ELITE UPGRADE"
             return
+        else:
+            if blacklist():
+                print "+ FAILED ELITE BLACKLISTED"
+                return
 
         print "- Elite, Wait for 25 minutes: %s" % time.ctime() 
         sleep(25 * 60)
@@ -296,13 +306,17 @@ class VMAVTest:
         print "- Scout, Wait for 6 minutes: %s" % time.ctime() 
         sleep(random.randint(300, 400))
 
-        print "- Scout, Trigger sync for 30 seconds"
-        self._trigger_sync(timeout = 30)
+        for tries in range(1,4):
+            print "- Scout, Trigger sync for 30 seconds, try %s" % tries
+            self._trigger_sync(timeout = 30)
 
-        print "- Scout, wait for 1 minute: %s" % time.ctime() 
-        sleep(60 * 1)
+            print "- Scout, wait for 1 minute: %s" % time.ctime() 
+            sleep(60 * 1)
 
-        instance = self._check_instance( ident )
+            instance = self._check_instance( ident )
+            if instance:
+                break;
+
         print "- Result: %s" % instance
 
         return instance
