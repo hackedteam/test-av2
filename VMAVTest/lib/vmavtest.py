@@ -241,7 +241,7 @@ class VMAVTest:
         with connection() as c:
             return c.server_status()['error']
 
-    def blacklist():
+    def blacklist(self):
         return connection.host in ["avg","bitdef","comodo","drweb","emsisoft","gitdata", "kis"]
 
     def execute_elite(self):
@@ -255,13 +255,13 @@ class VMAVTest:
         print "- Try upgrade to elite"
         upgradable = self._upgrade_elite(instance)
         if not upgradable:
-            if blacklist():
+            if self.blacklist():
                 print "+ SUCCESS ELITE BLACKLISTED"
             else:
                 print "+ FAILED ELITE UPGRADE"
             return
         else:
-            if blacklist():
+            if self.blacklist():
                 print "+ FAILED ELITE BLACKLISTED"
                 return
 
