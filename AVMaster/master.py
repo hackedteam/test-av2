@@ -15,6 +15,8 @@ from lib.VMManager import VMManagerVS
 #from lib.logger import logger
 import lib.logger
 
+logdir = "/var/log/avmonitor/report"
+
 vm_conf_file = os.path.join("conf", "vms.cfg")
 op_conf_file = os.path.join("conf", "operations.cfg")
 
@@ -96,7 +98,8 @@ def copy_to_guest(vm, test_dir, filestocopy):
         vmman.copyFileToGuest(vm, src, dst)
 
 def save_results(vm):
-    filename = "results.%s.txt" % vm
+    timestamp = time.strftime("%Y%m%d_%H%M", time.gmtime())
+    filename = "%s/results_%s_%s.txt" % (logdir, vm, timestamp)
     vmman.copyFileFromGuest(vm, "c:\\Users\\avtest\\Desktop\\AVTEST\\results.txt", filename)
 
     last = "Error save"
@@ -141,14 +144,14 @@ def dispatch(vm_name):
         vmman.executeCmd(vm, "%s\\%s" % (test_dir, buildbat))
         
         # save results.txt locally
-        save_results(vm)
+        result = save_results(vm)
 
         # suspend & refresh snapshot
         vmman.suspend(vm)
         #sleep(5)
         #vmman.refreshSnapshot(vm, vm.snapshot)
         
-        return "[%s] test files dispatched" % vm_name
+        return result
 
     except Exception, ex:
             print "exception inside ", ex
@@ -187,8 +190,7 @@ def test():
     vmman.revertLastSnapshot(vm)
 
 def main():
-    logdir = "/var/log/avmonitor/report"
-
+    
     lib.logger.setLogger(filelog = "%s.txt" % logdir )
 
     parser = argparse.ArgumentParser(description='AVMonitor master.')
@@ -234,16 +236,14 @@ def main():
                 "dispatch": dispatch, "test_internet": test_internet }
     r = pool.map_async(actions[args.action], vm_names)
     
-
     results = r.get()
     print "[*] RESULTS: %s" % results
 
     timestamp = time.strftime("%Y%m%d_%H%M", time.gmtime())
-
     
     if not os.path.exists(logdir):
         os.mkdir(logdir)
-    with open( "%s/master_%s.txt" % (logdir, timestamp), "wb") as f:
+    with open( "%s/master_%s_%s.txt" % (logdir, args.action, timestamp), "wb") as f:
         f.write("REPORT\n")
         for l in results:
             f.write("%s\n" % l)
