@@ -253,14 +253,15 @@ class VMAVTest:
 
         print "- Try upgrade to elite"
         upgradable = self._upgrade_elite(instance)
+        hostname = socket.gethostname()
         if not upgradable:
-            if connection.host in self.blacklist:
+            if hostname in self.blacklist:
                 print "+ SUCCESS ELITE BLACKLISTED"
             else:
                 print "+ FAILED ELITE UPGRADE"
             return
         else:
-            if connection.host in self.blacklist:
+            if hostname in self.blacklist:
                 print "+ FAILED ELITE BLACKLISTED"
                 return
 
