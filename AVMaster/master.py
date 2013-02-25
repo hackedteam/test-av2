@@ -18,6 +18,7 @@ op_conf_file = os.path.join("conf", "operations.cfg")
 
 # get configuration for AV update process (exe, vms, etc)
 
+logdir = ""
 vmman = VMManagerVS(vm_conf_file)
 
 def update(vm_name):
@@ -172,8 +173,9 @@ def test_internet(vm_name):
     vmman.executeCmd(vm, "%s\\test_internet.bat" % test_dir)
     return "[%s] dispatched test internet" % vm_name
 
-def test():
+def test(args):
     print logdir
+    print args.vm
     #vm_conf_file = os.path.join("conf", "vms.cfg")
     vm_name = "sophos"
 
@@ -189,9 +191,9 @@ def main():
 
     parser.add_argument('action', choices=['update', 'revert', 'dispatch', 'test', 'test_internet'],
         help="The operation to perform")
-    parser.add_argument('--vm', required=False, 
+    parser.add_argument('-m', '--vm', required=False, 
         help="Virtual Machine where execute the operation")
-    parser.add_argument('-p', '--pool', default=2, type=int, 
+    parser.add_argument('-p', '--pool', default=4, type=int, 
         help="This is the number of parallel process (default 2)")
 
     parser.add_argument('-l', '--logdir', default="/var/log/avmonitor/report",  
@@ -207,7 +209,7 @@ def main():
 
     if args.action == "test":
         #get_results("eset")
-        test()
+        test(args)
         exit(0)
 
     # shut down network
