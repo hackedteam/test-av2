@@ -121,8 +121,6 @@ def dispatch(vm_name):
 
         test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
 
-        vmman.mkdirInGuest(vm, test_dir)
-
         kind = "silent"
         host = "minotauro"
 
@@ -161,14 +159,12 @@ def test_internet(vm_name):
     #try:
     vm = VMachine(vm_conf_file, vm_name)
 
-    vmman.revertSnapshot(vm, vm.snapshot)
+    vmman.revertLastSnapshot(vm)
     sleep(5)
     vmman.startup(vm)
-    sleep(60)
+    sleep(5 * 60)
     
     test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
-
-    vmman.mkdirInGuest(vm, test_dir)
 
     filestocopy =[  "./test_internet.bat",
                     "lib/vmavtest.py",
@@ -234,7 +230,10 @@ def main():
 
     actions = { "update" : update, "revert": revert, 
                 "dispatch": dispatch, "test_internet": test_internet }
-    r = pool.map_async(actions[args.action], vm_names)
+    if args.vm:
+        r = pool.map_async(actions[args.action], [args.vm])
+    else:
+        r = pool.map_async(actions[args.action], vm_names)
     
     results = r.get()
     print "[*] RESULTS: %s" % results
