@@ -5,8 +5,6 @@ import os
 from datetime import datetime
 from ConfigParser import ConfigParser
 
-class FailedExecutionException(Exception):
-	pass
 
 class VMManagerVS:
 	def __init__(self, config_file):
@@ -33,12 +31,8 @@ class VMManagerVS:
 		if popen == True:
 			return self._run_popen(pargs)
 		else:
-<<<<<<< HEAD
-			return self._run_call(pargs)
-=======
 			if self._run_call(pargs) != 0:
-				raise FailedExecutionException([cmd,args])
->>>>>>> ee64ff43b7e88002902fafc5011ede691d3f8ff9
+				return False
 
 	def _run_call(self, pargs):
 		return subprocess.call(pargs)
@@ -118,6 +112,12 @@ class VMManagerVS:
 		cmds.extend(args)
 		self._run_cmd(vmx, "runProgramInGuest", cmds, [vmx.user, vmx.passwd])
 
+
+	def listProcesses(self, vmx):
+		sys.stdout.write("[%s] List processes\n" % vmx)
+		out = self._run_cmd(vmx, "listProcessesInGuest", vmx_creds=[vmx.user,vmx.passwd], popen=True)
+		return out
+
 	def takeScreenshot(self, vmx, out_img):
 		sys.stdout.write("[%s] Taking screenshot.\n" % vmx)
 		self._run_cmd(vmx, "captureScreen", [out_img], [vmx.user, vmx.passwd])
@@ -132,6 +132,11 @@ class VMManagerVS:
 		out = self._run_cmd(vmx, "listSnapshots", popen=True).split("\n")
 		return out[1:-1]
 
+	def VMisRunning(self, vmx):
+		res = self._run_cmd(vmx, "list", popen=True)
+		if res.__contains__(vmx.path[1:-1]):
+			return True
+		return False
 
 
 

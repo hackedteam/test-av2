@@ -30,10 +30,10 @@ def update(vm_name):
 
         sleep(random.randint(10,60))
         vmman.startup(vm)
+        sleep(5 * 60)
+        #sleep(random.randint(60,2*60))
+        #vmman.reboot(vm)
 
-        sleep(random.randint(60,2*60))
-        vmman.reboot(vm)
-        
         print "[%s] waiting for Updates" % vm_name
         #sleep(50 * 60)
         #sleep(random.randint(10,300))
@@ -46,7 +46,7 @@ def update(vm_name):
             sleep(60)
             running = vmman.VMisRunning(vm)
 
-
+        ''' 
         print "[%s] Startup" % vm_name
         vmman.startup(vm)
         sleep(10 * 60)
@@ -58,7 +58,7 @@ def update(vm_name):
         while running == True:
             sleep(30)
             running = vmman.VMisRunning(vm)
-
+        ''' 
         vmman.refreshSnapshot(vm)
         return "[%s] Updated!"  % vm_name
     except Exception as e:
@@ -108,79 +108,94 @@ def save_results(vm):
     return "%s %s" % (vm, last)
 
 def dispatch(vm_name):
-    print "go dispatch " , vm_name
-    try:
-        vm = VMachine(vm_conf_file, vm_name)
-        vmman.revertLastSnapshot(vm)
-        sleep(5)
-        vmman.startup(vm)
-        sleep(5* 60)
-
-        test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
-
-        kind = "silent"
-        host = "minotauro"
-
-        buildbat = "build_%s_%s.bat" % (kind, host)
-
-        filestocopy =[  "./%s" % buildbat,
-                        "lib/vmavtest.py",
-                        "lib/logger.py",
-                        "lib/rcs_client.py",
-                        "assets/config.json",
-                        "assets/keyinject.exe",
-                        "assets/meltapp.exe"    ]
-
-        print "ooook lets copy files on %s!" % vm
-
-        copy_to_guest(vm, test_dir, filestocopy)
-
-        # executing bat synchronized
-        vmman.executeCmd(vm, "%s\\%s" % (test_dir, buildbat))
-        
-        # save results.txt locally
-        save_results(vm)
-
-        # suspend & refresh snapshot
-        vmman.suspend(vm)
-        #sleep(5)
-        #vmman.refreshSnapshot(vm, vm.snapshot)
-        
-        return "[%s] test files dispatched" % vm_name
-
-    except Exception, ex:
-            print "exception inside ", ex
-            return "Error: cannot dispatch tests for %s" % vm_name
-
-def test_internet(vm_name):
-    #try:
     vm = VMachine(vm_conf_file, vm_name)
-
     vmman.revertLastSnapshot(vm)
     sleep(5)
     vmman.startup(vm)
-    sleep(5 * 60)
-    
+    sleep(5* 60)
+
     test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
 
-    filestocopy =[  "./test_internet.bat",
+    kind = "silent"
+    host = "minotauro"
+
+    buildbat = "build_%s_%s.bat" % (kind, host)
+
+    filestocopy =[  "./%s" % buildbat,
                     "lib/vmavtest.py",
                     "lib/logger.py",
-                    "lib/rcs_client.py" ]
-    copy_to_guest(vm, test_dir, filestocopy)
-    
-    # executing bat synchronized
-    vmman.executeCmd(vm, "%s\\test_internet.bat" % test_dir)
-    return "[%s] dispatched test internet" % vm_name
+                    "lib/rcs_client.py",
+                    "assets/config.json",
+                    "assets/keyinject.exe",
+                    "assets/meltapp.exe"    ]
 
-def test():
+    print "ooook lets copy files on %s!" % vm
+
+    copy_to_guest(vm, test_dir, filestocopy)
+
+    # executing bat synchronized
+    vmman.executeCmd(vm, "%s\\%s" % (test_dir, buildbat))
+    
+    # save results.txt locally
+    save_results(vm)
+
+    # suspend & refresh snapshot
+    vmman.suspend(vm)
+    #sleep(5)
+    #vmman.refreshSnapshot(vm, vm.snapshot)
+    
+    return "[%s] test files dispatched" % vm_name
+
+def test_internet(vm_name):
+    try:
+        vm = VMachine(vm_conf_file, vm_name)
+
+        #vmman.revertLastSnapshot(vm)
+        #sleep(5)
+        #vmman.startup(vm)
+        #sleep(5 * 60)
+        
+        test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
+
+        filestocopy =[  "./test_internet.bat",
+                        "lib/vmavtest.py",
+                        "lib/logger.py",
+                        "lib/rcs_client.py" ]
+        copy_to_guest(vm, test_dir, filestocopy)
+        
+        # executing bat synchronized
+        vmman.executeCmd(vm, "%s\\test_internet.bat" % test_dir)
+        return "[%s] dispatched test internet" % vm_name
+    except FailedExecutionException as e:
+        raise FailedExecutionException("Error is ", e )
+        
+
+def test(vm_name=None):
     #vm_conf_file = os.path.join("conf", "vms.cfg")
-    vm_name = "sophos"
+    if vm_name is None:
+        vm_name = "sophos"
 
     #vmman = VMManagerVS(vm_conf_file)
     vm = VMachine(vm_conf_file, vm_name)
-    #vmman.refreshSnapshot(vm)
     vmman.revertLastSnapshot(vm)
+    vmman.startup(vm)
+    sleep(60)
+
+    if wait_for_startup(vm) is False:
+        print "Error"
+    else:
+        print "ok... next instruction"  
+
+
+def wait_for_startup(vm, max_count=20):
+    count = 0
+    while not vmman.listProcesses(vm).__contains__("vmtoolsd.exe"):
+        sleep(60)
+        count+=1
+        if count > max_count:
+            return False
+    return True
+
 
 def main():
     logdir = "/var/log/avmonitor/report"
