@@ -1,7 +1,5 @@
 import argparse
-import sys
 import os
-import string
 from time import sleep
 from ConfigParser import ConfigParser
 from multiprocessing import Pool
@@ -14,8 +12,6 @@ from lib.VMachine import VMachine
 from lib.VMManager import VMManagerVS
 #from lib.logger import logger
 import lib.logger
-
-logdir = "/var/log/avmonitor/report"
 
 vm_conf_file = os.path.join("conf", "vms.cfg")
 op_conf_file = os.path.join("conf", "operations.cfg")
@@ -177,6 +173,7 @@ def test_internet(vm_name):
     return "[%s] dispatched test internet" % vm_name
 
 def test():
+    print logdir
     #vm_conf_file = os.path.join("conf", "vms.cfg")
     vm_name = "sophos"
 
@@ -186,8 +183,7 @@ def test():
     vmman.revertLastSnapshot(vm)
 
 def main():
-    
-    lib.logger.setLogger(filelog = "%s.txt" % logdir )
+    global logdir
 
     parser = argparse.ArgumentParser(description='AVMonitor master.')
 
@@ -197,7 +193,17 @@ def main():
         help="Virtual Machine where execute the operation")
     parser.add_argument('-p', '--pool', default=2, type=int, 
         help="This is the number of parallel process (default 2)")
+
+    parser.add_argument('-l', '--logdir', default="/var/log/avmonitor/report",  
+        help="Log folder")
+
     args = parser.parse_args()
+    
+
+    logdir = args.logdir
+    if not os.path.exists(logdir):
+        os.mkdir(logdir)
+    lib.logger.setLogger(filelog = "%s.txt" % logdir )
 
     if args.action == "test":
         #get_results("eset")
@@ -239,9 +245,7 @@ def main():
     print "[*] RESULTS: %s" % results
 
     timestamp = time.strftime("%Y%m%d_%H%M", time.gmtime())
-    
-    if not os.path.exists(logdir):
-        os.mkdir(logdir)
+
     with open( "%s/master_%s_%s.txt" % (logdir, args.action, timestamp), "wb") as f:
         f.write("REPORT\n")
         for l in results:
