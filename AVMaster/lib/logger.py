@@ -1,6 +1,5 @@
 import logging
 import sys
-import re
 
 class StreamToLogger(object):
    """

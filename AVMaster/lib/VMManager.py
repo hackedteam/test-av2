@@ -5,6 +5,9 @@ import os
 from datetime import datetime
 from ConfigParser import ConfigParser
 
+class FailedExecutionException(Exception):
+	pass
+
 class VMManagerVS:
 	def __init__(self, config_file):
 		self.config = ConfigParser()
@@ -30,7 +33,12 @@ class VMManagerVS:
 		if popen == True:
 			return self._run_popen(pargs)
 		else:
+<<<<<<< HEAD
 			return self._run_call(pargs)
+=======
+			if self._run_call(pargs) != 0:
+				raise FailedExecutionException([cmd,args])
+>>>>>>> ee64ff43b7e88002902fafc5011ede691d3f8ff9
 
 	def _run_call(self, pargs):
 		return subprocess.call(pargs)
