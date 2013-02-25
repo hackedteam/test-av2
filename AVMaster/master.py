@@ -175,7 +175,7 @@ def test_internet(vm_name):
 
 def test(args):
     print logdir
-    print args.vm
+    print args.vm.split(',')
     #vm_conf_file = os.path.join("conf", "vms.cfg")
     vm_name = "sophos"
 
@@ -239,7 +239,7 @@ def main():
     actions = { "update" : update, "revert": revert, 
                 "dispatch": dispatch, "test_internet": test_internet }
     if args.vm:
-        r = pool.map_async(actions[args.action], [args.vm])
+        r = pool.map_async(actions[args.action], args.vm.split(','))
     else:
         r = pool.map_async(actions[args.action], vm_names)
     
