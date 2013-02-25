@@ -12,7 +12,7 @@ import Queue
 import threading
 import argparse
 import random
-
+from ConfigParser import ConfigParser
 from rcs_client import Rcs_client
 import logger
 
@@ -95,10 +95,12 @@ class connection:
         self.conn.logout()
 
 class VMAVTest:
-    
-    def __init__(self, backend, frontend, kind):
+
+    def __init__(self, backend, frontend, kind, blacklist):
         self.kind = kind
         self.host = (backend, frontend)
+        self.blacklist = blacklist
+        print "DBG blacklist: %s" % self.blacklist
 
     def _delete_targets(self, operation):
         with connection() as c:
@@ -241,9 +243,6 @@ class VMAVTest:
         with connection() as c:
             return c.server_status()['error']
 
-    def blacklist(self):
-        return connection.host in ["avg","bitdef","comodo","drweb","emsisoft","gitdata", "kis"]
-
     def execute_elite(self):
         """ build scout and upgrade it to elite """
         instance = self.execute_scout()
@@ -255,13 +254,13 @@ class VMAVTest:
         print "- Try upgrade to elite"
         upgradable = self._upgrade_elite(instance)
         if not upgradable:
-            if self.blacklist():
+            if connection.host in self.blacklist:
                 print "+ SUCCESS ELITE BLACKLISTED"
             else:
                 print "+ FAILED ELITE UPGRADE"
             return
         else:
-            if self.blacklist():
+            if connection.host in self.blacklist:
                 print "+ FAILED ELITE BLACKLISTED"
                 return
 
@@ -342,7 +341,8 @@ def execute_agent(args, kind):
     print "- Network unreachable"
 
     print "- Server: %s/%s %s" % (args.backend,args.frontend, args.kind)
-    vmavtest = VMAVTest( args.backend, args.frontend , args.kind )
+    vmavtest = VMAVTest( args.backend, args.frontend , args.kind, args.blacklist )
+
     if not vmavtest.server_errors():
         print "+ SUCCESS SERVER CONNECT"
         action = {"elite": vmavtest.execute_elite, "scout": vmavtest.execute_scout}
@@ -359,6 +359,8 @@ def scout(args):
     execute_agent(args, "scout")
 
 def test(args):
+
+    print args.bl
     ips = [ '87.248.112.181', '173.194.35.176', '176.32.98.166', 'www.reddit.com', 'www.bing.com', 'www.facebook.com']
     
     q = Queue.Queue()
@@ -380,13 +382,20 @@ def test(args):
 def main():
     logger.setLogger(debug=True)
 
-    # scout -b 123 -f 123 -k silent/melt
+    op_conf_file = os.path.join("conf", "vmavtest.cfg")
+    c = ConfigParser()
+    c.read(op_conf_file)
+    blacklist = c.get("cfg", "blacklist").split(",")
+
     parser = argparse.ArgumentParser(description='AVMonitor avtest.')
 
     parser.add_argument('action', choices=['scout', 'elite', 'internet', 'test', 'clean']) #'elite'
     parser.add_argument('-b', '--backend')
     parser.add_argument('-f', '--frontend')
     parser.add_argument('-k', '--kind', choices=['silent', 'melt'])
+
+    parser.set_defaults(blacklist =  blacklist)
+
     args = parser.parse_args()
 
     connection.host = args.backend

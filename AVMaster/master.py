@@ -127,6 +127,7 @@ def dispatch(vm_name):
                         "lib/vmavtest.py",
                         "lib/logger.py",
                         "lib/rcs_client.py",
+                        "conf/vmavtest.cfg",
                         "assets/config.json",
                         "assets/keyinject.exe",
                         "assets/meltapp.exe"    ]
@@ -200,7 +201,6 @@ def main():
         help="Log folder")
 
     args = parser.parse_args()
-    
 
     logdir = args.logdir
     if not os.path.exists(logdir):
@@ -251,7 +251,7 @@ def main():
     with open( "%s/master_%s_%s.txt" % (logdir, args.action, timestamp), "wb") as f:
         f.write("REPORT\n")
         for l in results:
-            f.write("%s\n" % l)
+            f.write("%s" % l)
 
 
 if __name__ == "__main__":	
