@@ -138,6 +138,10 @@ def dispatch(vm_name):
 
         # executing bat synchronized
         vmman.executeCmd(vm, "%s\\%s" % (test_dir, buildbat))
+
+        timestamp = time.strftime("%Y%m%d_%H%M", time.gmtime())
+        out_img = "%s/screenshot_%s_%s.png" % (logdir, vm, timestamp)
+        vmman.takeScreenshot(vm, out_img)
         
         # save results.txt locally
         result = save_results(vm)

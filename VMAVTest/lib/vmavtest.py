@@ -253,7 +253,8 @@ class VMAVTest:
 
         print "- Try upgrade to elite"
         upgradable = self._upgrade_elite(instance)
-        hostname = socket.gethostname()
+        hostname = socket.gethostname().replace("win7", "")
+        print "DBG %s in %s" % (hostname, self.blacklist)
         if not upgradable:
             if hostname in self.blacklist:
                 print "+ SUCCESS ELITE BLACKLISTED"
