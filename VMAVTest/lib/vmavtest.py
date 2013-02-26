@@ -111,10 +111,10 @@ class VMAVTest:
                 print "- Delete target: %s" % t_id
                 c.target_delete(t_id) 
 
-    def _create_new_factory(self, operation, target, factory, config):
+    def _create_new_factory(self, ftype,  operation, target, factory, config):
         with connection() as c:
             operation_id = c.operation(operation)
-            print "DBG operation: " , operation, " target: ", target, " factory: ", factory
+            print "DBG type: ", ftype, " operation: " , operation, " target: ", target, " factory: ", factory
 
             # gets all the target with our name in an operation
             targets = c.targets(operation_id, target)
@@ -137,7 +137,7 @@ class VMAVTest:
             else:
                 print "- Create target: %s" % target
                 target_id = c.target_create(operation_id, target, 'made by vmavtest at %s' % time.ctime())
-            factory_id, ident = c.factory_create(operation_id, target_id, 'desktop', factory, 'made by vmavtestat at %s' % time.ctime())
+            factory_id, ident = c.factory_create(operation_id, target_id, ftype, factory, 'made by vmavtestat at %s' % time.ctime())
 
             with open(config) as f:
                 conf = f.read()
@@ -282,19 +282,9 @@ class VMAVTest:
 
         print "- Result: %s" % elite
 
-
     def execute_scout(self):
         """ build and execute the  """
-        hostname = socket.gethostname()
-        print "- Host: %s %s\n" % (hostname, time.ctime())
-        operation = 'AVMonitor'
-        target = 'VM_%s' % hostname
-        factory ='%s_%s' % (hostname, self.kind)
-        config = "assets/config.json"
-
-        if not os.path.exists('build'):
-            os.mkdir('build')
-        target_id, factory_id, ident = self._create_new_factory(operation, target, factory, config)
+        factory_id, ident = self.execute_push()
 
         meltfile = None
         if self.kind == 'melt':
@@ -319,8 +309,25 @@ class VMAVTest:
                 break;
 
         print "- Result: %s" % instance
-
         return instance
+
+
+    def execute_push(self):
+        """ build and execute the  """
+        hostname = socket.gethostname()
+        print "- Host: %s %s\n" % (hostname, time.ctime())
+        operation = 'AVMonitor'
+        target = 'VM_%s' % hostname
+        factory ='%s_%s' % (hostname, self.kind)
+        config = "assets/config.json"
+        ftype = self.type
+
+        if not os.path.exists('build'):
+            os.mkdir('build')
+        target_id, factory_id, ident = self._create_new_factory(ftype, operation, target, factory, config)
+
+        print "- Built"
+        return factory_id, ident
 
 def internet(args):
     print time.ctime()
@@ -347,7 +354,7 @@ def execute_agent(args, kind):
 
     if not vmavtest.server_errors():
         print "+ SUCCESS SERVER CONNECT"
-        action = {"elite": vmavtest.execute_elite, "scout": vmavtest.execute_scout}
+        action = {"elite": vmavtest.execute_elite, "scout": vmavtest.execute_scout, "push": vmavtest.execute_push}
         action[kind]()
     else:
         print "+ FAILED SERVER ERROR"
@@ -359,6 +366,10 @@ def elite(args):
 def scout(args):
     """ starts a scout """
     execute_agent(args, "scout")
+
+def push(args):
+    """ starts a scout """
+    execute_agent(args, "push")
 
 def test(args):
 
@@ -382,6 +393,8 @@ def test(args):
     
 
 def main():
+    platforms = { 'windows' : 'desktop', 'android' : 'mobile' }
+
     logger.setLogger(debug=True)
 
     op_conf_file = os.path.join("conf", "vmavtest.cfg")
@@ -391,12 +404,14 @@ def main():
 
     parser = argparse.ArgumentParser(description='AVMonitor avtest.')
 
-    parser.add_argument('action', choices=['scout', 'elite', 'internet', 'test', 'clean']) #'elite'
+    parser.add_argument('action', choices=['scout', 'elite', 'internet', 'test', 'clean', 'push']) #'elite'
+    parser.add_argument('-p', '--platform', default='windows')
     parser.add_argument('-b', '--backend')
     parser.add_argument('-f', '--frontend')
     parser.add_argument('-k', '--kind', choices=['silent', 'melt'])
 
     parser.set_defaults(blacklist =  blacklist)
+    parser.set_defaults(platforms =  platforms)
 
     args = parser.parse_args()
 

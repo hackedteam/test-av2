@@ -41,6 +41,8 @@ def setLogger( debug=True, filelog="results.txt"):
 
    sys.stdout = StreamToLogger('STDOUT', logging.INFO, terminal, debug)
    sys.stderr = StreamToLogger('STDERR', logging.ERROR, terminal)
+
+   print "DBG log file: %s" % filelog
     
 
 if __name__ == "__main__":

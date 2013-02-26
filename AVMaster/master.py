@@ -184,8 +184,6 @@ def dispatch(vm_name):
     #vmman.refreshSnapshot(vm, vm.snapshot)
     job_log(vm_name, "FINISHED")
 
-    jobs[vm_name]
-    print "JOBS: jobs"
     return result
 
 def test_internet(vm_name):
@@ -219,8 +217,7 @@ def test(args):
     time.sleep(300)
 
     #vm_conf_file = os.path.join("conf", "vms.cfg")
-    if vm_name is None:
-        vm_name = "sophos"
+    vm_name = "sophos"
 
     #vmman = VMManagerVS(vm_conf_file)
     vm = VMachine(vm_conf_file, vm_name)
@@ -266,6 +263,7 @@ def main():
 
     logdir = args.logdir
     if not os.path.exists(logdir):
+        print "DBG mkdir %s" % logdir
         os.mkdir(logdir)
     lib.logger.setLogger(debug = args.verbose, filelog = "%s_%s.txt" % (logdir.rstrip('/'), timestamp()) )
 
