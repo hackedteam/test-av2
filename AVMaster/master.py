@@ -7,6 +7,7 @@ import argparse
 import random
 import time
 import os.path
+import signal
 
 from lib.VMachine import VMachine
 from lib.VMManager import VMManagerVS
@@ -23,8 +24,21 @@ vmman = VMManagerVS(vm_conf_file)
 
 jobs = {}
 def job_log(vm_name, status):
-    jobs[vm_name] = status
-    print "JOB %s" % jobs
+    global jobs
+    
+    print "JOB %s = %s" % (vm_name, status)
+
+    if not vm_name in jobs.keys():
+        jobs[vm_name] = (0, "VOID")
+    
+    (count, _) = jobs[vm_name]
+
+    jobs[vm_name] = (count + 1, status)
+
+    print "JOB %s" % [ (k,vc) for k, (vc,vs) in  jobs.items() ]
+
+def receive_signal(signum, stack):
+    print 'JOBS:', jobs
 
 def update(vm_name):
     try:
@@ -161,6 +175,8 @@ def dispatch(vm_name):
     #vmman.refreshSnapshot(vm, vm.snapshot)
     job_log(vm_name, "FINISHED")
 
+    jobs[vm_name]
+    print "JOBS: jobs"
     return result
 
 def test_internet(vm_name):
@@ -191,6 +207,8 @@ def test(args):
     print logdir
     print args.vm.split(',')
 
+    time.sleep(300)
+
     #vm_conf_file = os.path.join("conf", "vms.cfg")
     if vm_name is None:
         vm_name = "sophos"
@@ -217,10 +235,11 @@ def wait_for_startup(vm, max_count=20):
     return True
 
 def timestamp():
-    return ttime.strftime("%Y%m%d_%H%M", time.gmtime())
+    return time.strftime("%Y%m%d_%H%M", time.gmtime())
 
 def main():
     global logdir
+    signal.signal(signal.SIGUSR1, receive_signal)
 
     parser = argparse.ArgumentParser(description='AVMonitor master.')
 
@@ -230,16 +249,16 @@ def main():
         help="Virtual Machine where execute the operation")
     parser.add_argument('-p', '--pool', default=4, type=int, 
         help="This is the number of parallel process (default 2)")
-
     parser.add_argument('-l', '--logdir', default="/var/log/avmonitor/report",  
         help="Log folder")
-
+    parser.add_argument('-v', '--verbose', default=False,  
+        help="Verbose")
     args = parser.parse_args()
 
     logdir = args.logdir
     if not os.path.exists(logdir):
         os.mkdir(logdir)
-    lib.logger.setLogger(filelog = "%s_%s.txt" % (logdir.rstrip('/'), timestamp()) )
+    lib.logger.setLogger(debug = args.verbose, filelog = "%s_%s.txt" % (logdir.rstrip('/'), timestamp()) )
 
     if args.action == "test":
         #get_results("eset")
@@ -257,28 +276,28 @@ def main():
     op_conf_file = os.path.join("conf", "vms.cfg")
     # get configuration for AV update process (exe, vms, etc)
 
-    # get vm names
-    c = ConfigParser()
-    c.read(op_conf_file)
-    vm_names = c.get("pool", "machines").split(",")
+    if args.vm:
+        vm_names = args.vm.split(',')
+    else:
+        # get vm names
+        c = ConfigParser()
+        c.read(op_conf_file)
+        vm_names = c.get("pool", "machines").split(",")
 
     [ job_log(v, "INIT") for v in vm_names ]
 
     pool = Pool(int(args.pool))
-
     print "[*] selected operation %s" % args.action
 
     actions = { "update" : update, "revert": revert, 
                 "dispatch": dispatch, "test_internet": test_internet }
-    if args.vm:
-        r = pool.map_async(actions[args.action], args.vm.split(','))
-    else:
-        r = pool.map_async(actions[args.action], vm_names)
+
+    r = pool.map_async(actions[args.action], vm_names)
     
     results = r.get()
-    print "[*] RESULTS: %s" % results
 
-    
+    print "[*] RESULTS: %s" % results
+    print jobs
 
     with open( "%s/master_%s_%s.txt" % (logdir, args.action, timestamp()), "wb") as f:
         f.write("REPORT\n")
