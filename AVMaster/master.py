@@ -33,9 +33,12 @@ def update(vm_name):
         #sleep(random.randint(60,2*60))
         #vmman.reboot(vm)
 
+        if wait_for_startup(vm) is False:
+            return "Error wait for startup for %s" % vm_name
+
         print "[%s] waiting for Updates" % vm_name
-        #sleep(50 * 60)
-        #sleep(random.randint(10,300))
+        sleep(50 * 60)
+        sleep(random.randint(10,300))
 
         print "[%s] Shutdown for reconfigurations" % vm_name
         running = True
@@ -45,19 +48,6 @@ def update(vm_name):
             sleep(60)
             running = vmman.VMisRunning(vm)
 
-        ''' 
-        print "[%s] Startup" % vm_name
-        vmman.startup(vm)
-        sleep(10 * 60)
-
-        print "[%s] Suspending and saving new snapshot" % vm_name
-        #vmman.suspend(vm)
-        running = True
-        vmman.shutdown(vm)
-        while running == True:
-            sleep(30)
-            running = vmman.VMisRunning(vm)
-        ''' 
         vmman.refreshSnapshot(vm)
         return "[%s] Updated!"  % vm_name
     except Exception as e:
@@ -125,11 +115,15 @@ def dispatch(vm_name):
                     "lib/vmavtest.py",
                     "lib/logger.py",
                     "lib/rcs_client.py",
+                    "conf/vmavtest.cfg",
                     "assets/config.json",
                     "assets/keyinject.exe",
                     "assets/meltapp.exe"    ]
 
     print "ooook lets copy files on %s!" % vm
+
+    if wait_for_startup(vm) is False:
+        return "Error wait for startup for %s" % vm_name
 
     copy_to_guest(vm, test_dir, filestocopy)
 
@@ -144,7 +138,7 @@ def dispatch(vm_name):
     result = save_results(vm)
 
     # suspend & refresh snapshot
-    vmman.suspend(vm)
+    vmman.shutdown(vm)
     #sleep(5)
     #vmman.refreshSnapshot(vm, vm.snapshot)
     
