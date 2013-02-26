@@ -24,18 +24,17 @@ vmman = VMManagerVS(vm_conf_file)
 
 jobs = {}
 def job_log(vm_name, status):
-    global jobs
-    
     print "JOB %s = %s" % (vm_name, status)
 
-    if not vm_name in jobs.keys():
-        jobs[vm_name] = (0, "VOID")
-    
-    (count, _) = jobs[vm_name]
+    if False:
+        if not vm_name in jobs.keys():
+            jobs[vm_name] = (0, "VOID")
+        
+        (count, _) = jobs[vm_name]
 
-    jobs[vm_name] = (count + 1, status)
+        jobs[vm_name] = (count + 1, status)
 
-    print "JOB %s" % [ (k,vc) for k, (vc,vs) in  jobs.items() ]
+        print "JOB %s" % [ (k,vc) for k, (vc,vs) in  jobs.items() ]
 
 def receive_signal(signum, stack):
     print 'JOBS:', jobs
@@ -50,14 +49,20 @@ def update(vm_name):
 
         sleep(random.randint(10,60))
         vmman.startup(vm)
-        job_log(vm_name, "STARTUP")
+        job_log(vm_name, "STARTED")
 
-        # this should be 50 * 60
         sleep(5 * 60)
 
-        job_log(vm_name, "SHUTDOWN")
+        if wait_for_startup(vm) is False:
+            job_log(vm_name, "NOT STARTED")
+            return "Error wait for startup for %s" % vm_name
+
+        print "[%s] waiting for Updates" % vm_name
+        sleep(50 * 60)
+        sleep(random.randint(10,300))
 
         running = True
+        job_log(vm_name, "SHUTDOWN")
         vmman.shutdownUpgrade(vm)
 
         count = 0
@@ -151,9 +156,13 @@ def dispatch(vm_name):
                     "lib/vmavtest.py",
                     "lib/logger.py",
                     "lib/rcs_client.py",
+                    "conf/vmavtest.cfg",
                     "assets/config.json",
                     "assets/keyinject.exe",
                     "assets/meltapp.exe"    ]
+
+    if wait_for_startup(vm) is False:
+        return "Error wait for startup for %s" % vm_name
 
     copy_to_guest(vm, test_dir, filestocopy)
     job_log(vm_name, "ENVIRONMENT")
@@ -170,7 +179,7 @@ def dispatch(vm_name):
     result = save_results(vm)
 
     # suspend & refresh snapshot
-    vmman.suspend(vm)
+    vmman.shutdown(vm)
     #sleep(5)
     #vmman.refreshSnapshot(vm, vm.snapshot)
     job_log(vm_name, "FINISHED")
