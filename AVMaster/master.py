@@ -135,17 +135,20 @@ def copy_to_guest(vm, test_dir, filestocopy):
         vmman.copyFileToGuest(vm, src, dst)
 
 def save_results(vm):
-    timestamp = time.strftime("%Y%m%d_%H%M", time.gmtime())
-    filename = "%s/results_%s_%s.txt" % (logdir, vm, timestamp)
-    vmman.copyFileFromGuest(vm, "c:\\Users\\avtest\\Desktop\\AVTEST\\results.txt", filename)
+    try:
+        timestamp = time.strftime("%Y%m%d_%H%M", time.gmtime())
+        filename = "%s/results_%s_%s.txt" % (logdir, vm, timestamp)
+        vmman.copyFileFromGuest(vm, "c:\\Users\\avtest\\Desktop\\AVTEST\\results.txt", filename)
 
-    last = "Error save"
-    f = open(filename, 'rb')
-    for l in f.readlines():
-        if " + " in l:
-            last = l
+        last = "Error save"
+        f = open(filename, 'rb')
+        for l in f.readlines():
+            if " + " in l:
+                last = l
 
-    return "%s %s" % (vm, last)
+        return "%s %s" % (vm, last)
+    except Exception as e:
+        return "[%s] Error saving results with exception: %s" % (vm,e)
 
 def dispatch(args):    
     vm_name, kind = args
@@ -198,7 +201,7 @@ def dispatch_kind(vm_name, kind):
 
     if r is False:
         print "DBG %s" % r 
-        return "%s Execution failed!" % vm
+        print "[%s] Execution failed!" % vm
 
     timestamp = time.strftime("%Y%m%d_%H%M", time.gmtime())
     out_img = "%s/screenshot_%s_%s.png" % (logdir, vm, timestamp)
@@ -208,7 +211,8 @@ def dispatch_kind(vm_name, kind):
     result = save_results(vm)
 
     # suspend & refresh snapshot
-    vmman.shutdown(vm)
+    if r == True:
+        vmman.shutdown(vm)
     #sleep(5)
     #vmman.refreshSnapshot(vm, vm.snapshot)
     job_log(vm_name, "FINISHED %s" % kind)
