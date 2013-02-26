@@ -21,46 +21,53 @@ op_conf_file = os.path.join("conf", "operations.cfg")
 logdir = ""
 vmman = VMManagerVS(vm_conf_file)
 
+jobs = {}
+def job_log(vm_name, status):
+    jobs[vm_name] = status
+    print "JOB %s" % jobs
+
 def update(vm_name):
     try:
         vm = VMachine(vm_conf_file, vm_name)
-        
+        job_log(vm_name, "UPDATE")
+
         vmman.revertLastSnapshot(vm)
+        job_log(vm_name, "REVERTED")
 
         sleep(random.randint(10,60))
         vmman.startup(vm)
+        job_log(vm_name, "STARTUP")
+
+        # this should be 50 * 60
         sleep(5 * 60)
-        #sleep(random.randint(60,2*60))
-        #vmman.reboot(vm)
 
-        print "[%s] waiting for Updates" % vm_name
-        #sleep(50 * 60)
-        #sleep(random.randint(10,300))
+        job_log(vm_name, "SHUTDOWN")
 
-        print "[%s] Shutdown for reconfigurations" % vm_name
         running = True
         vmman.shutdownUpgrade(vm)
+
+        count = 0
+        sh = True
 
         while running == True:
             sleep(60)
             running = vmman.VMisRunning(vm)
+            count +=1
+            job_log(vm_name, "RUNNING %s" % count)
+            if count >= 120:
+                sh = False
+                break
 
-        ''' 
-        print "[%s] Startup" % vm_name
-        vmman.startup(vm)
-        sleep(10 * 60)
+        if sh == True:
+            vmman.refreshSnapshot(vm)
+            job_log(vm_name, "UPDATED")
+            return "[%s] Updated!"  % vm_name
+        else:
+            job_log(vm_name, "NOT UPDATED")
+            return "[%s] NOT Updated!"  % vm_name
 
-        print "[%s] Suspending and saving new snapshot" % vm_name
-        #vmman.suspend(vm)
-        running = True
-        vmman.shutdown(vm)
-        while running == True:
-            sleep(30)
-            running = vmman.VMisRunning(vm)
-        ''' 
-        vmman.refreshSnapshot(vm)
-        return "[%s] Updated!"  % vm_name
     except Exception as e:
+        job_log(vm_name, "ERROR")
         return "ERROR: %s is not updated. Reason: %s" % (vm_name, e)
 
 
@@ -109,10 +116,15 @@ def save_results(vm):
 
 def dispatch(vm_name):
     vm = VMachine(vm_conf_file, vm_name)
+    job_log(vm_name, "DISPATCH")
+
     vmman.revertLastSnapshot(vm)
+    job_log(vm_name, "REVERTED")
+
     sleep(5)
     vmman.startup(vm)
     sleep(5* 60)
+    job_log(vm_name, "STARTUP")
 
     test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
 
@@ -129,12 +141,12 @@ def dispatch(vm_name):
                     "assets/keyinject.exe",
                     "assets/meltapp.exe"    ]
 
-    print "ooook lets copy files on %s!" % vm
-
     copy_to_guest(vm, test_dir, filestocopy)
+    job_log(vm_name, "ENVIRONMENT")
 
     # executing bat synchronized
     vmman.executeCmd(vm, "%s\\%s" % (test_dir, buildbat))
+    job_log(vm_name, "EXECUTED")
 
     timestamp = time.strftime("%Y%m%d_%H%M", time.gmtime())
     out_img = "%s/screenshot_%s_%s.png" % (logdir, vm, timestamp)
@@ -147,16 +159,9 @@ def dispatch(vm_name):
     vmman.suspend(vm)
     #sleep(5)
     #vmman.refreshSnapshot(vm, vm.snapshot)
-    
+    job_log(vm_name, "FINISHED")
+
     return result
-
-
-    # suspend & refresh snapshot
-    vmman.suspend(vm)
-    #sleep(5)
-    #vmman.refreshSnapshot(vm, vm.snapshot)
-    
-    return "[%s] test files dispatched" % vm_name
 
 def test_internet(vm_name):
     try:
@@ -211,6 +216,8 @@ def wait_for_startup(vm, max_count=20):
             return False
     return True
 
+def timestamp():
+    return ttime.strftime("%Y%m%d_%H%M", time.gmtime())
 
 def main():
     global logdir
@@ -232,7 +239,7 @@ def main():
     logdir = args.logdir
     if not os.path.exists(logdir):
         os.mkdir(logdir)
-    lib.logger.setLogger(filelog = "%s.txt" % logdir )
+    lib.logger.setLogger(filelog = "%s_%s.txt" % (logdir.rstrip('/'), timestamp()) )
 
     if args.action == "test":
         #get_results("eset")
@@ -247,17 +254,15 @@ def main():
         os.system('sudo ./net_disable.sh')
         print "[!] Disabling NETWORKING!"
 
-    #vm_conf_file = os.path.join("conf", "vms.cfg")
-    op_conf_file = os.path.join("conf", "operations.cfg")
-
+    op_conf_file = os.path.join("conf", "vms.cfg")
     # get configuration for AV update process (exe, vms, etc)
-
-    #vmman = VMManagerVS(vm_conf_file)
 
     # get vm names
     c = ConfigParser()
     c.read(op_conf_file)
-    vm_names = c.get("test", "machines").split(",")
+    vm_names = c.get("pool", "machines").split(",")
+
+    [ job_log(v, "INIT") for v in vm_names ]
 
     pool = Pool(int(args.pool))
 
@@ -273,9 +278,9 @@ def main():
     results = r.get()
     print "[*] RESULTS: %s" % results
 
-    timestamp = time.strftime("%Y%m%d_%H%M", time.gmtime())
+    
 
-    with open( "%s/master_%s_%s.txt" % (logdir, args.action, timestamp), "wb") as f:
+    with open( "%s/master_%s_%s.txt" % (logdir, args.action, timestamp()), "wb") as f:
         f.write("REPORT\n")
         for l in results:
             f.write("%s" % l)
