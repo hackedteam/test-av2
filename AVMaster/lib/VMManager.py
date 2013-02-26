@@ -2,6 +2,7 @@ import subprocess
 import sys
 import os
 
+from time import sleep
 from datetime import datetime
 from ConfigParser import ConfigParser
 
@@ -17,7 +18,7 @@ class VMManagerVS:
 		self.passwd = self.config.get("vsphere", "passwd")
 
 
-	def _run_cmd(self, vmx, cmd, args=[], vmx_creds=[], popen=False):
+	def _run_cmd(self, vmx, cmd, args=[], vmx_creds=[], popen=False, timeout=30):
 		pargs = [   self.path,
 					"-T", "vc",
 					"-h", self.host,
@@ -36,9 +37,24 @@ class VMManagerVS:
 	def _run_call(self, pargs):
 		return subprocess.call(pargs)
 
-	def _run_popen(self, pargs):
+	def _run_popen(self, pargs, timeout=30):
 		p = subprocess.Popen(pargs, stdout=subprocess.PIPE)
-		return p.communicate()[0]
+
+		executed = False
+		tick = 0
+
+		while executed is False:
+			sleep(20)
+			tick += 1
+			if p.poll() != None: #process is executed and ret.poll() has the return code
+				executed = True
+			if tick >= 3 * timeout:  # 3 (ticks in 1 min) * 30 (minutes) = 90
+				return False
+
+		if p.poll() == 0:
+			return p.communicate()[0]
+		else:
+			return False
 
 
 	def startup(self, vmx):
@@ -50,7 +66,10 @@ class VMManagerVS:
 		self._run_cmd(vmx, "stop")
 
 	def shutdownUpgrade(self, vmx):
-		self.executeCmd(vmx, "c:\\WINDOWS\\system32\\shutdown.exe", ["/s","/t","0"])
+		r = self.executeCmd(vmx, "c:\\WINDOWS\\system32\\shutdown.exe", ["/s"]) #["/s","/t","0"])
+		if r is False:
+			return False
+		return True
 
 	def reboot(self, vmx):
 		sys.stdout.write("[%s] Rebooting!\r\n" % vmx)
@@ -109,7 +128,7 @@ class VMManagerVS:
 		cmds = []
 		cmds.append(cmd)
 		cmds.extend(args)
-		self._run_cmd(vmx, "runProgramInGuest", cmds, [vmx.user, vmx.passwd])
+		return self._run_cmd(vmx, "runProgramInGuest", cmds, [vmx.user, vmx.passwd], popen=True)
 
 
 	def listProcesses(self, vmx):
