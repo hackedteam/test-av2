@@ -76,7 +76,7 @@ def copy_to_guest(vm, test_dir, filestocopy):
             dst =  "%s\\%s\\%s" % (test_dir, d, f)
 
         rdir = "%s\\%s" % (test_dir, d)
-        if not memo.__contains__(rdir):
+        if not rdir in memo:
             print "DBG mkdir %s " % (rdir)
             vmman.mkdirInGuest( vm, rdir )
             memo.append( rdir )
@@ -92,7 +92,7 @@ def save_results(vm):
     last = "Error save"
     f = open(filename, 'rb')
     for l in f.readlines():
-        if l.__contains__(" + "):
+        if " + " in l:
             last = l
 
     return "%s %s" % (vm, last)
@@ -198,7 +198,7 @@ def test(args):
 
 def wait_for_startup(vm, max_count=20):
     count = 0
-    while not vmman.listProcesses(vm).__contains__("vmtoolsd.exe"):
+    while not "vmtoolsd.exe" in vmman.listProcesses(vm):
         sleep(60)
         count+=1
         if count > max_count:

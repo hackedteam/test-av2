@@ -123,22 +123,13 @@ class VMManagerVS:
 
 	def VMisRunning(self, vmx):
 		res = self._run_cmd(vmx, "list", popen=True)
-		if res.__contains__(vmx.path[1:-1]):
+		if vmx.path[1:-1] in res:
 			return True
 		return False
 
 	def listSnapshots(self, vmx):
 		out = self._run_cmd(vmx, "listSnapshots", popen=True).split("\n")
 		return out[1:-1]
-
-	def VMisRunning(self, vmx):
-		res = self._run_cmd(vmx, "list", popen=True)
-		if res.__contains__(vmx.path[1:-1]):
-			return True
-		return False
-
-
-
 
 class VMManagerFus:
 	def __init__(self, path):
