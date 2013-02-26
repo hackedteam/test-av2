@@ -1,11 +1,11 @@
 import argparse
 import os
+import time
 from time import sleep
 from ConfigParser import ConfigParser
 from multiprocessing import Pool
 import argparse
 import random
-import time
 import os.path
 import signal
 
@@ -24,7 +24,7 @@ vmman = VMManagerVS(vm_conf_file)
 
 jobs = {}
 def job_log(vm_name, status):
-    print "JOB %s = %s" % (vm_name, status)
+    print "+ %s: %s" % (vm_name, status)
 
     if False:
         if not vm_name in jobs.keys():
@@ -39,8 +39,9 @@ def job_log(vm_name, status):
 def receive_signal(signum, stack):
     print 'JOBS:', jobs
 
-def update(vm_name):
+def update(args):
     try:
+        vm_name = args[0]
         vm = VMachine(vm_conf_file, vm_name)
         job_log(vm_name, "UPDATE")
 
@@ -63,7 +64,10 @@ def update(vm_name):
 
         running = True
         job_log(vm_name, "SHUTDOWN")
-        vmman.shutdownUpgrade(vm)
+        r = vmman.shutdownUpgrade(vm)
+
+        if r is False:
+            return "[%s] NOT Updated!"  % vm_name
 
         count = 0
         sh = True
@@ -95,6 +99,16 @@ def revert(vm_name):
     vmman.revertSnapshot(vm, vm.snapshot)
     sleep(2)
     return "[*] %s reverted!"
+
+def run_command(args):
+    vm_name, cmd = args
+    if cmd is None:
+        return False
+    vmx = VMachine(vm_conf_file, vm_name)
+    #vmman._run_cmd(vmx, cmd, args)
+    vmman._run_cmd(vmx, cmd)
+
+    return True
 
 def copy_to_guest(vm, test_dir, filestocopy):
     #lib_dir = "%s\\lib" % test_dir
@@ -133,10 +147,21 @@ def save_results(vm):
 
     return "%s %s" % (vm, last)
 
-def dispatch(vm_name):
-    vm = VMachine(vm_conf_file, vm_name)
-    job_log(vm_name, "DISPATCH")
+def dispatch(args):    
+    vm_name, kind = args
+    print "DBG %s, %s" %(vm_name,kind)
+    if kind == "all":
+        dispatch_kind(vm_name, "silent")
+        sleep(random.randint(5,10))
+        dispatch_kind(vm_name, "melt")
+    else:
+        dispatch_kind(vm_name, kind)
 
+def dispatch_kind(vm_name, kind):
+    
+    vm = VMachine(vm_conf_file, vm_name)
+    job_log(vm_name, "DISPATCH %s" % kind)
+    
     vmman.revertLastSnapshot(vm)
     job_log(vm_name, "REVERTED")
 
@@ -144,14 +169,14 @@ def dispatch(vm_name):
     vmman.startup(vm)
     sleep(5* 60)
     job_log(vm_name, "STARTUP")
-
+    
     test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
 
-    kind = "silent"
     host = "minotauro"
 
     buildbat = "build_%s_%s.bat" % (kind, host)
 
+    
     filestocopy =[  "./%s" % buildbat,
                     "lib/vmavtest.py",
                     "lib/logger.py",
@@ -166,10 +191,14 @@ def dispatch(vm_name):
 
     copy_to_guest(vm, test_dir, filestocopy)
     job_log(vm_name, "ENVIRONMENT")
-
+    
     # executing bat synchronized
-    vmman.executeCmd(vm, "%s\\%s" % (test_dir, buildbat))
-    job_log(vm_name, "EXECUTED")
+    r = vmman.executeCmd(vm, "%s\\%s" % (test_dir, buildbat))
+    job_log(vm_name, "EXECUTED %s" % kind)
+
+    if r is False:
+        print "DBG %s" % r 
+        return "%s Execution failed!" % vm
 
     timestamp = time.strftime("%Y%m%d_%H%M", time.gmtime())
     out_img = "%s/screenshot_%s_%s.png" % (logdir, vm, timestamp)
@@ -182,9 +211,9 @@ def dispatch(vm_name):
     vmman.shutdown(vm)
     #sleep(5)
     #vmman.refreshSnapshot(vm, vm.snapshot)
-    job_log(vm_name, "FINISHED")
-
+    job_log(vm_name, "FINISHED %s" % kind)
     return result
+
 
 def test_internet(vm_name):
     try:
@@ -211,25 +240,7 @@ def test_internet(vm_name):
         
 
 def test(args):
-    print logdir
-    print args.vm.split(',')
-
-    time.sleep(300)
-
-    #vm_conf_file = os.path.join("conf", "vms.cfg")
-    vm_name = "sophos"
-
-    #vmman = VMManagerVS(vm_conf_file)
-    vm = VMachine(vm_conf_file, vm_name)
-    vmman.revertLastSnapshot(vm)
-    vmman.startup(vm)
-    sleep(60)
-
-    if wait_for_startup(vm) is False:
-        print "Error"
-    else:
-        print "ok... next instruction"  
-
+    run_command(args.vm, args.cmd)
 
 def wait_for_startup(vm, max_count=20):
     count = 0
@@ -249,7 +260,8 @@ def main():
 
     parser = argparse.ArgumentParser(description='AVMonitor master.')
 
-    parser.add_argument('action', choices=['update', 'revert', 'dispatch', 'test', 'test_internet'],
+    parser.add_argument('action', choices=['update', 'revert', 'dispatch', 
+        'test', 'command', 'test_internet'],
         help="The operation to perform")
     parser.add_argument('-m', '--vm', required=False, 
         help="Virtual Machine where execute the operation")
@@ -257,8 +269,12 @@ def main():
         help="This is the number of parallel process (default 2)")
     parser.add_argument('-l', '--logdir', default="/var/log/avmonitor/report",  
         help="Log folder")
-    parser.add_argument('-v', '--verbose', default=False,  
+    parser.add_argument('-v', '--verbose', action='store_true', default=False,  
         help="Verbose")
+    parser.add_argument('-k', '--kind', default="all", type=str,
+        help="Verbose")
+    parser.add_argument('-c', '--cmd', required=False,
+        help="Run VMRUN command")
     args = parser.parse_args()
 
     logdir = args.logdir
@@ -293,13 +309,18 @@ def main():
 
     [ job_log(v, "INIT") for v in vm_names ]
 
-    pool = Pool(int(args.pool))
+    pool = Pool(args.pool)
     print "[*] selected operation %s" % args.action
 
     actions = { "update" : update, "revert": revert, 
-                "dispatch": dispatch, "test_internet": test_internet }
+                "dispatch": dispatch, "test_internet": test_internet,
+                "command": run_command }
 
-    r = pool.map_async(actions[args.action], vm_names)
+    arg = args.kind
+    if args.action == "command":
+        arg = args.cmd
+    print args.action, arg
+    r = pool.map_async(actions[args.action], [ ( n, arg ) for n in vm_names ])
     
     results = r.get()
 
