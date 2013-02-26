@@ -122,21 +122,21 @@ class Rcs_client:
         factories = self._call_get('factory')
 
         #pp.pprint(factories)
-        ret = [ (op['_id'], op['ident']) for op in factories if op['path'].__contains__(target_id) ]
+        ret = [ (op['_id'], op['ident']) for op in factories if target_id in op['path'] ]
         return ret
 
     def instances(self, ident):
         """ gets the instances id of an operation, matching the ident """
         agents = self._call_get('agent')
         #pp.pprint(agents)
-        ret = [ op['_id'] for op in agents if op['ident'].__contains__(ident) and op['_kind'] == 'agent' ]
+        ret = [ op['_id'] for op in agents if ident in op['ident'] and op['_kind'] == 'agent' ]
         return ret
 
     def agents(self, target_id):
         """ gets the agents (agents and factories) of an operation, matching the target id """
         agents = self._call_get('agent')
         #pp.pprint(agents)
-        ret = [ (op['_id'], op['ident'], op['name']) for op in agents if op['path'].__contains__(target_id)]
+        ret = [ (op['_id'], op['ident'], op['name']) for op in agents if target_id in op['path']]
         return ret
 
     def target_delete(self, target_id):
