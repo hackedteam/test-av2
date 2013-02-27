@@ -150,18 +150,22 @@ def save_results(vm):
     except Exception as e:
         return "[%s] Error saving results with exception: %s" % (vm,e)
 
-def dispatch(args):    
-    vm_name, kind = args
-    results = {}
-    print "DBG %s, %s" %(vm_name,kind)
-    if kind == "all":
-        results['silent'] = dispatch_kind(vm_name, "silent")
-        sleep(random.randint(5,10))
-        results['melt'] = dispatch_kind(vm_name, "melt")
-    else:
-        results['kind'] = (vm_name, kind)
+def dispatch(args):
+    try:
+        vm_name, kind = args
+        results = {}
+        print "DBG %s, %s" %(vm_name,kind)
+        if kind == "all":
+            results['silent'] = dispatch_kind(vm_name, "silent")
+            sleep(random.randint(5,10))
+            results['melt'] = dispatch_kind(vm_name, "melt")
+        else:
+            results['kind'] = (vm_name, kind)
 
-    return results
+        return results
+    except Exception as e:
+        return {'Error': e}
+
 
 def dispatch_kind(vm_name, kind):
     
