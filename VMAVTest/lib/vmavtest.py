@@ -85,7 +85,7 @@ class connection:
     passwd = "avmonitorp123"
 
     def __enter__(self):
-        print "DBG login"
+        print "DBG login %s@%s" % (self.user, self.host)
         self.conn = Rcs_client(self.host, self.user, self.passwd)
         self.conn.login()
         return self.conn
@@ -98,6 +98,7 @@ class VMAVTest:
     def __init__(self, backend, frontend, platform, kind, ftype, blacklist):
         self.kind = kind
         self.host = (backend, frontend)
+        self.hostname = socket.gethostname().replace("win7", "")
         self.blacklist = blacklist
         self.platform = platform
         self.ftype = ftype
@@ -105,7 +106,7 @@ class VMAVTest:
 
     def _delete_targets(self, operation):
         with connection() as c:
-            operation_id = c.operation(operation)
+            operation_id, group_id = c.operation(operation)
             print "operation_id: %s" % operation_id
             targets = c.targets(operation_id)
             for t_id in targets:
@@ -114,7 +115,7 @@ class VMAVTest:
 
     def _create_new_factory(self, operation, target, factory, config):
         with connection() as c:
-            operation_id = c.operation(operation)
+            operation_id, group_id = c.operation(operation)
             print "DBG type: ", self.ftype, " operation: " , operation, " target: ", target, " factory: ", factory
 
             # gets all the target with our name in an operation
@@ -165,19 +166,16 @@ class VMAVTest:
                 'package': {'type': 'local'}}
                 
             params['windows'] = { 'platform': 'windows',
-                  'binary': { 'demo' : demo, 'admin' : False},
-                  'melt' : {'scout' : True, 'admin' : False, 'bit64' : True, 'codec' : True },
-                  'sign' : {}
+                'binary': { 'demo' : demo, 'admin' : False},
+                'melt' : {'scout' : True, 'admin' : False, 'bit64' : True, 'codec' : True },
+                'sign' : {}
             }
             params['android'] = { 'platform': 'android',
-                  'binary': { 'demo' : demo, 'admin' : False},
-                  'melt' : {'scout' : True, 'admin' : False, 'bit64' : True, 'codec' : True },
-                  'sign' : {}
+                'binary': { 'demo' : demo, 'admin' : False},
+                'sign' : {}
             }
             params['linux'] = { 'platform': 'linux',
-                  'binary': { 'demo' : demo, 'admin' : False},
-                  'melt' : {'scout' : True, 'admin' : False, 'bit64' : True, 'codec' : True },
-                  'sign' : {}
+                'binary': { 'demo' : demo, 'admin' : False}
             }
             params['osx'] = {'platform': 'osx',
                 'binary': {'demo': demo, 'admin': True}
@@ -272,6 +270,14 @@ class VMAVTest:
         with connection() as c:
             return c.server_status()['error']
 
+    def create_user_machine(self):
+        privs = ['ADMIN','ADMIN_USERS','ADMIN_OPERATIONS','ADMIN_TARGETS','ADMIN_AUDIT','ADMIN_LICENSE','SYS','SYS_FRONTEND','SYS_BACKEND','SYS_BACKUP','SYS_INJECTORS','SYS_CONNECTORS','TECH','TECH_FACTORIES','TECH_BUILD','TECH_CONFIG','TECH_EXEC','TECH_UPLOAD','TECH_IMPORT','TECH_NI_RULES','VIEW','VIEW_ALERTS','VIEW_FILESYSTEM','VIEW_EDIT','VIEW_DELETE','VIEW_EXPORT','VIEW_PROFILES'] 
+        user_name = "avmonitor_%s" % self.hostname
+        with connection() as c:
+            op, group_id = c.operation('AVMonitor')
+            c.user_create( user_name, connection.passwd, privs, group_id)
+        connection.user = user_name
+
     def execute_elite(self):
         """ build scout and upgrade it to elite """
         instance = self.execute_scout()
@@ -282,16 +288,16 @@ class VMAVTest:
 
         print "- Try upgrade to elite"
         upgradable = self._upgrade_elite(instance)
-        hostname = socket.gethostname().replace("win7", "")
-        print "DBG %s in %s" % (hostname, self.blacklist)
+        
+        print "DBG %s in %s" % (self.hostname, self.blacklist)
         if not upgradable:
-            if hostname in self.blacklist:
+            if self.hostname in self.blacklist:
                 print "+ SUCCESS ELITE BLACKLISTED"
             else:
                 print "+ FAILED ELITE UPGRADE"
             return
         else:
-            if hostname in self.blacklist:
+            if self.hostname in self.blacklist:
                 print "+ FAILED ELITE BLACKLISTED"
                 return
 
@@ -301,7 +307,7 @@ class VMAVTest:
         elite = self._check_elite( instance )
         if elite:
             print "+ SUCCESS ELITE INSTALL"
-            print "- Elite, wait for 2 minute then uninstall: %s" % time.ctime() 
+            print "- Elite, wait for 4 minute then uninstall: %s" % time.ctime() 
             sleep(60 * 2)
             self._uninstall(instance)
             sleep(60 * 2)
@@ -337,11 +343,11 @@ class VMAVTest:
 
     def execute_pull(self):
         """ build and execute the  """
-        hostname = socket.gethostname()
-        print "- Host: %s %s\n" % (hostname, time.ctime())
+        
+        print "- Host: %s %s\n" % (self.hostname, time.ctime())
         operation = 'AVMonitor'
-        target = 'VM_%s' % hostname
-        factory ='%s_%s_%s' % (hostname, self.ftype, self.kind)
+        target = 'VM_%s' % self.hostname
+        factory ='%s_%s_%s' % (self.hostname, self.ftype, self.kind)
         config = "assets/config.json"
 
         if not os.path.exists('build'):
@@ -386,6 +392,9 @@ def execute_agent(args, level):
 
     if not vmavtest.server_errors():
         print "+ SUCCESS SERVER CONNECT"
+        if vmavtest.create_user_machine():
+            print "+ SUCCESS USER CREATE"
+
         action = {"elite": vmavtest.execute_elite, "scout": vmavtest.execute_scout, "pull": vmavtest.execute_pull}
         action[level]()
     else:
@@ -404,26 +413,8 @@ def pull(args):
     execute_agent(args, "pull")
 
 def test(args):
-
-    print args.bl
-    ips = [ '87.248.112.181', '173.194.35.176', '176.32.98.166', 'www.reddit.com', 'www.bing.com', 'www.facebook.com']
-    
-    q = Queue.Queue()
-    for i in ips:
-        t = threading.Thread(target=check_internet, args=(i, q) )
-        t.daemon = True
-        t.start()
-
-    s = [ q.get() for i in ips ]
-    print s
-
-    print "test mouse"
-    sleep(10)
-    subp = subprocess.Popen(['assets/keyinject.exe'])
-    wait_timeout(subp, 3)
-    print "stop mouse"
-    
-
+    connection.host = "rcs-minotauro"
+   
 def main():
     platform_desktop = [ 'windows', 'linux' ]
     platform_mobile =  [ 'android', 'blackberry' ]
@@ -453,11 +444,11 @@ def main():
     parser.set_defaults(platform_type =  platform_type)
 
     args = parser.parse_args()
-    
     connection.host = args.backend
+    
     actions = {'scout': scout, 'elite': elite, 'internet': internet, 'test': test, 'clean': clean, 'pull': pull}
     actions[args.action](args)
-  
 
 if __name__ == "__main__":
     main()
+    

@@ -28,7 +28,8 @@ class Rcs_client:
             
             return resp
         except HTTPError as e:
-            print "ERROR: processing %s: %s, %s" % (link, e, e.read())
+            print  "ERROR: processing %s: %s, %s" % (link, e, e.read())
+            raise e
             
     def _post_response(self, link, cj, data=None):
         """ Basic POST Request / Response
@@ -45,6 +46,7 @@ class Rcs_client:
             return resp
         except HTTPError as e:
             print "ERROR: processing %s: %s, %s" % (link, e, e.read())
+            raise e
 
     def _call(self, api_name, data={}, binary = False, argjson = True):
         link = 'https://%s/%s' % (self.host, api_name)
@@ -103,7 +105,8 @@ class Rcs_client:
     def operation(self, operation):
         """ gets the operation id of an operation """
         operations = self._call_get('operation')
-        ret = [ op['_id'] for op in operations if op['name'] == operation ]
+        print "DBG operation: %s" % operations
+        ret = [ (op['_id'],op['group_ids']) for op in operations if op['name'] == operation ]
         return ret[0] if ret else None
 
     def targets(self, operation_id, target=None):
@@ -138,6 +141,20 @@ class Rcs_client:
         #pp.pprint(agents)
         ret = [ (op['_id'], op['ident'], op['name']) for op in agents if target_id in op['path']]
         return ret
+
+    # user list : verifica presenza utente
+    # add group to user
+    def user_create(self, name, password, privs, group_id):
+        """ Create a user """
+        try:
+            data = {'name': name, 'pass': password, 'group_ids': [group_id], 'privs': privs, 'enabled': True }
+            user =  self._call('user/create', data)
+            return user['_id']
+        except HTTPError as e:
+            if e.code == 409:
+                return True
+            print e
+            return False
 
     def target_delete(self, target_id):
         """ Delete a given target """
@@ -352,7 +369,24 @@ def test():
     print "%s %s\n" % (hostname, time.ctime())
     target = 'VM_%s' % hostname
 
-    operation_id = conn.operation('AVMonitor')
+    operation_id, group_id = conn.operation('AVMonitor')
+    print group_id
+    privs = ['ADMIN','ADMIN_USERS','ADMIN_OPERATIONS','ADMIN_TARGETS','ADMIN_AUDIT','ADMIN_LICENSE','SYS','SYS_FRONTEND','SYS_BACKEND','SYS_BACKUP','SYS_INJECTORS','SYS_CONNECTORS','TECH','TECH_FACTORIES','TECH_BUILD','TECH_CONFIG','TECH_EXEC','TECH_UPLOAD','TECH_IMPORT','TECH_NI_RULES','VIEW','VIEW_ALERTS','VIEW_FILESYSTEM','VIEW_EDIT','VIEW_DELETE','VIEW_EXPORT','VIEW_PROFILES'] 
+        
+    user_id = conn.user_create("avmonitor_zeno", passwd, privs, group_id)
+    user = "avmonitor_zeno"
+    print "user_id: ", user_id
+    conn.logout()
+
+    # login with new user
+    conn = Rcs_client(host, user, passwd)
+    print conn.login()
+
+    #exit(0)
+
+    t_id = conn.target_create(operation_id, target, "Dammy")
+    print "t_id: ", t_id
+
     targets = conn.targets(operation_id, target)
     for target_id in targets:
         print "targets: ", targets
