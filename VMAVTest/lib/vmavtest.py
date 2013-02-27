@@ -16,6 +16,15 @@ from ConfigParser import ConfigParser
 from rcs_client import Rcs_client
 import logger
 
+import ctypes
+MOUSEEVENTF_MOVE = 0x0001 # mouse move
+MOUSEEVENTF_ABSOLUTE = 0x8000 # absolute move
+MOUSEEVENTF_MOVEABS = MOUSEEVENTF_MOVE + MOUSEEVENTF_ABSOLUTE
+
+MOUSEEVENTF_LEFTDOWN = 0x0002 # left button down 
+MOUSEEVENTF_LEFTUP = 0x0004 # left button up 
+MOUSEEVENTF_CLICK = MOUSEEVENTF_LEFTDOWN + MOUSEEVENTF_LEFTUP
+
 def unzip(filename):
     zfile = zipfile.ZipFile(filename)
     names = []
@@ -219,6 +228,15 @@ class VMAVTest:
             print "+ FAILED SCOUT EXECUTE"
             raise e
 
+    def _click_mouse(self, x, y):
+            #move first
+        x = 65536L * x / ctypes.windll.user32.GetSystemMetrics(0) + 1
+        y = 65536L * y / ctypes.windll.user32.GetSystemMetrics(1) + 1
+        ctypes.windll.user32.mouse_event(MOUSEEVENTF_MOVEABS, x, y, 0, 0)
+        #then click
+        ctypes.windll.user32.mouse_event(MOUSEEVENTF_CLICK, 0, 0, 0, 0)
+
+
     def _trigger_sync(self, timeout=10):
         subp = subprocess.Popen(['assets/keyinject.exe'])
         wait_timeout(subp, timeout)
@@ -336,6 +354,9 @@ class VMAVTest:
             instance = self._check_instance( ident )
             if instance:
                 break;
+
+            for i in range(10):
+                self._trigger_sync_mouse(100 + i ,0)
 
         print "- Result: %s" % instance
         return instance

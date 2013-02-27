@@ -105,7 +105,6 @@ def run_command(args):
     if cmd is None:
         return False
     vmx = VMachine(vm_conf_file, vm_name)
-    #vmman._run_cmd(vmx, cmd, args)
     vmman._run_cmd(vmx, cmd)
 
     return True
