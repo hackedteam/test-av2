@@ -203,8 +203,8 @@ def dispatch_kind(vm_name, kind):
         print "DBG %s" % r 
         print "[%s] Execution failed!" % vm
 
-    timestamp = time.strftime("%Y%m%d_%H%M", time.gmtime())
-    out_img = "%s/screenshot_%s_%s.png" % (logdir, vm, timestamp)
+    #timestamp = time.strftime("%Y%m%d_%H%M", time.gmtime())
+    out_img = "%s/screenshot_%s_%s.png" % (logdir, vm, kind)
     vmman.takeScreenshot(vm, out_img)
     
     # save results.txt locally
@@ -285,7 +285,7 @@ def main():
     if not os.path.exists(logdir):
         print "DBG mkdir %s" % logdir
         os.mkdir(logdir)
-    lib.logger.setLogger(debug = args.verbose, filelog = "%s/master.txt" % (logdir.rstrip('/'), timestamp()) )
+    lib.logger.setLogger(debug = args.verbose, filelog = "%s/master.logger.txt" % (logdir.rstrip('/')) )
 
     if args.action == "test":
         #get_results("eset")
@@ -331,7 +331,7 @@ def main():
     print "[*] RESULTS: %s" % results
     print jobs
 
-    with open( "%s/master_%s_%s.txt" % (logdir, args.action, timestamp()), "wb") as f:
+    with open( "%s/master_%s.txt" % (logdir, args.action), "wb") as f:
         f.write("REPORT\n")
         for l in results:
             f.write("%s" % l)
