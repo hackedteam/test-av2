@@ -166,7 +166,6 @@ def dispatch(args):
     except Exception as e:
         return {'Error': e}
 
-
 def dispatch_kind(vm_name, kind):
     
     vm = VMachine(vm_conf_file, vm_name)
@@ -186,7 +185,6 @@ def dispatch_kind(vm_name, kind):
 
     buildbat = "build_%s_%s.bat" % (kind, host)
 
-    
     filestocopy =[  "./%s" % buildbat,
                     "lib/vmavtest.py",
                     "lib/logger.py",
