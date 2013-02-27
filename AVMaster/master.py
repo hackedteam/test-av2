@@ -245,11 +245,48 @@ def test_internet(vm_name):
         
         # executing bat synchronized
         vmman.executeCmd(vm, "%s\\test_internet.bat" % test_dir)
+
+        sleep(random.randint(100,200))
+
+        vmman.shutdown(vm)
+
         return "[%s] dispatched test internet" % vm_name
     except FailedExecutionException as e:
         raise FailedExecutionException("Error is ", e )
         
+def test_exe(args):
+    vm_name, exe_path = args
+    vm = VMachine(vm_conf_file, vm_name)
 
+    vmman.revertLastSnapshot(vm)
+    sleep(5)
+    vmman.startup(vm)
+    sleep(5 * 60)
+
+    if wait_for_startup(vm) is False:   
+        return "Error wait for startup for %s" % vm_name
+    
+    test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
+
+    filestocopy =[  exe_path ]
+    copy_to_guest(vm, test_dir, filestocopy)
+    
+    # executing bat synchronized
+    vmman.executeCmd(vm, "%s\\%s" % (test_dir,exe_dir))
+
+    sleep(random.randint(100,200))
+
+    out_img = "%s/screenshot_%s_%s.png" % (logdir, vm, kind)
+    vmman.takeScreenshot(vm, out_img)
+    
+    # save results.txt locally
+    result = save_results(vm)
+
+    vmman.shutdown(vm)
+
+    return result
+
+        
 def test(args):
     run_command(args.vm, args.cmd)
 
