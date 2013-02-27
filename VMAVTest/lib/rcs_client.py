@@ -80,7 +80,8 @@ class Rcs_client:
         @returns cookie 
         """
         login = { 'user':self.user,
-                  'pass':self.passwd }
+                  'pass':self.passwd, 
+                  'version':2013031101}
         
         link = "https://%s/auth/login" % self.host
         data = json.dumps(login)

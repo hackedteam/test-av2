@@ -104,7 +104,7 @@ class connection:
         self.conn.logout()
 
 class VMAVTest:
-    def __init__(self, backend, frontend, platform, kind, ftype, blacklist):
+    def __init__(self, backend, frontend=None, platform='windows', kind='silent', ftype='desktop', blacklist=[]):
         self.kind = kind
         self.host = (backend, frontend)
         self.hostname = socket.gethostname().replace("win7", "")
@@ -385,16 +385,7 @@ class VMAVTest:
 
         return factory_id, ident, exe
 
-def internet(args):
-    print time.ctime()
-    print "internet on: ", internet_on()
-    print time.ctime()
 
-def clean(args):
-    operation = 'AVMonitor'
-    print "- Server: %s/%s %s" % (args.backend,args.frontend, args.kind)
-    vmavtest = VMAVTest( args.backend, args.frontend , args.kind )
-    vmavtest.delete_targets(operation)
 
 def execute_agent(args, level):
     ftype = args.platform_type[args.platform]
@@ -435,6 +426,17 @@ def pull(args):
 
 def test(args):
     connection.host = "rcs-minotauro"
+
+def internet(args):
+    print time.ctime()
+    print "internet on: ", internet_on()
+    print time.ctime()
+
+def clean(args):
+    operation = 'AVMonitor'
+    print "- Server: %s/%s %s" % (args.backend,args.frontend, args.kind)
+    vmavtest = VMAVTest( args.backend, args.frontend , args.kind )
+    vmavtest._delete_targets(operation)
    
 def main():
     platform_desktop = [ 'windows', 'linux' ]
