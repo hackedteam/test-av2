@@ -152,13 +152,16 @@ def save_results(vm):
 
 def dispatch(args):    
     vm_name, kind = args
+    results = {}
     print "DBG %s, %s" %(vm_name,kind)
     if kind == "all":
-        dispatch_kind(vm_name, "silent")
+        results['silent'] = dispatch_kind(vm_name, "silent")
         sleep(random.randint(5,10))
-        dispatch_kind(vm_name, "melt")
+        results['melt'] = dispatch_kind(vm_name, "melt")
     else:
-        dispatch_kind(vm_name, kind)
+        results['kind'] = (vm_name, kind)
+
+    return results
 
 def dispatch_kind(vm_name, kind):
     
@@ -325,7 +328,6 @@ def main():
         arg = args.cmd
     print args.action, arg
     r = pool.map_async(actions[args.action], [ ( n, arg ) for n in vm_names ])
-    
     results = r.get()
 
     print "[*] RESULTS: %s" % results

@@ -4,7 +4,8 @@ from time import sleep
 
 # metodo da eseguire in N contest distinti, uno per vm (il nome passato per argomento)
 # i risultati vengono restituiti con return
-def vmplay(vmname):
+def vmplay(args):
+    vmname, t = args
     sleep(1)
     return "executed: %s" % vmname
 
@@ -15,10 +16,10 @@ po = Pool(200)
 vmnames = [ "vm%d" % n for n in range(200) ]
 
 # lancio di un processo per ogni vm, asincrono, usando una map
-res = po.map_async(vmplay,((i) for i in vmnames))
+res = po.map_async(vmplay,((i, " test") for i in vmnames))
 
 #i risultati vengono raccolti in un array
-print res.get()
+print "results: ", res.get()
 
 #-------------------------------------------------------------------#
 #esempio di map
