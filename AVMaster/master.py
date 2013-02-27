@@ -246,7 +246,6 @@ def test_internet(vm_name):
 def test(args):
     run_command(args.vm, args.cmd)
 
-
 def wait_for_startup(vm, max_count=20):
     count = 0
     while not "vmtoolsd.exe" in vmman.listProcesses(vm):
@@ -282,10 +281,11 @@ def main():
         help="Run VMRUN command")
     args = parser.parse_args()
 
-    logdir = args.logdir
+    logdir = "%s/%s_%s" % (args.logdir, args.action, timestamp())
     if not os.path.exists(logdir):
+        print "DBG mkdir %s" % logdir
         os.mkdir(logdir)
-    lib.logger.setLogger(debug = args.verbose, filelog = "%s_%s.txt" % (logdir.rstrip('/'), timestamp()) )
+    lib.logger.setLogger(debug = args.verbose, filelog = "%s/master.txt" % (logdir.rstrip('/'), timestamp()) )
 
     if args.action == "test":
         #get_results("eset")

