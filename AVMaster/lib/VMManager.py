@@ -37,7 +37,7 @@ class VMManagerVS:
 	def _run_call(self, pargs):
 		return subprocess.call(pargs)
 
-	def _run_popen(self, pargs, timeout=30):
+	def _run_popen(self, pargs):
 		p = subprocess.Popen(pargs, stdout=subprocess.PIPE)
 
 		executed = False
@@ -48,7 +48,7 @@ class VMManagerVS:
 			tick += 1
 			if p.poll() != None: #process is executed and ret.poll() has the return code
 				executed = True
-			if tick >= 3 * timeout:  # 3 (ticks in 1 min) * 30 (minutes) = 90
+			if tick >= 105:  # 3 (ticks in 1 min) * 30 (minutes) = 90
 				return False
 
 		if p.poll() == 0:
