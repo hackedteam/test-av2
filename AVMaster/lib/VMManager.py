@@ -48,7 +48,7 @@ class VMManagerVS:
 			tick += 1
 			if p.poll() != None: #process is executed and ret.poll() has the return code
 				executed = True
-			if tick >= 105:  # 3 (ticks in 1 min) * 30 (minutes) = 90
+			if tick >= 45 * 3: ## 3 (ticks in 1 min) * 35 (minutes) = 105 min
 				return False
 
 		if p.poll() == 0:
