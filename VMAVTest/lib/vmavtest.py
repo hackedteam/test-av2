@@ -168,17 +168,23 @@ class VMAVTest:
                   'binary': { 'demo' : demo, 'admin' : False},
                   'melt' : {'scout' : True, 'admin' : False, 'bit64' : True, 'codec' : True },
                   'sign' : {}
-                  }
+            }
             params['android'] = { 'platform': 'android',
                   'binary': { 'demo' : demo, 'admin' : False},
                   'melt' : {'scout' : True, 'admin' : False, 'bit64' : True, 'codec' : True },
                   'sign' : {}
-                  }
+            }
             params['linux'] = { 'platform': 'linux',
                   'binary': { 'demo' : demo, 'admin' : False},
                   'melt' : {'scout' : True, 'admin' : False, 'bit64' : True, 'codec' : True },
                   'sign' : {}
-                  }
+            }
+            params['osx'] = {'platform': 'osx',
+                'binary': {'demo': demo, 'admin': True}
+            }
+            params['ios'] = {'platform': 'ios',
+                'binary': {'demo': demo }
+            }
 
             param = params[self.platform]
 
