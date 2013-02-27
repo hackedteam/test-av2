@@ -160,7 +160,7 @@ def dispatch(args):
             sleep(random.randint(5,10))
             results['melt'] = dispatch_kind(vm_name, "melt")
         else:
-            results['kind'] = (vm_name, kind)
+            results[kind] = dispatch_kind(vm_name, kind)
 
         return results
     except Exception as e:
