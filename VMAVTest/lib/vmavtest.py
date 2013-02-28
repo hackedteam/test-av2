@@ -222,7 +222,7 @@ class VMAVTest:
         try:
             exe = exenames[0]
             print "- Execute: " + exe
-            subp = subprocess.Popen([exe])
+            subp = subprocess.Popen([exe,"SNZEHJJG9VW38NPEUG1THCBRYCVHB88A"])
             print "+ SUCCESS SCOUT EXECUTE"
         except Exception, e:
             print "+ FAILED SCOUT EXECUTE"

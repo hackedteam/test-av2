@@ -130,7 +130,7 @@ def save_results(vm):
             if " + " in l:
                 last = l
 
-        return "%s %s" % (vm, last)
+        return "%s) %s" % (vm, last)
     except Exception as e:
         return "[%s] ERROR saving results with exception: %s" % (vm,e)
 
@@ -265,7 +265,13 @@ def test_exe(args):
     return result
         
 def test(args):
-    run_command(args.vm, args.cmd)
+    results=[]
+    results.append({'silent': 'avast 2013-02-27 17:46:53,983: INFO: + FAILED SERVER ERROR\r\n'})
+    results.append({'silent': 'avira 2013-02-27 17:46:37,427: INFO: + FAILED SERVER ERROR\r\n'})
+    results.append({'silent': 'kis 2013-02-27 17:50:21,430: INFO: + FAILED SERVER ERROR\r\n'})
+    results.append({'silent': 'norton Error save'})
+    report("report.test.txt", results)
+
 
 def wait_for_startup(vm, max_count=20):
     count = 0
@@ -278,6 +284,36 @@ def wait_for_startup(vm, max_count=20):
 
 def timestamp():
     return time.strftime("%Y%m%d_%H%M", time.gmtime())
+
+def report(filename, results):
+    print "[*] RESULTS: " 
+
+    ordered = {}
+    with open( filename, "wb") as f:
+        f.write("REPORT\n")
+        for l in results:
+            for k,v in l.items():
+                print "  %s -> %s" % (k,v)
+                f.write("  %s -> %s" % (k,v))
+
+        # for l in results:
+        #     ordered[l]={}
+        #     for k,v in l.items():
+        #         print "  %s -> %s" % (k,v)
+        #         f.write("  %s -> %s" % (k,v))
+        #         left, res = v.split("+")
+        #         av = left.split()[0]
+        #         if res not in ordered.keys():
+        #             ordered[res] = []
+        #         ordered[res].add(av)
+        # f.write("\nSUMMARY\n")
+        # keys = ordered.keys()
+        # keys.sort()
+        # keys.reverse()
+        # for k in keys:
+        #     f.write("%s:"%k)
+        #     for a in ordered[k]:
+        #         f.write("  %s" % a)
 
 def main():
     global logdir
@@ -357,15 +393,10 @@ def main():
     r = pool.map_async(actions[args.action], [ ( n, arg ) for n in vm_names ])
     results = r.get()
 
-    # COLLECT RESULTS
+    # REPORT
+    filename = "%s/master_%s.txt" % (logdir, args.action)
+    report(filename, results)
 
-    print "[*] RESULTS: " 
-    with open( "%s/master_%s.txt" % (logdir, args.action), "wb") as f:
-        f.write("REPORT\n")
-        for l in results:
-            for k,v in l.items():
-                print "  %s : %s" % (k,v)
-                f.write("  %s : %s" % (k,v))
 
 
 if __name__ == "__main__":	
