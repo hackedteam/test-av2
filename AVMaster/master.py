@@ -338,8 +338,8 @@ def main():
         os.system('sudo ./net_enable.sh')
         print "[!] Enabling NETWORKING!"
     else:
-        #os.system('sudo ./net_disable.sh')
-        print "[!] NOT: Disabling NETWORKING!"
+        os.system('sudo ./net_disable.sh')
+        print "[!] Disabling NETWORKING!"
 
     # POOL EXECUTION    
 
@@ -353,7 +353,7 @@ def main():
     arg = args.kind
     if args.action == "command":
         arg = args.cmd
-    print args.action, arg
+    print "MASTER %s on %s" % (arg, vm_names)
     r = pool.map_async(actions[args.action], [ ( n, arg ) for n in vm_names ])
     results = r.get()
 
