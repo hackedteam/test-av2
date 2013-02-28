@@ -31,8 +31,8 @@ def unzip(filename):
     for name in zfile.namelist():
         (dirname, filename) = os.path.split(name)
         print "- Decompress: " + filename 
-        zfile.extract(name)
-        names.append(name)
+        zfile.extract(name, 'build')
+        names.append('build/%s' % name)
     return names
 
 def check_internet(address, queue):
@@ -215,7 +215,7 @@ class VMAVTest:
                 print "+ SUCCESS SCOUT BUILD"
                 return [n for n in contentnames if n.endswith('.exe')]
             except Exception, e:
-                print "+ FAILED SCOUT BUILD: "
+                print "+ FAILED SCOUT BUILD"
                 raise e
         
     def _execute_build(self, exenames):
@@ -426,6 +426,8 @@ def pull(args):
 
 def test(args):
     connection.host = "rcs-minotauro"
+    ret = unzip('build/agent.zip')
+    print ret
 
 def internet(args):
     print time.ctime()
