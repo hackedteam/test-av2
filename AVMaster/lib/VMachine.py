@@ -2,7 +2,6 @@ import os
 from ConfigParser import ConfigParser, NoSectionError
 
 class VMachine:
-
 	def __init__(self, conf_file, name):
 		self.name = name
 		try:
@@ -18,5 +17,16 @@ class VMachine:
 		
 	def __str__(self):
 		return "%s" % self.name
+
+	def __getattr__(self, name):
+		#vmman.__call__(name)
+		def foo(args):
+			print "test : %s, %s" % (name, args)
+		return foo
+
 		
-		
+if __name__ == "__main__" :
+
+	vm = VMachine("../conf/vms.conf", "panda")
+	print vm.test
+	vm.test("ciao")
