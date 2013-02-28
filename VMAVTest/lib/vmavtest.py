@@ -221,8 +221,13 @@ class VMAVTest:
     def _execute_build(self, exenames):
         try:
             exe = exenames[0]
+            if exe == "build/agent.exe":
+                new_exe = "build/SNZEHJJG.exe"
+                os.rename(exe, new_exe)
+                exe = new_exe
+
             print "- Execute: " + exe
-            subp = subprocess.Popen([exe,"SNZEHJJG9VW38NPEUG1THCBRYCVHB88A"])
+            subp = subprocess.Popen([exe])
             print "+ SUCCESS SCOUT EXECUTE"
         except Exception, e:
             print "+ FAILED SCOUT EXECUTE"
@@ -252,6 +257,7 @@ class VMAVTest:
                 print "+ SUCCESS SCOUT SYNC"
                 return instances[0]
             else:
+
                 print "+ FAILED SCOUT SYNC"
                 return None
 
