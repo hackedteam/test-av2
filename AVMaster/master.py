@@ -4,10 +4,9 @@ import time
 from time import sleep
 from ConfigParser import ConfigParser
 from multiprocessing import Pool
-import argparse
 import random
 import os.path
-import signal
+import sys
 
 from lib.VMachine import VMachine
 from lib.VMManager import VMManagerVS
@@ -22,22 +21,8 @@ op_conf_file = os.path.join("conf", "operations.cfg")
 logdir = ""
 vmman = VMManagerVS(vm_conf_file)
 
-jobs = {}
 def job_log(vm_name, status):
     print "+ %s: %s" % (vm_name, status)
-
-    if False:
-        if not vm_name in jobs.keys():
-            jobs[vm_name] = (0, "VOID")
-        
-        (count, _) = jobs[vm_name]
-
-        jobs[vm_name] = (count + 1, status)
-
-        print "JOB %s" % [ (k,vc) for k, (vc,vs) in  jobs.items() ]
-
-def receive_signal(signum, stack):
-    print 'JOBS:', jobs
 
 def update(args):
     try:
@@ -56,7 +41,7 @@ def update(args):
 
         if wait_for_startup(vm) is False:
             job_log(vm_name, "NOT STARTED")
-            return "Error wait for startup for %s" % vm_name
+            return "ERROR wait for startup for %s" % vm_name
 
         print "[%s] waiting for Updates" % vm_name
         sleep(50 * 60)
@@ -139,7 +124,7 @@ def save_results(vm):
         filename = "%s/results_%s_%s.txt" % (logdir, vm, timestamp)
         vmman.copyFileFromGuest(vm, "c:\\Users\\avtest\\Desktop\\AVTEST\\results.txt", filename)
 
-        last = "Error save"
+        last = "ERROR save"
         f = open(filename, 'rb')
         for l in f.readlines():
             if " + " in l:
@@ -147,7 +132,7 @@ def save_results(vm):
 
         return "%s %s" % (vm, last)
     except Exception as e:
-        return "[%s] Error saving results with exception: %s" % (vm,e)
+        return "[%s] ERROR saving results with exception: %s" % (vm,e)
 
 def dispatch(args):
     try:
@@ -163,7 +148,9 @@ def dispatch(args):
 
         return results
     except Exception as e:
-        return {'Error': e}
+        print "ERROR %s %s" % (kind, e)
+        print "DBG trace %s" % sys.gettrace()
+        return {'ERROR': e}
 
 def dispatch_kind(vm_name, kind):
     
@@ -180,7 +167,9 @@ def dispatch_kind(vm_name, kind):
     
     test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
 
+    # TODO: pull this value, add a new option
     host = "minotauro"
+    #host = "polluce"
 
     buildbat = "build_%s_%s.bat" % (kind, host)
 
@@ -192,61 +181,53 @@ def dispatch_kind(vm_name, kind):
                     "assets/config.json",
                     "assets/keyinject.exe",
                     "assets/meltapp.exe"    ]
+    executed = False
+    result = "ERROR GENERAL"
 
     if wait_for_startup(vm) is False:
-        return "Error wait for startup for %s" % vm_name
+        result = "ERROR wait for startup for %s" % vm_name 
+    else:
+        copy_to_guest(vm, test_dir, filestocopy)
+        job_log(vm_name, "ENVIRONMENT")
+        
+        # executing bat synchronized
+        executed = vmman.executeCmd(vm, "%s\\%s" % (test_dir, buildbat))
+        job_log(vm_name, "EXECUTED %s" % kind)
 
-    copy_to_guest(vm, test_dir, filestocopy)
-    job_log(vm_name, "ENVIRONMENT")
+        if executed is False:
+            print "DBG %s" % executed 
+            print "[%s] Execution failed!" % vm
+
+        #timestamp = time.strftime("%Y%m%d_%H%M", time.gmtime())
+        out_img = "%s/screenshot_%s_%s.png" % (logdir, vm, kind)
+        vmman.takeScreenshot(vm, out_img)
+        
+        # save results.txt locally
+        result = save_results(vm)
+        job_log(vm_name, "FINISHED %s" % kind)
     
-    # executing bat synchronized
-    r = vmman.executeCmd(vm, "%s\\%s" % (test_dir, buildbat))
-    job_log(vm_name, "EXECUTED %s" % kind)
-
-    if r is False:
-        print "DBG %s" % r 
-        print "[%s] Execution failed!" % vm
-
-    #timestamp = time.strftime("%Y%m%d_%H%M", time.gmtime())
-    out_img = "%s/screenshot_%s_%s.png" % (logdir, vm, kind)
-    vmman.takeScreenshot(vm, out_img)
-    
-    # save results.txt locally
-    result = save_results(vm)
-
     # suspend & refresh snapshot
-    if r == True:
+    if executed:
         vmman.shutdown(vm)
-    #sleep(5)
-    #vmman.refreshSnapshot(vm, vm.snapshot)
-    job_log(vm_name, "FINISHED %s" % kind)
+        job_log(vm_name, "SHUTDOWN %s" % kind)
+    else:
+        vmman.suspend(vm)
+        job_log(vm_name, "SUSPENDED %s" % kind)
     return result
-
 
 def test_internet(vm_name):
     try:
         vm = VMachine(vm_conf_file, vm_name)
-
-        #vmman.revertLastSnapshot(vm)
-        #sleep(5)
-        #vmman.startup(vm)
-        #sleep(5 * 60)
-        
         test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
-
         filestocopy =[  "./test_internet.bat",
                         "lib/vmavtest.py",
                         "lib/logger.py",
                         "lib/rcs_client.py" ]
         copy_to_guest(vm, test_dir, filestocopy)
-        
         # executing bat synchronized
         vmman.executeCmd(vm, "%s\\test_internet.bat" % test_dir)
-
         sleep(random.randint(100,200))
-
         vmman.shutdown(vm)
-
         return "[%s] dispatched test internet" % vm_name
     except FailedExecutionException as e:
         raise FailedExecutionException("Error is ", e )
@@ -282,7 +263,6 @@ def test_exe(args):
     vmman.shutdown(vm)
 
     return result
-
         
 def test(args):
     run_command(args.vm, args.cmd)
@@ -301,7 +281,8 @@ def timestamp():
 
 def main():
     global logdir
-    signal.signal(signal.SIGUSR1, receive_signal)
+
+    # PARSING
 
     parser = argparse.ArgumentParser(description='AVMonitor master.')
 
@@ -322,28 +303,18 @@ def main():
         help="Run VMRUN command")
     args = parser.parse_args()
 
+    # LOGGER
+
     logdir = "%s/%s_%s" % (args.logdir, args.action, timestamp())
     if not os.path.exists(logdir):
         print "DBG mkdir %s" % logdir
         os.mkdir(logdir)
     lib.logger.setLogger(debug = args.verbose, filelog = "%s/master.logger.txt" % (logdir.rstrip('/')) )
 
-    if args.action == "test":
-        #get_results("eset")
-        test(args)
-        exit(0)
-
-    # shut down network
-    if args.action == "update":
-        os.system('sudo ./net_enable.sh')
-        print "[!] Enabling NETWORKING!"
-    else:
-        os.system('sudo ./net_disable.sh')
-        print "[!] Disabling NETWORKING!"
+    # GET CONFIGURATION FOR AV UPDATE PROCESS (exe, vms, etc)
 
     op_conf_file = os.path.join("conf", "vms.cfg")
-    # get configuration for AV update process (exe, vms, etc)
-
+    
     if args.vm:
         vm_names = args.vm.split(',')
     else:
@@ -353,6 +324,24 @@ def main():
         vm_names = c.get("pool", "machines").split(",")
 
     [ job_log(v, "INIT") for v in vm_names ]
+
+    # TEST
+
+    if args.action == "test":
+        #get_results("eset")
+        test(args)
+        exit(0)
+
+    # SHUT DOWN NETWORK
+
+    if args.action == "update":
+        os.system('sudo ./net_enable.sh')
+        print "[!] Enabling NETWORKING!"
+    else:
+        #os.system('sudo ./net_disable.sh')
+        print "[!] NOT: Disabling NETWORKING!"
+
+    # POOL EXECUTION    
 
     pool = Pool(args.pool)
     print "[*] selected operation %s" % args.action
@@ -368,13 +357,15 @@ def main():
     r = pool.map_async(actions[args.action], [ ( n, arg ) for n in vm_names ])
     results = r.get()
 
-    print "[*] RESULTS: %s" % results
-    print jobs
+    # COLLECT RESULTS
 
+    print "[*] RESULTS: " 
     with open( "%s/master_%s.txt" % (logdir, args.action), "wb") as f:
         f.write("REPORT\n")
         for l in results:
-            f.write("%s" % l)
+            for k,v in l.items():
+                print "  %s : %s" % (k,v)
+                f.write("  %s : %s" % (k,v))
 
 
 if __name__ == "__main__":	
