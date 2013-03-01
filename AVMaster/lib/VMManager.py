@@ -224,3 +224,27 @@ class VMManagerFus:
 						"-T", "fusion",
 						"-gu", vmx.user, "-gp", vmx.passwd,
 						"captureScreen", vmx.path, out_img])
+
+
+if __name__ == "__main__":
+	from VMachine import VMachine
+	from multiprocessing import Pool
+
+	op_conf_file = os.path.join("../conf", "vms.cfg")
+	vmman = VMManagerVS(op_conf_file)
+	c = ConfigParser()
+	c.read(op_conf_file)
+	vm_names = c.get("pool", "machines").split(",")
+	print vm_names
+
+	#pool = Pool(8)
+
+	#r = pool.map_async(vmman.listSnapshots, [VMachine(op_conf_file, vn) for vn in vm_names] )
+	#results = r.get()
+	#print results
+
+	for vm_name in vm_names:
+		vm = VMachine(op_conf_file, vm_name)
+		l = vmman.listSnapshots(vm)
+		print "%s %s" % (vm_name, l)
+

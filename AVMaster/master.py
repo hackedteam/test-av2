@@ -295,7 +295,7 @@ def report(filename, results):
         for l in results:
             #for k,v in l.items():
             print "%s" % l
-            f.write("%s" % l)
+            f.write("%s\n" % l)
 
         # for l in results:
         #     ordered[l]={}
@@ -347,8 +347,8 @@ def main():
         print "DBG mkdir %s" % logdir
         os.mkdir(logdir)
     sym = "%s/%s" % (args.logdir, args.action)
-    if os.exists(sym):
-        os.delete(sym)
+    if os.path.exists(sym):
+        os.unlink(sym)
     os.symlink(logdir, sym)
     lib.logger.setLogger(debug = args.verbose, filelog = "%s/master.logger.txt" % (logdir.rstrip('/')) )
 

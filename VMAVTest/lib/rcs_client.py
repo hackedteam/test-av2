@@ -3,6 +3,7 @@ from urllib2 import HTTPError
 import cookielib
 import json
 import pprint
+from time import sleep
 
 pp = pprint.PrettyPrinter(indent=4)
 
