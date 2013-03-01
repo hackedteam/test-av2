@@ -118,10 +118,9 @@ def copy_to_guest(vm, test_dir, filestocopy):
         print "DBG copy %s -> %s" % (src, dst)
         vmman.copyFileToGuest(vm, src, dst)
 
-def save_results(vm):
+def save_results(vm, kind):
     try:
-        timestamp = time.strftime("%Y%m%d_%H%M", time.gmtime())
-        filename = "%s/results_%s_%s.txt" % (logdir, vm, timestamp)
+        filename = "%s/results_%s_%s.txt" % (logdir, vm, kind)
         vmman.copyFileFromGuest(vm, "c:\\Users\\avtest\\Desktop\\AVTEST\\results.txt", filename)
 
         last = "ERROR save"
@@ -137,14 +136,14 @@ def save_results(vm):
 def dispatch(args):
     try:
         vm_name, kind = args
-        results = {}
+        results = []
         print "DBG %s, %s" %(vm_name,kind)
         if kind == "all":
-            results['silent'] = dispatch_kind(vm_name, "silent")
+            results.append("silent, %s" % dispatch_kind(vm_name, "silent") )
             sleep(random.randint(5,10))
-            results['melt'] = dispatch_kind(vm_name, "melt")
+            results.append("silent, %s" % dispatch_kind(vm_name, "melt") )
         else:
-            results[kind] = dispatch_kind(vm_name, kind)
+            results.append("silent, %s" % dispatch_kind(vm_name, kind) )
 
         return results
     except Exception as e:
@@ -198,12 +197,14 @@ def dispatch_kind(vm_name, kind):
             print "DBG %s" % executed 
             print "[%s] Execution failed!" % vm
 
+        print "processes: %s" % vmman.listProcesses(vm)
+
         #timestamp = time.strftime("%Y%m%d_%H%M", time.gmtime())
         out_img = "%s/screenshot_%s_%s.png" % (logdir, vm, kind)
         vmman.takeScreenshot(vm, out_img)
         
         # save results.txt locally
-        result = save_results(vm)
+        result = save_results(vm, kind)
         job_log(vm_name, "FINISHED %s" % kind)
     
     # suspend & refresh snapshot
@@ -266,10 +267,10 @@ def test_exe(args):
         
 def test(args):
     results=[]
-    results.append({'silent': 'avast 2013-02-27 17:46:53,983: INFO: + FAILED SERVER ERROR\r\n'})
-    results.append({'silent': 'avira 2013-02-27 17:46:37,427: INFO: + FAILED SERVER ERROR\r\n'})
-    results.append({'silent': 'kis 2013-02-27 17:50:21,430: INFO: + FAILED SERVER ERROR\r\n'})
-    results.append({'silent': 'norton Error save'})
+    results.append('silent, avast) 2013-02-27 17:46:53,983: INFO: + FAILED SERVER ERROR\r\n')
+    results.append('silent, avira) 2013-02-27 17:46:37,427: INFO: + FAILED SERVER ERROR\r\n')
+    results.append('silent, kis) 2013-02-27 17:50:21,430: INFO: + FAILED SERVER ERROR\r\n')
+    results.append('silent, norton) Error save')
     report("report.test.txt", results)
 
 
@@ -288,13 +289,13 @@ def timestamp():
 def report(filename, results):
     print "[*] RESULTS: " 
 
-    ordered = {}
+    # ordered = {}
     with open( filename, "wb") as f:
         f.write("REPORT\n")
         for l in results:
-            for k,v in l.items():
-                print "  %s -> %s" % (k,v)
-                f.write("  %s -> %s" % (k,v))
+            #for k,v in l.items():
+            print "%s" % l
+            f.write("%s" % l)
 
         # for l in results:
         #     ordered[l]={}
@@ -345,6 +346,10 @@ def main():
     if not os.path.exists(logdir):
         print "DBG mkdir %s" % logdir
         os.mkdir(logdir)
+    sym = "%s/%s" % (args.logdir, args.action)
+    if os.exists(sym):
+        os.delete(sym)
+    os.symlink(logdir, sym)
     lib.logger.setLogger(debug = args.verbose, filelog = "%s/master.logger.txt" % (logdir.rstrip('/')) )
 
     # GET CONFIGURATION FOR AV UPDATE PROCESS (exe, vms, etc)
