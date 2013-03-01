@@ -153,6 +153,7 @@ class Rcs_client:
             data = {'name': name, 'pass': password, 'group_ids': [group_id], 'privs': privs, 'enabled': True }
             user =  self._call('user/create', data)
             return user['_id']
+            #return True
         except HTTPError as e:
             if e.code == 409:
                 return True

@@ -7,6 +7,7 @@ from multiprocessing import Pool
 import random
 import os.path
 import sys
+import traceback
 
 from lib.VMachine import VMachine
 from lib.VMManager import VMManagerVS
@@ -148,7 +149,7 @@ def dispatch(args):
         return results
     except Exception as e:
         print "ERROR %s %s" % (kind, e)
-        print "DBG trace %s" % sys.gettrace()
+        print "DBG trace %s" % traceback.format_exc()
         return {'ERROR': e}
 
 def dispatch_kind(vm_name, kind):
