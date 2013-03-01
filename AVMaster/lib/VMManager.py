@@ -99,10 +99,10 @@ class VMManagerVS:
 		self.createSnapshot(vmx, "%s" % date)
 		if delete == True:
 			snaps = self.listSnapshots(vmx)
-			if len(snaps) > 0 and snaps[-2] != "ready":
+			print "DBG snapshots %s" % snaps
+ 			if len(snaps) > 0 and snaps[-2] not in ["ready", "activated"]:
+ 				print "DBG deleting %s" % snaps[-2]
 				self.deleteSnapshot(vmx, snaps[-2])
-
-
 
 	def revertLastSnapshot(self,vmx):
 		snap = self.listSnapshots(vmx)
