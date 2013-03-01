@@ -25,7 +25,7 @@ class Rcs_client:
             if cookies:
                 opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cookies))
             resp = opener.open(req).read()
-            
+            sleep(1)
             return resp
         except HTTPError as e:
             print  "ERROR: processing %s: %s, %s" % (link, e, e.read())
@@ -43,6 +43,7 @@ class Rcs_client:
                     urllib2.HTTPHandler() )
             req = urllib2.Request(link, data)
             resp = opener.open(req).read()
+            sleep(1)
             return resp
         except HTTPError as e:
             print "ERROR: processing %s: %s, %s" % (link, e, e.read())
