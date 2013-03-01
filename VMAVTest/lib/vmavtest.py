@@ -415,15 +415,17 @@ def execute_agent(args, level):
     print "- Server: %s/%s %s" % (args.backend,args.frontend, args.kind)
     vmavtest = VMAVTest( args.backend, args.frontend , args.platform, args.kind, ftype, args.blacklist )
 
-    if not vmavtest.server_errors():
-        print "+ SUCCESS SERVER CONNECT"
-        if vmavtest.create_user_machine():
-            print "+ SUCCESS USER CREATE"
-
-        action = {"elite": vmavtest.execute_elite, "scout": vmavtest.execute_scout, "pull": vmavtest.execute_pull}
-        action[level]()
+    if vmavtest.create_user_machine():
+        print "+ SUCCESS USER CREATE"
+        if not vmavtest.server_errors():
+            print "+ SUCCESS SERVER CONNECT"
+        
+            action = {"elite": vmavtest.execute_elite, "scout": vmavtest.execute_scout, "pull": vmavtest.execute_pull}
+            action[level]()
+        else:
+            print "+ FAILED SERVER ERRORS"
     else:
-        print "+ FAILED SERVER ERROR"
+         print "+ FAILED USER CREATE"
 
 def elite(args):
     """ starts a scout """
