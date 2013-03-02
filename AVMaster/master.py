@@ -10,8 +10,10 @@ import sys
 
 from lib.VMachine import VMachine
 from lib.VMManager import VMManagerVS
+from lib.report import Report
 #from lib.logger import logger
 import lib.logger
+
 
 vm_conf_file = os.path.join("conf", "vms.cfg")
 op_conf_file = os.path.join("conf", "operations.cfg")
@@ -286,35 +288,6 @@ def wait_for_startup(vm, max_count=20):
 def timestamp():
     return time.strftime("%Y%m%d_%H%M", time.gmtime())
 
-def report(filename, results):
-    print "[*] RESULTS: " 
-
-    # ordered = {}
-    with open( filename, "wb") as f:
-        f.write("REPORT\n")
-        for l in results:
-            #for k,v in l.items():
-            print "%s" % l
-            f.write("%s" % l)
-
-        # for l in results:
-        #     ordered[l]={}
-        #     for k,v in l.items():
-        #         print "  %s -> %s" % (k,v)
-        #         f.write("  %s -> %s" % (k,v))
-        #         left, res = v.split("+")
-        #         av = left.split()[0]
-        #         if res not in ordered.keys():
-        #             ordered[res] = []
-        #         ordered[res].add(av)
-        # f.write("\nSUMMARY\n")
-        # keys = ordered.keys()
-        # keys.sort()
-        # keys.reverse()
-        # for k in keys:
-        #     f.write("%s:"%k)
-        #     for a in ordered[k]:
-        #         f.write("  %s" % a)
 
 def main():
     global logdir
@@ -399,8 +372,10 @@ def main():
     results = r.get()
 
     # REPORT
-    filename = "%s/master_%s.txt" % (logdir, args.action)
-    report(filename, results)
+    
+    rep = Report("%s/master_%s.txt" % (logdir, args.action), results)
+    rep.save_file()
+    #rep.send_mail()
 
 
 
