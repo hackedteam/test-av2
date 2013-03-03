@@ -142,7 +142,7 @@ def dispatch(args):
         if kind == "all":
             results.append("silent, %s" % dispatch_kind(vm_name, "silent") )
             sleep(random.randint(5,10))
-            results.append("silent, %s" % dispatch_kind(vm_name, "melt") )
+            results.append("melt, %s" % dispatch_kind(vm_name, "melt") )
         else:
             results.append("silent, %s" % dispatch_kind(vm_name, kind) )
 
@@ -296,7 +296,11 @@ def report(filename, results):
         for l in results:
             #for k,v in l.items():
             print "%s" % l
-            f.write("%s\n" % l)
+            if type(l) is list:
+                for e in l:
+                    f.write(" %s\n" % e)
+            else:
+                f.write("%s\n" % l)
 
         # for l in results:
         #     ordered[l]={}
