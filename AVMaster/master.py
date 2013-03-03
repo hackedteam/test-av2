@@ -44,6 +44,8 @@ def update(args):
             job_log(vm_name, "NOT STARTED")
             return "ERROR wait for startup for %s" % vm_name
 
+        out_img = "%s/screenshot_%s_update.png" % (logdir, vm_name)
+        vmman.takeScreenshot(vm, out_img)
         print "[%s] waiting for Updates" % vm_name
         sleep(50 * 60)
         sleep(random.randint(10,300))
@@ -68,8 +70,6 @@ def update(args):
                 break
 
         if sh == True:
-            out_img = "%s/screenshot_%s_update.png" % (logdir, vm_name)
-            vmman.takeScreenshot(vm, out_img)
             vmman.refreshSnapshot(vm)
             job_log(vm_name, "UPDATED")
             return "[%s] Updated!"  % vm_name

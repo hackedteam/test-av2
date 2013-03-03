@@ -130,7 +130,6 @@ class VMManagerVS:
 		cmds.extend(args)
 		return self._run_cmd(vmx, "runProgramInGuest", cmds, [vmx.user, vmx.passwd], popen=True)
 
-
 	def listProcesses(self, vmx):
 		sys.stdout.write("[%s] List processes\n" % vmx)
 		out = self._run_cmd(vmx, "listProcessesInGuest", vmx_creds=[vmx.user,vmx.passwd], popen=True)
