@@ -68,6 +68,8 @@ def update(args):
                 break
 
         if sh == True:
+            out_img = "%s/screenshot_%s_update.png" % (logdir, vm_name)
+            vmman.takeScreenshot(vm, out_img)
             vmman.refreshSnapshot(vm)
             job_log(vm_name, "UPDATED")
             return "[%s] Updated!"  % vm_name
