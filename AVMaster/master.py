@@ -40,7 +40,7 @@ def update(args):
 
         sleep(5 * 60)
 
-        if wait_for_startup(vm) is False:
+        if _wait_for_startup(vm) is False:
             job_log(vm_name, "NOT STARTED")
             return "ERROR wait for startup for %s" % vm_name
 
@@ -150,7 +150,7 @@ def dispatch(args):
 
         return results
     except Exception as e:
-        print "ERROR %s %s" % (kind, e)
+        print "ERROR> %s %s" % (kind, e)
         print "DBG trace %s" % traceback.format_exc()
         return {'ERROR': e}
 
@@ -186,7 +186,7 @@ def dispatch_kind(vm_name, kind):
     executed = False
     result = "ERROR GENERAL"
 
-    if wait_for_startup(vm) is False:
+    if _wait_for_startup(vm) is False:
         result = "ERROR wait for startup for %s" % vm_name 
     else:
         copy_to_guest(vm, test_dir, filestocopy)
@@ -245,7 +245,7 @@ def test_exe(args):
     vmman.startup(vm)
     sleep(5 * 60)
 
-    if wait_for_startup(vm) is False:   
+    if _wait_for_startup(vm) is False:   
         return "Error wait for startup for %s" % vm_name
     
     test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
@@ -277,7 +277,7 @@ def test(args):
     report("report.test.txt", results)
 
 
-def wait_for_startup(vm, max_count=20):
+def _wait_for_startup(vm, max_count=20):
     count = 0
     while not "vmtoolsd.exe" in vmman.listProcesses(vm):
         sleep(60)
