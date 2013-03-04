@@ -94,6 +94,8 @@ class VMManagerVS:
 		self._run_cmd(vmx, "revertToSnapshot", [snapshot])
 
 	def refreshSnapshot(self, vmx, delete=True):
+		untouchables = [ "ready", "activated", "_datarecovery_" ] 
+
 		sys.stdout.write("[%s] Refreshing snapshot.\n" % vmx)
 
 		# create new snapshot
@@ -102,7 +104,7 @@ class VMManagerVS:
 		if delete == True:
 			snaps = self.listSnapshots(vmx)
 			print "DBG snapshots %s" % snaps
- 			if len(snaps) > 0 and snaps[-2] not in ["ready", "activated","_datarecovery_"]:
+ 			if len(snaps) > 0 and snaps[-2] not in untouchables and "manual" not in snaps[-2]:
  				print "DBG deleting %s" % snaps[-2]
 				self.deleteSnapshot(vmx, snaps[-2])
 
@@ -174,7 +176,7 @@ def test(vm_name):
 	l = vmman.listSnapshots(vm)
 	print "snapshots: %s %s" % (vm_name, l)
 
-	vmman.revertLastSnapshot(vm)
+	vmman.refreshSnapshot(vm)
 
 	# vmman.revertLastSnapshot(vm)
 	# print "reverted ", vm_name
