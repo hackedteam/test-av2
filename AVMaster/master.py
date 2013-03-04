@@ -6,13 +6,14 @@ from ConfigParser import ConfigParser
 from multiprocessing import Pool
 import random
 import os.path
-import sys
 import traceback
 
 from lib.VMachine import VMachine
 from lib.VMManager import VMManagerVS
+from lib.report import Report
 #from lib.logger import logger
 import lib.logger
+
 
 vm_conf_file = os.path.join("conf", "vms.cfg")
 op_conf_file = os.path.join("conf", "operations.cfg")
@@ -32,7 +33,6 @@ def update(args):
         job_log(vm_name, "UPDATE")
 
         vmman.revertLastSnapshot(vm)
-
         job_log(vm_name, "REVERTED")
 
         sleep(random.randint(10,60))
@@ -40,9 +40,8 @@ def update(args):
         job_log(vm_name, "STARTED")
 
         sleep(5 * 60)
-        #vmman.deleteDirectoryInGuest(vm, "/users/avtest/Desktop/avtest")
 
-        if _wait_for_startup(vm) is False:
+        if wait_for_startup(vm) is False:
             job_log(vm_name, "NOT STARTED")
             return "ERROR wait for startup for %s" % vm_name
 
@@ -149,11 +148,11 @@ def dispatch(args):
             sleep(random.randint(5,10))
             results.append("melt, %s" % dispatch_kind(vm_name, "melt") )
         else:
-            results.append("silent, %s" % dispatch_kind(vm_name, kind) )
+            results.append("%s, %s" % (kind, dispatch_kind(vm_name, kind) ))
 
         return results
     except Exception as e:
-        print "ERROR> %s %s" % (kind, e)
+        print "ERROR %s %s" % (kind, e)
         print "DBG trace %s" % traceback.format_exc()
         return {'ERROR': e}
 
@@ -189,7 +188,7 @@ def dispatch_kind(vm_name, kind):
     executed = False
     result = "ERROR GENERAL"
 
-    if _wait_for_startup(vm) is False:
+    if wait_for_startup(vm) is False:
         result = "ERROR wait for startup for %s" % vm_name 
     else:
         copy_to_guest(vm, test_dir, filestocopy)
@@ -248,7 +247,7 @@ def test_exe(args):
     vmman.startup(vm)
     sleep(5 * 60)
 
-    if _wait_for_startup(vm) is False:   
+    if wait_for_startup(vm) is False:   
         return "Error wait for startup for %s" % vm_name
     
     test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
@@ -277,10 +276,10 @@ def test(args):
     results.append('silent, avira) 2013-02-27 17:46:37,427: INFO: + FAILED SERVER ERROR\r\n')
     results.append('silent, kis) 2013-02-27 17:50:21,430: INFO: + FAILED SERVER ERROR\r\n')
     results.append('silent, norton) Error save')
-    report("report.test.txt", results)
+    #report("report.test.txt", results)
 
 
-def _wait_for_startup(vm, max_count=20):
+def wait_for_startup(vm, max_count=20):
     count = 0
     while not "vmtoolsd.exe" in vmman.listProcesses(vm):
         sleep(60)
@@ -291,40 +290,6 @@ def _wait_for_startup(vm, max_count=20):
 
 def timestamp():
     return time.strftime("%Y%m%d_%H%M", time.gmtime())
-
-def report(filename, results):
-    print "[*] RESULTS: " 
-
-    # ordered = {}
-    with open( filename, "wb") as f:
-        f.write("REPORT\n")
-        for l in results:
-            #for k,v in l.items():
-            print "%s" % l
-            if type(l) is list:
-                for e in l:
-                    f.write(" %s\n" % e)
-            else:
-                f.write("%s\n" % l)
-
-        # for l in results:
-        #     ordered[l]={}
-        #     for k,v in l.items():
-        #         print "  %s -> %s" % (k,v)
-        #         f.write("  %s -> %s" % (k,v))
-        #         left, res = v.split("+")
-        #         av = left.split()[0]
-        #         if res not in ordered.keys():
-        #             ordered[res] = []
-        #         ordered[res].add(av)
-        # f.write("\nSUMMARY\n")
-        # keys = ordered.keys()
-        # keys.sort()
-        # keys.reverse()
-        # for k in keys:
-        #     f.write("%s:"%k)
-        #     for a in ordered[k]:
-        #         f.write("  %s" % a)
 
 def main():
     global logdir
@@ -357,7 +322,7 @@ def main():
         print "DBG mkdir %s" % logdir
         os.mkdir(logdir)
     sym = "%s/%s" % (args.logdir, args.action)
-    if os.path.exists(sym):
+    if os.exists(sym):
         os.unlink(sym)
     os.symlink(logdir, sym)
     lib.logger.setLogger(debug = args.verbose, filelog = "%s/master.logger.txt" % (logdir.rstrip('/')) )
@@ -409,9 +374,10 @@ def main():
     results = r.get()
 
     # REPORT
-    filename = "%s/master_%s.txt" % (logdir, args.action)
-    report(filename, results)
-
+    
+    rep = Report("%s/master_%s.txt" % (logdir, args.action), results)
+    rep.save_file()
+    #rep.send_mail()
 
 
 if __name__ == "__main__":	
