@@ -236,13 +236,16 @@ def test(vm_name):
 	op_conf_file = os.path.join("../conf", "vms.cfg")
 	vm = VMachine(op_conf_file, vm_name)
 	vmman = VMManagerVS(op_conf_file)
+	l = vmman.listSnapshots(vm)
+	print "%s %s" % (vm_name, l)
+
 	# vmman.revertLastSnapshot(vm)
 	# print "reverted ", vm_name
 	# vmman.startup(vm)
 	# print "started_up ", vm_name
 
-	vmman.deleteDirectoryInGuest(vm, "/users/avtest/Desktop/avtest")
-	print "deleted ", vm_name
+	#vmman.deleteDirectoryInGuest(vm, "/users/avtest/Desktop/avtest")
+	#print "deleted ", vm_name
 
 	# vmman.shutdownUpgrade(vm)
 	# print "shutted"
@@ -260,7 +263,7 @@ if __name__ == "__main__":
 
 	pool = Pool(8)
 
-	r = pool.map_async(test, vm_names )
+	r = pool.map_async( test, vm_names )
 	results = r.get()
 	print results
 

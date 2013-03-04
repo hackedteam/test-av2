@@ -49,7 +49,7 @@ def update(args):
         vmman.takeScreenshot(vm, out_img)
         
         print "[%s] waiting for Updates" % vm_name
-        sleep(50 * 60)
+        sleep(args.updatetime * 60)
         sleep(random.randint(10,300))
 
         running = True
@@ -81,6 +81,7 @@ def update(args):
 
     except Exception as e:
         job_log(vm_name, "ERROR")
+        print "DBG trace %s" % traceback.format_exc()
         return "ERROR: %s is not updated. Reason: %s" % (vm_name, e)
 
 
@@ -313,6 +314,8 @@ def main():
         help="Verbose")
     parser.add_argument('-c', '--cmd', required=False,
         help="Run VMRUN command")
+    parser.add_argument('-u', '--updatetime', default=50,
+        help="Update time in minutes")
     args = parser.parse_args()
 
     # LOGGER
@@ -322,7 +325,7 @@ def main():
         print "DBG mkdir %s" % logdir
         os.mkdir(logdir)
     sym = "%s/%s" % (args.logdir, args.action)
-    if os.exists(sym):
+    if os.path.exists(sym):
         os.unlink(sym)
     os.symlink(logdir, sym)
     lib.logger.setLogger(debug = args.verbose, filelog = "%s/master.logger.txt" % (logdir.rstrip('/')) )
@@ -331,12 +334,17 @@ def main():
 
     op_conf_file = os.path.join("conf", "vms.cfg")
     
+
+    c = ConfigParser()
+    c.read(op_conf_file)
+
     if args.vm:
-        vm_names = args.vm.split(',')
+        if args.vm == "all":
+            vm_names = c.get("pool", "all").split(",")
+        else:
+            vm_names = args.vm.split(',')
     else:
         # get vm names
-        c = ConfigParser()
-        c.read(op_conf_file)
         vm_names = c.get("pool", "machines").split(",")
 
     [ job_log(v, "INIT") for v in vm_names ]
@@ -377,7 +385,7 @@ def main():
     
     rep = Report("%s/master_%s.txt" % (logdir, args.action), results)
     rep.save_file()
-    #rep.send_mail()
+    rep.send_mail()
 
 
 if __name__ == "__main__":	
