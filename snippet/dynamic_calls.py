@@ -5,6 +5,9 @@ class vm:
 	def power_on(self):
 		return "vm is powered on"
 
+	def exec_cmd(self, cmd):
+		return "%s executed on vm" % cmd
+
 class manager:
 	def open_vm(self):
 		self.vm = vm()
@@ -17,5 +20,5 @@ if __name__ == "__main__":
 
 	m = manager()
 	m.open_vm()
-	s = m.power_on()
-	print s
+	print m.power_on()
+	print m.exec_cmd('ls -la')

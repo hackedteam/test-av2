@@ -18,7 +18,7 @@ class VMManagerVS:
 		self.passwd = self.config.get("vsphere", "passwd")
 
 
-	def _run_cmd(self, vmx, cmd, args=[], vmx_creds=[], popen=False, timeout=30):
+	def _run_cmd(self, vmx, cmd, args=[], vmx_creds=[], popen=False, timeout=40):
 		pargs = [   self.path,
 					"-T", "vc",
 					"-h", self.host,
@@ -37,7 +37,7 @@ class VMManagerVS:
 	def _run_call(self, pargs):
 		return subprocess.call(pargs)
 
-	def _run_popen(self, pargs):
+	def _run_popen(self, pargs, timeout):
 		p = subprocess.Popen(pargs, stdout=subprocess.PIPE)
 
 		executed = False
@@ -48,7 +48,7 @@ class VMManagerVS:
 			tick += 1
 			if p.poll() != None: #process is executed and ret.poll() has the return code
 				executed = True
-			if tick >= 45 * 3: ## 3 (ticks in 1 min) * 35 (minutes) = 105 min
+			if tick >= timeout * 3: 
 				print "DBG run_popen timeout"
 				return []
 
@@ -68,7 +68,7 @@ class VMManagerVS:
 		self._run_cmd(vmx, "stop")
 
 	def shutdownUpgrade(self, vmx):
-		r = self.executeCmd(vmx, "c:\\WINDOWS\\system32\\shutdown.exe", ["/s"]) #["/s","/t","0"])
+		r = self.executeCmd(vmx, "c:\\WINDOWS\\system32\\shutdown.exe", ["/s"], timeout=105) #["/s","/t","0"])
 		if r is False:
 			return False
 		return True
@@ -135,12 +135,12 @@ class VMManagerVS:
 		sys.stdout.write("[%s] Copying file from %s to %s.\n" % (vmx, src_file, dst_file))
 		self._run_cmd(vmx, "CopyFileFromGuestToHost", [src_file, dst_file], [vmx.user, vmx.passwd])
 
-	def executeCmd(self, vmx, cmd, args=[]): 
+	def executeCmd(self, vmx, cmd, args=[], timeout=40): 
 		sys.stdout.write("[%s] Executing %s\n" % (vmx,cmd))
 		cmds = []
 		cmds.append(cmd)
 		cmds.extend(args)
-		return self._run_cmd(vmx, "runProgramInGuest", cmds, [vmx.user, vmx.passwd], popen=True)
+		return self._run_cmd(vmx, "runProgramInGuest", cmds, [vmx.user, vmx.passwd], popen=True, timeout)
 
 	def listProcesses(self, vmx):
 		sys.stdout.write("[%s] List processes\n" % vmx)
