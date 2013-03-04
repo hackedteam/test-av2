@@ -8,6 +8,9 @@ class vm:
 	def exec_cmd(self, cmd):
 		return "%s executed on vm" % cmd
 
+	def three(self, arg1, arg2, arg3, argn):
+		return arg1,arg2,arg3,argn
+
 class manager:
 	def open_vm(self):
 		self.vm = vm()
@@ -22,3 +25,4 @@ if __name__ == "__main__":
 	m.open_vm()
 	print m.power_on()
 	print m.exec_cmd('ls -la')
+	print m.three("uno","due","tre","enne")
