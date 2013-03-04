@@ -30,14 +30,14 @@ class VMManagerVS:
 			
 		pargs.extend(args)
 		if popen == True:
-			return self._run_popen(pargs)
+			return self._run_popen(pargs, timeout)
 		else:
 			return self._run_call(pargs)
 
 	def _run_call(self, pargs):
 		return subprocess.call(pargs)
 
-	def _run_popen(self, pargs, timeout):
+	def _run_popen(self, pargs, timeout=40):
 		p = subprocess.Popen(pargs, stdout=subprocess.PIPE)
 
 		executed = False
@@ -115,6 +115,8 @@ class VMManagerVS:
 				if snapshot != "_datarecovery_":
 					self.revertSnapshot(vmx, snap[s])
 					return "[%s] Reverted with snapshot %s" % (vmx, snap[s])
+				else:
+					print "DBG snapshot _datarecovery_ found!"
 			return "[%s] ERROR: no more snapshot to try" % vmx
 		else:
 			return "[%s] ERROR: no snapshots!" % vmx
@@ -140,7 +142,7 @@ class VMManagerVS:
 		cmds = []
 		cmds.append(cmd)
 		cmds.extend(args)
-		return self._run_cmd(vmx, "runProgramInGuest", cmds, [vmx.user, vmx.passwd], popen=True, timeout)
+		return self._run_cmd(vmx, "runProgramInGuest", cmds, [vmx.user, vmx.passwd], popen=True, timeout=timeout)
 
 	def listProcesses(self, vmx):
 		sys.stdout.write("[%s] List processes\n" % vmx)
@@ -161,89 +163,18 @@ class VMManagerVS:
 		out = self._run_cmd(vmx, "listSnapshots", popen=True).split("\n")
 		return out[1:-1]
 
-class VMManagerFus:
-	def __init__(self, path):
-		self.path = path
-
-	def startup(self, vmx):
-		sys.stdout.write("[*] Startup %s!\r\n" % vmx)
-		subprocess.call([self.path,
-						"-T", "fusion",
-						"start", vmx.path])
-	
-	def shutdown(self, vmx):
-		sys.stdout.write("[*] Shutdown %s!\r\n" % vmx)
-		subprocess.call([self.path,
-						"-T", "fusion",
-						"stop", vmx.path])
-
-	def reboot(self, vmx):
-		sys.stdout.write("[*] Rebooting %s!\r\n" % vmx)
-		subprocess.call([self.path,
-						"-T", "fusion",
-						"reset", vmx.path, "soft"])
-
-	def suspend(self, vmx):
-		sys.stdout.write("[*] Suspending %s!\r\n" % vmx)
-		subprocess.call([self.path,
-						"-T", "fusion",
-						"suspend", vmx.path, "soft"])
-
-	def refreshSnapshot(self, vmx):
-		sys.stdout.write("[*] Deleting current snapshot.\n")
-		subprocess.call([self.path,
-						"-T", "fusion",
-						"deleteSnapshot", vmx.path, vmx.snapshot])
-		sys.stdout.write("[*] Creating new snapshot %s for %s.\n" % (vmx.snapshot,vmx))
-		subprocess.call([self.path,
-						"-T", "fusion",
-						"snapshot", vmx.path, vmx.snapshot])
-						
-	def revertSnapshot(self, vmx):
-		sys.stdout.write("[*] Reverting %s to snapshot %s.\n" % (vmx, vmx.snapshot))
-		subprocess.call([self.path,
-						"-T", "fusion",
-						"revertToSnapshot", vmx.path, vmx.snapshot])
-
-	def copyFileToGuest(self, vmx, src_file, dst_file):
-		sys.stdout.write("[*] Copying file %s to %s on %s.\n" % (src_file, dst_file, vmx))
-		subprocess.call([self.path,
-						"-T", "fusion",
-						"CopyFileFromHostToGuest", vmx.path, src_file, dst_file])
-
-	def executeCmd(self, vmx, cmd, script=None):
-		if script is not None:
-			sys.stdout.write("[*] Executing %s %s in %s.\r\n" % (cmd, script, vmx))
-			proc = subprocess.call([self.path,
-						"-T", "fusion",
-						"-gu", vmx.user, "-gp", vmx.passwd,
-						"runProgramInGuest", vmx.path, cmd, script])			
-		else:
-			sys.stdout.write("[*] Executing %s in %s.\r\n" % cmd, vmx)
-			proc = subprocess.call([self.path,
-						"-T", "fusion",
-						"-gu", vmx.user, "-gp", vmx.passwd,
-						"runProgramInGuest", vmx.path, cmd])
-		if proc != 0:
-			return False	
-		return True			
-
-
-	def takeScreenshot(self, vmx, out_img):
-		sys.stdout.write("[*] Taking screenshot of %s.\n" % vmx)
-		subprocess.call([self.path,
-						"-T", "fusion",
-						"-gu", vmx.user, "-gp", vmx.passwd,
-						"captureScreen", vmx.path, out_img])
-
 
 def test(vm_name):
-	print vm_name
-	op_conf_file = os.path.join("../conf", "vms.cfg")
+	#print vm_name
+	op_conf_file =  os.path.join("../conf", "vms.cfg")
+
 	vm = VMachine(op_conf_file, vm_name)
 	vmman = VMManagerVS(op_conf_file)
+
 	l = vmman.listSnapshots(vm)
-	print "%s %s" % (vm_name, l)
+	print "snapshots: %s %s" % (vm_name, l)
+
+	vmman.revertLastSnapshot(vm)
 
 	# vmman.revertLastSnapshot(vm)
 	# print "reverted ", vm_name
@@ -255,6 +186,7 @@ def test(vm_name):
 
 	# vmman.shutdownUpgrade(vm)
 	# print "shutted"
+	return l
 
 if __name__ == "__main__":
 	from VMachine import VMachine
