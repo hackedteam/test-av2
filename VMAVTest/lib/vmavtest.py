@@ -395,7 +395,7 @@ class VMAVTest:
         operation = 'AVMonitor'
         target = 'VM_%s' % self.hostname
         factory ='%s_%s_%s' % (self.hostname, self.ftype, self.kind)
-        config = "assets/config.json"
+        config = "assets/config_%s.json" % self.ftype
 
         if not os.path.exists('build'):
             os.mkdir('build')
