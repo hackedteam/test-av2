@@ -17,8 +17,13 @@ class Report:
 	def prepare_report(self):
 		r = ""
 		for l in self.results:
-			print "%s\n" % l.strip()
-			r+= "%s\n" % l.strip()
+			if l is list:
+				for el in l:
+					print "  %s\n" % el
+					r+= "  %s\n" % el
+			else:
+				print "%s\n" % l
+				r+= "%s\n" % l
 		return r
 
 	def save_file(self):
