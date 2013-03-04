@@ -102,14 +102,20 @@ class VMManagerVS:
 		if delete == True:
 			snaps = self.listSnapshots(vmx)
 			print "DBG snapshots %s" % snaps
- 			if len(snaps) > 0 and snaps[-2] not in ["ready", "activated"]:
+ 			if len(snaps) > 0 and snaps[-2] not in ["ready", "activated","_datarecovery_"]:
  				print "DBG deleting %s" % snaps[-2]
 				self.deleteSnapshot(vmx, snaps[-2])
 
 	def revertLastSnapshot(self,vmx):
 		snap = self.listSnapshots(vmx)
 		if len(snap) > 0:
-			self.revertSnapshot(vmx, snap[-1])
+			
+			for s in range(len(snap)-1,-1,-1):
+				snapshot = snap[s]
+				if snapshot != "_datarecovery_":
+					self.revertSnapshot(vmx, snap[s])
+					return "[%s] Reverted with snapshot %s" % (vmx, snap[s])
+			return "[%s] ERROR: no more snapshot to try" % vmx
 		else:
 			return "[%s] ERROR: no snapshots!" % vmx
 
