@@ -290,6 +290,9 @@ class VMAVTest:
                 assert info['scout'] == True
             return ret
 
+    def _list_processes(self):
+        return subprocess.Popen(["tasklist"], stdout=subprocess.PIPE).communicate()[0]
+
     def server_errors(self):
         with connection() as c:
             return c.server_status()['error']
@@ -378,6 +381,9 @@ class VMAVTest:
             for i in range(10):
                 self._click_mouse(100 + i ,0)
 
+        if not instance:
+            output = self._list_processes()
+            print output
         print "- Result: %s" % instance
         return instance
 
@@ -446,8 +452,10 @@ def pull(args):
 
 def test(args):
     connection.host = "rcs-minotauro"
-    ret = unzip('build/agent.zip')
-    print ret
+    #ret = unzip('build/agent.zip')
+    #print ret
+    output = subprocess.Popen(["tasklist"], stdout=subprocess.PIPE).communicate()[0]
+    print output
 
 def internet(args):
     print time.ctime()
