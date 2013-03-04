@@ -226,22 +226,27 @@ def dispatch_kind(vm_name, kind):
         job_log(vm_name, "SUSPENDED %s" % kind)
     return result
 
-def test_internet(vm_name):
+def test_internet(args):
+    vm_name = args[0]
     try:
         vm = VMachine(vm_conf_file, vm_name)
+        vmman.startup(vm)
         test_dir = "C:\\Users\\avtest\\Desktop\\TEST_INTERNET"
         filestocopy =[  "./test_internet.bat",
                         "lib/vmavtest.py",
                         "lib/logger.py",
                         "lib/rcs_client.py" ]
-        copy_to_guest(vm, test_dir, filestocopy)
-        # executing bat synchronized
-        vmman.executeCmd(vm, "%s\\test_internet.bat" % test_dir)
-        sleep(random.randint(100,200))
-        vmman.shutdown(vm)
-        return "[%s] dispatched test internet" % vm_name
-    except FailedExecutionException as e:
-        raise FailedExecutionException("Error is ", e )
+        if wait_for_startup(vm) is False:
+            result = "ERROR wait for startup for %s" % vm_name 
+        else:
+            copy_to_guest(vm, test_dir, filestocopy)
+            # executing bat synchronized
+            vmman.executeCmd(vm, "%s\\test_internet.bat" % test_dir)
+            sleep(random.randint(100,200))
+            #vmman.shutdown(vm)
+            return "[%s] dispatched test internet" % vm_name
+    except Exception as e:
+        return "[%s] failed test internet. reason: %s" % (vm_name, e)
                 
 def test(args):
     results=[]
