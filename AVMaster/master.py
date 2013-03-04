@@ -186,7 +186,8 @@ def dispatch_kind(vm_name, kind):
                     "lib/logger.py",
                     "lib/rcs_client.py",
                     "conf/vmavtest.cfg",
-                    "assets/config.json",
+                    "assets/config_desktop.json",
+                    "assets/config_mobile.json",
                     "assets/keyinject.exe",
                     "assets/meltapp.exe"    ]
     executed = False
