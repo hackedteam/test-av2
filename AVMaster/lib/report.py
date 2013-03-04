@@ -9,12 +9,12 @@ class Report:
 		self.results = results
 		
 		if results != None:
-			self.report = self.get()
+			self.report = self.prepare_report()
 		else:
 			self.report = None
 
 
-	def get(self):
+	def prepare_report(self):
 		r = ""
 		for l in self.results:
 			print "%s" % l
