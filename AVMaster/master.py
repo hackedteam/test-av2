@@ -48,6 +48,7 @@ def update(args):
 
         out_img = "%s/screenshot_%s_update.png" % (logdir, vm_name)
         vmman.takeScreenshot(vm, out_img)
+        
         print "[%s] waiting for Updates" % vm_name
         sleep(50 * 60)
         sleep(random.randint(10,300))
