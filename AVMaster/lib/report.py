@@ -17,8 +17,8 @@ class Report:
 	def prepare_report(self):
 		r = ""
 		for l in self.results:
-			print "%s" % l
-			r+=l
+			print "%s\n" % l.strip()
+			r+= "%s\n" % l.strip()
 		return r
 
 	def save_file(self):
@@ -49,8 +49,9 @@ class Report:
 			smtp = smtplib.SMTP("mail.hackingteam.com", 25)
 			smtp.sendmail(msg["From"], msg["To"].split(","), msg.as_string())
 			smtp.quit()
+			return True
 		except Exception as e:
-			print "[report:send mail] Impossible send report via mail. Exception: %s" % e
+			print "[report:send mail] Impossible to send report via mail. Exception: %s" % e
 			return False
 	
 
@@ -63,4 +64,4 @@ if __name__ == "__main__":
 	#assert r.send_mail() is False
 	# good report class
 	assert s.save_file() is None
-	#assert s.send_mail() is True
+	assert s.send_mail() is True
