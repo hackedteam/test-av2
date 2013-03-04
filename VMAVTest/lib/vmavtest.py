@@ -295,14 +295,18 @@ class VMAVTest:
             return c.server_status()['error']
 
     def create_user_machine(self):
+        print "create_user_machine"
         privs = ['ADMIN','ADMIN_USERS','ADMIN_OPERATIONS','ADMIN_TARGETS','ADMIN_AUDIT','ADMIN_LICENSE','SYS','SYS_FRONTEND','SYS_BACKEND','SYS_BACKUP','SYS_INJECTORS','SYS_CONNECTORS','TECH','TECH_FACTORIES','TECH_BUILD','TECH_CONFIG','TECH_EXEC','TECH_UPLOAD','TECH_IMPORT','TECH_NI_RULES','VIEW','VIEW_ALERTS','VIEW_FILESYSTEM','VIEW_EDIT','VIEW_DELETE','VIEW_EXPORT','VIEW_PROFILES'] 
         user_name = "avmonitor_%s" % self.hostname
         connection.user = user_name
 
         user_exists = False
-        with connection() as c:
-            print "LOGIN SUCCESS"
-            user_exists = True
+        try:
+            with connection() as c:
+                print "LOGIN SUCCESS"
+                user_exists = True
+        except:
+            pass
 
         if not user_exists:
             connection.user = "avmonitor"
@@ -310,6 +314,7 @@ class VMAVTest:
                 op, group_id = c.operation('AVMonitor')
                 c.user_create( user_name, connection.passwd, privs, group_id)
         connection.user = user_name
+        return True
 
     def execute_elite(self):
         """ build scout and upgrade it to elite """
@@ -465,8 +470,6 @@ def main():
     for v in platform_mobile:
         platform_type[v]='mobile' 
 
-    logger.setLogger(debug=True)
-
     op_conf_file = os.path.join("conf", "vmavtest.cfg")
     c = ConfigParser()
     c.read(op_conf_file)
@@ -479,11 +482,14 @@ def main():
     parser.add_argument('-b', '--backend')
     parser.add_argument('-f', '--frontend')
     parser.add_argument('-k', '--kind', choices=['silent', 'melt'])
+    parser.add_argument('-v', '--verbose', action='store_true', default=False, help="Verbose")
 
     parser.set_defaults(blacklist =  blacklist)
     parser.set_defaults(platform_type =  platform_type)
 
     args = parser.parse_args()
+
+    logger.setLogger(debug = args.verbose)
     connection.host = args.backend
     
     actions = {'scout': scout, 'elite': elite, 'internet': internet, 'test': test, 'clean': clean, 'pull': pull}

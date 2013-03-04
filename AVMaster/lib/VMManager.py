@@ -49,12 +49,14 @@ class VMManagerVS:
 			if p.poll() != None: #process is executed and ret.poll() has the return code
 				executed = True
 			if tick >= 45 * 3: ## 3 (ticks in 1 min) * 35 (minutes) = 105 min
-				return False
+				print "DBG run_popen timeout"
+				return []
 
 		if p.poll() == 0:
 			return p.communicate()[0]
 		else:
-			return False
+			print "DBG p.poll is 0"
+			return []
 
 
 	def startup(self, vmx):
@@ -115,6 +117,10 @@ class VMManagerVS:
 		sys.stdout.write("[%s] Creating directory %s.\n" % (vmx,dir_path))
 		self._run_cmd(vmx, "CreateDirectoryInGuest", [dir_path], [vmx.user,vmx.passwd])
 
+	def deleteDirectoryInGuest(self, vmx, dir_path):
+		sys.stdout.write("[%s] Delete directory %s.\n" % (vmx,dir_path))
+		self._run_cmd(vmx, "DeleteDirectoryInGuest", [dir_path], [vmx.user,vmx.passwd])
+
 	def copyFileToGuest(self, vmx, src_file, dst_file):
 		sys.stdout.write("[%s] Copying file from %s to %s.\n" % (vmx, src_file, dst_file))
 		self._run_cmd(vmx, "CopyFileFromHostToGuest", [src_file, dst_file], [vmx.user, vmx.passwd])
@@ -129,7 +135,6 @@ class VMManagerVS:
 		cmds.append(cmd)
 		cmds.extend(args)
 		return self._run_cmd(vmx, "runProgramInGuest", cmds, [vmx.user, vmx.passwd], popen=True)
-
 
 	def listProcesses(self, vmx):
 		sys.stdout.write("[%s] List processes\n" % vmx)
@@ -224,3 +229,46 @@ class VMManagerFus:
 						"-T", "fusion",
 						"-gu", vmx.user, "-gp", vmx.passwd,
 						"captureScreen", vmx.path, out_img])
+
+
+def test(vm_name):
+	print vm_name
+	op_conf_file = os.path.join("../conf", "vms.cfg")
+	vm = VMachine(op_conf_file, vm_name)
+	vmman = VMManagerVS(op_conf_file)
+	# vmman.revertLastSnapshot(vm)
+	# print "reverted ", vm_name
+	# vmman.startup(vm)
+	# print "started_up ", vm_name
+
+	vmman.deleteDirectoryInGuest(vm, "/users/avtest/Desktop/avtest")
+	print "deleted ", vm_name
+
+	# vmman.shutdownUpgrade(vm)
+	# print "shutted"
+
+if __name__ == "__main__":
+	from VMachine import VMachine
+	from multiprocessing import Pool
+
+	op_conf_file = os.path.join("../conf", "vms.cfg")
+	
+	c = ConfigParser()
+	c.read(op_conf_file)
+	vm_names = c.get("pool", "machines").split(",")
+	print vm_names
+
+	pool = Pool(8)
+
+	r = pool.map_async(test, vm_names )
+	results = r.get()
+	print results
+
+	# for vm_name in vm_names:
+	# 	vm = VMachine(op_conf_file, vm_name)
+	# 	print vm_name
+	# 	vmman.revertLastSnapshot(vm)
+	# 	vmman.deleteDirectoryInGuest(vm, "/users/avtest/Desktop/avtest")
+		#l = vmman.listSnapshots(vm)
+		#print "%s %s" % (vm_name, l)
+
