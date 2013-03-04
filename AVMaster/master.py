@@ -92,7 +92,7 @@ def revert(args):
     vm = VMachine(vm_conf_file, vm_name)
     vmman.revertLastSnapshot(vm)
     sleep(2)
-    return "[*] %s reverted!"
+    return "[*] %s reverted!" % vm_name
 
 def run_command(args):
     vm_name, cmd = args
@@ -317,7 +317,7 @@ def main():
         help="Verbose")
     parser.add_argument('-c', '--cmd', required=False,
         help="Run VMRUN command")
-    parser.add_argument('-u', '--updatetime', default=50,
+    parser.add_argument('-u', '--updatetime', default=50, type=int,
         help="Update time in minutes")
     args = parser.parse_args()
 
@@ -380,7 +380,7 @@ def main():
     arg = args.kind
     if args.action == "command":
         arg = args.cmd
-    print "MASTER %s on %s, action %s" % (arg, vm_names, args.action)
+    print "MASTER %s on %s, action %s, pool %s" % (arg, vm_names, args.action, args.pool)
     r = pool.map_async(actions[args.action], [ ( n, arg ) for n in vm_names ])
     results = r.get()
 
