@@ -388,7 +388,10 @@ def main():
     
     rep = Report("%s/master_%s.txt" % (logdir, args.action), results)
     rep.save_file()
-    rep.send_mail()
+    #rep.send_mail()
+
+    os.system('sudo ./net_disable.sh')    
+    print "[!] Disabling NETWORKING!"
 
 
 if __name__ == "__main__":	
