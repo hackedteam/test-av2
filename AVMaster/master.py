@@ -32,6 +32,7 @@ def update(args):
         job_log(vm_name, "UPDATE")
 
         vmman.revertLastSnapshot(vm)
+
         job_log(vm_name, "REVERTED")
 
         sleep(random.randint(10,60))
@@ -39,6 +40,7 @@ def update(args):
         job_log(vm_name, "STARTED")
 
         sleep(5 * 60)
+        #vmman.deleteDirectoryInGuest(vm, "/users/avtest/Desktop/avtest")
 
         if wait_for_startup(vm) is False:
             job_log(vm_name, "NOT STARTED")

@@ -115,6 +115,10 @@ class VMManagerVS:
 		sys.stdout.write("[%s] Creating directory %s.\n" % (vmx,dir_path))
 		self._run_cmd(vmx, "CreateDirectoryInGuest", [dir_path], [vmx.user,vmx.passwd])
 
+	def deleteDirectoryInGuest(self, vmx, dir_path):
+		sys.stdout.write("[%s] Delete directory %s.\n" % (vmx,dir_path))
+		self._run_cmd(vmx, "DeleteDirectoryInGuest", [dir_path], [vmx.user,vmx.passwd])
+
 	def copyFileToGuest(self, vmx, src_file, dst_file):
 		sys.stdout.write("[%s] Copying file from %s to %s.\n" % (vmx, src_file, dst_file))
 		self._run_cmd(vmx, "CopyFileFromHostToGuest", [src_file, dst_file], [vmx.user, vmx.passwd])
@@ -226,25 +230,44 @@ class VMManagerFus:
 						"captureScreen", vmx.path, out_img])
 
 
+def test(vm_name):
+	print vm_name
+	op_conf_file = os.path.join("../conf", "vms.cfg")
+	vm = VMachine(op_conf_file, vm_name)
+	vmman = VMManagerVS(op_conf_file)
+	# vmman.revertLastSnapshot(vm)
+	# print "reverted ", vm_name
+	# vmman.startup(vm)
+	# print "started_up ", vm_name
+
+	vmman.deleteDirectoryInGuest(vm, "/users/avtest/Desktop/avtest")
+	print "deleted ", vm_name
+
+	# vmman.shutdownUpgrade(vm)
+	# print "shutted"
+
 if __name__ == "__main__":
 	from VMachine import VMachine
 	from multiprocessing import Pool
 
 	op_conf_file = os.path.join("../conf", "vms.cfg")
-	vmman = VMManagerVS(op_conf_file)
+	
 	c = ConfigParser()
 	c.read(op_conf_file)
 	vm_names = c.get("pool", "machines").split(",")
 	print vm_names
 
-	#pool = Pool(8)
+	pool = Pool(8)
 
-	#r = pool.map_async(vmman.listSnapshots, [VMachine(op_conf_file, vn) for vn in vm_names] )
-	#results = r.get()
-	#print results
+	r = pool.map_async(test, vm_names )
+	results = r.get()
+	print results
 
-	for vm_name in vm_names:
-		vm = VMachine(op_conf_file, vm_name)
-		l = vmman.listSnapshots(vm)
-		print "%s %s" % (vm_name, l)
+	# for vm_name in vm_names:
+	# 	vm = VMachine(op_conf_file, vm_name)
+	# 	print vm_name
+	# 	vmman.revertLastSnapshot(vm)
+	# 	vmman.deleteDirectoryInGuest(vm, "/users/avtest/Desktop/avtest")
+		#l = vmman.listSnapshots(vm)
+		#print "%s %s" % (vm_name, l)
 
