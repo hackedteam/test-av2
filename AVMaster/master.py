@@ -207,7 +207,7 @@ def dispatch_kind(vm_name, kind):
             print "DBG %s" % executed 
             print "[%s] Execution failed!" % vm
 
-        print "processes: %s" % vmman.listProcesses(vm)
+        #print "processes: %s" % vmman.listProcesses(vm)
 
         #timestamp = time.strftime("%Y%m%d_%H%M", time.gmtime())
         out_img = "%s/screenshot_%s_%s.png" % (logdir, vm, kind)
@@ -229,7 +229,7 @@ def dispatch_kind(vm_name, kind):
 def test_internet(vm_name):
     try:
         vm = VMachine(vm_conf_file, vm_name)
-        test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
+        test_dir = "C:\\Users\\avtest\\Desktop\\TEST_INTERNET"
         filestocopy =[  "./test_internet.bat",
                         "lib/vmavtest.py",
                         "lib/logger.py",
@@ -242,39 +242,7 @@ def test_internet(vm_name):
         return "[%s] dispatched test internet" % vm_name
     except FailedExecutionException as e:
         raise FailedExecutionException("Error is ", e )
-        
-def test_exe(args):
-    vm_name, exe_path = args
-    vm = VMachine(vm_conf_file, vm_name)
-
-    vmman.revertLastSnapshot(vm)
-    sleep(5)
-    vmman.startup(vm)
-    sleep(5 * 60)
-
-    if wait_for_startup(vm) is False:   
-        return "Error wait for startup for %s" % vm_name
-    
-    test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
-
-    filestocopy =[  exe_path ]
-    copy_to_guest(vm, test_dir, filestocopy)
-    
-    # executing bat synchronized
-    vmman.executeCmd(vm, "%s\\%s" % (test_dir,exe_dir))
-
-    sleep(random.randint(100,200))
-
-    out_img = "%s/screenshot_%s_%s.png" % (logdir, vm, kind)
-    vmman.takeScreenshot(vm, out_img)
-    
-    # save results.txt locally
-    result = save_results(vm)
-
-    vmman.shutdown(vm)
-
-    return result
-        
+                
 def test(args):
     results=[]
     results.append('silent, avast) 2013-02-27 17:46:53,983: INFO: + FAILED SERVER ERROR\r\n')
@@ -282,7 +250,6 @@ def test(args):
     results.append('silent, kis) 2013-02-27 17:50:21,430: INFO: + FAILED SERVER ERROR\r\n')
     results.append('silent, norton) Error save')
     #report("report.test.txt", results)
-
 
 def wait_for_startup(vm, max_count=20):
     count = 0
@@ -389,7 +356,7 @@ def main():
     
     rep = Report("%s/master_%s.txt" % (logdir, args.action), results)
     rep.save_file()
-    #rep.send_mail()
+    rep.send_mail()
 
     os.system('sudo ./net_disable.sh')    
     print "[!] Disabling NETWORKING!"
