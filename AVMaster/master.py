@@ -16,12 +16,13 @@ import lib.logger
 
 
 vm_conf_file = os.path.join("conf", "vms.cfg")
-op_conf_file = os.path.join("conf", "operations.cfg")
 
 # get configuration for AV update process (exe, vms, etc)
 
 logdir = ""
 vmman = VMManagerVS(vm_conf_file)
+updatetime = 50
+
 
 def job_log(vm_name, status):
     print "+ %s: %s" % (vm_name, status)
@@ -49,7 +50,7 @@ def update(args):
         vmman.takeScreenshot(vm, out_img)
         
         print "[%s] waiting for Updates" % vm_name
-        sleep(args.updatetime * 60)
+        sleep(updatetime * 60)
         sleep(random.randint(10,300))
 
         running = True
@@ -85,9 +86,11 @@ def update(args):
         return "ERROR: %s is not updated. Reason: %s" % (vm_name, e)
 
 
-def revert(vm_name):
+def revert(args):
+    vm_name = args[0]
+    job_log(vm_name, "REVERT")
     vm = VMachine(vm_conf_file, vm_name)
-    vmman.revertSnapshot(vm, vm.snapshot)
+    vmman.revertLastSnapshot(vm)
     sleep(2)
     return "[*] %s reverted!"
 
@@ -319,7 +322,7 @@ def main():
     args = parser.parse_args()
 
     # LOGGER
-
+    print "updatetime: ", args.updatetime
     logdir = "%s/%s_%s" % (args.logdir, args.action, timestamp())
     if not os.path.exists(logdir):
         print "DBG mkdir %s" % logdir
@@ -332,11 +335,8 @@ def main():
 
     # GET CONFIGURATION FOR AV UPDATE PROCESS (exe, vms, etc)
 
-    op_conf_file = os.path.join("conf", "vms.cfg")
-    
-
     c = ConfigParser()
-    c.read(op_conf_file)
+    c.read(vm_conf_file)
 
     if args.vm:
         if args.vm == "all":
@@ -348,6 +348,9 @@ def main():
         vm_names = c.get("pool", "machines").split(",")
 
     [ job_log(v, "INIT") for v in vm_names ]
+
+    global updatetime
+    updatetime = args.updatetime
 
     # TEST
 
@@ -377,7 +380,7 @@ def main():
     arg = args.kind
     if args.action == "command":
         arg = args.cmd
-    print "MASTER %s on %s" % (arg, vm_names)
+    print "MASTER %s on %s, action %s" % (arg, vm_names, args.action)
     r = pool.map_async(actions[args.action], [ ( n, arg ) for n in vm_names ])
     results = r.get()
 
