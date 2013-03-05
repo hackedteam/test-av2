@@ -354,6 +354,8 @@ class VMAVTest:
             sleep(60 * 2)
             print "+ SUCCESS ELITE UNINSTALLED"
         else:
+            output = self._list_processes()
+            print output
             print "+ FAILED ELITE INSTALL"
 
         print "- Result: %s" % elite
