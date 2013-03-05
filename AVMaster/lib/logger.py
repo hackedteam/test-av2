@@ -34,6 +34,7 @@ def setLogger( debug=True, filelog="results.txt"):
       level=logging.DEBUG if debug else logging.INFO,
       #format='%(asctime)s: %(levelname)s: %(name)s: %(message)s',
       format='%(asctime)s: %(levelname)s: %(message)s',
+      datefmt='%Y-%m-%d %H:%M:%S',
       filename=filelog,
       filemode='w'
    )

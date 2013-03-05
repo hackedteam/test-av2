@@ -138,7 +138,8 @@ def save_results(vm, kind):
             if " + " in l:
                 last = l
 
-        return "%s) %s" % (vm, last)
+        # avast) 2013-03-05 05:03:09,892: INFO: + FAILED ELITE INSTALL\r\n'
+        return "%s, %s, %s" % (vm, kind, last)
     except Exception as e:
         return "[%s] ERROR saving results with exception: %s" % (vm,e)
 
@@ -148,11 +149,11 @@ def dispatch(args):
         results = []
         print "DBG %s, %s" %(vm_name,kind)
         if kind == "all":
-            results.append("silent, %s" % dispatch_kind(vm_name, "silent") )
+            results.append( dispatch_kind(vm_name, "silent") )
             sleep(random.randint(5,10))
-            results.append("melt, %s" % dispatch_kind(vm_name, "melt") )
+            results.append( dispatch_kind(vm_name, "melt") )
         else:
-            results.append("%s, %s" % (kind, dispatch_kind(vm_name, kind) ))
+            results.append( dispatch_kind(vm_name, kind) )
 
         return results
     except Exception as e:

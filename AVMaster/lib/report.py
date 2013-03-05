@@ -49,10 +49,12 @@ class Report:
 			msg["Subject"] = "AV Monitor"
 			msg["From"] = "avmonitor@hackingteam.com"
 			msg["To"] = "olli@hackingteam.com,zeno@hackingteam.com"
+			#msg["To"] = "olli@hackingteam.com"
 			body = MIMEText(self.report)
 			msg.attach(body)
 			smtp = smtplib.SMTP("mail.hackingteam.com", 25)
-			smtp.sendmail(msg["From"], msg["To"].split(","), msg.as_string())
+			#smtp.sendmail(msg["From"], msg["To"].split(","), msg.as_string())
+			smtp.sendmail(msg["From"], msg["To"], msg.as_string())
 			smtp.quit()
 			return True
 		except Exception as e:
