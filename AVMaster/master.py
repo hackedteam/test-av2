@@ -360,8 +360,11 @@ def main():
 
     # REPORT
     
-    rep = Report("%s/master_%s.txt" % (logdir, args.action), results)
+    rep = Report("%s/master_%s.txt" % (logdir, args.action), 
+                 "%s/report_%s.html" % (logdir, args.action),  
+                 results)
     rep.save_file()
+    rep.save_html()
     rep.send_mail()
 
     os.system('sudo ./net_disable.sh')    
