@@ -227,6 +227,48 @@ def dispatch_kind(vm_name, kind):
         job_log(vm_name, "SUSPENDED %s" % kind)
     return result
 
+def pull(args):
+    vm_name, kind = args
+    
+    vm = VMachine(vm_conf_file, vm_name)
+    #job_log(vm_name, "DISPATCH %s" % kind)
+    
+    #vmman.revertLastSnapshot(vm)
+    #job_log(vm_name, "REVERTED")
+
+    #sleep(5)
+    #vmman.startup(vm)
+    #sleep(5* 60)
+    job_log(vm_name, "STARTUP")
+    
+    test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
+
+    # TODO: pull this value, add a new option
+    host = "minotauro"
+    #host = "polluce"
+
+    buildbat = "pull_%s_%s.bat" % (kind, host)
+
+    filestocopy =[  "./%s" % buildbat,
+                    "lib/vmavtest.py",
+                    "lib/logger.py",
+                    "lib/rcs_client.py",
+                    "conf/vmavtest.cfg",
+                    "assets/config_desktop.json",
+                    "assets/config_mobile.json",
+                    "assets/keyinject.exe",
+                    "assets/meltapp.exe"    ]
+    executed = False
+    result = "ERROR GENERAL"
+
+    if wait_for_startup(vm) is False:
+        result = "ERROR wait for startup for %s" % vm_name 
+    else:
+        copy_to_guest(vm, test_dir, filestocopy)
+        job_log(vm_name, "ENVIRONMENT")
+        result = "pulled"
+    return result
+
 def test_internet(args):
     vm_name = args[0]
     try:
@@ -277,7 +319,7 @@ def main():
     parser = argparse.ArgumentParser(description='AVMonitor master.')
 
     parser.add_argument('action', choices=['update', 'revert', 'dispatch', 
-        'test', 'command', 'test_internet'],
+        'test', 'command', 'test_internet', 'pull'],
         help="The operation to perform")
     parser.add_argument('-m', '--vm', required=False, 
         help="Virtual Machine where execute the operation")
@@ -349,7 +391,7 @@ def main():
 
     actions = { "update" : update, "revert": revert, 
                 "dispatch": dispatch, "test_internet": test_internet,
-                "command": run_command }
+                "command": run_command, "pull": pull }
 
     arg = args.kind
     if args.action == "command":

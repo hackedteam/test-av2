@@ -45,7 +45,7 @@ class Report:
 			print "[report:save_file] Impossible save file. Exception: %s" % e
 			return False
 
-	def parse_results(filename):
+	def parse_results(self,filename):
 
 		success = []
 		errors  = []
@@ -83,12 +83,12 @@ class Report:
 					pass
 		return success,errors,failed
 
-	def add_header(name):
+	def add_header(self, name):
 		html_head  = "<h2>%s</h2>" % name
 		html_head += html_table_open
 		return html_head
 
-	def add_results(res):
+	def add_results(self, res):
 		html_results = ""
 
 		for s in res:
@@ -101,7 +101,7 @@ class Report:
 			html_results += html_table
 		return html_results
 
-	def add_errors(errors):
+	def add_errors(self, errors):
 		html_errs = ""
 		for e in errors:
 			html_errs += e
@@ -109,7 +109,7 @@ class Report:
 
 
 
-	def write_html_report(results, html_file_name):
+	def write_html_report(self, results, html_file_name):
 		html_table_open = '''
 		<table border=1 cellpadding=1 cellspacing=2 width=70%>
 			<tr><td with=15%>Virtual Machine</td>
@@ -134,23 +134,23 @@ class Report:
 		with open(html_file_name, 'wb') as f:
 			f.write("<html><body>")
 
-			f.write( add_header("Failed") )
-			f.write( add_results(failed) )
-			f.write( html_table_closed)
+			f.write( self.add_header("Failed") )
+			f.write( self.add_results(failed) )
+			f.write( self.html_table_closed)
 
 			f.write( "<h2>Errors</h2>")
-			f.write( add_errors(errors) )
+			f.write( self.add_errors(errors) )
 
-			f.write( add_header("Success") )
-			f.write( add_results(success) )
-			f.write( html_table_closed)
+			f.write( self.add_header("Success") )
+			f.write( self.add_results(success) )
+			f.write( self.html_table_closed)
 
 			f.write("</body></html>")
 
 	def save_html(self):
-			results = parse_results(self.filename)
+			results = self.parse_results(self.filename)
 
-			write_html_report(results, self.html_file)
+			self.write_html_report(results, self.html_file)
 
 	
 	def send_mail(self):
