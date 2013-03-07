@@ -45,7 +45,11 @@ def update(args):
         if wait_for_startup(vm) is False:
             job_log(vm_name, "NOT STARTED")
             return "ERROR wait for startup for %s" % vm_name
-
+ 
+        if check_infection_status(vm) is True:
+            vmman.shutdown(vm)
+            return "ERROR VM IS INFECTED!!!"
+ 
         out_img = "%s/screenshot_%s_update.png" % (logdir, vm_name)
         vmman.takeScreenshot(vm, out_img)
         
@@ -58,7 +62,7 @@ def update(args):
         r = vmman.shutdownUpgrade(vm)
 
         if r is False:
-            return "[%s] NOT Updated!"  % vm_name
+            return "%s, NOT Updated!"  % vm_name
 
         count = 0
         sh = True
@@ -75,15 +79,15 @@ def update(args):
         if sh == True:
             vmman.refreshSnapshot(vm)
             job_log(vm_name, "UPDATED")
-            return "[%s] Updated!"  % vm_name
+            return "%s, SUCCESS: Updated!"  % vm_name
         else:
             job_log(vm_name, "NOT UPDATED")
-            return "[%s] NOT Updated!"  % vm_name
+            return "%s, ERROR: NOT Updated!"  % vm_name
 
     except Exception as e:
         job_log(vm_name, "ERROR")
         print "DBG trace %s" % traceback.format_exc()
-        return "ERROR: %s is not updated. Reason: %s" % (vm_name, e)
+        return "%s, ERROR: not updated. Reason: %s" % (vm_name, e)
 
 
 def revert(args):
@@ -141,7 +145,7 @@ def save_results(vm, kind):
         # avast) 2013-03-05 05:03:09,892: INFO: + FAILED ELITE INSTALL\r\n'
         return "%s, %s, %s" % (vm, kind, last)
     except Exception as e:
-        return "[%s] ERROR saving results with exception: %s" % (vm,e)
+        return "%s, ERROR saving results with exception: %s" % (vm,e)
 
 def dispatch(args):
     try:
@@ -193,10 +197,10 @@ def dispatch_kind(vm_name, kind):
                     "assets/meltapp.exe",
                     "assets/meltexploit.txt"    ]
     executed = False
-    result = "ERROR GENERAL"
+    result = "%s, %s, ERROR GENERAL" % (vm_name, kind) 
 
     if wait_for_startup(vm) is False:
-        result = "ERROR wait for startup for %s" % vm_name 
+        result = "%s, %s, ERROR: wait for startup for" % (vm_name, kind) 
     else:
         copy_to_guest(vm, test_dir, filestocopy)
         job_log(vm_name, "ENVIRONMENT")
@@ -207,7 +211,7 @@ def dispatch_kind(vm_name, kind):
 
         if executed is False:
             print "DBG %s" % executed 
-            print "[%s] Execution failed!" % vm
+            print "%s, ERROR: Execution failed!" % vm
 
         #print "processes: %s" % vmman.listProcesses(vm)
 
@@ -292,13 +296,26 @@ def test_internet(args):
             return "[%s] dispatched test internet" % vm_name
     except Exception as e:
         return "[%s] failed test internet. reason: %s" % (vm_name, e)
-                
+
+def check_infection_status(vm):
+    startup_dir = "C:\\Users\\avtest\\AppData\\Microsoft"
+    stuff = vmman.listDirectoryInGuest(vm, startup_dir)
+    print stuff
+    if stuff is None:
+        return True
+    return False
+    #if vmman.listDirectoryInGuest(vm) is None:
+
+       
 def test(args):
     results=[]
-    results.append('silent, avast) 2013-02-27 17:46:53,983: INFO: + FAILED SERVER ERROR\r\n')
-    results.append('silent, avira) 2013-02-27 17:46:37,427: INFO: + FAILED SERVER ERROR\r\n')
-    results.append('silent, kis) 2013-02-27 17:50:21,430: INFO: + FAILED SERVER ERROR\r\n')
-    results.append('silent, norton) Error save')
+    results.append(["emsisoft, silent, ERROR saving results with exception: [Errno 2] No such file or directory: 'repp/dispatch_20130307_0939/results_emsisoft_silent.txt'"])
+    results.append(['norton, silent, 2013-03-07 11:26:45, INFO: + SUCCESS ELITE UNINSTALLED\r\n'])
+    results.append(['mcafee, silent, 2013-03-07 11:00:04, INFO: + FAILED SCOUT SYNC\r\n'])
+
+    r = Report(results)
+    r.save_html('/tmp/test.html')
+
     #report("report.test.txt", results)
 
 def wait_for_startup(vm, max_count=20):
@@ -412,10 +429,14 @@ def main():
     
     rep = Report(results)
     rep.save_file("%s/master_%s.txt" % (logdir, args.action))
-    #rep.save_html("%s/master_%s.txt" % (logdir, args.action),
-    #              "%s/report_%s.html" % (logdir, args.action))
-    rep.send_mail()
 
+    if rep.send_mail() is False:
+        print "[!] Problem sending mail!"
+    '''
+    if args.action == "dispatch":
+        if rep.save_html("%s/report_%s.html" % (logdir, args.action)) is False:
+            print "[!] Problem creating HTML Report!"
+    '''
     os.system('sudo ./net_disable.sh')    
     print "[!] Disabling NETWORKING!"
 

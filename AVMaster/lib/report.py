@@ -56,9 +56,10 @@ class Report:
 					e=eval(l)
 					for k in e:
 						j = k.split(",")
-						#print j
+						print j
 
 						if "SUCCESS" in j[3] or "FAILED" in j[3]:
+							print j[0],j[1],j[3].split(":")[2][3:-2].replace("+","")
 							#j[0],j[1],j[3]
 							res = {}
 							
@@ -72,11 +73,14 @@ class Report:
 
 							if "SUCCESS" in j[3]:
 								success.append(res)
+								print len(success)
 							else:
 								failed.append(res)
+								print len(failed)
 				except:
 					if "ERROR" in l:
 						errors.append(l)
+						print len(errors)
 					#print "failed: %s" % e
 					pass
 		return success,errors,failed
@@ -119,39 +123,97 @@ class Report:
 		return html_results
 
 	def _add_errors(self, errors):
-		html_errs = ""
+
+		html_table_head = '''
+		<table border=1 width=70% cellpadding=1 cellspacing=1>
+		<tr><td>AV</td>
+			<td>Error</td>
+			<td>TXT</td>
+			<td>Screenshot</td></tr>
+		'''
+
+		html_section = '''
+		<tr><td>AV_NAME</td>
+			<td>AV_ERROR</td>
+			<td><a href="AV_TXT_LINK">txt report</a></td>
+			<td><a href="AV_SCREEN_LINK">screenshot</a></tr>
+		'''
+
+		html_errs = html_table_head
+		
 		for e in errors:
-			html_errs += e
+			html_table = html_section
+			html_table = html_table.replace( "AV_NAME", e['av'] )
+			html_table = html_table.replace( "AV_ERROR", e['result'] )
+			html_table = html_table.replace( "AV_TXT_LINK", "results_%s_%s.txt" % (e['av'],e['kind']) )
+			html_table = html_table.replace( "AV_SCREEN_LINK", "screenshot_%s_%s.png" % (e['av'],e['kind']) )
+			html_errs += html_table
+		html_errs += "</table>"
+
 		return html_errs
 
 
 
-	def _write_html_report(self, results, html_file_name):
-
+	def _write_html_report(self, result, html_file_name):
 
 		html_table_closed = '</table>'
-
-		success,errors,failed = results
 
 		with open(html_file_name, 'wb') as f:
 			f.write("<html><body>")
 
-			f.write( self._add_header("Failed") )
-			f.write( self._add_results(failed) )
-			f.write( self.html_table_closed)
+			if len(result['failed']) > 0:
+				f.write( self._add_header("Failed") )
+				f.write( self._add_results(result['failed']) )
+				f.write( html_table_closed )
 
-			f.write( "<h2>Errors</h2>")
-			f.write( self._add_errors(errors) )
+			if len(result['errors']) > 0:
+				f.write( "<h2>Errors</h2>")
+				f.write( self._add_errors(result['errors']) )
 
-			f.write( self._add_header("Success") )
-			f.write( self._add_results(success) )
-			f.write( self.html_table_closed)
+			if len(result['success']) > 0:
+				f.write( self._add_header("Success") )
+				f.write( self._add_results(result['success']) )
+				f.write( html_table_closed )
 
 			f.write("</body></html>")
 
-	def save_html(self, filename, html_file):
-			results = self._parse_results(filename)
-			self._write_html_report(results, html_file)
+	def save_html(self, html_file):
+		print "saving in %s" % html_file
+		errors  = []
+		success = []
+		failed  = []
+
+		record  = {}
+		
+		for result in self.results:
+			for r in result:
+				record = {}
+				l = r.split(",")
+
+				if len(l) == 3:
+					record['av']     = l[0]
+					record['kind']   = l[1]
+ 					record['result'] = l[2]
+					errors.append(record)
+
+				elif len(l) == 4:
+					record['av']     = l[0]
+					record['kind']   = l[1]
+					record['result'] = l[3].replace("\r\n","").replace("+","")
+
+					if "SUCCESS" in record['result']:
+						success.append(record)
+
+					elif "FAILED" in record['result']:
+						failed.append(record)
+
+		res_list = {} 
+		res_list["success"] = success
+		res_list["errors"]  = errors
+		res_list["failed"]  = failed
+
+		print res_list
+		self._write_html_report( res_list, html_file)
 
 	
 	def send_mail(self):
