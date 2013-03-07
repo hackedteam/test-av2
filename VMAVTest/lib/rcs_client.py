@@ -66,6 +66,7 @@ class Rcs_client:
             return result
         except Exception, e:
             print "ERROR: %s" % e
+            print "DBG trace %s" % traceback.format_exc()
             print "call error: %s" % resp
             raise e
 
@@ -209,6 +210,7 @@ class Rcs_client:
 
             return True
         except Exception as e:
+            print "DBG trace %s" % traceback.format_exc()
             print e
             return False
 
@@ -295,8 +297,6 @@ class Rcs_client:
         
         out = open(out_file, 'wb')
         out.write(resp)
-        
-        #print "+ %s bytes saved to %s" % (len(out),  out_file)
 
 def testMelt():
     print 'test'
@@ -345,6 +345,7 @@ def testMelt():
         r = conn.build_melt(factory, param, 'assets/meltapp.exe', 'build.out')
 
     except Exception, e:
+        print "DBG trace %s" % traceback.format_exc()
         print e
     
  

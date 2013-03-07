@@ -190,7 +190,8 @@ def dispatch_kind(vm_name, kind):
                     "assets/config_desktop.json",
                     "assets/config_mobile.json",
                     "assets/keyinject.exe",
-                    "assets/meltapp.exe"    ]
+                    "assets/meltapp.exe",
+                    "assets/meltexploit.txt"    ]
     executed = False
     result = "ERROR GENERAL"
 
@@ -257,7 +258,8 @@ def pull(args):
                     "assets/config_desktop.json",
                     "assets/config_mobile.json",
                     "assets/keyinject.exe",
-                    "assets/meltapp.exe"    ]
+                    "assets/meltapp.exe",
+                    "assets/meltexploit.txt"    ]
     executed = False
     result = "ERROR GENERAL"
 

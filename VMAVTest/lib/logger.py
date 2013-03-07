@@ -26,7 +26,7 @@ class StreamToLogger(object):
          self.logger.log(logging.DEBUG, buf[3:].strip())
 
       else:
-         self.terminal.write(buf)
+         self.terminal.write( str(buf).strip() + "\n" ) 
          
          for line in buf.rstrip().splitlines():
             self.logger.log(self.log_level, line.rstrip())

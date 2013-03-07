@@ -37,7 +37,7 @@
             "subactions": [
                 {
                     "maxdelay": 0,
-                    "host": "192.168.100.204",
+                    "host": "$(HOSTNAME)",
                     "stop": false,
                     "action": "synchronize",
                     "bandwidth": 500000,

