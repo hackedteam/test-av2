@@ -7,18 +7,16 @@ from email.MIMEText import MIMEText
 
 
 class Report:
-	def __init__(self, filename=None, html_file=None, results=None):
-		self.filename = filename
-		self.html_file = html_file
+	def __init__(self, results=None):
 		self.results = results
 		
 		if results != None:
-			self.report = self.prepare_report()
+			self.report = self._prepare_report()
 		else:
 			self.report = None
 
 
-	def prepare_report(self):
+	def _prepare_report(self):
 		r = ""
 		for l in self.results:
 			if l is list:
@@ -30,7 +28,7 @@ class Report:
 				r+= "%s\n" % l
 		return r
 
-	def save_file(self):
+	def save_file(self, filename):
 		if self.report is None:
 			print "[report:savefile] Report can't be None"
 			return False
@@ -38,14 +36,14 @@ class Report:
 			print "[*] RESULTS: \n%s" % self.report 
 
 			# ordered = {}
-			with open( self.filename, "wb") as f:
+			with open( filename, "wb") as f:
 				f.write("REPORT\n")
 				f.write(self.report)
 		except Exception as e:
 			print "[report:save_file] Impossible save file. Exception: %s" % e
 			return False
 
-	def parse_results(self,filename):
+	def _parse_results(self,filename):
 
 		success = []
 		errors  = []
@@ -83,12 +81,31 @@ class Report:
 					pass
 		return success,errors,failed
 
-	def add_header(self, name):
+	def _add_header(self, name):
+		
+		html_table_open = '''
+		<table border=1 cellpadding=1 cellspacing=2 width=70%>
+			<tr><td with=15%>Virtual Machine</td>
+				<td with=15%>Kind of test</td>
+				<td width=50%>Result</td>
+				<td width=10%>TXT Report</td>
+				<td width=10%>Screenshot</td></tr>
+		'''		
+
 		html_head  = "<h2>%s</h2>" % name
 		html_head += html_table_open
 		return html_head
 
-	def add_results(self, res):
+	def _add_results(self, res):
+
+		html_section = '''
+		<tr><td>AV_NAME</td>
+			<td>AV_KIND</td>
+			<td>AV_RESULT</td>
+			<td><a href="AV_TXT_LINK">txt report</td>
+			<td><a href="AV_SCREEN_LINK">screenshot</td></tr>
+		'''
+	
 		html_results = ""
 
 		for s in res:
@@ -101,7 +118,7 @@ class Report:
 			html_results += html_table
 		return html_results
 
-	def add_errors(self, errors):
+	def _add_errors(self, errors):
 		html_errs = ""
 		for e in errors:
 			html_errs += e
@@ -109,48 +126,32 @@ class Report:
 
 
 
-	def write_html_report(self, results, html_file_name):
-		html_table_open = '''
-		<table border=1 cellpadding=1 cellspacing=2 width=70%>
-			<tr><td with=15%>Virtual Machine</td>
-				<td with=15%>Kind of test</td>
-				<td width=50%>Result</td>
-				<td width=10%>TXT Report</td>
-				<td width=10%>Screenshot</td></tr>
-		'''
+	def _write_html_report(self, results, html_file_name):
+
 
 		html_table_closed = '</table>'
-
-		html_section = '''
-		<tr><td>AV_NAME</td>
-			<td>AV_KIND</td>
-			<td>AV_RESULT</td>
-			<td><a href="AV_TXT_LINK">txt report</td>
-			<td><a href="AV_SCREEN_LINK">screenshot</td></tr>
-		'''
 
 		success,errors,failed = results
 
 		with open(html_file_name, 'wb') as f:
 			f.write("<html><body>")
 
-			f.write( self.add_header("Failed") )
-			f.write( self.add_results(failed) )
+			f.write( self._add_header("Failed") )
+			f.write( self._add_results(failed) )
 			f.write( self.html_table_closed)
 
 			f.write( "<h2>Errors</h2>")
-			f.write( self.add_errors(errors) )
+			f.write( self._add_errors(errors) )
 
-			f.write( self.add_header("Success") )
-			f.write( self.add_results(success) )
+			f.write( self._add_header("Success") )
+			f.write( self._add_results(success) )
 			f.write( self.html_table_closed)
 
 			f.write("</body></html>")
 
-	def save_html(self):
-			results = self.parse_results(self.filename)
-
-			self.write_html_report(results, self.html_file)
+	def save_html(self, filename, html_file):
+			results = self._parse_results(filename)
+			self._write_html_report(results, html_file)
 
 	
 	def send_mail(self):
