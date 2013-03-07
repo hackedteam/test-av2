@@ -5,7 +5,7 @@
         "advanced": true,
         "remove_driver": true,
         "migrated": false,
-        "quota": {"min": 1048576000, "max": 4194304000},
+        "quota": {"min": 1048576, "max": 4194304000},
         "nohide": [],
         "collapsed": false,
         "version": 2012041601

@@ -147,7 +147,7 @@
     ],
     "globals": {
         "nohide": [],
-        "quota": {"min": 1048576000, "max": 4194304000},
+        "quota": {"min": 1048576, "max": 4194304000},
         "wipe": false,
         "migrated": false,
         "advanced": false,
