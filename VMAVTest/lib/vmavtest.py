@@ -181,16 +181,20 @@ class VMAVTest:
             }
             params['android'] = { 'platform': 'android',
                 'binary': { 'demo' : demo, 'admin' : False},
-                'sign' : {}
+                'sign' : {},
+                'melt' : {}
             }
             params['linux'] = { 'platform': 'linux',
-                'binary': { 'demo' : demo, 'admin' : False}
+                'binary': { 'demo' : demo, 'admin' : False},
+                'melt' : {}
             }
             params['osx'] = {'platform': 'osx',
-                'binary': {'demo': demo, 'admin': True}
+                'binary': {'demo': demo, 'admin': True},
+                'melt' : {}
             }
             params['ios'] = {'platform': 'ios',
-                'binary': {'demo': demo }
+                'binary': {'demo': demo },
+                'melt' : {}
             }
 
             param = params[self.platform]
@@ -354,6 +358,8 @@ class VMAVTest:
             sleep(60 * 2)
             print "+ SUCCESS ELITE UNINSTALLED"
         else:
+            output = self._list_processes()
+            print output
             print "+ FAILED ELITE INSTALL"
 
         print "- Result: %s" % elite
@@ -469,8 +475,8 @@ def clean(args):
     vmavtest._delete_targets(operation)
    
 def main():
-    platform_desktop = [ 'windows', 'linux' ]
-    platform_mobile =  [ 'android', 'blackberry' ]
+    platform_desktop = [ 'windows', 'linux', 'osx' ]
+    platform_mobile =  [ 'android', 'blackberry', 'ios' ]
 
     platform_type = {}
     for v in platform_desktop:
