@@ -325,7 +325,7 @@ def main():
         help="The operation to perform")
     parser.add_argument('-m', '--vm', required=False, 
         help="Virtual Machine where execute the operation")
-    parser.add_argument('-p', '--pool', default=4, type=int, 
+    parser.add_argument('-p', '--pool', type=int, required=False,
         help="This is the number of parallel process (default 2)")
     parser.add_argument('-l', '--logdir', default="/var/log/avmonitor/report",  
         help="Log folder")
@@ -388,7 +388,13 @@ def main():
 
     # POOL EXECUTION    
 
-    pool = Pool(args.pool)
+    if args.pool:
+        pool_size = args.pool
+    else:
+        pool_size = int(c.get("pool", "size"))
+
+    pool = Pool(pool_size)
+    
     print "[*] selected operation %s" % args.action
 
     actions = { "update" : update, "revert": revert, 
