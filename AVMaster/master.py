@@ -176,7 +176,7 @@ def dispatch_kind(vm_name, kind):
     
     test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
 
-    # TODO: pull this value, add a new option
+    # TODO: push this value, add a new option
     host = "minotauro"
     #host = "polluce"
 
@@ -228,7 +228,7 @@ def dispatch_kind(vm_name, kind):
         job_log(vm_name, "SUSPENDED %s" % kind)
     return result
 
-def pull(args):
+def push(args):
     vm_name, kind = args
     
     vm = VMachine(vm_conf_file, vm_name)
@@ -244,11 +244,11 @@ def pull(args):
     
     test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
 
-    # TODO: pull this value, add a new option
+    # TODO: push this value, add a new option
     host = "minotauro"
     #host = "polluce"
 
-    buildbat = "pull_%s_%s.bat" % (kind, host)
+    buildbat = "push_%s_%s.bat" % (kind, host)
 
     filestocopy =[  "./%s" % buildbat,
                     "lib/vmavtest.py",
@@ -268,7 +268,7 @@ def pull(args):
     else:
         copy_to_guest(vm, test_dir, filestocopy)
         job_log(vm_name, "ENVIRONMENT")
-        result = "pulled"
+        result = "pushed"
     return result
 
 def test_internet(args):
@@ -321,7 +321,7 @@ def main():
     parser = argparse.ArgumentParser(description='AVMonitor master.')
 
     parser.add_argument('action', choices=['update', 'revert', 'dispatch', 
-        'test', 'command', 'test_internet', 'pull'],
+        'test', 'command', 'test_internet', 'push'],
         help="The operation to perform")
     parser.add_argument('-m', '--vm', required=False, 
         help="Virtual Machine where execute the operation")
@@ -332,7 +332,7 @@ def main():
     parser.add_argument('-v', '--verbose', action='store_true', default=False,  
         help="Verbose")
     parser.add_argument('-k', '--kind', default="all", type=str,
-        help="Verbose")
+        help="Verbose", choices=['silent', 'melt', 'exploit', 'all'])
     parser.add_argument('-c', '--cmd', required=False,
         help="Run VMRUN command")
     parser.add_argument('-u', '--updatetime', default=50, type=int,
@@ -393,7 +393,7 @@ def main():
 
     actions = { "update" : update, "revert": revert, 
                 "dispatch": dispatch, "test_internet": test_internet,
-                "command": run_command, "pull": pull }
+                "command": run_command, "push": push }
 
     arg = args.kind
     if args.action == "command":
