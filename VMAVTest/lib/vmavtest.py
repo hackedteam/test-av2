@@ -434,15 +434,18 @@ class VMAVTest:
 
         return factory_id, ident, exe
 
+internet_checked = False
 def execute_agent(args, level, platform):
+    global internet_checked
     ftype = args.platform_type[platform]
     print "DBG ftype: %s" % ftype
 
     """ starts a scout """
     if socket.gethostname() != 'zenovm':
-        if internet_on():
+        if not internet_checked and internet_on():
             print "== ERROR: I reach Internet =="
             exit(0)
+    internet_checked = True
 
     print "- Network unreachable"
 
