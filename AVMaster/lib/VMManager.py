@@ -127,6 +127,10 @@ class VMManagerVS:
 		sys.stdout.write("[%s] Creating directory %s.\n" % (vmx,dir_path))
 		self._run_cmd(vmx, "CreateDirectoryInGuest", [dir_path], [vmx.user,vmx.passwd])
 
+	def listDirectoryInGuest(self, vmx, dir_path):
+		sys.stdout.write("[%s] Listing directory %s.\n" % (vmx,dir_path))
+		return self._run_cmd(vmx, "listDirectoryInGuest", [dir_path], [vmx.user,vmx.passwd], popen=True)
+
 	def deleteDirectoryInGuest(self, vmx, dir_path):
 		sys.stdout.write("[%s] Delete directory %s.\n" % (vmx,dir_path))
 		self._run_cmd(vmx, "DeleteDirectoryInGuest", [dir_path], [vmx.user,vmx.passwd])
