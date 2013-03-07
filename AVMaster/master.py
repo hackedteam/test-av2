@@ -402,11 +402,10 @@ def main():
 
     # REPORT
     
-    rep = Report("%s/master_%s.txt" % (logdir, args.action), 
-                 "%s/report_%s.html" % (logdir, args.action),  
-                 results)
-    rep.save_file()
-    rep.save_html()
+    rep = Report(results)
+    rep.save_file("%s/master_%s.txt" % (logdir, args.action))
+    rep.save_html("%s/master_%s.txt" % (logdir, args.action),
+                  "%s/report_%s.html" % (logdir, args.action))
     rep.send_mail()
 
     os.system('sudo ./net_disable.sh')    
