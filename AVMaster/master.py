@@ -138,7 +138,8 @@ def save_results(vm, kind):
             if " + " in l:
                 last = l
 
-        return "%s) %s" % (vm, last)
+        # avast) 2013-03-05 05:03:09,892: INFO: + FAILED ELITE INSTALL\r\n'
+        return "%s, %s, %s" % (vm, kind, last)
     except Exception as e:
         return "[%s] ERROR saving results with exception: %s" % (vm,e)
 
@@ -148,11 +149,11 @@ def dispatch(args):
         results = []
         print "DBG %s, %s" %(vm_name,kind)
         if kind == "all":
-            results.append("silent, %s" % dispatch_kind(vm_name, "silent") )
+            results.append( dispatch_kind(vm_name, "silent") )
             sleep(random.randint(5,10))
-            results.append("melt, %s" % dispatch_kind(vm_name, "melt") )
+            results.append( dispatch_kind(vm_name, "melt") )
         else:
-            results.append("%s, %s" % (kind, dispatch_kind(vm_name, kind) ))
+            results.append( dispatch_kind(vm_name, kind) )
 
         return results
     except Exception as e:
@@ -226,6 +227,48 @@ def dispatch_kind(vm_name, kind):
         job_log(vm_name, "SUSPENDED %s" % kind)
     return result
 
+def pull(args):
+    vm_name, kind = args
+    
+    vm = VMachine(vm_conf_file, vm_name)
+    #job_log(vm_name, "DISPATCH %s" % kind)
+    
+    #vmman.revertLastSnapshot(vm)
+    #job_log(vm_name, "REVERTED")
+
+    #sleep(5)
+    #vmman.startup(vm)
+    #sleep(5* 60)
+    job_log(vm_name, "STARTUP")
+    
+    test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
+
+    # TODO: pull this value, add a new option
+    host = "minotauro"
+    #host = "polluce"
+
+    buildbat = "pull_%s_%s.bat" % (kind, host)
+
+    filestocopy =[  "./%s" % buildbat,
+                    "lib/vmavtest.py",
+                    "lib/logger.py",
+                    "lib/rcs_client.py",
+                    "conf/vmavtest.cfg",
+                    "assets/config_desktop.json",
+                    "assets/config_mobile.json",
+                    "assets/keyinject.exe",
+                    "assets/meltapp.exe"    ]
+    executed = False
+    result = "ERROR GENERAL"
+
+    if wait_for_startup(vm) is False:
+        result = "ERROR wait for startup for %s" % vm_name 
+    else:
+        copy_to_guest(vm, test_dir, filestocopy)
+        job_log(vm_name, "ENVIRONMENT")
+        result = "pulled"
+    return result
+
 def test_internet(args):
     vm_name = args[0]
     try:
@@ -276,7 +319,7 @@ def main():
     parser = argparse.ArgumentParser(description='AVMonitor master.')
 
     parser.add_argument('action', choices=['update', 'revert', 'dispatch', 
-        'test', 'command', 'test_internet'],
+        'test', 'command', 'test_internet', 'pull'],
         help="The operation to perform")
     parser.add_argument('-m', '--vm', required=False, 
         help="Virtual Machine where execute the operation")
@@ -348,7 +391,7 @@ def main():
 
     actions = { "update" : update, "revert": revert, 
                 "dispatch": dispatch, "test_internet": test_internet,
-                "command": run_command }
+                "command": run_command, "pull": pull }
 
     arg = args.kind
     if args.action == "command":
@@ -359,8 +402,11 @@ def main():
 
     # REPORT
     
-    rep = Report("%s/master_%s.txt" % (logdir, args.action), results)
+    rep = Report("%s/master_%s.txt" % (logdir, args.action), 
+                 "%s/report_%s.html" % (logdir, args.action),  
+                 results)
     rep.save_file()
+    rep.save_html()
     rep.send_mail()
 
     os.system('sudo ./net_disable.sh')    

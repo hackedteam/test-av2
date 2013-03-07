@@ -8,7 +8,9 @@ class StreamToLogger(object):
    """
    def __init__(self, logger, log_level=logging.INFO, terminal=sys.stdout, debug=False):
       self.terminal = terminal
+      #self.formatter = logging.Formatter(fmt='%(asctime)s',datefmt='%Y-%m-%d %H:%M:%S')
       self.logger = logging.getLogger(logger)
+      
       self.debug = debug
       self.log_level = log_level
       self.linebuf = ''
@@ -34,7 +36,8 @@ def setLogger( debug=True, filelog="results.txt"):
       
       level=logging.DEBUG if debug else logging.INFO,
       #format='%(asctime)s: %(levelname)s: %(name)s: %(message)s',
-      format='%(asctime)s: %(levelname)s: %(message)s',
+      format='%(asctime)s, %(levelname)s: %(message)s',
+      datefmt='%Y-%m-%d %H:%M:%S',
       filename=filelog,
       filemode='w'
    )
