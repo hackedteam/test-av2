@@ -432,11 +432,11 @@ def main():
 
     if rep.send_mail() is False:
         print "[!] Problem sending mail!"
-    '''
+    
     if args.action == "dispatch":
         if rep.save_html("%s/report_%s.html" % (logdir, args.action)) is False:
             print "[!] Problem creating HTML Report!"
-    '''
+    
     os.system('sudo ./net_disable.sh')    
     print "[!] Disabling NETWORKING!"
 
