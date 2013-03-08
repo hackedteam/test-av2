@@ -42,14 +42,14 @@ def check_internet(address, queue):
     print "- Check connection: %s" % address
 
     ret = False
-    try:    
-        #if hasattr(socket, 'setdefaulttimeout'):
-        #    socket.setdefaulttimeout(5)
-        response = socket.gethostbyaddr( address )
-        #print "i resolve dns: ", address
-        ret |= True
-    except:
-        ret |= False
+    # try:    
+    #     #if hasattr(socket, 'setdefaulttimeout'):
+    #     #    socket.setdefaulttimeout(5)
+    #     response = socket.gethostbyaddr( address )
+    #     #print "i resolve dns: ", address
+    #     ret |= True
+    # except:
+    #     ret |= False
 
     try:    
         if(ret == False):
@@ -437,6 +437,7 @@ class VMAVTest:
 internet_checked = False
 def execute_agent(args, level, platform):
     global internet_checked
+
     ftype = args.platform_type[platform]
     print "DBG ftype: %s" % ftype
 
@@ -476,8 +477,14 @@ def pull(args):
     """ starts a scout """
     if args.platform == "all":
         for platform in args.platform_type.keys():
-            print "pulling platform"
-            execute_agent(args, "pull", platform)
+            if platform == "exploit":
+                continue
+            print "pulling platform ", platform
+            try:
+                execute_agent(args, "pull", platform)
+                print "+ PULLED %s" % platform
+            except Exception, ex:
+                print "ERROR %s" % ex
     else:
         execute_agent(args, "pull", args.platform)
 

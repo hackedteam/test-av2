@@ -255,6 +255,7 @@ def push(args):
     buildbat = "push_%s_%s.bat" % (kind, host)
 
     filestocopy =[  "./%s" % buildbat,
+                    "./push_all_minotauro.bat",
                     "lib/vmavtest.py",
                     "lib/logger.py",
                     "lib/rcs_client.py",
