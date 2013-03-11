@@ -192,7 +192,7 @@ class Report:
 
 				if len(l) == 3:
 					record['av']     = l[0]
-					record['kind']   = l[1]
+					record['kind']   = l[1].replace(" ","")
  					record['result'] = l[2]
 					errors.append(record)
 
