@@ -139,7 +139,6 @@ class VMAVTest:
 
                 target_id = targets[0]
                 
-                #print "target_id: ", target_id
                 agents = c.agents( target_id )
 
                 for agent_id, ident, name in agents:
@@ -154,15 +153,13 @@ class VMAVTest:
 
             with open(config) as f:
                 conf = f.read()
-            #conf = conf.replace('$(HOSTNAME)', self.host[1])
+
             conf =  re.sub(r'"host": ".*"',r'"host": "%s"' % self.host[1], conf)
             c.factory_add_config(factory_id, conf)
 
-            #print "open config to write"
             with open('build/config.actual.json','wb') as f:
                 f.write(conf)
 
-            #print "factory: ", factory
             return (target, factory_id, ident)
 
     def _build_agent(self, factory, melt = None, demo = False):
@@ -209,7 +206,6 @@ class VMAVTest:
 
             param = params[self.platform]
 
-            #{"admin"=>false, "bit64"=>true, "codec"=>true, "scout"=>true}
             try:
                 
                 filename = 'build/%s/build.zip' % self.platform
@@ -224,7 +220,6 @@ class VMAVTest:
                     r = c.build(factory, param, filename)
 
                 contentnames = unzip(filename, "build/%s" % self.platform)
-                #print "contents: %s" % contentnames
 
                 print "+ SUCCESS SCOUT BUILD"
                 return [n for n in contentnames if n.endswith('.exe')]
