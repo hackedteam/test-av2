@@ -156,6 +156,8 @@ def dispatch(args):
             results.append( dispatch_kind(vm_name, "silent") )
             sleep(random.randint(5,10))
             results.append( dispatch_kind(vm_name, "melt") )
+            sleep(random.randint(5,10))
+            results.append( dispatch_kind(vm_name, "exploit") )
         else:
             results.append( dispatch_kind(vm_name, kind) )
 

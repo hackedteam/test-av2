@@ -407,7 +407,8 @@ class VMAVTest:
         print "- Host: %s %s\n" % (self.hostname, time.ctime())
         operation = 'AVMonitor'
         target = 'VM_%s' % self.hostname
-        factory ='%s_%s_%s' % (self.hostname, self.ftype, self.kind)
+        # desktop_exploit_melt, desktop_scout_
+        factory ='%s_%s_%s_%s' % (self.hostname, self.ftype, self.platform, self.kind)
         config = "assets/config_%s.json" % self.ftype
 
         if not os.path.exists('build'):
