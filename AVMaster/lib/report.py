@@ -191,15 +191,15 @@ class Report:
 				l = r.split(",")
 
 				if len(l) == 3:
-					record['av']     = l[0]
-					record['kind']   = l[1].replace(" ","")
- 					record['result'] = l[2]
+					record['av']     = l[0].strip()
+					record['kind']   = l[1].replace(" ","").strip()
+ 					record['result'] = l[2].strip()
 					errors.append(record)
 
 				elif len(l) == 4:
-					record['av']     = l[0]
-					record['kind']   = l[1]
-					record['result'] = l[3].replace("\r\n","").replace("+","")
+					record['av']     = l[0].strip()
+					record['kind']   = l[1].strip()
+					record['result'] = l[3].replace("\r\n","").replace("+","").strip()
 
 					if "SUCCESS" in record['result']:
 						success.append(record)
@@ -213,7 +213,7 @@ class Report:
 		res_list["failed"]  = failed
 
 		print res_list
-		self._write_html_report( res_list, html_file)
+		self._write_html_report(res_list, html_file)
 
 	
 	def send_mail(self):
