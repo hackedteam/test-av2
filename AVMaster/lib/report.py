@@ -192,7 +192,7 @@ class Report:
 
 				if len(l) == 3:
 					record['av']     = l[0].strip()
-					record['kind']   = l[1].replace(" ","").strip()
+					record['kind']   = l[1].strip()
  					record['result'] = l[2].strip()
 					errors.append(record)
 
