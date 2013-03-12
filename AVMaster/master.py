@@ -145,7 +145,7 @@ def save_results(vm, kind):
         # avast) 2013-03-05 05:03:09,892: INFO: + FAILED ELITE INSTALL\r\n'
         return "%s, %s, %s" % (vm, kind, last)
     except Exception as e:
-        return "%s, ERROR saving results with exception: %s" % (vm,e)
+        return "%s, %s, ERROR saving results with exception: %s" % (vm, kind, e)
 
 def dispatch(args):
     try:

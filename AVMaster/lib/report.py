@@ -1,6 +1,7 @@
 import os
 import sys
 import smtplib
+import datetime
 
 from email.MIMEMultipart import MIMEMultipart
 from email.MIMEText import MIMEText
@@ -107,7 +108,7 @@ class Report:
 			<td>AV_KIND</td>
 			<td>AV_RESULT</td>
 			<td><a href="AV_TXT_LINK">txt report</td>
-			<td><a href="AV_SCREEN_LINK">screenshot</td></tr>
+			<td><a href="AV_SCREEN_LINK"><img src="AV_SCREEN_LINK" width=150 height=150></a></td></tr>
 		'''
 	
 		html_results = ""
@@ -125,18 +126,20 @@ class Report:
 	def _add_errors(self, errors):
 
 		html_table_head = '''
-		<table border=1 width=70% cellpadding=1 cellspacing=1>
-		<tr><td>AV</td>
-			<td>Error</td>
-			<td>TXT</td>
-			<td>Screenshot</td></tr>
-		'''
+		<table border=1 cellpadding=1 cellspacing=2 width=70%>
+			<tr><td with=15%>Virtual Machine</td>
+				<td with=15%>Kind of test</td>
+				<td width=50%>Result</td>
+				<td width=10%>TXT Report</td>
+				<td width=10%>Screenshot</td></tr>
+		'''	
 
 		html_section = '''
 		<tr><td>AV_NAME</td>
+			<td>AV_KIND</td>
 			<td>AV_ERROR</td>
 			<td><a href="AV_TXT_LINK">txt report</a></td>
-			<td><a href="AV_SCREEN_LINK">screenshot</a></tr>
+			<td><a href="AV_SCREEN_LINK"><img src="AV_SCREEN_LINK" width=150 height=150></a></td></tr>
 		'''
 
 		html_errs = html_table_head
@@ -144,6 +147,7 @@ class Report:
 		for e in errors:
 			html_table = html_section
 			html_table = html_table.replace( "AV_NAME", e['av'] )
+			html_table = html_table.replace("AV_KIND", e['kind'])
 			html_table = html_table.replace( "AV_ERROR", e['result'] )
 			html_table = html_table.replace( "AV_TXT_LINK", "results_%s_%s.txt" % (e['av'],e['kind']) )
 			html_table = html_table.replace( "AV_SCREEN_LINK", "screenshot_%s_%s.png" % (e['av'],e['kind']) )
@@ -160,6 +164,7 @@ class Report:
 
 		with open(html_file_name, 'wb') as f:
 			f.write("<html><body>")
+			f.write("<h2>%s</h2>" % datetime.datetime.now())
 
 			if len(result['failed']) > 0:
 				f.write( self._add_header("Failed") )
@@ -177,8 +182,7 @@ class Report:
 
 			f.write("</body></html>")
 
-	def save_html(self, html_file):
-		print "saving in %s" % html_file
+	def _get_results(self):
 		errors  = []
 		success = []
 		failed  = []
@@ -212,38 +216,61 @@ class Report:
 		res_list["errors"]  = errors
 		res_list["failed"]  = failed
 
-		print res_list
+		return res_list
+
+	def save_csv(self, csv_file):
+		print "Saving csv file with results in %s" % csv_file
+		res_list = self._get_results()
+
+
+	def save_html(self, html_file):
+		print "saving in %s" % html_file
+		res_list = self._get_results()
 		self._write_html_report(res_list, html_file)
 
 	
+	#def send_mail(self, report_link):
 	def send_mail(self):
-		if self.report is None:
+		if self.report is None: # or os.path.exists(report_link) is False:
 			return False
 		try:
+			res_list = self._get_results()
+
+			message = ''
+
+			for error in res_list['errors']:
+				message += '%s, %s, %s' % error['av'],error['kind'],error['result']
+
+			for fail in res_list['failed']:
+				message += '%s, %s, %s' % fail['av'],fail['kind'],fail['result']
+
+			for success in res_list['success']:
+				message += '%s, %s, %s' % success['av'],success['kind'],success['result']
+
+
 			msg = MIMEMultipart()
-			msg["Subject"] = "AV Monitor"
+			msg["Subject"] = "AV Monitor Results"
 			msg["From"] = "avmonitor@hackingteam.com"
 			msg["To"] = "olli@hackingteam.com,zeno@hackingteam.com"
-			#msg["To"] = "olli@hackingteam.com"
-			body = MIMEText(self.report)
+			body = MIMEText(message)
 			msg.attach(body)
 			smtp = smtplib.SMTP("mail.hackingteam.com", 25)
-			#smtp.sendmail(msg["From"], msg["To"].split(","), msg.as_string())
-			smtp.sendmail(msg["From"], msg["To"], msg.as_string())
+			smtp.sendmail(msg["From"], msg["To"].split(","), msg.as_string())
 			smtp.quit()
 			return True
 		except Exception as e:
 			print "[report:send mail] Impossible to send report via mail. Exception: %s" % e
 			return False
 	
-
+'''
 if __name__ == "__main__":
 	r = Report()
 
-	s = Report('/tmp/bozz',["GooD","b4d"])
+	s = Report(["GooD","b4d"])
 	# bad report class
-	assert r.save_file() is False
+	assert r.save_file("/tmp/file") is False
 	#assert r.send_mail() is False
 	# good report class
-	assert s.save_file() is None
+	assert s.save_file("/tmp/file") is None
 	assert s.send_mail() is True
+'''
