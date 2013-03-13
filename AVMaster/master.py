@@ -153,13 +153,13 @@ def dispatch(args):
         results = []
         print "DBG %s, %s" %(vm_name,kind)
         if kind == "all":
-            results.append( dispatch_kind(vm_name, "silent") )
+            results.append( dispatch_kind(vm_name, "silent", args.host) )
             sleep(random.randint(5,10))
-            results.append( dispatch_kind(vm_name, "melt") )
+            results.append( dispatch_kind(vm_name, "melt", args.host) )
             sleep(random.randint(5,10))
-            results.append( dispatch_kind(vm_name, "exploit") )
+            results.append( dispatch_kind(vm_name, "exploit", args.host) )
         else:
-            results.append( dispatch_kind(vm_name, kind) )
+            results.append( dispatch_kind(vm_name, kind, args.host) )
 
         return results
     except Exception as e:
@@ -167,7 +167,7 @@ def dispatch(args):
         print "DBG trace %s" % traceback.format_exc()
         return {'ERROR': e}
 
-def dispatch_kind(vm_name, kind):
+def dispatch_kind(vm_name, kind, host):
     
     vm = VMachine(vm_conf_file, vm_name)
     job_log(vm_name, "DISPATCH %s" % kind)
@@ -183,7 +183,7 @@ def dispatch_kind(vm_name, kind):
     test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
 
     # TODO: push this value, add a new option
-    host = "minotauro"
+    #host = "minotauro"
     #host = "polluce"
 
     buildbat = "build_%s_%s.bat" % (kind, host)
@@ -250,11 +250,7 @@ def push(args):
     
     test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
 
-    # TODO: push this value, add a new option
-    host = "minotauro"
-    #host = "polluce"
-
-    buildbat = "push_%s_%s.bat" % (kind, host)
+    buildbat = "push_%s_%s.bat" % (kind, args.host)
 
     filestocopy =[  "./%s" % buildbat,
                     "./push_all_minotauro.bat",
@@ -360,6 +356,8 @@ def main():
     parser.add_argument('-c', '--cmd', required=False,
         help="Run VMRUN command")
     parser.add_argument('-u', '--updatetime', default=50, type=int,
+        help="Update time in minutes")
+    parser.add_argument('-s', '--server', default='minotauro', choices=['minotauro', 'zeus', 'castore', 'polluce'],
         help="Update time in minutes")
     args = parser.parse_args()
 
