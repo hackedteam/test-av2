@@ -304,16 +304,20 @@ def check_infection_status(vm):
 
        
 def test(args):
-    results=[]
-    results.append(["emsisoft, silent, ERROR saving results with exception: [Errno 2] No such file or directory: 'repp/dispatch_20130307_0939/results_emsisoft_silent.txt'"])
-    results.append(['norton, silent, 2013-03-07 11:26:45, INFO: + SUCCESS ELITE UNINSTALLED\r\n'])
-    results.append(['mcafee, silent, 2013-03-07 11:00:04, INFO: + FAILED SCOUT SYNC\r\n'])
+    results = [
+    ['mcafee, silent, 2013-03-13 10:35:01, INFO: + FAILED SCOUT SYNC\r\n', 'mcafee, melt, 2013-03-13 10:55:48, INFO: + FAILED SCOUT SYNC\r\n', 'mcafee, exploit, 2013-03-13 11:15:42, INFO: + FAILED SCOUT SYNC\r\n'],
+    ['panda, silent, 2013-03-13 10:33:58, INFO: + FAILED SCOUT SYNC\r\n', 'panda, melt, 2013-03-13 11:19:53, INFO: + SUCCESS ELITE UNINSTALLED\r\n', 'panda, exploit, 2013-03-13 11:39:41, INFO: + FAILED SCOUT SYNC\r\n'],
+    ['msessential, silent, 2013-03-13 11:00:22, INFO: + SUCCESS ELITE UNINSTALLED\r\n', 'msessential, melt, 2013-03-13 11:46:53, INFO: + SUCCESS ELITE UNINSTALLED\r\n', 'msessential, exploit, 2013-03-13 12:09:36, INFO: + SUCCESS SCOUT SYNC\r\n'],
+    ['avira, silent, 2013-03-13 10:23:12, INFO: + FAILED SCOUT EXECUTE\r\n', 'avira, melt, 2013-03-13 10:43:13, INFO: + FAILED SCOUT SYNC\r\n', 'avira, exploit, 2013-03-13 11:03:46, INFO: + FAILED SCOUT SYNC\r\n'],
+    ['pctools, silent, 2013-03-13 11:00:04, INFO: + SUCCESS ELITE UNINSTALLED\r\n', 'pctools, melt, 2013-03-13 11:22:04, INFO: + FAILED SCOUT SYNC\r\n', 'pctools, exploit, 2013-03-13 11:42:11, INFO: + FAILED SCOUT SYNC\r\n'],
+    ["comodo, silent, ERROR saving results with exception: [Errno 2] No such file or directory: '/var/log/avmonitor/report/dispatch_20130313_0914/results_comodo_silent.txt'", "comodo, melt, ERROR saving results with exception: [Errno 2] No such file or directory: '/var/log/avmonitor/report/dispatch_20130313_0914/results_comodo_melt.txt'", "comodo, exploit, ERROR saving results with exception: [Errno 2] No such file or directory: '/var/log/avmonitor/report/dispatch_20130313_0914/results_comodo_exploit.txt'"]
+    ]
 
-    vm = VMachine(vm_conf_file, "panda")
-    vmman.executeCmd(vm,"C:\\Users\\avtest\\Desktop\\AVTEST\\build_silent_minotauro.bat")
+    r = Report(results)
+    r.send_report_color_mail()
 
-    #report("report.test.txt", results)
 
+    
 def wait_for_startup(vm, max_count=20):
     count = 0
     while not "vmtoolsd.exe" in vmman.listProcesses(vm):

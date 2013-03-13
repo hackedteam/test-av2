@@ -258,23 +258,88 @@ class Report:
 			print "[report:send mail] Impossible to send report via mail. Exception: %s" % e
 			return False
 
+
+	def _build_mail_body(self):
+
+		hresults = []
+
+		for av in self.results:
+			name = av[0].split(",")[0]
+			k = len(av)
+
+			hres = []
+			hres.append(name)
+
+			for ares in av:
+				r = ares.split(",")
+				j = len(r)
+				hres.append(r[j-1].strip())
+
+			hresults.append(hres)
+
+
+		header = "<table><tr><td>AV</td><td>Silent</td><td>Melt</td><td>Exploit</td></tr>"
+		line   = "<tr><td>AV_NAME</td><td bgcolor='SCOLOR'>&nbsp;</td><td bgcolor='MCOLOR'>&nbsp;</td><td bgcolor='ECOLOR'>&nbsp;</td></tr>"
+		footer = "</table>"
+
+		content = ""
+
+
+		with open("/tmp/color.html","wb+") as f:
+			content += header
+
+		for res in hresults:
+			l = line.replace("AV_NAME",res[0])
+
+
+			if "SUCCESS" in res[1]:
+				l = l.replace("SCOLOR","green")
+				print "%s SUCCESS" % res[0]
+			elif "FAILED" in res[1]:
+				print "%s FAILED" % res[0]
+				l = l.replace("SCOLOR","red")
+			elif "ERROR" in res[1]:
+				print "%s ERROR" % res[0]
+				l = l.replace("SCOLOR","black")
+
+
+			if "SUCCESS" in res[2]:
+				l = l.replace("MCOLOR","green")
+				print "%s SUCCESS" % res[0]
+			elif "FAILED" in res[2]:
+				l = l.replace("MCOLOR","red")
+				print "%s FAILED" % res[0]
+			elif "ERROR" in res[2]:
+				l = l.replace("MCOLOR","black")
+				print "%s ERROR" % res[0]
+
+
+			if "SUCCESS" in res[3]:
+				l = l.replace("ECOLOR","green")
+			elif "FAILED" in res[3]:
+				l = l.replace("ECOLOR","red")
+			elif "ERROR" in res[3]:
+				l = l.replace("ECOLOR","black")
+
+			content += l
+
+		content += footer
+
+		return content
+
+
 	
 	def send_report_color_mail(self):
-		if self.report is None: # or os.path.exists(report_link) is False:
-			return False
 
-		for report in self.report:
-			# test 1 is melt
-			# test 2 is silent
-			# test 3 is exploit
-			av_name = report[0].split(",")[0].strip()
+		content = self._build_mail_body()
+		
 
 		try:
 			msg = MIMEMultipart()
 			msg["Subject"] = "AV Monitor Results"
 			msg["From"] = "avmonitor@hackingteam.com"
 			msg["To"] = "olli@hackingteam.com,zeno@hackingteam.com"
-			body = MIMEText(message)
+			body = MIMEText(content, 'html')
 			msg.attach(body)
 			smtp = smtplib.SMTP("mail.hackingteam.com", 25)
 			smtp.sendmail(msg["From"], msg["To"].split(","), msg.as_string())
