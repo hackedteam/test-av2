@@ -24,7 +24,7 @@ def build_mail_body(results):
 
 
 	header = "<table><tr><td>AV</td><td>Silent</td><td>Melt</td><td>Exploit</td></tr>"
-	line   = "<tr><td>AV_NAME</td><td bgcolor='SCOLOR'>&nbsp;</td><td bgcolor='MCOLOR'>&nbsp;</td><td bgcolor='ECOLOR'>&nbsp;</td></tr>"
+	line   = "<tr><td>AV_NAME</td><td bgcolor='SCOLOR'><a href='#' class='fill-div'></td><td bgcolor='MCOLOR'><a href='#' class='fill-div'></td><td bgcolor='ECOLOR'><a href='#' class='fill-div'></td></tr>"
 	footer = "</table>"
 
 	content = ""

@@ -279,47 +279,79 @@ class Report:
 
 			hresults.append(hres)
 
+		style  = """
+<html>
+<style type'text/css'>
+#success-div {
+    background-color: green;
+    width: 20px;
+    height: 10px;
+}
+#error-div {
+    background-color: black;
+    width: 20px;
+    height: 10px;
+}
+#failed-div {
+    background-color: red;
+    width: 20px;
+    height: 10px;
+}
+a.fill-div {
+    display: block;
+    height: 100%;
+    width: 100%;
+    text-decoration: none;
+}
+</style>
+<body>		
+		"""
 		header = "<table><tr><td>AV</td><td>Silent</td><td>Melt</td><td>Exploit</td></tr>"
-		line   = "<tr><td>AV_NAME</td><td bgcolor='SCOLOR'>&nbsp;</td><td bgcolor='MCOLOR'>&nbsp;</td><td bgcolor='ECOLOR'>&nbsp;</td></tr>" % ()
-		footer = "</table><br><br><b>View full <a href'http://%s:%s/%s'>report</a><b>" % (host, port, report_file)
+		#line   = "<tr><td>AV_NAME</td><td bgcolor='SCOLOR'></td><td bgcolor='MCOLOR'></td><td bgcolor='ECOLOR'></td></tr>"
+		#line   = "<tr><td>AV_NAME</td><td bgcolor='SCOLOR'></td><td bgcolor='MCOLOR'></td><td bgcolor='ECOLOR'></td></tr>"
+		line   = "<tr><td>AV_NAME</td><td id='SWHAT-div'><a href='SLINK' class='fill-div'></td><td id='MWHAT-div'><a href='MLINK' class='fill-div'></td><td id='EWHAT-div'><a href='ELINK' class='fill-div'></td></tr>"
+		footer = "</table><br><br><b>View full <a href='http://%s:%s/%s'>report</a><b></body></html>" % (host, port, report_file)
 
-		content = ""
+		content = style
 
-		with open("/tmp/color.html","wb+") as f:
-			content += header
+		#with open("/tmp/color.html","wb+") as f:
+		content += header
 
 		for res in hresults:
 			l = line.replace("AV_NAME",res[0])
 
-
 			if "SUCCESS" in res[1]:
-				l = l.replace("SCOLOR","green")
-				print "%s SUCCESS" % res[0]
+				l = l.replace("SWHAT","success")
+				l = l.replace("SLINK", "http://%s:%s/%s/results_%s_silent.html" % (host, port, report_file.split("/")[-2],res[0]) )
 			elif "FAILED" in res[1]:
-				print "%s FAILED" % res[0]
-				l = l.replace("SCOLOR","red")
+				l = l.replace("SWHAT","failed")
+				l = l.replace("SLINK", "http://%s:%s/%s/results_%s_silent.html" % (host, port, report_file.split("/")[-2],res[0]) )
 			elif "ERROR" in res[1]:
-				print "%s ERROR" % res[0]
-				l = l.replace("SCOLOR","black")
-
+				l = l.replace("SWHAT","error")
+				l = l.replace("SLINK", "http://%s:%s/%s/results_%s_silent.html" % (host, port, report_file.split("/")[-2],res[0]) )
 
 			if "SUCCESS" in res[2]:
-				l = l.replace("MCOLOR","green")
-				print "%s SUCCESS" % res[0]
+				l = l.replace("MWHAT","success")
+				l = l.replace("MLINK", "http://%s:%s/%s/results_%s_melt.html" % (host, port, report_file.split("/")[-2],res[0]) )
 			elif "FAILED" in res[2]:
-				l = l.replace("MCOLOR","red")
-				print "%s FAILED" % res[0]
+				l = l.replace("MWHAT","failed")
+				l = l.replace("MLINK", "http://%s:%s/%s/results_%s_melt.html" % (host, port, report_file.split("/")[-2],res[0]) )
 			elif "ERROR" in res[2]:
-				l = l.replace("MCOLOR","black")
-				print "%s ERROR" % res[0]
+				l = l.replace("MWHAT","error")
+				l = l.replace("MLINK", "http://%s:%s/%s/results_%s_melt.html" % (host, port, report_file.split("/")[-2],res[0]) )
 
-
+			if "BLACKLISTED" in res[3]:
+				l = l.replace("EWHAT","success")
+				l = l.replace("ELINK", "http://%s:%s/%s/results_%s_exploit.html" % (host, port, report_file.split("/")[-2],res[0]) )				
 			if "SUCCESS" in res[3]:
-				l = l.replace("ECOLOR","green")
+				l = l.replace("EWHAT","success")
+				l = l.replace("ELINK", "http://%s:%s/%s/results_%s_exploit.html" % (host, port, report_file.split("/")[-2],res[0]) )
 			elif "FAILED" in res[3]:
-				l = l.replace("ECOLOR","red")
+				l = l.replace("EWHAT","failed")
+				l = l.replace("ELINK", "http://%s:%s/%s/results_%s_exploit.html" % (host, port, report_file.split("/")[-2],res[0]) )
 			elif "ERROR" in res[3]:
-				l = l.replace("ECOLOR","black")
+				l = l.replace("EWHAT","error")
+				l = l.replace("ELINK", "http://%s:%s/%s/results_%s_exploit.html" % (host, port, report_file.split("/")[-2],res[0]) )
 
 			content += l
 
