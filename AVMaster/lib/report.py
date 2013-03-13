@@ -259,13 +259,20 @@ class Report:
 			return False
 
 
-	def _build_mail_body(self, report_file):
+	def _build_mail_body(self,  url_dir):
 
 		hresults = []
+		hcolumns = ['name']
+
 		host = "172.20.20.167"
 		port = "8080"
 
-		for av in self.results:
+		report_file = "http://%s:%s/%s/report_dispatch.html" % ( host, port, url_dir )
+
+		sortedresults = sorted(self.results, key = lambda x: x[0][0])
+		print "DBG sorted %s" % sortedresults
+
+		for av in sortedresults:
 			name = av[0].split(",")[0]
 			k = len(av)
 
@@ -273,12 +280,15 @@ class Report:
 			hres.append(name)
 
 			for ares in av:
-				r = ares.split(",")
-				j = len(r)
-				hres.append(r[j-1].strip())
+				r = ares.split(", ")
+				hres.append(r[-1])
+				if r[1] not in hcolumns:
+					hcolumns.append(r[1])
 
 			hresults.append(hres)
 
+
+		print "DBG hresults %s" % hresults
 		style  = """
 <html>
 <style type'text/css'>
@@ -309,8 +319,10 @@ a.fill-div {
 		header = "<table><tr><td>AV</td><td>Silent</td><td>Melt</td><td>Exploit</td></tr>"
 		#line   = "<tr><td>AV_NAME</td><td bgcolor='SCOLOR'></td><td bgcolor='MCOLOR'></td><td bgcolor='ECOLOR'></td></tr>"
 		#line   = "<tr><td>AV_NAME</td><td bgcolor='SCOLOR'></td><td bgcolor='MCOLOR'></td><td bgcolor='ECOLOR'></td></tr>"
-		line   = "<tr><td>AV_NAME</td><td id='SWHAT-div'><a href='SLINK' class='fill-div'></td><td id='MWHAT-div'><a href='MLINK' class='fill-div'></td><td id='EWHAT-div'><a href='ELINK' class='fill-div'></td></tr>"
-		footer = "</table><br><br><b>View full <a href='http://%s:%s/%s'>report</a><b></body></html>" % (host, port, report_file)
+		linestart   = "<tr><td>%s</td>"
+		linetoken = "<td id='%s-div'><a href='%s' class='fill-div'></a></td>"
+		lineend = "</tr>"
+		footer = "</table><br><br><b>View full <a href='%s'>report</a><b></body></html>" % report_file
 
 		content = style
 
@@ -318,40 +330,18 @@ a.fill-div {
 		content += header
 
 		for res in hresults:
-			l = line.replace("AV_NAME",res[0])
+			rd = dict(zip(hcolumns,res))
+			print "DBG rd %s" % rd
+			#rd['name'], rd['silent'], rd['melt'], rd['exploit']
+			avname = rd['name']
+			l = linestart % avname
+			for col in hcolumns[1:]:
+				link = "http://%s:%s/%s/results_%s_%s.txt" % (host, port, url_dir, avname,col)
 
-			if "SUCCESS" in res[1]:
-				l = l.replace("SWHAT","success")
-				l = l.replace("SLINK", "http://%s:%s/%s/results_%s_silent.html" % (host, port, report_file.split("/")[-2],res[0]) )
-			elif "FAILED" in res[1]:
-				l = l.replace("SWHAT","failed")
-				l = l.replace("SLINK", "http://%s:%s/%s/results_%s_silent.html" % (host, port, report_file.split("/")[-2],res[0]) )
-			elif "ERROR" in res[1]:
-				l = l.replace("SWHAT","error")
-				l = l.replace("SLINK", "http://%s:%s/%s/results_%s_silent.html" % (host, port, report_file.split("/")[-2],res[0]) )
-
-			if "SUCCESS" in res[2]:
-				l = l.replace("MWHAT","success")
-				l = l.replace("MLINK", "http://%s:%s/%s/results_%s_melt.html" % (host, port, report_file.split("/")[-2],res[0]) )
-			elif "FAILED" in res[2]:
-				l = l.replace("MWHAT","failed")
-				l = l.replace("MLINK", "http://%s:%s/%s/results_%s_melt.html" % (host, port, report_file.split("/")[-2],res[0]) )
-			elif "ERROR" in res[2]:
-				l = l.replace("MWHAT","error")
-				l = l.replace("MLINK", "http://%s:%s/%s/results_%s_melt.html" % (host, port, report_file.split("/")[-2],res[0]) )
-
-			if "BLACKLISTED" in res[3]:
-				l = l.replace("EWHAT","success")
-				l = l.replace("ELINK", "http://%s:%s/%s/results_%s_exploit.html" % (host, port, report_file.split("/")[-2],res[0]) )				
-			if "SUCCESS" in res[3]:
-				l = l.replace("EWHAT","success")
-				l = l.replace("ELINK", "http://%s:%s/%s/results_%s_exploit.html" % (host, port, report_file.split("/")[-2],res[0]) )
-			elif "FAILED" in res[3]:
-				l = l.replace("EWHAT","failed")
-				l = l.replace("ELINK", "http://%s:%s/%s/results_%s_exploit.html" % (host, port, report_file.split("/")[-2],res[0]) )
-			elif "ERROR" in res[3]:
-				l = l.replace("EWHAT","error")
-				l = l.replace("ELINK", "http://%s:%s/%s/results_%s_exploit.html" % (host, port, report_file.split("/")[-2],res[0]) )
+				for kind in ["SUCCESS", "FAILED", "ERROR"]:
+					if kind in rd[col]:
+						l+= linetoken % (kind.lower(), link)
+			l += lineend
 
 			content += l
 
@@ -361,11 +351,8 @@ a.fill-div {
 
 
 	
-	def send_report_color_mail(self, html_file):
-
-		html_file_l = html_file.split("/")[-2:]
-		html_file = "%s/%s" % (html_file_l[0],html_file_l[1])
-		content = self._build_mail_body(html_file)
+	def send_report_color_mail(self,  url_dir):
+		content = self._build_mail_body(url_dir)
 
 		try:
 			msg = MIMEMultipart()

@@ -314,7 +314,7 @@ def test(args):
     ]
 
     r = Report(results)
-    r.send_report_color_mail(logdir)
+    r.send_report_color_mail('dispatch_20130313_0914')
 
 
     
@@ -441,7 +441,7 @@ def main():
         html_file = "%s/report_%s.html" % (logdir, args.action)
         if rep.save_html(html_file) is False:
             print "[!] Problem creating HTML Report!"
-        if rep.send_report_color_mail(html_file) is False:
+        if rep.send_report_color_mail(html_file, logdir.split('/')[-1]) is False:
             print "[!] Problem sending HTML email Report!"
     else:
         if rep.send_mail() is False:
