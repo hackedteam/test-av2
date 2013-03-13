@@ -22,6 +22,7 @@ vm_conf_file = os.path.join("conf", "vms.cfg")
 logdir = ""
 vmman = VMManagerVS(vm_conf_file)
 updatetime = 50
+server = ""
 
 
 def job_log(vm_name, status):
@@ -153,13 +154,13 @@ def dispatch(args):
         results = []
         print "DBG %s, %s" %(vm_name,kind)
         if kind == "all":
-            results.append( dispatch_kind(vm_name, "silent", args.host) )
+            results.append( dispatch_kind(vm_name, "silent") )
             sleep(random.randint(5,10))
-            results.append( dispatch_kind(vm_name, "melt", args.host) )
+            results.append( dispatch_kind(vm_name, "melt") )
             sleep(random.randint(5,10))
-            results.append( dispatch_kind(vm_name, "exploit", args.host) )
+            results.append( dispatch_kind(vm_name, "exploit") )
         else:
-            results.append( dispatch_kind(vm_name, kind, args.host) )
+            results.append( dispatch_kind(vm_name, kind) )
 
         return results
     except Exception as e:
@@ -167,7 +168,7 @@ def dispatch(args):
         print "DBG trace %s" % traceback.format_exc()
         return {'ERROR': e}
 
-def dispatch_kind(vm_name, kind, host):
+def dispatch_kind(vm_name, kind):
     
     vm = VMachine(vm_conf_file, vm_name)
     job_log(vm_name, "DISPATCH %s" % kind)
@@ -182,11 +183,7 @@ def dispatch_kind(vm_name, kind, host):
     
     test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
 
-    # TODO: push this value, add a new option
-    #host = "minotauro"
-    #host = "polluce"
-
-    buildbat = "build_%s_%s.bat" % (kind, host)
+    buildbat = "build_%s_%s.bat" % (kind, server)
 
     filestocopy =[  "./%s" % buildbat,
                     "lib/vmavtest.py",
@@ -250,7 +247,7 @@ def push(args):
     
     test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
 
-    buildbat = "push_%s_%s.bat" % (kind, args.host)
+    buildbat = "push_%s_%s.bat" % (kind, args.server)
 
     filestocopy =[  "./%s" % buildbat,
                     "./push_all_minotauro.bat",
@@ -382,6 +379,10 @@ def main():
     else:
         # get vm names
         vm_names = c.get("pool", "machines").split(",")
+
+    global server
+    server = args.server
+    print "DBG server: %s" % server
 
     [ job_log(v, "INIT") for v in vm_names ]
 
