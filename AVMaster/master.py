@@ -250,11 +250,7 @@ def push(args):
     
     test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
 
-    # TODO: push this value, add a new option
-    host = "minotauro"
-    #host = "polluce"
-
-    buildbat = "push_%s_%s.bat" % (kind, host)
+    buildbat = "push_%s_%s.bat" % (kind, args.host)
 
     filestocopy =[  "./%s" % buildbat,
                     "./push_all_minotauro.bat",
@@ -357,7 +353,7 @@ def main():
         help="Run VMRUN command")
     parser.add_argument('-u', '--updatetime', default=50, type=int,
         help="Update time in minutes")
-    parser.add_argument('-h', '--host', default='minotauro', choices=['minotauro', 'zeus', 'castore', 'polluce'],
+    parser.add_argument('-s', '--server', default='minotauro', choices=['minotauro', 'zeus', 'castore', 'polluce'],
         help="Update time in minutes")
     args = parser.parse_args()
 
