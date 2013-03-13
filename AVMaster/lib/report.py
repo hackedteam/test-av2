@@ -158,29 +158,36 @@ class Report:
 
 
 
-	def _write_html_report(self, result, html_file_name):
+	def _write_html_report(self, result, html_file_name=None):
 
 		html_table_closed = '</table>'
 
-		with open(html_file_name, 'wb') as f:
-			f.write("<html><body>")
-			f.write("<h2>%s</h2>" % datetime.datetime.now())
+		content  = ""
+		content += "<html><body>"
+		content += "<h2>%s</h2>" % datetime.datetime.now()
 
-			if len(result['failed']) > 0:
-				f.write( self._add_header("Failed") )
-				f.write( self._add_results(result['failed']) )
-				f.write( html_table_closed )
+		if len(result['failed']) > 0:
+			content +=  self._add_header("Failed") 
+			content +=  self._add_results(result['failed'] )
+			content +=  html_table_closed 
 
-			if len(result['errors']) > 0:
-				f.write( "<h2>Errors</h2>")
-				f.write( self._add_errors(result['errors']) )
+		if len(result['errors']) > 0:
+			content +=  "<h2>Errors</h2>"
+			content +=  self._add_errors(result['errors'])
 
-			if len(result['success']) > 0:
-				f.write( self._add_header("Success") )
-				f.write( self._add_results(result['success']) )
-				f.write( html_table_closed )
+		if len(result['success']) > 0:
+			content +=  self._add_header("Success") 
+			content +=  self._add_results(result['success'])
+			content +=  html_table_closed 
 
-			f.write("</body></html>")
+		content += "</body></html>"
+
+		if html_file_name is None:
+			return content
+		else:
+			f = open(html_file_name, 'wb') 
+			f.write(content)
+			f.close()
 
 	def _get_results(self):
 		errors  = []
@@ -223,30 +230,81 @@ class Report:
 		res_list = self._get_results()
 
 
-	def save_html(self, html_file):
+	def save_html(self, html_file, on_file=True):
 		print "saving in %s" % html_file
 		res_list = self._get_results()
-		self._write_html_report(res_list, html_file)
-
+		if on_file is True:
+			self._write_html_report(res_list, html_file)
+		else:
+			self._write_html_report(res_list)
 	
-	#def send_mail(self, report_link):
 	def send_mail(self):
-		if self.report is None: # or os.path.exists(report_link) is False:
+		if self.report is None:
 			return False
 		try:
-			res_list = self._get_results()
+			msg = MIMEMultipart()
+			msg["Subject"] = "AV Monitor"
+			msg["From"] = "avmonitor@hackingteam.com"
+			msg["To"] = "olli@hackingteam.com,zeno@hackingteam.com"
+			#msg["To"] = "olli@hackingteam.com"
+			body = MIMEText(self.report)
+			msg.attach(body)
+			smtp = smtplib.SMTP("mail.hackingteam.com", 25)
+			#smtp.sendmail(msg["From"], msg["To"].split(","), msg.as_string())
+			smtp.sendmail(msg["From"], msg["To"], msg.as_string())
+			smtp.quit()
+			return True
+		except Exception as e:
+			print "[report:send mail] Impossible to send report via mail. Exception: %s" % e
+			return False
 
-			message = ''
+	
+	def send_report_color_mail(self):
+		if self.report is None: # or os.path.exists(report_link) is False:
+			return False
 
-			for error in res_list['errors']:
-				message += '%s, %s, %s' % error['av'],error['kind'],error['result']
+		for report in self.report:
+			# test 1 is melt
+			# test 2 is silent
+			# test 3 is exploit
+			av_name = report[0].split(",")[0].strip()
 
-			for fail in res_list['failed']:
-				message += '%s, %s, %s' % fail['av'],fail['kind'],fail['result']
+		try:
+			msg = MIMEMultipart()
+			msg["Subject"] = "AV Monitor Results"
+			msg["From"] = "avmonitor@hackingteam.com"
+			msg["To"] = "olli@hackingteam.com,zeno@hackingteam.com"
+			body = MIMEText(message)
+			msg.attach(body)
+			smtp = smtplib.SMTP("mail.hackingteam.com", 25)
+			smtp.sendmail(msg["From"], msg["To"].split(","), msg.as_string())
+			smtp.quit()
+			return True
+		except Exception as e:
+			print "[report:send mail] Impossible to send report via mail. Exception: %s" % e
+			return False
 
-			for success in res_list['success']:
-				message += '%s, %s, %s' % success['av'],success['kind'],success['result']
+	def send_report_mail(self):
+		if self.report is None: # or os.path.exists(report_link) is False:
+			return False
 
+		res_list = self._get_results()
+
+		message = ''
+
+		for error in res_list['errors']:
+			print error
+			message += "%s, %s, %s\n" % (error['av'],error['kind'],error['result'])
+		print "\n\n"
+
+		for fail in res_list['failed']:
+			message += "%s, %s, %s\n" % (fail['av'],fail['kind'],fail['result'])
+		print "\n\n"
+
+		for success in res_list['success']:
+			message += "%s, %s, %s\n" % (success['av'],success['kind'],success['result'])
+
+		try:
 
 			msg = MIMEMultipart()
 			msg["Subject"] = "AV Monitor Results"
@@ -262,15 +320,25 @@ class Report:
 			print "[report:send mail] Impossible to send report via mail. Exception: %s" % e
 			return False
 	
-'''
-if __name__ == "__main__":
-	r = Report()
+	def send_html_mail(self):
+		res_list = self._get_results()
+		message = self._write_html_report(res_list)
 
-	s = Report(["GooD","b4d"])
-	# bad report class
-	assert r.save_file("/tmp/file") is False
-	#assert r.send_mail() is False
-	# good report class
-	assert s.save_file("/tmp/file") is None
-	assert s.send_mail() is True
-'''
+		try:
+
+			msg = MIMEMultipart()
+			msg["Subject"] = "AV Monitor Results"
+			msg["From"] = "avmonitor@hackingteam.com"
+			msg["To"] = "olli@hackingteam.com,zeno@hackingteam.com"
+			body = MIMEText(message, 'html')
+			msg.attach(body)
+			smtp = smtplib.SMTP("mail.hackingteam.com", 25)
+			smtp.sendmail(msg["From"], msg["To"].split(","), msg.as_string())
+			smtp.quit()
+			return True
+		except Exception as e:
+			print "[report:send mail] Impossible to send report via mail. Exception: %s" % e
+			return False
+
+
+

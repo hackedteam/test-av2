@@ -208,7 +208,7 @@ def dispatch_kind(vm_name, kind):
         job_log(vm_name, "ENVIRONMENT")
         
         # executing bat synchronized
-        executed = vmman.executeCmd(vm, "%s\\%s" % (test_dir, buildbat))
+        executed = vmman.executeCmd(vm, "%s\\%s" % (test_dir, buildbat), interactive=True)
         job_log(vm_name, "EXECUTED %s" % kind)
 
         if executed is False:
@@ -316,8 +316,8 @@ def test(args):
     results.append(['norton, silent, 2013-03-07 11:26:45, INFO: + SUCCESS ELITE UNINSTALLED\r\n'])
     results.append(['mcafee, silent, 2013-03-07 11:00:04, INFO: + FAILED SCOUT SYNC\r\n'])
 
-    r = Report(results)
-    r.save_html('/tmp/test.html')
+    vm = VMachine(vm_conf_file, "panda")
+    vmman.executeCmd(vm,"C:\\Users\\avtest\\Desktop\\AVTEST\\build_silent_minotauro.bat")
 
     #report("report.test.txt", results)
 
@@ -433,12 +433,16 @@ def main():
     rep = Report(results)
     rep.save_file("%s/master_%s.txt" % (logdir, args.action))
 
-    if rep.send_mail() is False:
-        print "[!] Problem sending mail!"
     
     if args.action == "dispatch":
         if rep.save_html("%s/report_%s.html" % (logdir, args.action)) is False:
             print "[!] Problem creating HTML Report!"
+        if rep.send_report_mail() is False:
+            print "[!] Problem sending HTML email Report!"
+    else:
+        if rep.send_mail() is False:
+            print "[!] Problem sending mail!"
+
     
     os.system('sudo ./net_disable.sh')    
     print "[!] Disabling NETWORKING!"
