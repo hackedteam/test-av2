@@ -259,9 +259,11 @@ class Report:
 			return False
 
 
-	def _build_mail_body(self):
+	def _build_mail_body(self, report_file):
 
 		hresults = []
+		host = "172.20.20.167"
+		port = "8080"
 
 		for av in self.results:
 			name = av[0].split(",")[0]
@@ -277,13 +279,11 @@ class Report:
 
 			hresults.append(hres)
 
-
 		header = "<table><tr><td>AV</td><td>Silent</td><td>Melt</td><td>Exploit</td></tr>"
-		line   = "<tr><td>AV_NAME</td><td bgcolor='SCOLOR'>&nbsp;</td><td bgcolor='MCOLOR'>&nbsp;</td><td bgcolor='ECOLOR'>&nbsp;</td></tr>"
-		footer = "</table>"
+		line   = "<tr><td>AV_NAME</td><td bgcolor='SCOLOR'>&nbsp;</td><td bgcolor='MCOLOR'>&nbsp;</td><td bgcolor='ECOLOR'>&nbsp;</td></tr>" % ()
+		footer = "</table><br><br><b>View full <a href'http://%s:%s/%s'>report</a><b>" % (host, port, report_file)
 
 		content = ""
-
 
 		with open("/tmp/color.html","wb+") as f:
 			content += header
@@ -329,10 +329,11 @@ class Report:
 
 
 	
-	def send_report_color_mail(self):
+	def send_report_color_mail(self, html_file):
 
-		content = self._build_mail_body()
-		
+		html_file_l = html_file.split("/")[-2:]
+		html_file = "%s/%s" % (html_file_l[0],html_file_l[1])
+		content = self._build_mail_body(html_file)
 
 		try:
 			msg = MIMEMultipart()
