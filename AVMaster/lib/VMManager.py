@@ -23,6 +23,7 @@ class VMManagerVS:
 					"-T", "vc",
 					"-h", self.host,
 					"-u", self.user, "-p", self.passwd, cmd, vmx.path ]
+
 		if vmx_creds != [] and len(vmx_creds) == 2:
 			idx = pargs.index("-p")+2
 			cred = "-gu %s -gp %s" % ( vmx_creds[0], vmx_creds[1] )
@@ -143,12 +144,18 @@ class VMManagerVS:
 		sys.stdout.write("[%s] Copying file from %s to %s.\n" % (vmx, src_file, dst_file))
 		self._run_cmd(vmx, "CopyFileFromGuestToHost", [src_file, dst_file], [vmx.user, vmx.passwd])
 
-	def executeCmd(self, vmx, cmd, args=[], timeout=40): 
+	def executeCmd(self, vmx, cmd, args=[], timeout=40, interactive=False): 
 		sys.stdout.write("[%s] Executing %s\n" % (vmx,cmd))
 		cmds = []
+		if interactive is True:
+			cmds.append("-interactive")
 		cmds.append(cmd)
 		cmds.extend(args)
-		return self._run_cmd(vmx, "runProgramInGuest", cmds, [vmx.user, vmx.passwd], popen=True, timeout=timeout)
+		return self._run_cmd(vmx, 
+							 "runProgramInGuest", 
+							 cmds, 
+							 [vmx.user, vmx.passwd], 
+							 popen=True, timeout=timeout)
 
 	def listProcesses(self, vmx):
 		sys.stdout.write("[%s] List processes\n" % vmx)
