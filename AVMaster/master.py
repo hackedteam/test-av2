@@ -10,10 +10,10 @@ import traceback
 
 from lib.VMachine import VMachine
 from lib.VMManager import VMManagerVS
+from lib.SphereManager import vSphereManager
 from lib.report import Report
 #from lib.logger import logger
 import lib.logger
-
 
 vm_conf_file = os.path.join("conf", "vms.cfg")
 
@@ -23,7 +23,6 @@ logdir = ""
 vmman = VMManagerVS(vm_conf_file)
 updatetime = 50
 server = ""
-
 
 def job_log(vm_name, status):
     print "+ %s: %s" % (vm_name, status)
@@ -37,7 +36,7 @@ def update(args):
         vmman.revertLastSnapshot(vm)
         job_log(vm_name, "REVERTED")
 
-        sleep(random.randint(10,60))
+        sleep(random.randint(60,60*10))
         vmman.startup(vm)
         job_log(vm_name, "STARTED")
 
@@ -89,7 +88,6 @@ def update(args):
         job_log(vm_name, "ERROR")
         print "DBG trace %s" % traceback.format_exc()
         return "%s, ERROR: not updated. Reason: %s" % (vm_name, e)
-
 
 def revert(args):
     vm_name = args[0]
@@ -176,9 +174,9 @@ def dispatch_kind(vm_name, kind):
     vmman.revertLastSnapshot(vm)
     job_log(vm_name, "REVERTED")
 
-    sleep(5)
+    sleep(random.randint(30, 5 * 60))
     vmman.startup(vm)
-    sleep(5* 60)
+    sleep(5 * 60)
     job_log(vm_name, "STARTUP")
     
     test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
@@ -243,7 +241,7 @@ def push(args):
     #sleep(5)
     #vmman.startup(vm)
     #sleep(5* 60)
-    job_log(vm_name, "STARTUP")
+    #job_log(vm_name, "STARTUP")
     
     test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
 
@@ -301,9 +299,9 @@ def check_infection_status(vm):
         return True
     return False
     #if vmman.listDirectoryInGuest(vm) is None:
-
        
 def test(args):
+    '''
     results = [
     ['avira, silent, 2013-03-14 10:14:33, INFO: + FAILED SCOUT EXECUTE\r\n', 'avira, melt, 2013-03-14 10:39:00, INFO: + FAILED SCOUT SYNC\r\n', 'avira, exploit, 2013-03-14 11:00:29, INFO: + FAILED SCOUT SYNC\r\n'],
     ['eset, silent, 2013-03-14 10:23:26, INFO: + FAILED SCOUT SYNC\r\n', 'eset, melt, 2013-03-14 10:46:24, INFO: + FAILED SCOUT SYNC\r\n', 'eset, exploit, 2013-03-14 11:12:24, INFO: + FAILED SCOUT SYNC\r\n'],
@@ -328,16 +326,36 @@ def test(args):
     ]
 
     r = Report(results)
+<<<<<<< HEAD
     r.send_report_color_mail('dispatch_20130314_0900')
+=======
+    r.send_report_color_mail('dispatch_20130313_0914')
+    '''
+    conf = ConfigParser()
+    conf.read(vm_conf_file)
+    vsphere = vSphereManager( conf.get("vsphere", "host"),
+                              conf.get("vsphere", "user"),
+                              conf.get("vsphere", "passwd") )
+>>>>>>> refs/heads/sphere
 
+    vsphere.connect()
+    vm_path = conf.get("vms","zenovm")
 
+    vm = vsphere.get_vm(vm_path)
+
+    print "logging in"
+    vsphere.login_in_guest(vm, "avtest", "avtest")
+    print "ok. logged in"
+
+    vsphere.execute_cmd(vm, "c:\\windows\\system32\\shutdown.exe", ["/s", "/t", "0"])
+    print "executed"
     
-def wait_for_startup(vm, max_count=20):
+def wait_for_startup(vm, max_minute=20):
     count = 0
     while not "vmtoolsd.exe" in vmman.listProcesses(vm):
-        sleep(60)
+        sleep(20)
         count+=1
-        if count > max_count:
+        if count > max_minute*3:
             return False
     return True
 
@@ -461,10 +479,8 @@ def main():
         if rep.send_mail() is False:
             print "[!] Problem sending mail!"
 
-    
     os.system('sudo ./net_disable.sh')    
     print "[!] Disabling NETWORKING!"
-
 
 if __name__ == "__main__":	
     main()

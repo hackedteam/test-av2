@@ -321,15 +321,19 @@ a.fill-div {
 </style>
 <body>		
 		"""
+<<<<<<< HEAD
 		header    = "<table><tr><td>AV</td><td>Silent</td><td>Melt</td><td>Exploit</td></tr>"
 		linestart = "<tr><td>%s</td>"
+=======
+		header = "<table><tr><td>AV</td><td>Silent</td><td>Melt</td><td>Exploit</td></tr>"
+		linestart   = "<tr><td>%s</td>"
+>>>>>>> refs/heads/sphere
 		linetoken = "<td id='%s-div'><a href='%s' class='fill-div'></a></td>"
 		lineend   = "</tr>"
 		footer    = "</table><br><br><b>View full <a href='%s'>report</a><b></body></html>" % report_file
 
-		content = style
+		content = style 
 
-		#with open("/tmp/color.html","wb+") as f:
 		content += header
 
 		for res in hresults:
