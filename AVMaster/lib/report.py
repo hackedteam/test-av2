@@ -321,13 +321,11 @@ a.fill-div {
 </style>
 <body>		
 		"""
-		header = "<table><tr><td>AV</td><td>Silent</td><td>Melt</td><td>Exploit</td></tr>"
-		#line   = "<tr><td>AV_NAME</td><td bgcolor='SCOLOR'></td><td bgcolor='MCOLOR'></td><td bgcolor='ECOLOR'></td></tr>"
-		#line   = "<tr><td>AV_NAME</td><td bgcolor='SCOLOR'></td><td bgcolor='MCOLOR'></td><td bgcolor='ECOLOR'></td></tr>"
-		linestart   = "<tr><td>%s</td>"
+		header    = "<table><tr><td>AV</td><td>Silent</td><td>Melt</td><td>Exploit</td></tr>"
+		linestart = "<tr><td>%s</td>"
 		linetoken = "<td id='%s-div'><a href='%s' class='fill-div'></a></td>"
-		lineend = "</tr>"
-		footer = "</table><br><br><b>View full <a href='%s'>report</a><b></body></html>" % report_file
+		lineend   = "</tr>"
+		footer    = "</table><br><br><b>View full <a href='%s'>report</a><b></body></html>" % report_file
 
 		content = style
 
