@@ -56,14 +56,33 @@ class vSphereManager:
 	def get_snapshots(self, vm):
 		return self._run_cmd(vm, "get_snapshots", True)
 
-	def revert_to_snapshot(self, vm):
+	def list_snapshots(self, vm):
+		return self._run_cmd(vm, "get_snapshots", False)
+
+	def revert_last_snapshot(self, vm):
 		return self._run_cmd(vm, "revert_to_snapshot", True)
 
 	def create_snapshot(self, vm, name):
 		return self._run_cmd(vm, "create_snapshot", True, name)
 
 	def delete_snapshot(self, vm, name):
-		return self._run_cmd("delete_named_snapshot", True, name)
+		return self._run_cmd(vm, "delete_named_snapshot", True, name)
+
+	def refresh_snapshot(self, vm, delete=True):
+		untouchables = [ "ready", "activated", "_datarecovery_" ]
+		date = datetime.now().strftime('%Y%m%d-%H%M')
+		self.create_snapshot(vm, date)
+		if delete is True:
+			snap_list = self.list_snapshots(vm)
+			for snap in snap_list:
+				print snap.get_name()
+			if len(snap_list) > 0 and snap_list[-2].get_name() not in untouchables and "manual" not in snap_list[-2].get_name():
+				print "DBG deleting %s" % snap_list[-2].get_name()
+				self.delete_snapshot(vm, snap_list[-2].get_name())
+
+	def execute_cmd(self, vm, cmd, args=[]):
+		return self._run_cmd(vm, "start_process", False, cmd, args)
+
 
 class oldSphereManager:
 

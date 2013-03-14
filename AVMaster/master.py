@@ -325,27 +325,12 @@ def test(args):
 
     vm = vsphere.get_vm(vm_path)
 
-    print "powering on"
-    #vsphere.power_on(vm)
-
     print "logging in"
     vsphere.login_in_guest(vm, "avtest", "avtest")
-
-    #vm.login_in_guest("avtest","avtest")
     print "ok. logged in"
-    vsphere.make_directory(vm, "C:\\Users\\avtest\\Desktop\\tettest")
-    print "powering off"
-    '''
-    vsphere.power_off(vm)
-    sleep(60)
-    vsphere.create_snapshot(vm, "nuu")
-    vpshere.delete_snapshot(vm, "pysphere_test")
-    '''
 
-
-
-
-
+    vsphere.execute_cmd(vm, "c:\\windows\\system32\\shutdown.exe", ["/s", "/t", "0"])
+    print "executed"
     
 def wait_for_startup(vm, max_minute=20):
     count = 0
@@ -470,7 +455,7 @@ def main():
         html_file = "%s/report_%s.html" % (logdir, args.action)
         if rep.save_html(html_file) is False:
             print "[!] Problem creating HTML Report!"
-        if rep.send_report_color_mail(html_file, logdir.split('/')[-1]) is False:
+        if rep.send_report_color_mail(logdir.split('/')[-1]) is False:
             print "[!] Problem sending HTML email Report!"
     else:
         if rep.send_mail() is False:
