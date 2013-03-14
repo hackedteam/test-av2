@@ -14,7 +14,6 @@ from lib.report import Report
 #from lib.logger import logger
 import lib.logger
 
-
 vm_conf_file = os.path.join("conf", "vms.cfg")
 
 # get configuration for AV update process (exe, vms, etc)
@@ -23,7 +22,6 @@ logdir = ""
 vmman = VMManagerVS(vm_conf_file)
 updatetime = 50
 server = ""
-
 
 def job_log(vm_name, status):
     print "+ %s: %s" % (vm_name, status)
@@ -37,7 +35,7 @@ def update(args):
         vmman.revertLastSnapshot(vm)
         job_log(vm_name, "REVERTED")
 
-        sleep(random.randint(10,60))
+        sleep(random.randint(60,60*10))
         vmman.startup(vm)
         job_log(vm_name, "STARTED")
 
@@ -89,7 +87,6 @@ def update(args):
         job_log(vm_name, "ERROR")
         print "DBG trace %s" % traceback.format_exc()
         return "%s, ERROR: not updated. Reason: %s" % (vm_name, e)
-
 
 def revert(args):
     vm_name = args[0]
@@ -176,9 +173,9 @@ def dispatch_kind(vm_name, kind):
     vmman.revertLastSnapshot(vm)
     job_log(vm_name, "REVERTED")
 
-    sleep(5)
+    sleep(random.randint(30, 5 * 60))
     vmman.startup(vm)
-    sleep(5* 60)
+    sleep(5 * 60)
     job_log(vm_name, "STARTUP")
     
     test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
@@ -301,7 +298,6 @@ def check_infection_status(vm):
         return True
     return False
     #if vmman.listDirectoryInGuest(vm) is None:
-
        
 def test(args):
     results = [
@@ -315,15 +311,13 @@ def test(args):
 
     r = Report(results)
     r.send_report_color_mail('dispatch_20130313_0914')
-
-
     
-def wait_for_startup(vm, max_count=20):
+def wait_for_startup(vm, max_minute=20):
     count = 0
     while not "vmtoolsd.exe" in vmman.listProcesses(vm):
-        sleep(60)
+        sleep(20)
         count+=1
-        if count > max_count:
+        if count > max_minute*3:
             return False
     return True
 
@@ -447,10 +441,8 @@ def main():
         if rep.send_mail() is False:
             print "[!] Problem sending mail!"
 
-    
     os.system('sudo ./net_disable.sh')    
     print "[!] Disabling NETWORKING!"
-
 
 if __name__ == "__main__":	
     main()
