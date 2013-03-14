@@ -10,6 +10,7 @@ import traceback
 
 from lib.VMachine import VMachine
 from lib.VMManager import VMManagerVS
+from lib.SphereManager import vSphereManager
 from lib.report import Report
 #from lib.logger import logger
 import lib.logger
@@ -240,7 +241,7 @@ def push(args):
     #sleep(5)
     #vmman.startup(vm)
     #sleep(5* 60)
-    job_log(vm_name, "STARTUP")
+    #job_log(vm_name, "STARTUP")
     
     test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
 
@@ -300,6 +301,7 @@ def check_infection_status(vm):
     #if vmman.listDirectoryInGuest(vm) is None:
        
 def test(args):
+    '''
     results = [
     ['mcafee, silent, 2013-03-13 10:35:01, INFO: + FAILED SCOUT SYNC\r\n', 'mcafee, melt, 2013-03-13 10:55:48, INFO: + FAILED SCOUT SYNC\r\n', 'mcafee, exploit, 2013-03-13 11:15:42, INFO: + FAILED SCOUT SYNC\r\n'],
     ['panda, silent, 2013-03-13 10:33:58, INFO: + FAILED SCOUT SYNC\r\n', 'panda, melt, 2013-03-13 11:19:53, INFO: + SUCCESS ELITE UNINSTALLED\r\n', 'panda, exploit, 2013-03-13 11:39:41, INFO: + FAILED SCOUT SYNC\r\n'],
@@ -311,6 +313,39 @@ def test(args):
 
     r = Report(results)
     r.send_report_color_mail('dispatch_20130313_0914')
+    '''
+    conf = ConfigParser()
+    conf.read(vm_conf_file)
+    vsphere = vSphereManager( conf.get("vsphere", "host"),
+                              conf.get("vsphere", "user"),
+                              conf.get("vsphere", "passwd") )
+
+    vsphere.connect()
+    vm_path = conf.get("vms","zenovm")
+
+    vm = vsphere.get_vm(vm_path)
+
+    print "powering on"
+    #vsphere.power_on(vm)
+
+    print "logging in"
+    vsphere.login_in_guest(vm, "avtest", "avtest")
+
+    #vm.login_in_guest("avtest","avtest")
+    print "ok. logged in"
+    vsphere.make_directory(vm, "C:\\Users\\avtest\\Desktop\\tettest")
+    print "powering off"
+    '''
+    vsphere.power_off(vm)
+    sleep(60)
+    vsphere.create_snapshot(vm, "nuu")
+    vpshere.delete_snapshot(vm, "pysphere_test")
+    '''
+
+
+
+
+
     
 def wait_for_startup(vm, max_minute=20):
     count = 0

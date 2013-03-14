@@ -14,51 +14,56 @@ class vSphereManager:
 		# add trace_file=True to debug SOAP request/response
 		self.server.connect(self.hostname, self.username, self.password)
 
-	def _run_cmd(self, vm, func, params=None, task=False):
-		f = getattr(vm, func)
+	def _run_cmd(self, vm, func, task, *params):
+		try:
+			f = getattr(vm, func)
 
-		if task is True:
-			if params is None:
-				task = f(sync_run=False)
+			if task is True:
+				if len(params) is None:
+					task = f(sync_run=False)
+				else:
+					task = f(sync_run=False, *params)
+				return task
 			else:
-				task = f(params,sync_run=False)
-			return task
-		else:
-			if params is None:
-				return f
-			else:
-				return f(params)
+				if len(params) is None:
+					return f
+				else:
+					return f( *params )
+		except Exception as e:
+			print "%s, ERROR: Problem running %s. Reason: %s" % (vm.get_property('name'), func, e)
+
+	def get_vm(self, vm_path):
+		return self.server.get_vm_by_path(vm_path)
 
 	def power_on(self, vm):
-		return self._run_cmd(vm, "power_on", task=True)
+		return self._run_cmd(vm, "power_on", True)
 
 	def power_off(self, vm):
-		return self._run_cmd(vm, "power_off", task=True)
+		return self._run_cmd(vm, "power_off", True)
 
 	def suspend(self, vm):
-		return self._run_cmd(vm, "power_on", task=True)
+		return self._run_cmd(vm, "power_on", True)
 
 	def login_in_guest(self, vm, user, passwd):
-		params = [ user, passwd ]
-		return self._run_cmd(vm, "login_in_guest", passwd)
+		return self._run_cmd(vm, "login_in_guest", False, user, passwd)
 
 	def make_directory(self, vm, dst_dir):
-		return self._run_cmd(vm, "make_directory", dst_dir)
+		return self._run_cmd(vm, "make_directory", False, dst_dir)
 
 	def send_file(self, vm, src_file, dst_file):
-		return self._run_cmd(vm, "send_file", [ src_file, dst_file ])
+		return self._run_cmd(vm, "send_file", False, src_file, dst_file )
 
 	def get_snapshots(self, vm):
-		return self._run_cmd(vm, "get_snapshots", task=True)
+		return self._run_cmd(vm, "get_snapshots", True)
 
 	def revert_to_snapshot(self, vm):
-		return self._run_cmd(vm, "revert_to_snapshot", task=True)
+		return self._run_cmd(vm, "revert_to_snapshot", True)
 
 	def create_snapshot(self, vm, name):
-		return self._run_cmd(vm, "create_snapshot", [ name ], task=True)
+		return self._run_cmd(vm, "create_snapshot", True, name)
 
 	def delete_snapshot(self, vm, name):
-		return self._run_cmd("delete_named_snapshot", [ name ], task=True)
+		return self._run_cmd("delete_named_snapshot", True, name)
 
 class oldSphereManager:
 
