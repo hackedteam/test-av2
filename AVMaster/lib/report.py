@@ -307,6 +307,11 @@ class Report:
     width: 20px;
     height: 10px;
 }
+#blacklisted-div {
+	background-color: grey;
+	width: 20px;
+	height: 10px;
+}
 a.fill-div {
     display: block;
     height: 100%;
@@ -338,9 +343,10 @@ a.fill-div {
 			for col in hcolumns[1:]:
 				link = "http://%s:%s/%s/results_%s_%s.txt" % (host, port, url_dir, avname,col)
 
-				for kind in ["SUCCESS", "FAILED", "ERROR"]:
+				for kind in ["BLACKLISTED", "SUCCESS", "FAILED", "ERROR"]:
 					if kind in rd[col]:
 						l+= linetoken % (kind.lower(), link)
+						break
 			l += lineend
 
 			content += l
