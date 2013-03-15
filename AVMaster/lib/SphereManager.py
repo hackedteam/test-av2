@@ -4,11 +4,11 @@ from pysphere import VIServer
 
 
 class vSphereManager:
-	def __init__(self, host, user, passwd):
-		self.hostname = host
-		self.username = user
-		self.password = passwd
-		self.server = VIServer()
+	def __init__(self, vm_conf_file): # host, user, passwd):
+		self.hostname = conf.get("vsphere", "host")
+		self.username = conf.get("vsphere", "user")
+		self.password = conf.get("vsphere", "passwd")
+		self.server   = VIServer()
 
 	def connect(self):
 		# add trace_file=True to debug SOAP request/response
@@ -32,13 +32,31 @@ class vSphereManager:
 		except Exception as e:
 			print "%s, ERROR: Problem running %s. Reason: %s" % (vm.get_property('name'), func, e)
 
+	#	FUNCTIONS
+
+	def refresh_snapshot(self, vm, delete=True):
+		untouchables = [ "ready", "activated", "_datarecovery_" ]
+		date = datetime.now().strftime('%Y%m%d-%H%M')
+		self.create_snapshot(vm, date)
+		if delete is True:
+			snap_list = self.list_snapshots(vm)
+			for snap in snap_list:
+				print snap.get_name()
+			if len(snap_list) > 0 and snap_list[-2].get_name() not in untouchables and "manual" not in snap_list[-2].get_name():
+				print "DBG deleting %s" % snap_list[-2].get_name()
+				self.delete_snapshot(vm, snap_list[-2].get_name())
+
+
+
+	#	BASIC COMMANDS
+
 	def get_vm(self, vm_path):
 		return self.server.get_vm_by_path(vm_path)
 
-	def power_on(self, vm):
+	def startup(self, vm):
 		return self._run_cmd(vm, "power_on", True)
 
-	def power_off(self, vm):
+	def shutdown(self, vm):
 		return self._run_cmd(vm, "power_off", True)
 
 	def suspend(self, vm):
@@ -68,20 +86,51 @@ class vSphereManager:
 	def delete_snapshot(self, vm, name):
 		return self._run_cmd(vm, "delete_named_snapshot", True, name)
 
-	def refresh_snapshot(self, vm, delete=True):
-		untouchables = [ "ready", "activated", "_datarecovery_" ]
-		date = datetime.now().strftime('%Y%m%d-%H%M')
-		self.create_snapshot(vm, date)
-		if delete is True:
-			snap_list = self.list_snapshots(vm)
-			for snap in snap_list:
-				print snap.get_name()
-			if len(snap_list) > 0 and snap_list[-2].get_name() not in untouchables and "manual" not in snap_list[-2].get_name():
-				print "DBG deleting %s" % snap_list[-2].get_name()
-				self.delete_snapshot(vm, snap_list[-2].get_name())
+	#	PROCESS
 
-	def execute_cmd(self, vm, cmd, args=[]):
+	def start_process(self, vm, cmd, args=[]):
 		return self._run_cmd(vm, "start_process", False, cmd, args)
+
+	def terminate_process(self, vm, pid):
+		return self._run_cmd(vm, "terminate_process", False, pid)
+
+	def list_processes(self, vm):
+		return self._run_cmd(vm, "list_processes", False)
+
+	def get_all_pid(self, vm):
+		pids = []
+		procs = self.list_processes(vm)
+
+		if procs is None:
+			return None
+
+		for proc in procs:
+			pids.append(proc['pid'])
+
+		return pids
+
+
+
+	def execute_cmd(self, vm, cmd, args=[], timeout=40):
+		pid = self.start_process(vm, cmd, args)
+		print "DBG created process %s with pid %s" % (cmd, pid)
+
+		tick = 0
+
+		while pid in self.get_all_pid(vm):
+			if tick >= 40 * 6:
+				break
+			tick += 1
+			sleep(10)
+
+		print self.get_all_pid(vm)
+		print "exiting"
+
+
+
+
+
+
 
 
 class oldSphereManager:

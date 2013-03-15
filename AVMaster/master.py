@@ -9,7 +9,7 @@ import os.path
 import traceback
 
 from lib.VMachine import VMachine
-from lib.VMManager import VMManagerVS
+#from lib.VMManager import VMManagerVS
 from lib.SphereManager import vSphereManager
 from lib.report import Report
 #from lib.logger import logger
@@ -21,6 +21,10 @@ vm_conf_file = os.path.join("conf", "vms.cfg")
 
 logdir = ""
 vmman = VMManagerVS(vm_conf_file)
+
+conf = ConfigParser()
+conf.read( vm_conf_file )
+vsphere = vSphereManager( vm_conf_file )
 updatetime = 50
 server = ""
 
@@ -30,14 +34,14 @@ def job_log(vm_name, status):
 def update(args):
     try:
         vm_name = args[0]
-        vm = VMachine(vm_conf_file, vm_name)
+        vm = VMachine(vm_config_file, vsphere, vm_name)
         job_log(vm_name, "UPDATE")
 
-        vmman.revertLastSnapshot(vm)
+        vm.revert_last_snapshot()
         job_log(vm_name, "REVERTED")
 
         sleep(random.randint(60,60*10))
-        vmman.startup(vm)
+        vm.startup()
         job_log(vm_name, "STARTED")
 
         sleep(5 * 60)
@@ -47,7 +51,7 @@ def update(args):
             return "ERROR wait for startup for %s" % vm_name
  
         if check_infection_status(vm) is True:
-            vmman.shutdown(vm)
+            vm.shutdown()
             return "ERROR VM IS INFECTED!!!"
  
         out_img = "%s/screenshot_%s_update.png" % (logdir, vm_name)
@@ -59,7 +63,7 @@ def update(args):
 
         running = True
         job_log(vm_name, "SHUTDOWN")
-        r = vmman.shutdownUpgrade(vm)
+        r = vm.shutdown_upgrade()
 
         if r is False:
             return "%s, NOT Updated!"  % vm_name
@@ -67,17 +71,8 @@ def update(args):
         count = 0
         sh = True
 
-        while running == True:
-            sleep(60)
-            running = vmman.VMisRunning(vm)
-            count +=1
-            job_log(vm_name, "RUNNING %s" % count)
-            if count >= 120:
-                sh = False
-                break
-
         if sh == True:
-            vmman.refreshSnapshot(vm)
+            vm.refresh_snapshot()
             job_log(vm_name, "UPDATED")
             return "%s, SUCCESS: Updated!"  % vm_name
         else:
@@ -92,17 +87,16 @@ def update(args):
 def revert(args):
     vm_name = args[0]
     job_log(vm_name, "REVERT")
-    vm = VMachine(vm_conf_file, vm_name)
-    vmman.revertLastSnapshot(vm)
-    sleep(2)
+    vm = VMachine(vm_conf_file, vsphere, vm_name)
+    vm.revert_last_snapshot()
     return "[*] %s reverted!" % vm_name
 
 def run_command(args):
     vm_name, cmd = args
     if cmd is None:
         return False
-    vmx = VMachine(vm_conf_file, vm_name)
-    vmman._run_cmd(vmx, cmd)
+    vm = VMachine(vm_conf_file, vm_name)
+    vm._run_cmd(cmd)
 
     return True
 
@@ -124,16 +118,16 @@ def copy_to_guest(vm, test_dir, filestocopy):
         rdir = "%s\\%s" % (test_dir, d)
         if not rdir in memo:
             print "DBG mkdir %s " % (rdir)
-            vmman.mkdirInGuest( vm, rdir )
+            vm.make_directory( rdir )
             memo.append( rdir )
 
         print "DBG copy %s -> %s" % (src, dst)
-        vmman.copyFileToGuest(vm, src, dst)
+        vm.send_file(src, dst)
 
 def save_results(vm, kind):
     try:
         filename = "%s/results_%s_%s.txt" % (logdir, vm, kind)
-        vmman.copyFileFromGuest(vm, "c:\\Users\\avtest\\Desktop\\AVTEST\\results.txt", filename)
+        vm.get_file("c:\\Users\\avtest\\Desktop\\AVTEST\\results.txt", filename)
 
         last = "ERROR save"
         f = open(filename, 'rb')
@@ -168,14 +162,14 @@ def dispatch(args):
 
 def dispatch_kind(vm_name, kind):
     
-    vm = VMachine(vm_conf_file, vm_name)
+    vm = VMachine(vm_conf_file, vsphere, vm_name)
     job_log(vm_name, "DISPATCH %s" % kind)
     
-    vmman.revertLastSnapshot(vm)
+    vm.revert_last_snapshot()
     job_log(vm_name, "REVERTED")
 
     sleep(random.randint(30, 5 * 60))
-    vmman.startup(vm)
+    vm.startup()
     sleep(5 * 60)
     job_log(vm_name, "STARTUP")
     
@@ -203,13 +197,14 @@ def dispatch_kind(vm_name, kind):
         job_log(vm_name, "ENVIRONMENT")
         
         # executing bat synchronized
-        executed = vmman.executeCmd(vm, "%s\\%s" % (test_dir, buildbat), interactive=True)
+        executed = vm.execute_cmd("%s\\%s" % (test_dir, buildbat), interactive=True)
+        #vsphere.execute_cmd(vm, "%s\\%s" % (test_dir, buildbat))
         job_log(vm_name, "EXECUTED %s" % kind)
 
         if executed is False:
             print "DBG %s" % executed 
             print "%s, ERROR: Execution failed!" % vm
-
+        
         #print "processes: %s" % vmman.listProcesses(vm)
 
         #timestamp = time.strftime("%Y%m%d_%H%M", time.gmtime())
@@ -222,17 +217,17 @@ def dispatch_kind(vm_name, kind):
     
     # suspend & refresh snapshot
     if executed:
-        vmman.shutdown(vm)
+        vm.shutdown()
         job_log(vm_name, "SHUTDOWN %s" % kind)
     else:
-        vmman.suspend(vm)
+        vm.suspend()
         job_log(vm_name, "SUSPENDED %s" % kind)
     return result
 
 def push(args):
     vm_name, kind = args
     
-    vm = VMachine(vm_conf_file, vm_name)
+    vm = VMachine(vm_conf_file, vsphere, vm_name)
     #job_log(vm_name, "DISPATCH %s" % kind)
     
     #vmman.revertLastSnapshot(vm)
@@ -273,7 +268,7 @@ def test_internet(args):
     vm_name = args[0]
     try:
         vm = VMachine(vm_conf_file, vm_name)
-        vmman.startup(vm)
+        vm.startup()
         test_dir = "C:\\Users\\avtest\\Desktop\\TEST_INTERNET"
         filestocopy =[  "./test_internet.bat",
                         "lib/vmavtest.py",
@@ -284,7 +279,7 @@ def test_internet(args):
         else:
             copy_to_guest(vm, test_dir, filestocopy)
             # executing bat synchronized
-            vmman.executeCmd(vm, "%s\\test_internet.bat" % test_dir)
+            vm.execute_cmd("%s\\test_internet.bat" % test_dir)
             sleep(random.randint(100,200))
             #vmman.shutdown(vm)
             return "[%s] dispatched test internet" % vm_name
@@ -293,7 +288,7 @@ def test_internet(args):
 
 def check_infection_status(vm):
     startup_dir = "C:\\Users\\avtest\\AppData\\Microsoft"
-    stuff = vmman.listDirectoryInGuest(vm, startup_dir)
+    stuff = vm.list_directory(startup_dir)
     print stuff
     if stuff is None:
         return True
@@ -308,7 +303,7 @@ def test(args):
                               conf.get("vsphere", "passwd") )
 
     vsphere.connect()
-    vm_path = conf.get("vms","zenovm")
+    vm_path = conf.get("vms","comodo")
 
     vm = vsphere.get_vm(vm_path)
 
@@ -316,7 +311,8 @@ def test(args):
     vsphere.login_in_guest(vm, "avtest", "avtest")
     print "ok. logged in"
 
-    vsphere.execute_cmd(vm, "c:\\windows\\system32\\shutdown.exe", ["/s", "/t", "0"])
+    vsphere.execute_cmd(vm, "c:\\WINDOWS\\system32\\calc.exe")
+    #print vsphere.list_processes(vm)
     print "executed"
     
 def wait_for_startup(vm, max_minute=20):
@@ -350,13 +346,13 @@ def main():
     parser.add_argument('-v', '--verbose', action='store_true', default=False,  
         help="Verbose")
     parser.add_argument('-k', '--kind', default="all", type=str,
-        help="Verbose", choices=['silent', 'melt', 'exploit', 'all'])
+        help="Kind of test", choices=['silent', 'melt', 'exploit', 'all'])
     parser.add_argument('-c', '--cmd', required=False,
         help="Run VMRUN command")
     parser.add_argument('-u', '--updatetime', default=50, type=int,
         help="Update time in minutes")
     parser.add_argument('-s', '--server', default='minotauro', choices=['minotauro', 'zeus', 'castore', 'polluce'],
-        help="Update time in minutes")
+        help="Server name")
     args = parser.parse_args()
 
     # LOGGER

@@ -7,7 +7,37 @@ from datetime import datetime
 from ConfigParser import ConfigParser
 
 
-class VMManagerVS:
+class vSphere:
+	def __init__(self, vm_conf_file): # host, user, passwd):
+		self.hostname = conf.get("vsphere", "host")
+		self.username = conf.get("vsphere", "user")
+		self.password = conf.get("vsphere", "passwd")
+		self.server   = VIServer()
+
+	def connect(self):
+		# add trace_file=True to debug SOAP request/response
+		self.server.connect(self.hostname, self.username, self.password)
+
+	def _run_cmd(self, vm, func, *params):
+		try:
+			f = getattr(vm, func)
+
+			if task is True:
+				if len(params) is None:
+					task = f(sync_run=False)
+				else:
+					task = f(sync_run=False, *params)
+				return task
+			else:
+				if len(params) is None:
+					return f
+				else:
+					return f( *params )
+		except Exception as e:
+			print "%s, ERROR: Problem running %s. Reason: %s" % (vm.get_property('name'), func, e)
+
+
+class VMRun:
 	def __init__(self, config_file):
 		self.config = ConfigParser()
 		self.config.read(config_file)
