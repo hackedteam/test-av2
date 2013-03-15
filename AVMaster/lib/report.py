@@ -321,15 +321,23 @@ a.fill-div {
 </style>
 <body>		
 		"""
-		header    = "<table><tr><td>AV</td><td>Silent</td><td>Melt</td><td>Exploit</td></tr>"
+		header_st = "<table><tr>"
+		header_en = "</tr>"
 		linestart = "<tr><td>%s</td>"
 		linetoken = "<td id='%s-div'><a href='%s' class='fill-div'></a></td>"
 		lineend   = "</tr>"
-		footer    = "</table><br><br><b>View full <a href='%s'>report</a><b></body></html>" % report_file
+		legend    = "</table><p>Legend:</p><table><tr><td id=success-div></td><td>SUCCESS</td><tr><td id=failed-div></td><td>FAILED</td><tr><td id=error-div></td><td>ERROR</td><tr><td id=blacklisted-div></td><td>BLACKLISTED</td></tr></table>"
+		footer    = "<br><br><b>View full <a href='%s'>report</a><b></body></html>" % report_file
 
 		content = style
 
 		#with open("/tmp/color.html","wb+") as f:
+		header = header_st
+
+		for col in hcolumns:
+			header += "<td>%s</td>" % col
+
+		header += header_en
 		content += header
 
 		for res in hresults:
@@ -341,7 +349,7 @@ a.fill-div {
 			for col in hcolumns[1:]:
 				link = "http://%s:%s/%s/results_%s_%s.txt" % (host, port, url_dir, avname,col)
 
-				for kind in ["BLACKLISTED", "SUCCESS", "FAILED", "ERROR"]:
+				for kind in ["FAILED", "BLACKLISTED", "SUCCESS", "ERROR"]:
 					if kind in rd[col]:
 						l+= linetoken % (kind.lower(), link)
 						break
@@ -349,6 +357,7 @@ a.fill-div {
 
 			content += l
 
+		content += legend
 		content += footer
 
 		return content
