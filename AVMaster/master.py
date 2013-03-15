@@ -247,7 +247,7 @@ def push(args):
     
     test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
 
-    buildbat = "push_%s_%s.bat" % (kind, args.server)
+    buildbat = "push_%s_%s.bat" % (kind, server)
 
     filestocopy =[  "./%s" % buildbat,
                     "./push_all_minotauro.bat",
