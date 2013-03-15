@@ -380,7 +380,7 @@ class VMAVTest:
         print "- Scout, Wait for 6 minutes: %s" % time.ctime() 
         sleep(random.randint(300, 400))
 
-        for tries in range(1,4):
+        for tries in range(1,10):
             print "- Scout, Trigger sync for 30 seconds, try %s" % tries
             self._trigger_sync(timeout = 30)
 
