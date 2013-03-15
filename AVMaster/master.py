@@ -9,8 +9,8 @@ import os.path
 import traceback
 
 from lib.VMachine import VMachine
+from lib.VMManager import vSphere, VMRun
 #from lib.VMManager import VMManagerVS
-from lib.SphereManager import vSphereManager
 from lib.report import Report
 #from lib.logger import logger
 import lib.logger
@@ -20,18 +20,20 @@ vm_conf_file = os.path.join("conf", "vms.cfg")
 # get configuration for AV update process (exe, vms, etc)
 
 logdir = ""
-vmman = VMManagerVS(vm_conf_file)
+#server = ""
 
-conf = ConfigParser()
-conf.read( vm_conf_file )
-vsphere = vSphereManager( vm_conf_file )
+vmman = VMRun(vm_conf_file)
+
+vsphere = vSphere( vm_conf_file )
+vsphere.connect()
+
 updatetime = 50
-server = ""
 
 def job_log(vm_name, status):
     print "+ %s: %s" % (vm_name, status)
 
-def update(args):
+def update(flargs):
+    vms = len(args.vm.split(","))
     try:
         vm_name = args[0]
         vm = VMachine(vm_config_file, vsphere, vm_name)
@@ -40,7 +42,7 @@ def update(args):
         vm.revert_last_snapshot()
         job_log(vm_name, "REVERTED")
 
-        sleep(random.randint(60,60*10))
+        sleep(random.randint(60, 60 * vms))
         vm.startup()
         job_log(vm_name, "STARTED")
 
@@ -84,15 +86,19 @@ def update(args):
         print "DBG trace %s" % traceback.format_exc()
         return "%s, ERROR: not updated. Reason: %s" % (vm_name, e)
 
-def revert(args):
-    vm_name = args[0]
+def revert(flargs):
+    vm_name = flargs[0]
     job_log(vm_name, "REVERT")
     vm = VMachine(vm_conf_file, vsphere, vm_name)
     vm.revert_last_snapshot()
     return "[*] %s reverted!" % vm_name
 
-def run_command(args):
-    vm_name, cmd = args
+def run_command(flargs):
+        #arg = args.kind
+    #if args.action == "command":
+    #    arg = args.cmd
+    vm_name, args = flargs
+    cmd = args.cmd
     if cmd is None:
         return False
     vm = VMachine(vm_conf_file, vm_name)
@@ -140,19 +146,20 @@ def save_results(vm, kind):
     except Exception as e:
         return "%s, %s, ERROR saving results with exception: %s" % (vm, kind, e)
 
-def dispatch(args):
+def dispatch(flargs):
     try:
-        vm_name, kind = args
+        vm_name, args = flargs
+        kind = args.kind
         results = []
         print "DBG %s, %s" %(vm_name,kind)
         if kind == "all":
-            results.append( dispatch_kind(vm_name, "silent") )
+            results.append( dispatch_kind(vm_name, "silent", args) )
             sleep(random.randint(5,10))
-            results.append( dispatch_kind(vm_name, "melt") )
+            results.append( dispatch_kind(vm_name, "melt", args) )
             sleep(random.randint(5,10))
-            results.append( dispatch_kind(vm_name, "exploit") )
+            results.append( dispatch_kind(vm_name, "exploit", args) )
         else:
-            results.append( dispatch_kind(vm_name, kind) )
+            results.append( dispatch_kind(vm_name, kind, args) )
 
         return results
     except Exception as e:
@@ -160,7 +167,8 @@ def dispatch(args):
         print "DBG trace %s" % traceback.format_exc()
         return {'ERROR': e}
 
-def dispatch_kind(vm_name, kind):
+def dispatch_kind(vm_name, kind, args):
+    vms = len(args.vms)
     
     vm = VMachine(vm_conf_file, vsphere, vm_name)
     job_log(vm_name, "DISPATCH %s" % kind)
@@ -168,14 +176,14 @@ def dispatch_kind(vm_name, kind):
     vm.revert_last_snapshot()
     job_log(vm_name, "REVERTED")
 
-    sleep(random.randint(30, 5 * 60))
+    sleep(random.randint(30, vms * 30))
     vm.startup()
     sleep(5 * 60)
     job_log(vm_name, "STARTUP")
     
     test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
 
-    buildbat = "build_%s_%s.bat" % (kind, server)
+    buildbat = "build_%s_%s.bat" % (kind, args.server)
 
     filestocopy =[  "./%s" % buildbat,
                     "lib/vmavtest.py",
@@ -193,11 +201,12 @@ def dispatch_kind(vm_name, kind):
     if wait_for_startup(vm) is False:
         result = "%s, %s, ERROR: wait for startup for" % (vm_name, kind) 
     else:
+        vm.login_in_guest()
         copy_to_guest(vm, test_dir, filestocopy)
         job_log(vm_name, "ENVIRONMENT")
         
         # executing bat synchronized
-        executed = vm.execute_cmd("%s\\%s" % (test_dir, buildbat), interactive=True)
+        executed = vmman.executeCmd(vm, "%s\\%s" % (test_dir, buildbat), interactive=True)
         #vsphere.execute_cmd(vm, "%s\\%s" % (test_dir, buildbat))
         job_log(vm_name, "EXECUTED %s" % kind)
 
@@ -210,10 +219,11 @@ def dispatch_kind(vm_name, kind):
         #timestamp = time.strftime("%Y%m%d_%H%M", time.gmtime())
         out_img = "%s/screenshot_%s_%s.png" % (logdir, vm, kind)
         vmman.takeScreenshot(vm, out_img)
-        
+        job_log(vm_name, "SCREENSHOT ok")
+
         # save results.txt locally
         result = save_results(vm, kind)
-        job_log(vm_name, "FINISHED %s" % kind)
+        job_log(vm_name, "SAVED %s" % kind)
     
     # suspend & refresh snapshot
     if executed:
@@ -224,8 +234,9 @@ def dispatch_kind(vm_name, kind):
         job_log(vm_name, "SUSPENDED %s" % kind)
     return result
 
-def push(args):
-    vm_name, kind = args
+def push(flargs):
+    vm_name, args = flargs
+    kind = args.kind
     
     vm = VMachine(vm_conf_file, vsphere, vm_name)
     #job_log(vm_name, "DISPATCH %s" % kind)
@@ -264,8 +275,8 @@ def push(args):
         result = "pushed"
     return result
 
-def test_internet(args):
-    vm_name = args[0]
+def test_internet(flargs):
+    vm_name = flargs[0]
     try:
         vm = VMachine(vm_conf_file, vm_name)
         vm.startup()
@@ -295,7 +306,7 @@ def check_infection_status(vm):
     return False
     #if vmman.listDirectoryInGuest(vm) is None:
        
-def test(args):
+def test(flargs):
     conf = ConfigParser()
     conf.read(vm_conf_file)
     vsphere = vSphereManager( conf.get("vsphere", "host"),
@@ -380,10 +391,10 @@ def main():
     else:
         # get vm names
         vm_names = c.get("pool", "machines").split(",")
-
-    global server
-    server = args.server
-    print "DBG server: %s" % server
+    args.vms = vm_names
+    #global server
+    #server = args.server
+    #print "DBG server: %s" % server
 
     [ job_log(v, "INIT") for v in vm_names ]
 
@@ -412,6 +423,7 @@ def main():
         pool_size = args.pool
     else:
         pool_size = int(c.get("pool", "size"))
+        args.pool = pool_size
 
     pool = Pool(pool_size)
     
@@ -421,11 +433,12 @@ def main():
                 "dispatch": dispatch, "test_internet": test_internet,
                 "command": run_command, "push": push }
 
-    arg = args.kind
-    if args.action == "command":
-        arg = args.cmd
-    print "MASTER %s on %s, action %s, pool %s" % (arg, vm_names, args.action, args.pool)
-    r = pool.map_async(actions[args.action], [ ( n, arg ) for n in vm_names ])
+    #arg = args.kind
+    #if args.action == "command":
+    #    arg = args.cmd
+    #print "MASTER %s on %s, action %s, pool %s" % (arg, vm_names, args.action, args.pool)
+    print "MASTER on %s, action %s" % (vm_names, args.action)
+    r = pool.map_async(actions[args.action], [ ( n, args ) for n in vm_names ])
     results = r.get()
 
     # REPORT

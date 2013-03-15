@@ -1,4 +1,6 @@
 import os
+
+from time import sleep
 from ConfigParser import ConfigParser, NoSectionError
 
 class VMachine:
@@ -11,16 +13,13 @@ class VMachine:
 			self.snapshot = self.config.get("vm_config", "snapshot")
 			self.user     = self.config.get("vm_config", "user")
 			self.passwd   = self.config.get("vm_config", "passwd")
-			self.vm 	  = vi_srv.get_vm_by_path(self.path)
+			self.vm 	  = vi_srv.get_vm(self.path)
 		except NoSectionError:
 			print "[!] VM or VM stuff not found on %s" % conf_file
 			return None
 		
 	def __str__(self):
 		return "%s" % self.name
-
-	def _get_vm(self, vm):
-		self.vm = vm
 
 	#	FUNCTIONS
 
@@ -89,7 +88,7 @@ class VMachine:
 		return self._run_task("power_off")
 
 	def suspend(self):
-		return self._run_task("power_on")
+		return self._run_task("suspend")
 
 	def get_snapshots(self):
 		return self._run_task("get_snapshots")
@@ -108,8 +107,8 @@ class VMachine:
 	def is_powered_off(self):
 		return self._run_cmd("is_powered_off")
 
-	def login_in_guest(self, user, passwd):
-		return self._run_cmd("login_in_guest", user, passwd)
+	def login_in_guest(self):
+		return self._run_cmd("login_in_guest", self.user, self.passwd)
 
 	def list_directory(self, dir_path):
 		return self._run_cmd("list_files", dir_path)
@@ -121,7 +120,7 @@ class VMachine:
 		return self._run_cmd("send_file", src_file, dst_file )
 
 	def get_file(self, src_file, dst_file):
-		return self._run_cmd("send_file", src_file, dst_file )
+		return self._run_cmd("get_file", src_file, dst_file )
 
 	def list_snapshots(self):
 		return self._run_cmd("get_snapshots")

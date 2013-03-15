@@ -6,9 +6,12 @@ from time import sleep
 from datetime import datetime
 from ConfigParser import ConfigParser
 
+from pysphere import VIServer
 
 class vSphere:
 	def __init__(self, vm_conf_file): # host, user, passwd):
+		conf = ConfigParser()
+		conf.read(vm_conf_file)
 		self.hostname = conf.get("vsphere", "host")
 		self.username = conf.get("vsphere", "user")
 		self.password = conf.get("vsphere", "passwd")
@@ -18,35 +21,18 @@ class vSphere:
 		# add trace_file=True to debug SOAP request/response
 		self.server.connect(self.hostname, self.username, self.password)
 
-	def _run_cmd(self, vm, func, *params):
-		try:
-			f = getattr(vm, func)
-
-			if task is True:
-				if len(params) is None:
-					task = f(sync_run=False)
-				else:
-					task = f(sync_run=False, *params)
-				return task
-			else:
-				if len(params) is None:
-					return f
-				else:
-					return f( *params )
-		except Exception as e:
-			print "%s, ERROR: Problem running %s. Reason: %s" % (vm.get_property('name'), func, e)
-
+	def get_vm(self, vm_path):
+		return self.server.get_vm_by_path(vm_path)
 
 class VMRun:
 	def __init__(self, config_file):
 		self.config = ConfigParser()
 		self.config.read(config_file)
 
-		self.path = self.config.get("vsphere", "path")
-		self.host = self.config.get("vsphere", "host")
-		self.user = self.config.get("vsphere", "user")
+		self.path 	= self.config.get("vsphere", "path")
+		self.host 	= self.config.get("vsphere", "host")
+		self.user   = self.config.get("vsphere", "user")
 		self.passwd = self.config.get("vsphere", "passwd")
-
 
 	def _run_cmd(self, vmx, cmd, args=[], vmx_creds=[], popen=False, timeout=40):
 		pargs = [   self.path,
@@ -205,54 +191,3 @@ class VMRun:
 	def listSnapshots(self, vmx):
 		out = self._run_cmd(vmx, "listSnapshots", popen=True).split("\n")
 		return out[1:-1]
-
-
-def test(vm_name):
-	#print vm_name
-	op_conf_file =  os.path.join("../conf", "vms.cfg")
-
-	vm = VMachine(op_conf_file, vm_name)
-	vmman = VMManagerVS(op_conf_file)
-
-	l = vmman.listSnapshots(vm)
-	print "snapshots: %s %s" % (vm_name, l)
-
-	vmman.refreshSnapshot(vm)
-
-	# vmman.revertLastSnapshot(vm)
-	# print "reverted ", vm_name
-	# vmman.startup(vm)
-	# print "started_up ", vm_name
-
-	#vmman.deleteDirectoryInGuest(vm, "/users/avtest/Desktop/avtest")
-	#print "deleted ", vm_name
-
-	# vmman.shutdownUpgrade(vm)
-	# print "shutted"
-	return l
-
-if __name__ == "__main__":
-	from VMachine import VMachine
-	from multiprocessing import Pool
-
-	op_conf_file = os.path.join("../conf", "vms.cfg")
-	
-	c = ConfigParser()
-	c.read(op_conf_file)
-	vm_names = c.get("pool", "machines").split(",")
-	print vm_names
-
-	pool = Pool(8)
-
-	r = pool.map_async( test, vm_names )
-	results = r.get()
-	print results
-
-	# for vm_name in vm_names:
-	# 	vm = VMachine(op_conf_file, vm_name)
-	# 	print vm_name
-	# 	vmman.revertLastSnapshot(vm)
-	# 	vmman.deleteDirectoryInGuest(vm, "/users/avtest/Desktop/avtest")
-		#l = vmman.listSnapshots(vm)
-		#print "%s %s" % (vm_name, l)
-
