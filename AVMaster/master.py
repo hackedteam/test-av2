@@ -304,7 +304,6 @@ def check_infection_status(vm):
     if stuff is None:
         return True
     return False
-    #if vmman.listDirectoryInGuest(vm) is None:
        
 def test(flargs):
     conf = ConfigParser()
