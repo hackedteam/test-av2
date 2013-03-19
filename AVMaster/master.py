@@ -1,12 +1,14 @@
 import argparse
 import os
 import time
-from time import sleep
-from ConfigParser import ConfigParser
-from multiprocessing import Pool
 import random
 import os.path
 import traceback
+
+from time import sleep
+from ConfigParser import ConfigParser
+from multiprocessing import Pool
+from redis import Redis
 
 from lib.VMachine import VMachine
 from lib.VMManager import vSphere, VMRun
@@ -109,7 +111,7 @@ def run_command(flargs):
 def copy_to_guest(vm, test_dir, filestocopy):
     #lib_dir = "%s\\lib" % test_dir
     #assets_dir = "%s\\assets" % test_dir
-    vmavtest = "../VMAVTest"
+    vmavtest = "../AVAgent"
 
     memo = []
     for filetocopy in filestocopy:
@@ -178,7 +180,6 @@ def dispatch_kind(vm_name, kind, args):
 
     sleep(random.randint(30, vms * 30))
     vm.startup()
-    sleep(5 * 60)
     job_log(vm_name, "STARTUP")
     
     test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
@@ -186,7 +187,7 @@ def dispatch_kind(vm_name, kind, args):
     buildbat = "build_%s_%s.bat" % (kind, args.server)
 
     filestocopy =[  "./%s" % buildbat,
-                    "lib/vmavtest.py",
+                    "lib/agent.py",
                     "lib/logger.py",
                     "lib/rcs_client.py",
                     "conf/vmavtest.cfg",
@@ -255,7 +256,7 @@ def push(flargs):
 
     filestocopy =[  "./%s" % buildbat,
                     "./push_all_minotauro.bat",
-                    "lib/vmavtest.py",
+                    "lib/agent.py",
                     "lib/logger.py",
                     "lib/rcs_client.py",
                     "conf/vmavtest.cfg",
@@ -282,7 +283,7 @@ def test_internet(flargs):
         vm.startup()
         test_dir = "C:\\Users\\avtest\\Desktop\\TEST_INTERNET"
         filestocopy =[  "./test_internet.bat",
-                        "lib/vmavtest.py",
+                        "lib/agent.py",
                         "lib/logger.py",
                         "lib/rcs_client.py" ]
         if wait_for_startup(vm) is False:
@@ -326,6 +327,8 @@ def test(flargs):
     print "executed"
     
 def wait_for_startup(vm, max_minute=20):
+    '''
+    # the old one
     count = 0
     while not "vmtoolsd.exe" in vmman.listProcesses(vm):
         sleep(20)
@@ -333,6 +336,19 @@ def wait_for_startup(vm, max_minute=20):
         if count > max_minute*3:
             return False
     return True
+    '''
+    r = Redis()
+
+    p = r.pubsub()
+    p.subscribe(vm.name)
+
+    for m in p.listen():
+        print "DBG %s"  % m
+        try:
+            if "STARTED" in m['data']:
+                return True
+        except TypeError:
+            pass
 
 def timestamp():
     return time.strftime("%Y%m%d_%H%M", time.gmtime())
