@@ -134,11 +134,13 @@ def copy_to_guest(vm, test_dir, filestocopy):
 
 def save_results(vm, kind):
     try:
-        filename = "%s/results_%s_%s.txt" % (logdir, vm, kind)
-        vm.get_file("c:\\Users\\avtest\\Desktop\\AVTEST\\results.txt", filename)
+        res_file_rem = "c:\\Users\\avtest\\Desktop\\AVTEST\\results.txt"
+        res_file_loc = "%s/results_%s_%s.txt" % (logdir, vm, kind)
+        print "DBG saving %s %s"
+        vm.get_file(res_file_rem, res_file_loc)
 
         last = "ERROR save"
-        f = open(filename, 'rb')
+        f = open(res_file_loc, 'rb')
         for l in f.readlines():
             if " + " in l:
                 last = l

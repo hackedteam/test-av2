@@ -2,6 +2,7 @@ import os
 
 from time import sleep
 from ConfigParser import ConfigParser, NoSectionError
+from pysphere.resources.vi_exception import VIException
 
 class VMachine:
 	def __init__(self, conf_file, vi_srv, name):
@@ -13,7 +14,8 @@ class VMachine:
 			self.snapshot = self.config.get("vm_config", "snapshot")
 			self.user     = self.config.get("vm_config", "user")
 			self.passwd   = self.config.get("vm_config", "passwd")
-			self.vm 	  = vi_srv.get_vm(self.path)
+			self.vi_srv   = vi_srv
+			self.vm 	  = self.vi_srv.get_vm(self.path)
 		except NoSectionError:
 			print "[!] VM or VM stuff not found on %s" % conf_file
 			return None
@@ -144,6 +146,12 @@ class VMachine:
 				return f
 			else:
 				return f( *params )
+		except VIException as e:
+			print "%s, ERROR. Exception: %s" % (self.name, e.fault)
+			if "NotAuthenticatedFault" in e.fault:
+				self.vi_srv.connect()
+				# relauch function...
+				self._run_cmd(func, params)
 		except Exception as e:
 			print "%s, ERROR: Problem running %s. Reason: %s" % (self.name, func, e)
 
@@ -165,6 +173,12 @@ class VMachine:
 			else:
 				task = f(sync_run=False, *params)
 			return wait_for(task)
+		except VIException as e:
+			print "%s, ERROR. Exception: %s" % (self.name, e.fault)
+			if "NotAuthenticatedFault" in e.fault:
+				self.vi_srv.connect()
+				# relauch function...
+				self._run_task(func, params)
 		except Exception as e:
 			print "%s, ERROR: Problem running %s. Reason: %s" % (self.name, func, e)
 
