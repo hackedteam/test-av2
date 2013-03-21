@@ -4,6 +4,20 @@ from time import sleep
 from ConfigParser import ConfigParser, NoSectionError
 from pysphere.resources.vi_exception import VIException
 
+class connection:
+	def __init__(self, vi_srv):
+		self.srv = vi_srv
+
+	def __enter__(self):
+		self.srv.connect()
+
+	def __exit__(self, type, value, traceback):
+		try:
+			self.srv.disconnect()
+		except VIException as e:
+			print "DBG problem in disconnection. Fault is: %s" % e.fault
+			pass
+
 class VMachine:
 	def __init__(self, conf_file, vi_srv, name):
 		self.name = name
@@ -140,18 +154,13 @@ class VMachine:
 
 	def _run_cmd(self, func, *params):
 		try:
-			f = getattr(self.vm, func)
+			with connection(self.vi_src) as c:
+				f = getattr(self.vm, func)
 
-			if len(params) is None:
-				return f
-			else:
-				return f( *params )
-		except VIException as e:
-			print "%s, ERROR. Exception: %s" % (self.name, e.fault)
-			if "NotAuthenticatedFault" in e.fault:
-				self.vi_srv.connect()
-				# relauch function...
-				self._run_cmd(func, params)
+				if len(params) is None:
+					return f
+				else:
+					return f( *params )
 		except Exception as e:
 			print "%s, ERROR: Problem running %s. Reason: %s" % (self.name, func, e)
 
@@ -166,19 +175,14 @@ class VMachine:
 			return True
 
 		try:
-			f = getattr(self.vm, func)
+			with connection(self.vi_srv) as c:
+				f = getattr(self.vm, func)
 
-			if len(params) is None:
-				task = f(sync_run=False)
-			else:
-				task = f(sync_run=False, *params)
-			return wait_for(task)
-		except VIException as e:
-			print "%s, ERROR. Exception: %s" % (self.name, e.fault)
-			if "NotAuthenticatedFault" in e.fault:
-				self.vi_srv.connect()
-				# relauch function...
-				self._run_task(func, params)
+				if len(params) is None:
+					task = f(sync_run=False)
+				else:
+					task = f(sync_run=False, *params)
+				return wait_for(task)
 		except Exception as e:
 			print "%s, ERROR: Problem running %s. Reason: %s" % (self.name, func, e)
 

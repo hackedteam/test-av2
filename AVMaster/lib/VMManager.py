@@ -21,6 +21,9 @@ class vSphere:
 		# add trace_file=True to debug SOAP request/response
 		self.server.connect(self.hostname, self.username, self.password)
 
+	def disconnect(self):
+		self.server.disconnect()
+
 	def get_vm(self, vm_path):
 		return self.server.get_vm_by_path(vm_path)
 
