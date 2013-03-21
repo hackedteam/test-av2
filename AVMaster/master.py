@@ -91,7 +91,7 @@ def update(flargs):
 def revert(flargs):
     vm_name = flargs[0]
     job_log(vm_name, "REVERT")
-    vm = VMachine(vm_conf_file, vsphere, vm_name)
+    vm = VMachine(vm_conf_file, vm_name)
     vm.revert_last_snapshot()
     return "[*] %s reverted!" % vm_name
 
@@ -107,30 +107,6 @@ def run_command(flargs):
     vm._run_cmd(cmd)
 
     return True
-
-def copy_to_guest(vm, test_dir, filestocopy):
-    #lib_dir = "%s\\lib" % test_dir
-    #assets_dir = "%s\\assets" % test_dir
-    vmavtest = "../AVAgent"
-
-    memo = []
-    for filetocopy in filestocopy:
-        d,f = filetocopy.split("/")
-        src = "%s/%s/%s" % (vmavtest, d, f)
-
-        if d == ".":
-            dst =  "%s\\%s" % (test_dir, f)
-        else:
-            dst =  "%s\\%s\\%s" % (test_dir, d, f)
-
-        rdir = "%s\\%s" % (test_dir, d)
-        if not rdir in memo:
-            print "DBG mkdir %s " % (rdir)
-            vm.make_directory( rdir )
-            memo.append( rdir )
-
-        print "DBG copy %s -> %s" % (src, dst)
-        vm.send_file(src, dst)
 
 def save_results(vm, kind):
     try:
@@ -174,7 +150,7 @@ def dispatch(flargs):
 def dispatch_kind(vm_name, kind, args):
     vms = len(args.vms)
     
-    vm = VMachine(vm_conf_file, vsphere, vm_name)
+    vm = VMachine(vm_conf_file, vm_name)
     job_log(vm_name, "DISPATCH %s" % kind)
     
     vm.revert_last_snapshot()
@@ -204,8 +180,9 @@ def dispatch_kind(vm_name, kind, args):
     if wait_for_startup(vm) is False:
         result = "%s, %s, ERROR: wait for startup for" % (vm_name, kind) 
     else:
-        vm.login_in_guest()
-        copy_to_guest(vm, test_dir, filestocopy)
+        #vm.login_in_guest()
+        job_log(vm_name, "LOGGED")
+        vm.send_files("../AVAgent", test_dir, filestocopy)
         job_log(vm_name, "ENVIRONMENT")
         
         # executing bat synchronized
@@ -241,7 +218,7 @@ def push(flargs):
     vm_name, args = flargs
     kind = args.kind
     
-    vm = VMachine(vm_conf_file, vsphere, vm_name)
+    vm = VMachine(vm_conf_file, vm_name)
     #job_log(vm_name, "DISPATCH %s" % kind)
     
     #vmman.revertLastSnapshot(vm)
@@ -400,6 +377,10 @@ def main():
 
     c = ConfigParser()
     c.read(vm_conf_file)
+
+    vSphere.hostname = c.get("vsphere", "host")
+    vSphere.username = c.get("vsphere", "user")
+    vSphere.password = c.get("vsphere", "passwd")
 
     if args.vm:
         if args.vm == "all":

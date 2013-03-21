@@ -4,20 +4,7 @@ from time import sleep
 from ConfigParser import ConfigParser, NoSectionError
 from pysphere.resources.vi_exception import VIException
 
-class connection:
-	vm_conf_file = ""
-
-	def __enter__(self):
-		self.srv = vSphere( vm_conf_file )
-		self.srv.connect()
-		return self.srv
-
-	def __exit__(self, type, value, traceback):
-		try:
-			self.srv.disconnect()
-		except VIException as e:
-			print "DBG problem in disconnection. Fault is: %s" % e.fault
-			pass
+from VMManager import vSphere
 
 class VMachine:
 	def __init__(self, conf_file, name):
@@ -29,11 +16,7 @@ class VMachine:
 			self.snapshot = self.config.get("vm_config", "snapshot")
 			self.user     = self.config.get("vm_config", "user")
 			self.passwd   = self.config.get("vm_config", "passwd")
-			#self.vi_srv   = vi_srv
-			connection.vm_conf_file = conf_file
-
-			with connection as c:
-				self.vm 	  = c.get_vm(self.path)
+			#self.vi_srv   = vi_srv	
 				
 		except NoSectionError:
 			print "[!] VM or VM stuff not found on %s" % conf_file
@@ -56,6 +39,30 @@ class VMachine:
 				print "DBG deleting %s" % snap_list[-2].get_name()
 				self.delete_snapshot(snap_list[-2].get_name())
 
+	def send_files(self, src_dir, dst_dir, filestocopy):
+
+		with vSphere(self.path) as vm:
+
+			self._run_vm(vm, "login_in_guest", self.user, self.passwd)
+
+			memo = []
+			for filetocopy in filestocopy:
+				d,f = filetocopy.split("/")
+				src = "%s/%s/%s" % (src_dir, d, f)
+
+				if d == ".":
+					dst =  "%s\\%s" % (dst_dir, f)
+				else:
+					dst =  "%s\\%s\\%s" % (dst_dir, d, f)
+
+				rdir = "%s\\%s" % (dst_dir, d)
+				if not rdir in memo:
+					print "DBG mkdir %s " % (rdir)
+					self._run_vm(vm, "make_directory", rdir)
+					memo.append( rdir )
+
+				print "DBG copy %s -> %s" % (src, dst)
+				self._run_vm(vm, "send_file", src, dst)
 
 	def get_all_pid(self):
 		pids = []
@@ -131,18 +138,6 @@ class VMachine:
 	def login_in_guest(self):
 		return self._run_cmd("login_in_guest", self.user, self.passwd)
 
-	def list_directory(self, dir_path):
-		return self._run_cmd("list_files", dir_path)
-
-	def make_directory(self, dst_dir):
-		return self._run_cmd("make_directory", dst_dir)
-
-	def send_file(self, src_file, dst_file):
-		return self._run_cmd("send_file", src_file, dst_file )
-
-	def get_file(self, src_file, dst_file):
-		return self._run_cmd("get_file", src_file, dst_file )
-
 	def list_snapshots(self):
 		return self._run_cmd("get_snapshots")
 
@@ -155,12 +150,45 @@ class VMachine:
 	def list_processes(self):
 		return self._run_cmd("list_processes")
 
+	#	VM
+
+	def list_directory(self, dir_path):
+		with vSphere(self.path) as vm:
+			self._run_vm(vm, "login_in_guest", self.user, self.passwd )
+			return self._run_vm(vm, "list_files", dir_path)
+
+	def make_directory(self, dst_dir):
+		with vSphere(self.path) as vm:
+			self._run_vm(vm, "login_in_guest", self.user, self.passwd )
+			return self._run_vm(vm, "make_directory", dst_dir)
+
+	def send_file(self, src_file, dst_file):
+		with vSphere(self.path) as vm:
+			self._run_vm(vm, "login_in_guest", self.user, self.passwd )
+			return self._run_vm(vm, "send_file", src_file, dst_file )
+
+	def get_file(self, src_file, dst_file):
+		with vSphere(self.path) as vm:
+			self._run_vm(vm, "login_in_guest", self.user, self.passwd )
+			return self._run_vm(vm, "get_file", src_file, dst_file )
+
 	#	PRIMITIVES
+
+	def _run_vm(self, vm, func, *params):
+		try:
+			f = getattr(vm, func)
+
+			if len(params) is None:
+				return f
+			else:
+				return f( *params )
+		except Exception as e:
+			print "%s, ERROR: Problem running %s. Reason: %s" % (self.name, func, e)
 
 	def _run_cmd(self, func, *params):
 		try:
-			with connection(self.vi_src) as c:
-				f = getattr(self.vm, func)
+			with vSphere(self.path) as vm:
+				f = getattr(vm, func)
 
 				if len(params) is None:
 					return f
@@ -180,8 +208,8 @@ class VMachine:
 			return True
 
 		try:
-			with connection(self.vi_srv) as c:
-				f = getattr(self.vm, func)
+			with vSphere(self.path) as vm:
+				f = getattr(vm, func)
 
 				if len(params) is None:
 					task = f(sync_run=False)

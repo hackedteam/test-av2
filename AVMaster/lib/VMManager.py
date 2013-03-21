@@ -9,23 +9,28 @@ from ConfigParser import ConfigParser
 from pysphere import VIServer
 
 class vSphere:
-	def __init__(self, vm_conf_file): # host, user, passwd):
-		conf = ConfigParser()
-		conf.read(vm_conf_file)
-		self.hostname = conf.get("vsphere", "host")
-		self.username = conf.get("vsphere", "user")
-		self.password = conf.get("vsphere", "passwd")
+	hostname = ""
+	username = ""
+	password = ""
+
+	def __init__(self, vm_path):
+		self.vm_path = vm_path
+
+	def __enter__(self):
 		self.server   = VIServer()
-
-	def connect(self):
-		# add trace_file=True to debug SOAP request/response
 		self.server.connect(self.hostname, self.username, self.password)
+		print "DBG connect"
+		vm  = self.server.get_vm_by_path(self.vm_path)
+		return vm
 
-	def disconnect(self):
-		self.server.disconnect()
+	def __exit__(self, type, value, traceback):
+		try:
+			self.server.disconnect()
+			print "DBG disconnect"
+		except VIException as e:
+			print "DBG problem in disconnection. Fault is: %s" % e.fault
+			pass
 
-	def get_vm(self, vm_path):
-		return self.server.get_vm_by_path(vm_path)
 
 class VMRun:
 	def __init__(self, config_file):
