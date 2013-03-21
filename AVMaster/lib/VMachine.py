@@ -5,11 +5,12 @@ from ConfigParser import ConfigParser, NoSectionError
 from pysphere.resources.vi_exception import VIException
 
 class connection:
-	def __init__(self, vi_srv):
-		self.srv = vi_srv
+	vm_conf_file = ""
 
 	def __enter__(self):
+		self.srv = vSphere( vm_conf_file )
 		self.srv.connect()
+		return self.srv
 
 	def __exit__(self, type, value, traceback):
 		try:
@@ -19,7 +20,7 @@ class connection:
 			pass
 
 class VMachine:
-	def __init__(self, conf_file, vi_srv, name):
+	def __init__(self, conf_file, name):
 		self.name = name
 		try:
 			self.config = ConfigParser()
@@ -28,8 +29,12 @@ class VMachine:
 			self.snapshot = self.config.get("vm_config", "snapshot")
 			self.user     = self.config.get("vm_config", "user")
 			self.passwd   = self.config.get("vm_config", "passwd")
-			self.vi_srv   = vi_srv
-			self.vm 	  = self.vi_srv.get_vm(self.path)
+			#self.vi_srv   = vi_srv
+			connection.vm_conf_file = conf_file
+
+			with connection as c:
+				self.vm 	  = c.get_vm(self.path)
+				
 		except NoSectionError:
 			print "[!] VM or VM stuff not found on %s" % conf_file
 			return None

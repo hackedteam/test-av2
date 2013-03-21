@@ -26,8 +26,8 @@ logdir = ""
 
 vmman = VMRun(vm_conf_file)
 
-vsphere = vSphere( vm_conf_file )
-vsphere.connect()
+#vsphere = vSphere( vm_conf_file )
+#vsphere.connect()
 
 updatetime = 50
 
@@ -38,7 +38,7 @@ def update(flargs):
     vms = len(args.vm.split(","))
     try:
         vm_name = args[0]
-        vm = VMachine(vm_config_file, vsphere, vm_name)
+        vm = VMachine(vm_config_file, vm_name)
         job_log(vm_name, "UPDATE")
 
         vm.revert_last_snapshot()
@@ -344,6 +344,7 @@ def wait_for_startup(vm, max_minute=20):
     p = r.pubsub()
     p.subscribe(vm.name)
 
+    # timeout
     for m in p.listen():
         print "DBG %s"  % m
         try:
