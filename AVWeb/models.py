@@ -1,27 +1,26 @@
 import os
 
 from datetime import datetime
-from flask import Flask, request, render_template, flash, url_for, \
-    redirect
-#from flaskext import wtf
-#from flaskext.wtf import validators
+from flask import Flask, request, render_template, flash, url_for, redirect
+from flask.ext.sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 app.config.from_pyfile('settings.py')
-from flask.ext.sqlalchemy import SQLAlchemy
 db = SQLAlchemy(app)
 
 class Report(db.Model):
 	id     = db.Column(db.Integer, primary_key=True)
-	time   = db.Column(db.Date)
-	status = db.Column(db.String(10))
+	#time   = db.Column(db.DateTime)
+	time   = db.Column(db.String(25))
+	status = db.Column(db.Integer) # 0: started, 1: completed
 
-	def __init__(self, type):
-		self.type = type
-		self.time = datetime.now()
+	def __init__(self, status, time):
+		self.status = status
+		self.time   = time
 
 class Result(db.Model):
 	id        = db.Column(db.Integer, primary_key=True)
+	vm_name   = db.Column(db.String(15))
 	report_id = db.Column(db.Integer, db.ForeignKey('report.id'))
 	kind      = db.Column(db.String(10))
 	res_short = db.Column(db.String(50))
@@ -33,8 +32,13 @@ class Result(db.Model):
 		self.res_short = res_short
 		self.res_full  = res_full
 
-def init_db():
+def init_db(db_path):
 	""" If no db found create one """
-	if not os.path.exists("avmonitor.db"):
+	if not os.path.exists(db_path):
 		print "[!] No database found! Creating one"
 		db.create_all()
+
+if __name__ == "__main__":
+	init_db()
+	assert Report(0,"22-12-22-03:03:03") not None
+	assert Result("melt","SUCCESS","SUCCES SYNC") not None

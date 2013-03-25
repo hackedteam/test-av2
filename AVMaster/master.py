@@ -4,6 +4,7 @@ import time
 import random
 import os.path
 import traceback
+import sqlite3
 
 from time import sleep
 from ConfigParser import ConfigParser
@@ -108,6 +109,36 @@ def run_command(flargs):
 
     return True
 
+def add_record_report():
+    try:
+        db_name = "../share/avmonitor.db"
+        timestamp = time.strftime("%Y%m%d_%H%M", time.gmtime())
+
+        conn = sqlite3.connect(db_name)
+        
+        cur  = conn.cursor()
+        cur.execute("INSERT INTO report (time,status) VALUES('%s',0)" % str(timestamp) )
+
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        print "DBG error inserting report in db. Exception: %s" % e
+
+def add_record_result(vm_name, kind, results):
+    try:
+        db_name = "../share/avmonitor.db"
+        timestamp = time.strftime("%Y%m%d_%H%M", time.gmtime())
+
+        conn = sqlite3.connect(db_name)
+        
+        cur  = conn.cursor()
+        cur.execute("INSERT INTO result (vm_name, kind, res_full) VALUES('%s','%s','%s')" % (vm_name, kind, results) )
+
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        print "DBG error inserting results of test in db. Exception: %s" % e
+
 def save_results(vm, kind):
     try:
         res_file_rem = "c:\\Users\\avtest\\Desktop\\AVTEST\\results.txt"
@@ -127,11 +158,16 @@ def save_results(vm, kind):
         return "%s, %s, ERROR saving results with exception: %s" % (vm, kind, e)
 
 def dispatch(flargs):
+
+    # add record to db
+    add_record_report()
+
     try:
         vm_name, args = flargs
         kind = args.kind
         results = []
         print "DBG %s, %s" %(vm_name,kind)
+
         if kind == "all":
             results.append( dispatch_kind(vm_name, "silent", args) )
             sleep(random.randint(5,10))
@@ -148,6 +184,7 @@ def dispatch(flargs):
         return {'ERROR': e}
 
 def dispatch_kind(vm_name, kind, args):
+
     vms = len(args.vms)
     
     vm = VMachine(vm_conf_file, vm_name)
