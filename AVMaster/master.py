@@ -10,20 +10,21 @@ from time import sleep
 from ConfigParser import ConfigParser
 from multiprocessing import Pool
 from redis import Redis
+from flask.ext.sqlalchemy import SQLAlchemy
 
-from lib.VMachine import VMachine
-from lib.VMManager import vSphere, VMRun
-#from lib.VMManager import VMManagerVS
-from lib.report import Report
-#from lib.logger import logger
-import lib.logger
+from lib.core.VMachine import VMachine
+from lib.core.VMManager import vSphere, VMRun
+from lib.core.report import Report
+from lib.web.models import db, app, init_db, Test, Result
+from lib.web.settings import DB_PATH
+from lib.core.logger import setLogger
 
 vm_conf_file = os.path.join("conf", "vms.cfg")
 
 # get configuration for AV update process (exe, vms, etc)
 
 logdir = ""
-#server = ""
+test_id = -1
 
 vmman = VMRun(vm_conf_file)
 
@@ -109,33 +110,26 @@ def run_command(flargs):
 
     return True
 
-def add_record_report():
+def add_record_test():
     try:
-        db_name = "../share/avmonitor.db"
         timestamp = time.strftime("%Y%m%d_%H%M", time.gmtime())
-
-        conn = sqlite3.connect(db_name)
         
-        cur  = conn.cursor()
-        cur.execute("INSERT INTO report (time,status) VALUES('%s',0)" % str(timestamp) )
-
-        conn.commit()
-        conn.close()
+        t = Test(0,str(timestamp))
+        db.session.add(t)
+        db.session.commit()
+        return t.id
     except Exception as e:
         print "DBG error inserting report in db. Exception: %s" % e
+        print DB_PATH
+        return None
 
-def add_record_result(vm_name, kind, results):
+def add_record_result(vm_name, kind, results, t_id):
     try:
-        db_name = "../share/avmonitor.db"
         timestamp = time.strftime("%Y%m%d_%H%M", time.gmtime())
 
-        conn = sqlite3.connect(db_name)
-        
-        cur  = conn.cursor()
-        cur.execute("INSERT INTO result (vm_name, kind, res_full) VALUES('%s','%s','%s')" % (vm_name, kind, results) )
-
-        conn.commit()
-        conn.close()
+        r = Result(vm_name, kind, results, t_id)
+        db.session.add(r)
+        db.session.commit()
     except Exception as e:
         print "DBG error inserting results of test in db. Exception: %s" % e
 
@@ -160,7 +154,7 @@ def save_results(vm, kind):
 def dispatch(flargs):
 
     # add record to db
-    add_record_report()
+    test_id = add_record_test()
 
     try:
         vm_name, args = flargs
@@ -249,6 +243,12 @@ def dispatch_kind(vm_name, kind, args):
     else:
         vm.suspend()
         job_log(vm_name, "SUSPENDED %s" % kind)
+
+    if test_id != -1:
+        add_record_result(vm_name, kind, result, test_id)
+    else:
+        print "DBG no test_id found for %s, %s" % (vm_name, kind)
+
     return result
 
 def push(flargs):
@@ -408,7 +408,7 @@ def main():
     if os.path.exists(sym):
         os.unlink(sym)
     os.symlink(logdir, sym)
-    lib.logger.setLogger(debug = args.verbose, filelog = "%s/master.logger.txt" % (logdir.rstrip('/')) )
+    setLogger(debug = args.verbose, filelog = "%s/master.logger.txt" % (logdir.rstrip('/')) )
 
     # GET CONFIGURATION FOR AV UPDATE PROCESS (exe, vms, etc)
 

@@ -2,8 +2,8 @@ import os
 
 from flask import Flask, render_template
 
-from models import db, app, init_db, Report
-from settings import DB_PATH
+from lib.web.models import db, app, init_db, Test, Result
+from lib.web.settings import DB_PATH
 
 @app.route('/')
 def index_view():
@@ -11,19 +11,22 @@ def index_view():
 	Shows list of reports
 	"""
 	title = "Reports"
-	reports = Report.query.all()
+	reports = Test.query.all()
 
 	return render_template('index.html', title=title, reports=reports)
 
-@app.route('/view/<r_id>')
-def result_view(r_id):
+@app.route('/view/<t_id>')
+def result_view(t_id):
 	""" Test Results page
 	Show results of spcific scheduled test
 	"""
-	report = Report.query.filter_by(id=r_id)
-	title  = report.date
+	report = Test.query.filter_by(id=t_id).first_or_404()
+	title  = report.time
 
-	results = Result.query.filter_by(report=report)
+	results = Result.query.filter_by(test_id=report.id)
+
+	if not results:
+		results = None
 
 	return render_template("results.html", title=title, results=results)
 

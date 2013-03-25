@@ -15,7 +15,13 @@
             <tr>
 				<td><a href="/view/{{ report.id }}">{{ report.id }}</a></td>
 				<td>{{ report.time }}</td>
-				<td>&nbsp;</td>
+				<td>
+					{% if report.status == 0 %}
+					RUNNING
+					{% else %}
+					COMPLETED
+					{% endif %}
+				</td>
 			</tr>
 
 		{% endfor %}

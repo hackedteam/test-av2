@@ -8,11 +8,12 @@ app = Flask(__name__)
 app.config.from_pyfile('settings.py')
 db = SQLAlchemy(app)
 
-class Report(db.Model):
-	id     = db.Column(db.Integer, primary_key=True)
+class Test(db.Model):
+	id      = db.Column(db.Integer, primary_key=True)
 	#time   = db.Column(db.DateTime)
-	time   = db.Column(db.String(25))
-	status = db.Column(db.Integer) # 0: started, 1: completed
+	time    = db.Column(db.String(25))
+	status  = db.Column(db.Integer) # 0: started, 1: completed
+	results = db.relationship('Result', backref='test', lazy='dynamic')
 
 	def __init__(self, status, time):
 		self.status = status
@@ -21,7 +22,7 @@ class Report(db.Model):
 class Result(db.Model):
 	id        = db.Column(db.Integer, primary_key=True)
 	vm_name   = db.Column(db.String(15))
-	report_id = db.Column(db.Integer, db.ForeignKey('report.id'))
+	test_id   = db.Column(db.Integer, db.ForeignKey('test.id'))
 	kind      = db.Column(db.String(10))
 	res_short = db.Column(db.String(50))
 	res_full  = db.Column(db.Text)
@@ -38,7 +39,7 @@ def init_db(db_path):
 		print "[!] No database found! Creating one"
 		db.create_all()
 
-if __name__ == "__main__":
-	init_db()
-	assert Report(0,"22-12-22-03:03:03") not None
-	assert Result("melt","SUCCESS","SUCCES SYNC") not None
+#if __name__ == "__main__":
+	#init_db()
+	#assert Report(0,"22-12-22-03:03:03") not None
+	#assert Result("melt","SUCCESS","SUCCES SYNC") not None
