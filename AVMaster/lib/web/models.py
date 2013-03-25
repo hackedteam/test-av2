@@ -26,6 +26,7 @@ class Result(db.Model):
 	kind      = db.Column(db.String(10))
 	res_short = db.Column(db.String(50))
 	res_full  = db.Column(db.Text)
+	status    = db.Column(db.Integer) # 0: ADDED, 1: STARTED 2: RUNNING 3: COMPLETED
 
 	def __init__(self, kind, res_short, res_full):
 		self.kind      = kind

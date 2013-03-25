@@ -25,6 +25,7 @@ vm_conf_file = os.path.join("conf", "vms.cfg")
 
 logdir = ""
 test_id = -1
+status = 0
 
 vmman = VMRun(vm_conf_file)
 
@@ -123,7 +124,7 @@ def add_record_test():
         print DB_PATH
         return None
 
-def add_record_result(vm_name, kind, results, t_id):
+def add_record_result(vm_name, kind, t_id, status, results=None):
     try:
         timestamp = time.strftime("%Y%m%d_%H%M", time.gmtime())
 
@@ -153,14 +154,14 @@ def save_results(vm, kind):
 
 def dispatch(flargs):
 
-    # add record to db
-    test_id = add_record_test()
-
     try:
         vm_name, args = flargs
         kind = args.kind
         results = []
         print "DBG %s, %s" %(vm_name,kind)
+
+        # add record to db
+        test_id = add_record_test()
 
         if kind == "all":
             results.append( dispatch_kind(vm_name, "silent", args) )
@@ -190,7 +191,9 @@ def dispatch_kind(vm_name, kind, args):
     sleep(random.randint(30, vms * 30))
     vm.startup()
     job_log(vm_name, "STARTUP")
-    
+
+    status+=1
+
     test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
 
     buildbat = "build_%s_%s.bat" % (kind, args.server)
@@ -245,7 +248,9 @@ def dispatch_kind(vm_name, kind, args):
         job_log(vm_name, "SUSPENDED %s" % kind)
 
     if test_id != -1:
-        add_record_result(vm_name, kind, result, test_id)
+        status+=1
+        print "DBG test_id: %s, status: %s" % (test_id, status)
+        add_record_result(vm_name, kind, test_id, status, result)
     else:
         print "DBG no test_id found for %s, %s" % (vm_name, kind)
 
@@ -325,24 +330,13 @@ def check_infection_status(vm):
 def test(flargs):
     conf = ConfigParser()
     conf.read(vm_conf_file)
-    vsphere = vSphereManager( conf.get("vsphere", "host"),
-                              conf.get("vsphere", "user"),
-                              conf.get("vsphere", "passwd") )
-
-    vsphere.connect()
-    vm_path = conf.get("vms","comodo")
-
-    vm = vsphere.get_vm(vm_path)
-
-    print "logging in"
-    vsphere.login_in_guest(vm, "avtest", "avtest")
-    print "ok. logged in"
-
-    vsphere.execute_cmd(vm, "c:\\WINDOWS\\system32\\calc.exe")
-    #print vsphere.list_processes(vm)
-    print "executed"
     
-def wait_for_startup(vm, max_minute=20):
+    res = "FAILED"
+    t_id = add_record_test(1,"21/09/2123 20:44")
+    add_record_result("noav","melt",3,res)
+
+    
+def wait_for_startup(vm, kind, max_minute=20):
     '''
     # the old one
     count = 0
@@ -363,6 +357,7 @@ def wait_for_startup(vm, max_minute=20):
         print "DBG %s"  % m
         try:
             if "STARTED" in m['data']:
+                status+=1
                 return True
         except TypeError:
             pass
