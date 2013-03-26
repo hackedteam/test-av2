@@ -14,10 +14,19 @@ class Test(db.Model):
 	time    = db.Column(db.String(25))
 	status  = db.Column(db.Integer) # 0: started, 1: completed
 	results = db.relationship('Result', backref='test', lazy='dynamic')
+	repot   = db.relationship('Report')
 
 	def __init__(self, status, time):
 		self.status = status
 		self.time   = time
+
+class Report(db.Model):
+	id      = db.Column(db.Integer, primary_key=True)
+	test_id = db.Column(db.Integer, db.ForeignKey('test.id'))
+	av      = db.Column(db.String(8))
+	silent  = db.Column(db.Integer) # 0: SUCCESS 1: FAILED 2: ERROR
+	melt    = db.Column(db.Integer) # 0: SUCCESS 1: FAILED 2: ERROR
+	exploit = db.Column(db.Integer) # 0: SUCCESS 1: FAILED 2: ERROR
 
 class Result(db.Model):
 	id        = db.Column(db.Integer, primary_key=True)

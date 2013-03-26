@@ -111,7 +111,7 @@ def run_command(flargs):
 
     return True
 
-def add_record_test():
+def start_test():
     try:
         timestamp = time.strftime("%Y%m%d_%H%M", time.gmtime())
         
@@ -153,6 +153,7 @@ def save_results(vm, kind):
         return "%s, %s, ERROR saving results with exception: %s" % (vm, kind, e)
 
 def dispatch(flargs):
+    global status, test_id
 
     try:
         vm_name, args = flargs
@@ -161,7 +162,7 @@ def dispatch(flargs):
         print "DBG %s, %s" %(vm_name,kind)
 
         # add record to db
-        test_id = add_record_test()
+        test_id = start_test()
 
         if kind == "all":
             results.append( dispatch_kind(vm_name, "silent", args) )
@@ -179,6 +180,7 @@ def dispatch(flargs):
         return {'ERROR': e}
 
 def dispatch_kind(vm_name, kind, args):
+    global status
 
     vms = len(args.vms)
     
@@ -330,23 +332,14 @@ def check_infection_status(vm):
 def test(flargs):
     conf = ConfigParser()
     conf.read(vm_conf_file)
-    
+
     res = "FAILED"
     t_id = add_record_test(1,"21/09/2123 20:44")
     add_record_result("noav","melt",3,res)
-
     
-def wait_for_startup(vm, kind, max_minute=20):
-    '''
-    # the old one
-    count = 0
-    while not "vmtoolsd.exe" in vmman.listProcesses(vm):
-        sleep(20)
-        count+=1
-        if count > max_minute*3:
-            return False
-    return True
-    '''
+def wait_for_startup(vm, max_minute=20):
+    global status
+
     r = Redis()
 
     p = r.pubsub()
@@ -366,7 +359,7 @@ def timestamp():
     return time.strftime("%Y%m%d_%H%M", time.gmtime())
 
 def main():
-    global logdir
+    global logdir, status, test_id
 
     # PARSING
 
@@ -482,6 +475,8 @@ def main():
         html_file = "%s/report_%s.html" % (logdir, args.action)
         if rep.save_html(html_file) is False:
             print "[!] Problem creating HTML Report!"
+        if rep.save_db(test_id) is False:
+            print "[!] Problem saving results on db!"
         if rep.send_report_color_mail(logdir.split('/')[-1]) is False:
             print "[!] Problem sending HTML email Report!"
     else:

@@ -6,6 +6,7 @@ import datetime
 from email.MIMEMultipart import MIMEMultipart
 from email.MIMEText import MIMEText
 
+from ..web.models import Report as DBReport
 
 class Report:
 	def __init__(self, results=None):
@@ -225,11 +226,6 @@ class Report:
 
 		return res_list
 
-	def save_csv(self, csv_file):
-		print "Saving csv file with results in %s" % csv_file
-		res_list = self._get_results()
-
-
 	def save_html(self, html_file, on_file=True):
 		print "saving in %s" % html_file
 		res_list = self._get_results()
@@ -246,7 +242,6 @@ class Report:
 			msg["Subject"] = "AV Monitor"
 			msg["From"] = "avmonitor@hackingteam.com"
 			msg["To"] = "olli@hackingteam.com,zeno@hackingteam.com"
-			#msg["To"] = "olli@hackingteam.com"
 			body = MIMEText(self.report)
 			msg.attach(body)
 			smtp = smtplib.SMTP("mail.hackingteam.com", 25)
@@ -362,8 +357,6 @@ a.fill-div {
 
 		return content
 
-
-	
 	def send_report_color_mail(self,  url_dir):
 		content = self._build_mail_body(url_dir)
 
@@ -382,61 +375,51 @@ a.fill-div {
 			print "[report:send mail] Impossible to send report via mail. Exception: %s" % e
 			return False
 
-	def send_report_mail(self):
-		if self.report is None: # or os.path.exists(report_link) is False:
-			return False
 
-		res_list = self._get_results()
 
-		message = ''
+	def _sort_results(self):
+		hcolumns = ['name']
+		hresults = []
+		sortedresults = sorted(self.results, key = lambda x: x[0][0])
 
-		for error in res_list['errors']:
-			print error
-			message += "%s, %s, %s\n" % (error['av'],error['kind'],error['result'])
-		print "\n\n"
+		for av in sortedresults:
+			name = av[0].split(",")[0]
+			k = len(av)
 
-		for fail in res_list['failed']:
-			message += "%s, %s, %s\n" % (fail['av'],fail['kind'],fail['result'])
-		print "\n\n"
+			hres = []
+			hres.append(name)
 
-		for success in res_list['success']:
-			message += "%s, %s, %s\n" % (success['av'],success['kind'],success['result'])
+			for ares in av:
+				r = ares.split(", ")
+				hres.append(r[-1])
+				if r[1] not in hcolumns:
+					hcolumns.append(r[1])
 
+			hresults.append(hres)
+
+		return hresults
+	
+	def save_db(self, test_id):
 		try:
 
-			msg = MIMEMultipart()
-			msg["Subject"] = "AV Monitor Results"
-			msg["From"] = "avmonitor@hackingteam.com"
-			msg["To"] = "olli@hackingteam.com,zeno@hackingteam.com"
-			body = MIMEText(message)
-			msg.attach(body)
-			smtp = smtplib.SMTP("mail.hackingteam.com", 25)
-			smtp.sendmail(msg["From"], msg["To"].split(","), msg.as_string())
-			smtp.quit()
+			results = self._sort_results()
+
+			for result in results:
+				r = DBReport(test_id, result[0], result[1], result[2], result[3])
+				db.session.add(r)
+			
+			db.session.commit()
 			return True
 		except Exception as e:
-			print "[report:send mail] Impossible to send report via mail. Exception: %s" % e
+			print "DBG error. Exception: %s" % e
 			return False
 	
-	def send_html_mail(self):
-		res_list = self._get_results()
-		message = self._write_html_report(res_list)
+'''
+if __name__ == "__main__":
+	results = [ ["AV1, silent, SUCCESS","AV1, melt, SUCCESS","AV1, exploit, SUCCESS"], 
+				["AV2, silent, FAILED","AV2, melt, FAILED","AV2, exploit, FAILED"],
+				["AV3, silent, ERROR","AV3, melt, ERROR","AV3, exploit, ERROR"] ]
 
-		try:
-
-			msg = MIMEMultipart()
-			msg["Subject"] = "AV Monitor Results"
-			msg["From"] = "avmonitor@hackingteam.com"
-			msg["To"] = "olli@hackingteam.com,zeno@hackingteam.com"
-			body = MIMEText(message, 'html')
-			msg.attach(body)
-			smtp = smtplib.SMTP("mail.hackingteam.com", 25)
-			smtp.sendmail(msg["From"], msg["To"].split(","), msg.as_string())
-			smtp.quit()
-			return True
-		except Exception as e:
-			print "[report:send mail] Impossible to send report via mail. Exception: %s" % e
-			return False
-
-
-
+	r = Report(results)
+	print r.sort_results()
+'''
