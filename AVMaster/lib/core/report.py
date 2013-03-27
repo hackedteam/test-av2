@@ -6,7 +6,7 @@ import datetime
 from email.MIMEMultipart import MIMEMultipart
 from email.MIMEText import MIMEText
 
-from ..web.models import Report as DBReport
+from ..web.models import Report as DBReport, db
 
 class Report:
 	def __init__(self, results=None):
@@ -406,7 +406,8 @@ a.fill-div {
 			results = self._sort_results()
 
 			for result in results:
-				print "DBG result length: %s" % len(result)
+				print "DBG result is: %s" % result
+				#print "DBG result length: %s" % len(result)
 				r = DBReport(test_id, result[0], result[1], result[2], result[3])
 				db.session.add(r)
 			db.session.commit()
