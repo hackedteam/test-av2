@@ -128,7 +128,7 @@ def add_record_result(vm_name, kind, t_id, status, results=None):
     try:
         timestamp = time.strftime("%Y%m%d_%H%M", time.gmtime())
 
-        r = Result(vm_name, kind, results, t_id)
+        r = Result(t_id, vm_name, kind, status, res_full=results)
         db.session.add(r)
         db.session.commit()
     except Exception as e:
@@ -162,7 +162,11 @@ def dispatch(flargs):
         print "DBG %s, %s" %(vm_name,kind)
 
         # add record to db
+        print "DBG add record to db"
         test_id = start_test()
+
+        if test_id == -1:
+            print "DBG test_id not found"
 
         if kind == "all":
             results.append( dispatch_kind(vm_name, "silent", args) )
@@ -335,7 +339,7 @@ def test(flargs):
 
     res = "FAILED"
     t_id = add_record_test(1,"21/09/2123 20:44")
-    add_record_result("noav","melt",3,res)
+    add_record_result(t_id, "noav", "melt", 3, res)
     
 def wait_for_startup(vm, max_minute=20):
     global status

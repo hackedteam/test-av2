@@ -28,6 +28,13 @@ class Report(db.Model):
 	melt    = db.Column(db.Integer) # 0: SUCCESS 1: FAILED 2: ERROR
 	exploit = db.Column(db.Integer) # 0: SUCCESS 1: FAILED 2: ERROR
 
+	def __init__(self, test_id, av, silent, melt, exploit):
+		self.av = av
+		self.test_id = test_id
+		self.silent = silent
+		self.melt = melt
+		self.exploit = exploit
+
 class Result(db.Model):
 	id        = db.Column(db.Integer, primary_key=True)
 	vm_name   = db.Column(db.String(15))
@@ -37,11 +44,14 @@ class Result(db.Model):
 	res_full  = db.Column(db.Text)
 	status    = db.Column(db.Integer) # 0: ADDED, 1: STARTED 2: RUNNING 3: COMPLETED
 
-	def __init__(self, kind, res_short, res_full):
+	def __init__(self, vm_name, test_id, kind, status, res_short=None, res_full=None):
 		self.kind      = kind
 		self.result    = result
-		self.res_short = res_short
-		self.res_full  = res_full
+		self.status    = status
+		if self.res_short:
+			self.res_short = res_short
+		if self.res_full:
+			self.res_full  = res_full
 
 def init_db(db_path):
 	""" If no db found create one """

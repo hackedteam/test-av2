@@ -380,6 +380,7 @@ a.fill-div {
 	def _sort_results(self):
 		hcolumns = ['name']
 		hresults = []
+
 		sortedresults = sorted(self.results, key = lambda x: x[0][0])
 
 		for av in sortedresults:
@@ -405,10 +406,11 @@ a.fill-div {
 			results = self._sort_results()
 
 			for result in results:
+				print "DBG result length: %s" % len(result)
 				r = DBReport(test_id, result[0], result[1], result[2], result[3])
 				db.session.add(r)
-			
 			db.session.commit()
+			print "DBG added record for test_id %s" % test_id
 			return True
 		except Exception as e:
 			print "DBG error. Exception: %s" % e
