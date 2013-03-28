@@ -13,7 +13,7 @@
 		{% for report in reports %}
 
             <tr>
-				<td><a href="/view/{{ report.id }}">{{ report.id }}</a></td>
+				<td><a href="/report/{{ report.id }}">{{ report.id }}</a></td>
 				<td>{{ report.time }}</td>
 				<td>
 					{% if report.status == 0 %}

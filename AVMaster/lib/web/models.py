@@ -12,7 +12,7 @@ class Test(db.Model):
 	id      = db.Column(db.Integer, primary_key=True)
 	#time   = db.Column(db.DateTime)
 	time    = db.Column(db.String(25))
-	status  = db.Column(db.Integer) # 0: started, 1: completed
+	#status  = db.Column(db.Integer) # 0: started, 1: completed
 	results = db.relationship('Result', backref='test', lazy='dynamic')
 	repot   = db.relationship('Report')
 
@@ -40,8 +40,7 @@ class Result(db.Model):
 	vm_name   = db.Column(db.String(15))
 	test_id   = db.Column(db.Integer, db.ForeignKey('test.id'))
 	kind      = db.Column(db.String(10))
-	res_short = db.Column(db.String(50))
-	res_full  = db.Column(db.Text)
+	result    = db.Column(db.Text)
 	status    = db.Column(db.Integer) # 0: ADDED, 1: STARTED 2: RUNNING 3: COMPLETED
 
 	def __init__(self, vm_name, test_id, kind, status, res_short=None, res_full=None):

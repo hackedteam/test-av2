@@ -15,7 +15,7 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from lib.core.VMachine import VMachine
 from lib.core.VMManager import vSphere, VMRun
 from lib.core.report import Report
-from lib.web.models import db, app, init_db, Test, Result
+from lib.web.models import db, app, Test, Result
 from lib.web.settings import DB_PATH
 from lib.core.logger import setLogger
 
@@ -123,6 +123,19 @@ def start_test():
         print "DBG error inserting report in db. Exception: %s" % e
         print DB_PATH
         return None
+
+def end_test(t_id):
+    try:
+        t = Test.query.filter_by(id=t_id)
+        if t is None:
+            return False
+        t.status = 1
+        db.session.add(t)
+        db.session.commit()
+        return True
+    except Exception as e:
+        print "DBG error changing test status to completed. Exception: %s" % e
+        return False
 
 def add_record_result(vm_name, kind, t_id, status, results=None):
     try:
@@ -362,6 +375,9 @@ def test(flargs):
     ['kis, silent, 2013-03-14 12:51:06, INFO: + SUCCESS ELITE UNINSTALLED\r\n', 'kis, melt, 2013-03-14 13:39:55, INFO: + SUCCESS ELITE UNINSTALLED\r\n', 'kis, exploit, 2013-03-14 13:59:47, INFO: + SUCCESS SCOUT SYNC\r\n'],
     ["emsisoft, silent, ERROR saving results with exception: [Errno 2] No such file or directory: '/var/log/avmonitor/report/dispatch_20130314_0900/results_emsisoft_silent.txt'", "emsisoft, melt, ERROR saving results with exception: [Errno 2] No such file or directory: '/var/log/avmonitor/report/dispatch_20130314_0900/results_emsisoft_melt.txt'", "emsisoft, exploit, ERROR saving results with exception: [Errno 2] No such file or directory: '/var/log/avmonitor/report/dispatch_20130314_0900/results_emsisoft_exploit.txt'"],
     ]
+
+    if end_test(t_id) is False:
+        print "DBG problems with closing test"
 
     r = Report(results)
     r.save_db(t_id)

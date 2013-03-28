@@ -15,35 +15,37 @@
             <tr>
 				<td>{{ report.av }}</td>
 				{% if "SUCCESS" in report.silent %}
-					<td id="success-div"><a href='#' class='fill-div'></a></td>
+					<td id="success-div">
 				{% elif "FAILED" in report.silent %}
-					<td id="failed-div"><a href='#' class='fill-div'></a></td>
+					<td id="failed-div">
 				{% elif "ERROR" in report.silent %}
-					<td id="error-div"><a href='#' class='fill-div'></a></td>
+					<td id="error-div">
 				{% elif "BLACKLIST" in report.silent %}
-					<td id="blacklisted-div"><a href='#' class='fill-div'></a></td>
+					<td id="blacklisted-div">
 				{% endif %}
-				</td>
+					<a href='#' class='fill-div'></a></td>
 
 				{% if "SUCCESS" in report.melt %}
-					<td id="success-div"><a href='#' class='fill-div'></a></td>
+					<td id="success-div">
 				{% elif "FAILED" in report.melt %}
-					<td id="failed-div"><a href='#' class='fill-div'></a></td>
+					<td id="failed-div">
 				{% elif "ERROR" in report.melt %}
-					<td id="error-div"><a href='#' class='fill-div'></a></td>
+					<td id="error-div">
 				{% elif "BLACKLIST" in report.melt %}
-					<td id="blacklisted-div"><a href='#' class='fill-div'></a></td>
+					<td id="blacklisted-div">
 				{% endif %}
+					<a href='#' class='fill-div'></a></td>
 
 				{% if "SUCCESS" in report.exploit %}
-					<td id="success-div"><a href='#' class='fill-div'></a></td>
+					<td id="success-div">
 				{% elif "FAILED" in report.exploit %}
-					<td id="failed-div"><a href='#' class='fill-div'></a></td>
+					<td id="failed-div">
 				{% elif "ERROR" in report.exploit %}
-					<td id="error-div"><a href='#' class='fill-div'></a></td>
+					<td id="error-div">
 				{% elif "BLACKLIST" in report.exploit %}
-					<td id="blacklisted-div"><a href='#' class='fill-div'></a></td>
+					<td id="blacklisted-div">
 				{% endif %}
+					<a href='#' class='fill-div'></a></td>
 
 			</tr>
 
