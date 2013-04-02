@@ -245,7 +245,7 @@ class Report:
 			msg = MIMEMultipart()
 			msg["Subject"] = "AV Monitor"
 			msg["From"] = "avmonitor@hackingteam.com"
-			msg["To"] = "olli@hackingteam.com,zeno@hackingteam.com,alor@hackingteam.com"
+			msg["To"] = "olli@hackingteam.com,zeno@hackingteam.com"
 			#msg["To"] = "olli@hackingteam.com"
 			body = MIMEText(self.report)
 			msg.attach(body)
@@ -371,7 +371,7 @@ a.fill-div {
 			msg = MIMEMultipart()
 			msg["Subject"] = "AV Monitor Results"
 			msg["From"] = "avmonitor@hackingteam.com"
-			msg["To"] = "olli@hackingteam.com,zeno@hackingteam.com"
+			msg["To"] = "olli@hackingteam.com,zeno@hackingteam.com,alor@hackingteam.com"
 			body = MIMEText(content, 'html')
 			msg.attach(body)
 			smtp = smtplib.SMTP("mail.hackingteam.com", 25)

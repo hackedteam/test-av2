@@ -18,6 +18,8 @@ from ConfigParser import ConfigParser
 from rcs_client import Rcs_client
 import logger
 
+from urllib2 import HTTPError
+
 import ctypes
 MOUSEEVENTF_MOVE = 0x0001 # mouse move
 MOUSEEVENTF_ABSOLUTE = 0x8000 # absolute move
@@ -162,7 +164,7 @@ class VMAVTest:
 
             return (target, factory_id, ident)
 
-    def _build_agent(self, factory, melt = None, demo = False):
+    def _build_agent(self, factory, melt = None, demo = False, tries = 0):
         with connection() as c:
             params = {}
             params['blackberry'] = {'platform': 'blackberry',
@@ -223,6 +225,15 @@ class VMAVTest:
 
                 print "+ SUCCESS SCOUT BUILD"
                 return [n for n in contentnames if n.endswith('.exe')]
+            except HTTPError as err:
+                print "DBG trace %s" % traceback.format_exc()
+                if tries <= 3:
+                    tries+=1
+                    print "DBG problem building scout. tries number %s" % tries
+                    return self._build_agent(factory, melt, demo, tries)
+                else:
+                    print "+ FAILED SCOUT BUILD"
+                    raise err
             except Exception, e:
                 print "DBG trace %s" % traceback.format_exc()
                 print "+ FAILED SCOUT BUILD"
