@@ -166,20 +166,12 @@ def save_results(vm, kind):
         return "%s, %s, ERROR saving results with exception: %s" % (vm, kind, e)
 
 def dispatch(flargs):
-    global status, test_id
 
     try:
         vm_name, args = flargs
         kind = args.kind
         results = []
         print "DBG %s, %s" %(vm_name,kind)
-
-        # add record to db
-        print "DBG add record to db"
-        test_id = start_test()
-
-        if test_id == -1:
-            print "DBG test_id not found"
 
         if kind == "all":
             results.append( dispatch_kind(vm_name, "silent", args) )
@@ -349,7 +341,7 @@ def check_infection_status(vm):
 def test(flargs):
     conf = ConfigParser()
     conf.read(vm_conf_file)
-
+    '''
     res = "FAILED"
     t_id = start_test()
 
@@ -381,7 +373,15 @@ def test(flargs):
 
     r = Report(results)
     r.save_db(t_id)
-    
+    '''
+    vm_name = flargs[0]
+    vm = VMachine(vm_conf_file, vm_name)
+
+    dir_bat = "C:\\Users\\avtest\\Desktop\\pubsub"
+    dir_red = "C:\\Windows\TEMP\\dir_red"
+
+    files_bat = [ "lib/publish.py", "start.bat" ]
+
 def wait_for_startup(vm, max_minute=20):
     global status
 
@@ -485,6 +485,11 @@ def main():
     else:
         os.system('sudo ./net_disable.sh')
         print "[!] Disabling NETWORKING!"
+
+    if args.action == "dispatch":
+        print "DBG add record to db"
+        test_id = start_test()
+
 
     # POOL EXECUTION    
 
