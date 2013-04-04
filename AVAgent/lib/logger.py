@@ -17,8 +17,8 @@ class StreamToLogger(object):
       self.linebuf = ''
       self.r = redis.Redis("10.0.20.1")
 
-      if not self.r.ping():
-         self.r = None
+      #if not self.r.ping():
+      #   self.r = None
 
       self.avname = avname
  
@@ -37,8 +37,8 @@ class StreamToLogger(object):
          
          for line in buf.rstrip().splitlines():
             self.logger.log(self.log_level, line.rstrip())
-            #if line.startswith("+") and self.r:
-            #   self.r.publish(self.avname, line.replace("+","").strip() )
+            if line.startswith("+") and self.r:
+               self.r.publish(self.avname, line.replace("+","").strip() )
 
 def setLogger( debug=True, filelog="results.txt", avname="channel"):
    logging.basicConfig(

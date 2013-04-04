@@ -43,14 +43,15 @@ class Result(db.Model):
 	result    = db.Column(db.Text)
 	status    = db.Column(db.Integer) # 0: ADDED, 1: STARTED 2: RUNNING 3: COMPLETED
 
-	def __init__(self, vm_name, test_id, kind, status, res_short=None, res_full=None):
-		self.kind      = kind
-		self.result    = result
-		self.status    = status
-		if self.res_short:
-			self.res_short = res_short
-		if self.res_full:
-			self.res_full  = res_full
+	def __init__(self, vm_name, test_id, kind, status, result=None):
+		self.kind    = kind
+		self.status  = status
+		self.vm_name = vm_name
+		self.test_id = test_id
+		
+		if result is not None:
+			self.result = result
+
 
 def init_db(db_path):
 	""" If no db found create one """

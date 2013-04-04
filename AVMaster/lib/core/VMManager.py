@@ -42,7 +42,7 @@ class VMRun:
 		self.user   = self.config.get("vsphere", "user")
 		self.passwd = self.config.get("vsphere", "passwd")
 
-	def _run_cmd(self, vmx, cmd, args=[], vmx_creds=[], popen=False, timeout=40):
+	def _run_cmd(self, vmx, cmd, args=[], vmx_creds=[], popen=False, bg=False, timeout=40):
 		pargs = [   self.path,
 					"-T", "vc",
 					"-h", self.host,
@@ -56,11 +56,17 @@ class VMRun:
 		pargs.extend(args)
 		if popen == True:
 			return self._run_popen(pargs, timeout)
+		elif bg == True:
+			print "DBG running in bg mode"
+			return self._run_bg(pargs)
 		else:
 			return self._run_call(pargs)
 
 	def _run_call(self, pargs):
 		return subprocess.call(pargs)
+
+	def _run_bg(self, pargs):
+		subprocess.Popen(pargs, stdout=subprocess.PIPE)
 
 	def _run_popen(self, pargs, timeout=40):
 		p = subprocess.Popen(pargs, stdout=subprocess.PIPE)
@@ -168,18 +174,19 @@ class VMRun:
 		sys.stdout.write("[%s] Copying file from %s to %s.\n" % (vmx, src_file, dst_file))
 		self._run_cmd(vmx, "CopyFileFromGuestToHost", [src_file, dst_file], [vmx.user, vmx.passwd])
 
-	def executeCmd(self, vmx, cmd, args=[], timeout=40, interactive=False): 
+	def executeCmd(self, vmx, cmd, args=[], timeout=40, interactive=False, bg=False): 
 		sys.stdout.write("[%s] Executing %s\n" % (vmx,cmd))
 		cmds = []
 		if interactive is True:
 			cmds.append("-interactive")
 		cmds.append(cmd)
 		cmds.extend(args)
+		print "DBG background execution is %s" % bg
 		return self._run_cmd(vmx, 
 							 "runProgramInGuest", 
 							 cmds, 
 							 [vmx.user, vmx.passwd], 
-							 popen=True, timeout=timeout)
+							 bg=bg, timeout=timeout)
 
 	def listProcesses(self, vmx):
 		sys.stdout.write("[%s] List processes\n" % vmx)

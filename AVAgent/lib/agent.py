@@ -304,6 +304,19 @@ class AVAgent:
     def _list_processes(self):
         return subprocess.Popen(["tasklist"], stdout=subprocess.PIPE).communicate()[0]
 
+    def _send_results(self, results):
+        import redis
+        import socket
+        try:
+            print "DBG publish results"
+            channel = socket.gethostname().replace("win7", "")
+            r = redis.Redis("10.0.20.1")
+            r.publish(channel, results)
+            return True
+        except Exception as e:
+            print "DBG problem saving results. fault: %s" % e
+            return False
+
     def server_errors(self):
         with connection() as c:
             return c.server_status()['error']
@@ -336,6 +349,7 @@ class AVAgent:
 
         if not instance:
             print "- exiting execute_elite because did't sync"
+            self._send_results("ENDED")
             return
 
         print "- Try upgrade to elite"
@@ -344,13 +358,18 @@ class AVAgent:
         print "DBG %s in %s" % (self.hostname, self.blacklist)
         if not upgradable:
             if self.hostname in self.blacklist:
-                print "+ SUCCESS ELITE BLACKLISTED"
+                result = "+ SUCCESS ELITE BLACKLISTED"
+                print result
             else:
-                print "+ FAILED ELITE UPGRADE"
+                result = "+ FAILED ELITE UPGRADE"
+                print result
+            self._send_results("ENDED")
             return
         else:
             if self.hostname in self.blacklist:
-                print "+ FAILED ELITE BLACKLISTED"
+                result = "+ FAILED ELITE BLACKLISTED"
+                print result
+                self._send_results("ENDED")
                 return
 
         print "- Elite, Wait for 25 minutes: %s" % time.ctime() 
@@ -358,18 +377,23 @@ class AVAgent:
         
         elite = self._check_elite( instance )
         if elite:
-            print "+ SUCCESS ELITE INSTALL"
+            result = "+ SUCCESS ELITE INSTALL"
+            print result
             print "- Elite, wait for 4 minute then uninstall: %s" % time.ctime() 
             sleep(60 * 2)
             self._uninstall(instance)
             sleep(60 * 2)
-            print "+ SUCCESS ELITE UNINSTALLED"
+            result = "+ SUCCESS ELITE UNINSTALLED"
+            print result
         else:
             output = self._list_processes()
             print output
-            print "+ FAILED ELITE INSTALL"
+            result = "+ FAILED ELITE INSTALL"
+            print result
 
         print "- Result: %s" % elite
+        print "- sending Results to Master"
+        self._send_results("ENDED")
 
     def execute_scout(self):
         """ build and execute the  """
@@ -530,7 +554,7 @@ def main():
     parser.set_defaults(platform_type =  platform_type)
 
     args = parser.parse_args()
-    avname = socket.gethostname().replace("Win7-", "").lower()
+    avname = socket.gethostname().replace("win7", "").lower()
 
     logger.setLogger(debug = args.verbose, avname=avname)
     connection.host = args.backend

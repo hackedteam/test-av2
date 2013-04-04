@@ -137,31 +137,44 @@ def end_test(t_id):
         print "DBG error changing test status to completed. Exception: %s" % e
         return False
 
-def add_record_result(vm_name, kind, t_id, status, results=None):
+def add_record_result(vm_name, kind, t_id, status, result=None):
     try:
         timestamp = time.strftime("%Y%m%d_%H%M", time.gmtime())
 
-        r = Result(t_id, vm_name, kind, status, res_full=results)
+        r = Result(vm_name, t_id, kind, status, result)
         db.session.add(r)
         db.session.commit()
+        return r.id
     except Exception as e:
         print "DBG error inserting results of test in db. Exception: %s" % e
+        return
 
-def save_results(vm, kind):
+def upd_record_result(r_id, status=None, result=None):
+    r = Result.query.filter_by(id=r_id).first()
+    if not r:
+        print "DBG result not found"
+        return
+    if result is not None:
+        r.result = result
+    if status is not None:
+        r.status = status
+
+    db.session.commit()
+
+
+def save_results(vm, kind, test_id, result_id):
+    global status, logdir
+    
     try:
-        res_file_rem = "c:\\Users\\avtest\\Desktop\\AVTEST\\results.txt"
-        res_file_loc = "%s/results_%s_%s.txt" % (logdir, vm, kind)
-        print "DBG saving %s %s"
-        vm.get_file(res_file_rem, res_file_loc)
+        results = wait_for_results(vm, result_id)
 
-        last = "ERROR save"
-        f = open(res_file_loc, 'rb')
-        for l in f.readlines():
-            if " + " in l:
-                last = l
+        print "DBG [%s] passing debug files txt from host" % vm.name
+        res_txt_dst = "%s/results_%s_%s.txt" % (logdir, vm, kind)
+        res_txt_src = "C:\\Users\\avtest\\Desktop\\AVTEST\\results.txt"
+        vm.get_file(res_txt_src, res_txt_dst)
 
-        # avast) 2013-03-05 05:03:09,892: INFO: + FAILED ELITE INSTALL\r\n'
-        return "%s, %s, %s" % (vm, kind, last)
+        print "DBG results are %s" % results
+        return "%s, %s, %s" % (vm_name, kind, results[-1])
     except Exception as e:
         return "%s, %s, ERROR saving results with exception: %s" % (vm, kind, e)
 
@@ -189,7 +202,9 @@ def dispatch(flargs):
         return {'ERROR': e}
 
 def dispatch_kind(vm_name, kind, args):
-    global status
+    global status, test_id
+
+    print "DBG test_id is %s" % test_id
 
     vms = len(args.vms)
     
@@ -226,44 +241,29 @@ def dispatch_kind(vm_name, kind, args):
         result = "%s, %s, ERROR: wait for startup for" % (vm_name, kind) 
     else:
         #vm.login_in_guest()
+        result_id = add_record_result(vm_name, kind, test_id, status, "STARTED")
+        print "DBG added result with id %s" % result_id
+
         job_log(vm_name, "LOGGED")
         vm.send_files("../AVAgent", test_dir, filestocopy)
         job_log(vm_name, "ENVIRONMENT")
         
         # executing bat synchronized
-        executed = vmman.executeCmd(vm, "%s\\%s" % (test_dir, buildbat), interactive=True)
-        #vsphere.execute_cmd(vm, "%s\\%s" % (test_dir, buildbat))
+        vmman.executeCmd(vm, "%s\\%s" % (test_dir, buildbat), interactive=True, bg=True)
         job_log(vm_name, "EXECUTED %s" % kind)
 
-        if executed is False:
-            print "DBG %s" % executed 
-            print "%s, ERROR: Execution failed!" % vm
-        
-        #print "processes: %s" % vmman.listProcesses(vm)
-
+        result = save_results(vm, kind, test_id, result_id)
+        job_log(vm_name, "SAVED %s" % kind)
+    
         #timestamp = time.strftime("%Y%m%d_%H%M", time.gmtime())
         out_img = "%s/screenshot_%s_%s.png" % (logdir, vm, kind)
         vmman.takeScreenshot(vm, out_img)
         job_log(vm_name, "SCREENSHOT ok")
 
-        # save results.txt locally
-        result = save_results(vm, kind)
-        job_log(vm_name, "SAVED %s" % kind)
-    
+        
     # suspend & refresh snapshot
-    if executed:
-        vm.shutdown()
-        job_log(vm_name, "SHUTDOWN %s" % kind)
-    else:
-        vm.suspend()
-        job_log(vm_name, "SUSPENDED %s" % kind)
-
-    if test_id != -1:
-        status+=1
-        print "DBG test_id: %s, status: %s" % (test_id, status)
-        add_record_result(vm_name, kind, test_id, status, result)
-    else:
-        print "DBG no test_id found for %s, %s" % (vm_name, kind)
+    vm.suspend()
+    job_log(vm_name, "SUSPENDED %s" % kind)
 
     return result
 
@@ -382,9 +382,7 @@ def test(flargs):
 
     files_bat = [ "lib/publish.py", "start.bat" ]
 
-def wait_for_startup(vm, max_minute=20):
-    global status
-
+def wait_for_startup(vm, message=None, max_minute=20):
     r = Redis()
 
     p = r.pubsub()
@@ -395,10 +393,33 @@ def wait_for_startup(vm, max_minute=20):
         print "DBG %s"  % m
         try:
             if "STARTED" in m['data']:
-                status+=1
                 return True
         except TypeError:
             pass
+
+
+def wait_for_results(vm, result_id, max_minute=20):
+    r = Redis()
+
+    p = r.pubsub()
+    p.subscribe(vm.name)
+    results = []
+    res = ""
+
+    # timeout
+    for m in p.listen():
+        print "DBG %s" % m
+        try:
+            if "ENDED" not in m['data']:
+                results.append(str(m['data']))
+                #print "DBG updating results with [ %s ]" % results
+                res += "%s, \n" % str(m['data'])
+                upd_record_result(result_id, result=res )
+            else:
+                return results
+        except TypeError:
+            pass
+
 
 def timestamp():
     return time.strftime("%Y%m%d_%H%M", time.gmtime())
@@ -522,11 +543,11 @@ def main():
 
     
     if args.action == "dispatch":
-        html_file = "%s/report_%s.html" % (logdir, args.action)
-        if rep.save_html(html_file) is False:
-            print "[!] Problem creating HTML Report!"
-        if rep.save_db(test_id) is False:
-            print "[!] Problem saving results on db!"
+        #html_file = "%s/report_%s.html" % (logdir, args.action)
+        #if rep.save_html(html_file) is False:
+        #    print "[!] Problem creating HTML Report!"
+        #if rep.save_db(test_id) is False:
+        #    print "[!] Problem saving results on db!"
         if rep.send_report_color_mail(logdir.split('/')[-1]) is False:
             print "[!] Problem sending HTML email Report!"
     else:
