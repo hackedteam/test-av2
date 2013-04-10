@@ -93,9 +93,9 @@ class Rcs_client:
         cj = cookielib.CookieJar()
         resp = self._post_response(link, cj, data)
         result = json.loads(resp)
-        print result
+        #print result
         self.myid = result['user']['_id']
-        print "my id = %s" % self.myid
+        #print "my id = %s" % self.myid
 
         self.cookie = cj
         return cj

@@ -226,7 +226,8 @@ class VMAVTest:
                     appname = "exp_%s" % self.hostname
                     param['melt']['appname'] = appname
                     param['melt']['url'] = "http://%s/%s" % (c.host, appname)
-                    param['deliver']['user'] = c.myid
+                    if 'deliver' in param:
+                        param['deliver']['user'] = c.myid
                     r = c.build_melt(factory, param, melt, filename)
                 else:
                     print "- Silent build"

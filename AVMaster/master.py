@@ -365,7 +365,7 @@ def main():
     parser.add_argument('-v', '--verbose', action='store_true', default=False,  
         help="Verbose")
     parser.add_argument('-k', '--kind', default="all", type=str,
-        help="Verbose", choices=['silent', 'melt', 'exploit', 'all'])
+        help="Verbose", choices=['silent', 'melt', 'exploit', 'exploit_doc', 'mobile', 'all'])
     parser.add_argument('-c', '--cmd', required=False,
         help="Run VMRUN command")
     parser.add_argument('-u', '--updatetime', default=50, type=int,
