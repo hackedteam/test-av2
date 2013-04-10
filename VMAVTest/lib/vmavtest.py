@@ -497,15 +497,21 @@ def scout(args):
 def pull(args):
     """ starts a scout """
     if args.platform == "all":
+        res = True;
         for platform in args.platform_type.keys():
             if platform.startswith("exploit"):
                 continue
             print "pulling platform ", platform
             try:
                 execute_agent(args, "pull", platform)
-                print "+ PULLED %s" % platform
+                print "+ SUCCESS PULL %s" % platform
             except Exception, ex:
                 print "ERROR %s" % ex
+                res = False
+        if res:
+            print "+ SUCCESS"
+        else:
+            print "+ ERROR"
     else:
         execute_agent(args, "pull", args.platform)
 
