@@ -226,6 +226,7 @@ class AVAgent:
             except Exception, e:
                 print "DBG trace %s" % traceback.format_exc()
                 print "+ FAILED SCOUT BUILD"
+                self._send_results("ENDED")
                 raise e
         
     def _execute_build(self, exenames):
@@ -242,6 +243,7 @@ class AVAgent:
         except Exception, e:
             print "DBG trace %s" % traceback.format_exc()
             print "+ FAILED SCOUT EXECUTE"
+            self._send_results("ENDED")
             raise e
 
     def _click_mouse(self, x, y):
@@ -270,6 +272,7 @@ class AVAgent:
             else:
 
                 print "+ FAILED SCOUT SYNC"
+                self._send_results("ENDED")
                 return None
 
     def _check_elite(self, instance_id):
@@ -282,6 +285,7 @@ class AVAgent:
                 print "+ SUCCESS ELITE SYNC"
             else:
                 print "+ FAILED ELITE SYNC"
+                self._send_results("ENDED")
             return ret
 
     def _uninstall(self, instance_id):
@@ -421,6 +425,7 @@ class AVAgent:
         if not instance:
             output = self._list_processes()
             print output
+            self._send_results("ENDED")
         print "- Result: %s" % instance
         return instance
 
@@ -482,8 +487,10 @@ def execute_agent(args, level, platform):
             action[level]()
         else:
             print "+ FAILED SERVER ERRORS"
+        vmavtest._send_results("END")
     else:
-         print "+ FAILED USER CREATE"
+        print "+ FAILED USER CREATE"
+        vmavtest._send_results("END")
 
 def elite(args):
     """ starts a scout """
@@ -505,6 +512,7 @@ def pull(args):
                 print "+ PULLED %s" % platform
             except Exception, ex:
                 print "ERROR %s" % ex
+                vmavtest._send_results("ENDED")
     else:
         execute_agent(args, "pull", args.platform)
 

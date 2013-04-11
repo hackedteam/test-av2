@@ -7,48 +7,37 @@
         <h1>{{ title }}</h1>
     </div>
     <table class="table table-striped table-bordered">
-        <thead><tr><th>AV</th><th>Silent</th><th>Melt</th><th>Exploit</th></tr></thead>
+        <thead>
+        	{% for hcolumn in hcolumns %}
+
+        		<th>{{ hcolumn }}</th>
+
+        	{% endfor %}
+
+        </thead>
         <tbody>
 
 		{% for report in reports %}
+			<tr>
+				<td width="50%">{{ report.name }}</td>
 
-            <tr>
-				<td>{{ report.av }}</td>
-				{% if "SUCCESS" in report.silent %}
-					<td id="success-div">
-				{% elif "FAILED" in report.silent %}
-					<td id="failed-div">
-				{% elif "ERROR" in report.silent %}
-					<td id="error-div">
-				{% elif "BLACKLIST" in report.silent %}
-					<td id="blacklisted-div">
-				{% endif %}
-					<a href='#' class='fill-div'></a></td>
-
-				{% if "SUCCESS" in report.melt %}
-					<td id="success-div">
-				{% elif "FAILED" in report.melt %}
-					<td id="failed-div">
-				{% elif "ERROR" in report.melt %}
-					<td id="error-div">
-				{% elif "BLACKLIST" in report.melt %}
-					<td id="blacklisted-div">
-				{% endif %}
-					<a href='#' class='fill-div'></a></td>
-
-				{% if "SUCCESS" in report.exploit %}
-					<td id="success-div">
-				{% elif "FAILED" in report.exploit %}
-					<td id="failed-div">
-				{% elif "ERROR" in report.exploit %}
-					<td id="error-div">
-				{% elif "BLACKLIST" in report.exploit %}
-					<td id="blacklisted-div">
-				{% endif %}
-					<a href='#' class='fill-div'></a></td>
+				{% for hcol in hcolumns %}
+					{% if hcol != "name" %}
+						{% if "BLACKLIST" in  report.results[hcol] %}
+							<td id="blacklisted-div">&nbsp;</td>
+						{% elif "SUCCESS" in  report.results[hcol] %}
+							<td id="success-div">&nbsp;</td>
+						{% elif "ERROR" in  report.results[hcol] %}
+							<td id="error-div">&nbsp;</td>
+						{% elif "FAILED" in  report.results[hcol] %}
+							<td id="failed-div">&nbsp;</td>
+						{% else %}
+							<td>&nbsp;</td>
+						{% endif %}
+					{% endif %}
+				{% endfor %}
 
 			</tr>
-
 		{% endfor %}
 
 		</tbody>

@@ -28,7 +28,7 @@ class Report(db.Model):
 	melt    = db.Column(db.Integer) # 0: SUCCESS 1: FAILED 2: ERROR
 	exploit = db.Column(db.Integer) # 0: SUCCESS 1: FAILED 2: ERROR
 
-	def __init__(self, test_id, av, silent, melt, exploit):
+	def __init__(self, test_id, av, silent=None, melt=None, exploit=None):
 		self.av = av
 		self.test_id = test_id
 		self.silent = silent

@@ -174,7 +174,7 @@ def save_results(vm, kind, test_id, result_id):
         vm.get_file(res_txt_src, res_txt_dst)
 
         print "DBG results are %s" % results
-        return "%s, %s, %s" % (vm_name, kind, results[-1])
+        return "%s, %s, %s" % (vm.name, kind, results[-1])
     except Exception as e:
         return "%s, %s, ERROR saving results with exception: %s" % (vm, kind, e)
 
@@ -341,46 +341,16 @@ def check_infection_status(vm):
 def test(flargs):
     conf = ConfigParser()
     conf.read(vm_conf_file)
-    '''
-    res = "FAILED"
-    t_id = start_test()
+    
+    results = [['comodo, silent, SUCCESS ELITE BLACKLISTED'], ['norton, silent, SUCCESS ELITE UNINSTALLED'], ['pctools, silent, SUCCESS ELITE UNINSTALLED']]
 
-    results = [
-    ['avira, silent, 2013-03-14 10:14:33, INFO: + FAILED SCOUT EXECUTE\r\n', 'avira, melt, 2013-03-14 10:39:00, INFO: + FAILED SCOUT SYNC\r\n', 'avira, exploit, 2013-03-14 11:00:29, INFO: + FAILED SCOUT SYNC\r\n'],
-    ['eset, silent, 2013-03-14 10:23:26, INFO: + FAILED SCOUT SYNC\r\n', 'eset, melt, 2013-03-14 10:46:24, INFO: + FAILED SCOUT SYNC\r\n', 'eset, exploit, 2013-03-14 11:12:24, INFO: + FAILED SCOUT SYNC\r\n'],
-    ['fsecure, silent, 2013-03-14 10:48:17, INFO: + SUCCESS ELITE UNINSTALLED\r\n', 'fsecure, melt, 2013-03-14 11:38:56, INFO: + SUCCESS ELITE UNINSTALLED\r\n', 'fsecure, exploit, 2013-03-14 12:00:25, INFO: + SUCCESS SCOUT SYNC\r\n'],
-    ['gdata, silent, 2013-03-14 10:19:02, INFO: + SUCCESS ELITE BLACKLISTED\r\n', 'gdata, melt, 2013-03-14 10:37:03, INFO: + SUCCESS ELITE BLACKLISTED\r\n', 'gdata, exploit, 2013-03-14 11:09:17, INFO: + SUCCESS SCOUT SYNC\r\n'],
-    ['mcafee, silent, 2013-03-14 10:21:29, INFO: + FAILED SCOUT SYNC\r\n', 'mcafee, melt, 2013-03-14 10:45:21, INFO: + FAILED SCOUT SYNC\r\n', 'mcafee, exploit, 2013-03-14 11:10:34, INFO: + FAILED SCOUT SYNC\r\n'],
-    ['msessential, silent, 2013-03-14 10:20:26, INFO: + SUCCESS SCOUT SYNC\r\n', 'msessential, melt, 2013-03-14 11:01:02, INFO: + SUCCESS SCOUT SYNC\r\n', 'msessential, exploit, 2013-03-14 11:37:08, INFO: + SUCCESS SCOUT SYNC\r\n'],
-    ['norton, silent, 2013-03-14 10:48:07, INFO: + SUCCESS ELITE UNINSTALLED\r\n', 'norton, melt, 2013-03-14 11:38:05, INFO: + SUCCESS ELITE UNINSTALLED\r\n', 'norton, exploit, 2013-03-14 12:02:31, INFO: + SUCCESS SCOUT SYNC\r\n'],
-    ['panda, silent, 2013-03-14 10:22:30, INFO: + FAILED SCOUT SYNC\r\n', 'panda, melt, 2013-03-14 11:13:02, INFO: + SUCCESS ELITE UNINSTALLED\r\n', 'panda, exploit, 2013-03-14 11:37:59, INFO: + FAILED SCOUT SYNC\r\n'],
-    ['trendm, silent, 2013-03-14 10:48:01, INFO: + SUCCESS ELITE UNINSTALLED\r\n', 'trendm, melt, 2013-03-14 11:39:32, INFO: + SUCCESS ELITE UNINSTALLED\r\n', 'trendm, exploit, 2013-03-14 12:02:22, INFO: + SUCCESS SCOUT SYNC\r\n'],
-    ['pctools, silent, 2013-03-14 10:41:10, INFO: + SUCCESS SCOUT SYNC\r\n', 'pctools, melt, 2013-03-14 11:37:05, INFO: + FAILED SCOUT SYNC\r\n', 'pctools, exploit, 2013-03-14 12:13:21, INFO: + FAILED SCOUT SYNC\r\n'],
-    ['avg, silent, 2013-03-14 10:49:13, INFO: + SUCCESS ELITE UNINSTALLED\r\n', 'avg, melt, 2013-03-14 11:39:02, INFO: + SUCCESS ELITE UNINSTALLED\r\n', 'avg, exploit, 2013-03-14 12:03:23, INFO: + SUCCESS SCOUT SYNC\r\n'],
-    ['bitdef, silent, 2013-03-14 11:18:52, INFO: + SUCCESS ELITE BLACKLISTED\r\n', 'bitdef, melt, 2013-03-14 11:38:39, INFO: + SUCCESS ELITE BLACKLISTED\r\n', 'bitdef, exploit, 2013-03-14 12:01:05, INFO: + SUCCESS SCOUT SYNC\r\n'],
-    ['sophos, silent, 2013-03-14 11:31:20, INFO: + FAILED SCOUT SYNC\r\n', 'sophos, melt, 2013-03-14 11:55:39, INFO: + FAILED SCOUT SYNC\r\n', 'sophos, exploit, 2013-03-14 12:19:33, INFO: + FAILED SCOUT SYNC\r\n'],
-    ['zoneal, silent, 2013-03-14 11:59:42, INFO: + SUCCESS ELITE UNINSTALLED\r\n', 'zoneal, melt, 2013-03-14 12:48:00, INFO: + SUCCESS ELITE UNINSTALLED\r\n', 'zoneal, exploit, 2013-03-14 13:08:56, INFO: + SUCCESS SCOUT SYNC\r\n'],
-    ['ahnlab, silent, 2013-03-14 12:04:05, INFO: + SUCCESS ELITE UNINSTALLED\r\n', 'ahnlab, melt, 2013-03-14 12:55:03, INFO: + SUCCESS ELITE UNINSTALLED\r\n', 'ahnlab, exploit, 2013-03-14 13:31:21, INFO: + SUCCESS SCOUT SYNC\r\n'],
-    ['norman, silent, 2013-03-14 12:33:00, INFO: + SUCCESS ELITE UNINSTALLED\r\n', 'norman, melt, 2013-03-14 13:23:48, INFO: + SUCCESS ELITE UNINSTALLED\r\n', 'norman, exploit, 2013-03-14 13:42:35, INFO: + SUCCESS SCOUT SYNC\r\n'],
-    ["comodo, silent, ERROR saving results with exception: [Errno 2] No such file or directory: '/var/log/avmonitor/report/dispatch_20130314_0900/results_comodo_silent.txt'", "comodo, melt, ERROR saving results with exception: [Errno 2] No such file or directory: '/var/log/avmonitor/report/dispatch_20130314_0900/results_comodo_melt.txt'", "comodo, exploit, ERROR saving results with exception: [Errno 2] No such file or directory: '/var/log/avmonitor/report/dispatch_20130314_0900/results_comodo_exploit.txt'"],
-    ['drweb, silent, 2013-03-14 12:22:05, INFO: + FAILED SCOUT SYNC\r\n', 'drweb, melt, 2013-03-14 12:46:31, INFO: + FAILED SCOUT SYNC\r\n', 'drweb, exploit, 2013-03-14 13:10:12, INFO: + FAILED SCOUT SYNC\r\n'],
-    ['kis, silent, 2013-03-14 12:51:06, INFO: + SUCCESS ELITE UNINSTALLED\r\n', 'kis, melt, 2013-03-14 13:39:55, INFO: + SUCCESS ELITE UNINSTALLED\r\n', 'kis, exploit, 2013-03-14 13:59:47, INFO: + SUCCESS SCOUT SYNC\r\n'],
-    ["emsisoft, silent, ERROR saving results with exception: [Errno 2] No such file or directory: '/var/log/avmonitor/report/dispatch_20130314_0900/results_emsisoft_silent.txt'", "emsisoft, melt, ERROR saving results with exception: [Errno 2] No such file or directory: '/var/log/avmonitor/report/dispatch_20130314_0900/results_emsisoft_melt.txt'", "emsisoft, exploit, ERROR saving results with exception: [Errno 2] No such file or directory: '/var/log/avmonitor/report/dispatch_20130314_0900/results_emsisoft_exploit.txt'"],
-    ]
-
-    if end_test(t_id) is False:
-        print "DBG problems with closing test"
+    print "DBG TEST START"
 
     r = Report(results)
-    r.save_db(t_id)
-    '''
-    vm_name = flargs[0]
-    vm = VMachine(vm_conf_file, vm_name)
+    r.save_db(1)
 
-    dir_bat = "C:\\Users\\avtest\\Desktop\\pubsub"
-    dir_red = "C:\\Windows\TEMP\\dir_red"
+    print "DBG TEST END"
 
-    files_bat = [ "lib/publish.py", "start.bat" ]
 
 def wait_for_startup(vm, message=None, max_minute=20):
     r = Redis()
@@ -413,7 +383,10 @@ def wait_for_results(vm, result_id, max_minute=20):
             if "ENDED" not in m['data']:
                 results.append(str(m['data']))
                 #print "DBG updating results with [ %s ]" % results
-                res += "%s, \n" % str(m['data'])
+                if res is not None:
+                    res += ", %s" % str(m['data'])
+                else:
+                    res += "%s" % str(m['data'])
                 upd_record_result(result_id, result=res )
             else:
                 return results
@@ -539,7 +512,7 @@ def main():
     # REPORT
     
     rep = Report(results)
-    rep.save_file("%s/master_%s.txt" % (logdir, args.action))
+    #rep.save_file("%s/master_%s.txt" % (logdir, args.action))
 
     
     if args.action == "dispatch":

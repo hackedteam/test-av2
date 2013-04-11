@@ -401,28 +401,68 @@ a.fill-div {
 		return hresults
 	
 	def save_db(self, test_id):
+
+		hresults = []
+		hcolumns = ['name']
+		dic = []
+
+		sortedresults = sorted(self.results, key = lambda x: x[0][0])
+		print "DBG sorted %s" % sortedresults
+
+		for av in sortedresults:
+			name = av[0].split(",")[0]
+			k = len(av)
+
+			hres = []
+			hres.append(name)
+
+			for ares in av:
+				r = ares.split(", ")
+				hres.append(r[-1])
+				if r[1] not in hcolumns:
+					hcolumns.append(r[1])
+
+			hresults.append(hres)
+
+
+		print "DBG hresults %s" % hresults
+
+		for res in hresults:
+			rd = dict(zip(hcolumns,res))
+			print "DBG rd %s" % rd
+			#rd['name'], rd['silent'], rd['melt'], rd['exploit']
+			avname = rd['name']
+
+			for col in hcolumns[1:]:
+				print avname, col
+				dic.append(rd)
+
+		print dic
+
 		try:
+			for result in dic:
+				silent  = None
+				melt    = None
+				exploit = None
 
-			results = self._sort_results()
+				print "DBG current result is: %s" % result
+				if result['silent']:
+					print "silent ok"
+					silent = result['silent']
+				if result['melt']:
+					print "melt ok"
+					melt = result['melt']
+				if result['exploit']:
+					print "exploit ok"
+					exploit = result['exploit']
 
-			for result in results:
-				print "DBG result is: %s" % result
-				#print "DBG result length: %s" % len(result)
-				r = DBReport(test_id, result[0], result[1], result[2], result[3])
+				print "adding shit"
+				r = DBReport(test_id, result['name'], silent, melt, exploit)
 				db.session.add(r)
-			db.session.commit()
-			print "DBG added record for test_id %s" % test_id
+
+			# TODO insert in db table report
+				db.session.commit()
 			return True
 		except Exception as e:
-			print "DBG error. Exception: %s" % e
+			print "DBG error saving report on Database. Exception: %s" % e
 			return False
-	
-'''
-if __name__ == "__main__":
-	results = [ ["AV1, silent, SUCCESS","AV1, melt, SUCCESS","AV1, exploit, SUCCESS"], 
-				["AV2, silent, FAILED","AV2, melt, FAILED","AV2, exploit, FAILED"],
-				["AV3, silent, ERROR","AV3, melt, ERROR","AV3, exploit, ERROR"] ]
-
-	r = Report(results)
-	print r.sort_results()
-'''
