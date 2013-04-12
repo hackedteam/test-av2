@@ -485,12 +485,13 @@ def execute_agent(args, level, platform):
         
             action = {"elite": vmavtest.execute_elite, "scout": vmavtest.execute_scout, "pull": vmavtest.execute_pull}
             action[level]()
+            vmavtest._send_results("ENDED")
         else:
             print "+ FAILED SERVER ERRORS"
-        vmavtest._send_results("END")
+        vmavtest._send_results("ENDED")
     else:
         print "+ FAILED USER CREATE"
-        vmavtest._send_results("END")
+        vmavtest._send_results("ENDED")
 
 def elite(args):
     """ starts a scout """

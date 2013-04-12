@@ -58,16 +58,19 @@ def report_view(t_id):
 	reports = []
 
 	for av in av_list:
+		res = Result.query.filter_by(vm_name=av,test_id=test.id)
 		report = {}
 		report['name'] = av
 		report['results'] = {}
-		j=0
-		for i in range( 0, (len(hcolumns) - 1) ):
-			report['results'][hcolumns[i+1]] = results[j+i].result.split(", ")[-1]
-		j += len(hcolumns) - 1
-		#report['results'] = sort(report['results'])
-		reports.append(report)
+
+		for r in res:
+			if "END" in r.result.split(", ")[-1]: 
+				report['results'][r.kind] = r.result.split(", ")[-2]
+			else: 
+				report['results'][r.kind] = r.result.split(", ")[-1]
+
 		print report
+		reports.append(report)
 
 	return render_template("report.html", title=title, av_list=av_list, hcolumns=hcolumns, reports=reports)
 
