@@ -383,7 +383,7 @@ def wait_for_results(vm, result_id, max_minute=20):
             if "ENDED" not in m['data']:
                 results.append(str(m['data']))
                 #print "DBG updating results with [ %s ]" % results
-                if res is not None:
+                if res is not "STARTED" or res is not None:
                     res += ", %s" % str(m['data'])
                 else:
                     res += "%s" % str(m['data'])
@@ -455,9 +455,6 @@ def main():
         # get vm names
         vm_names = c.get("pool", "machines").split(",")
     args.vms = vm_names
-    #global server
-    #server = args.server
-    #print "DBG server: %s" % server
 
     [ job_log(v, "INIT") for v in vm_names ]
 
@@ -501,10 +498,6 @@ def main():
                 "dispatch": dispatch, "test_internet": test_internet,
                 "command": run_command, "push": push }
 
-    #arg = args.kind
-    #if args.action == "command":
-    #    arg = args.cmd
-    #print "MASTER %s on %s, action %s, pool %s" % (arg, vm_names, args.action, args.pool)
     print "MASTER on %s, action %s" % (vm_names, args.action)
     r = pool.map_async(actions[args.action], [ ( n, args ) for n in vm_names ])
     results = r.get()
@@ -512,15 +505,7 @@ def main():
     # REPORT
     
     rep = Report(results)
-    #rep.save_file("%s/master_%s.txt" % (logdir, args.action))
-
-    
     if args.action == "dispatch":
-        #html_file = "%s/report_%s.html" % (logdir, args.action)
-        #if rep.save_html(html_file) is False:
-        #    print "[!] Problem creating HTML Report!"
-        #if rep.save_db(test_id) is False:
-        #    print "[!] Problem saving results on db!"
         if rep.send_report_color_mail(logdir.split('/')[-1]) is False:
             print "[!] Problem sending HTML email Report!"
     else:
