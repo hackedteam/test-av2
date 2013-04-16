@@ -178,6 +178,19 @@ def save_results(vm, kind, test_id, result_id):
     except Exception as e:
         return "%s, %s, ERROR saving results with exception: %s" % (vm, kind, e)
 
+def save_image(vm, result_id):
+    try:
+        out_img = "/tmp/screenshot_%s_%s.png" % (vm, kind)
+        vmman.takeScreenshot(vm, out_img)
+        with open(out_img, 'rb') as f:
+            result = Result.query.filter_by(id=result_id).first_or_404()
+            result.scrshoot = f.read()
+            db.session.commit()
+        return True
+    except Exception as e:
+        print "DBG image was not saved. Exception handled is %s" % e
+        return False
+
 def dispatch(flargs):
 
     try:
@@ -256,9 +269,8 @@ def dispatch_kind(vm_name, kind, args):
         job_log(vm_name, "SAVED %s" % kind)
     
         #timestamp = time.strftime("%Y%m%d_%H%M", time.gmtime())
-        out_img = "%s/screenshot_%s_%s.png" % (logdir, vm, kind)
-        vmman.takeScreenshot(vm, out_img)
-        job_log(vm_name, "SCREENSHOT ok")
+        if save_screenshot(result_id) is True:
+            job_log(vm_name, "SCREENSHOT ok")
 
         
     # suspend & refresh snapshot

@@ -15,23 +15,32 @@ def index_view():
 
 	return render_template('index.html', title=title, reports=reports)
 
-@app.route('/result/<t_id>')
-def result_view(t_id):
-	""" Test Results page
-	Show results of spcific scheduled test
+@app.route('/report/<t_id>/result/<r_id>')
+def result_view(t_id, r_id):
+	""" Test Result page
+	Show results of scheduled test on spcific virtual machine
 	"""
 	test = Test.query.filter_by(id=t_id).first_or_404()
-	title  = test.time
+	result = Result.query.filter_by(test_id=t_id,id=r_id).first_or_404()
 
-	results = Result.query.filter_by(test_id=test.id)
+	if not result:
+		result = None
+	else:
+		result.result = result.result.split(", ")
 
-	if not results:
-		results = None
+	return render_template("result.html", title=test.time, result=result)
 
-	return render_template("results.html", title=title, results=results)
+@app.route('/results/<t_id>')
+def results_view(t_id):
+	test = Test.query.filter_by(id=t_id).first_or_404()
+	results = Result.query.filter_by(test_id=t_id)
+	return render_template("results.html", title=test.time, results=results)
 
 @app.route('/report/<t_id>')
 def report_view(t_id):
+	""" Report page
+	Show report page 
+	"""
 	test = Test.query.filter_by(id=t_id).first_or_404()
 	title  = test.time
 
@@ -65,9 +74,9 @@ def report_view(t_id):
 
 		for r in res:
 			if "END" in r.result.split(", ")[-1]: 
-				report['results'][r.kind] = r.result.split(", ")[-2]
+				report['results'][r.kind] = [ t_id, r.id, r.result.split(", ")[-2] ]
 			else: 
-				report['results'][r.kind] = r.result.split(", ")[-1]
+				report['results'][r.kind] = [ t_id, r.id, r.result.split(", ")[-1] ]
 
 		print report
 		reports.append(report)

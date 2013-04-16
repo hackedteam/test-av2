@@ -41,6 +41,7 @@ class Result(db.Model):
 	test_id   = db.Column(db.Integer, db.ForeignKey('test.id'))
 	kind      = db.Column(db.String(10))
 	result    = db.Column(db.Text)
+	scrshoot  = db.Column(db.BLOB)
 	status    = db.Column(db.Integer) # 0: ADDED, 1: STARTED 2: RUNNING 3: COMPLETED
 
 	def __init__(self, vm_name, test_id, kind, status, result=None):

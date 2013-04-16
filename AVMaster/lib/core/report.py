@@ -260,7 +260,7 @@ class Report:
 		hcolumns = ['name']
 
 		host = "172.20.20.167"
-		port = "8080"
+		port = "8000"
 
 		report_file = "http://%s:%s/%s/report_dispatch.html" % ( host, port, url_dir )
 
@@ -373,96 +373,4 @@ a.fill-div {
 			return True
 		except Exception as e:
 			print "[report:send mail] Impossible to send report via mail. Exception: %s" % e
-			return False
-
-
-
-	def _sort_results(self):
-		hcolumns = ['name']
-		hresults = []
-
-		sortedresults = sorted(self.results, key = lambda x: x[0][0])
-
-		for av in sortedresults:
-			name = av[0].split(",")[0]
-			k = len(av)
-
-			hres = []
-			hres.append(name)
-
-			for ares in av:
-				r = ares.split(", ")
-				hres.append(r[-1])
-				if r[1] not in hcolumns:
-					hcolumns.append(r[1])
-
-			hresults.append(hres)
-
-		return hresults
-	
-	def save_db(self, test_id):
-
-		hresults = []
-		hcolumns = ['name']
-		dic = []
-
-		sortedresults = sorted(self.results, key = lambda x: x[0][0])
-		print "DBG sorted %s" % sortedresults
-
-		for av in sortedresults:
-			name = av[0].split(",")[0]
-			k = len(av)
-
-			hres = []
-			hres.append(name)
-
-			for ares in av:
-				r = ares.split(", ")
-				hres.append(r[-1])
-				if r[1] not in hcolumns:
-					hcolumns.append(r[1])
-
-			hresults.append(hres)
-
-
-		print "DBG hresults %s" % hresults
-
-		for res in hresults:
-			rd = dict(zip(hcolumns,res))
-			print "DBG rd %s" % rd
-			#rd['name'], rd['silent'], rd['melt'], rd['exploit']
-			avname = rd['name']
-
-			for col in hcolumns[1:]:
-				print avname, col
-				dic.append(rd)
-
-		print dic
-
-		try:
-			for result in dic:
-				silent  = None
-				melt    = None
-				exploit = None
-
-				print "DBG current result is: %s" % result
-				if result['silent']:
-					print "silent ok"
-					silent = result['silent']
-				if result['melt']:
-					print "melt ok"
-					melt = result['melt']
-				if result['exploit']:
-					print "exploit ok"
-					exploit = result['exploit']
-
-				print "adding shit"
-				r = DBReport(test_id, result['name'], silent, melt, exploit)
-				db.session.add(r)
-
-			# TODO insert in db table report
-				db.session.commit()
-			return True
-		except Exception as e:
-			print "DBG error saving report on Database. Exception: %s" % e
 			return False

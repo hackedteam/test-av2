@@ -221,6 +221,8 @@ class AVAgent:
 
                 contentnames = unzip(filename, "build/%s" % self.platform)
 
+                # CHECK FOR DELETED FILES
+
                 print "+ SUCCESS SCOUT BUILD"
                 return [n for n in contentnames if n.endswith('.exe')]
             except Exception, e:
@@ -266,14 +268,15 @@ class AVAgent:
 
             assert len(instances) <= 1, "too many instances"
 
-            if len(instances) > 0:
-                print "+ SUCCESS SCOUT SYNC"
-                return instances[0]
-            else:
+            for i in range(0,12):
+                if len(instances) > 0:
+                    print "+ SUCCESS SCOUT SYNC"
+                    return instances[0]
+                sleep(1)
 
-                print "+ FAILED SCOUT SYNC"
-                self._send_results("ENDED")
-                return None
+            print "+ FAILED SCOUT SYNC"
+            self._send_results("ENDED")
+            return None
 
     def _check_elite(self, instance_id):
         with connection() as c:

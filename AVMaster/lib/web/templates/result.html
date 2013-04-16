@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+
+{% block body %}
+
+<div class="tasks">
+    <div class="page-header">
+        <h1>{{ title }}</h1>
+    </div>
+    <table class="table table-striped table-bordered">
+    	<tr>
+    		<td width="70%">
+
+				<h3>{{ result.vm_name }}, <i>{{ result.kind }}</i></h3>
+				<p>Full Results:<br />
+				<ul>
+				{% for result in result.result %}
+					<li>{{ result }}</li>
+				{% endfor %}
+				</ul>
+				</p>
+			</td>
+
+			<td> Image(s) field </td>
+		</tr>
+	</table>
+
+{% endblock %}
