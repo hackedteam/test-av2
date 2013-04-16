@@ -197,7 +197,7 @@ def dispatch_kind(vm_name, kind):
                     "assets/keyinject.exe",
                     "assets/meltapp.exe",
                     "assets/meltexploit.txt",
-                    "assets/meltexploit.doc"     ]
+                    "assets/meltexploit.docx"     ]
     executed = False
     result = "%s, %s, ERROR GENERAL" % (vm_name, kind) 
 
@@ -263,7 +263,7 @@ def push(args):
                     "assets/keyinject.exe",
                     "assets/meltapp.exe",
                     "assets/meltexploit.txt",
-                    "assets/meltexploit.doc"    ]
+                    "assets/meltexploit.docx"    ]
     executed = False
     result = "ERROR GENERAL"
 
