@@ -482,10 +482,9 @@ def execute_agent(args, level, platform):
     vmavtest = AVAgent( args.backend, args.frontend , platform, args.kind, ftype, args.blacklist )
 
     if vmavtest.create_user_machine():
-        print "+ SUCCESS USER CONNET"
+        print "+ SUCCESS USER CONNECT"
         if not vmavtest.server_errors():
             print "+ SUCCESS SERVER CONNECT"
-        
             action = {"elite": vmavtest.execute_elite, "scout": vmavtest.execute_scout, "pull": vmavtest.execute_pull}
             action[level]()
             vmavtest._send_results("ENDED")

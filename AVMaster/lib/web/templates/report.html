@@ -24,7 +24,7 @@
 				{% for hcol in hcolumns %}
 					{% if hcol != "name" %}
 						{% if "BLACKLIST" in  report.results[hcol][2] %}
-							<td id="blacklisted-div"><a class="fill-div" href="/report/{{ report.results[hcol][0] }}/result/{{ report.results[hcol][0] }}">&nbsp;</a></td>
+							<td id="blacklisted-div"><a class="fill-div" href="/report/{{ report.results[hcol][0] }}/result/{{ report.results[hcol][1] }}">&nbsp;</a></td>
 						{% elif "SUCCESS" in  report.results[hcol][2] %}
 							<td id="success-div"><a class="fill-div" href="/report/{{ report.results[hcol][0] }}/result/{{ report.results[hcol][1] }}">&nbsp;</a></td>
 						{% elif "ERROR" in  report.results[hcol][2] %}

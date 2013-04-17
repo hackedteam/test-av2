@@ -16,11 +16,19 @@
 				{% for result in result.result %}
 					<li>{{ result }}</li>
 				{% endfor %}
-				</ul>
-				</p>
+				</ul><br />
+				<b>logs:</b><br />
+				<ul>
+
+				{% if result.log %}
+				{% for log in result.log %}
+					<li>{{ log }}</li>
+				{% endfor %}
+				{% endif %}
+				</ul></p>
 			</td>
 
-			<td> Image(s) field </td>
+			<td> <p><b>Screenshot</b><br /><img src="data:image/png;base64&#123;{{ result.scrshot }}&#125;"></p> </td>
 		</tr>
 	</table>
 

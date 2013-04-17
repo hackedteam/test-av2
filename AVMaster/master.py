@@ -6,6 +6,7 @@ import os.path
 import traceback
 import sqlite3
 
+from base64 import b64encode
 from time import sleep
 from ConfigParser import ConfigParser
 from multiprocessing import Pool
@@ -178,18 +179,27 @@ def save_results(vm, kind, test_id, result_id):
     except Exception as e:
         return "%s, %s, ERROR saving results with exception: %s" % (vm, kind, e)
 
-def save_image(vm, result_id):
+def save_screenshot(vm, result_id):
     try:
-        out_img = "/tmp/screenshot_%s_%s.png" % (vm, kind)
+        #out_img = "/tmp/screenshot_%s_%s.png" % (vm, kind)
+        out_img = "/tmp/screenshot_%s.png" % vm
         vmman.takeScreenshot(vm, out_img)
         with open(out_img, 'rb') as f:
             result = Result.query.filter_by(id=result_id).first_or_404()
-            result.scrshoot = f.read()
+            result.scrshoot = b64encode(f.read())
             db.session.commit()
         return True
     except Exception as e:
-        print "DBG image was not saved. Exception handled is %s" % e
+        print "DBG image was not saved. Exception handled: %s" % e
         return False
+
+def save_logs(result_id, log):
+    try:
+        result = Result.query.filter_by(id=result_id).first_or_404()
+        result.log = log
+        db.session.commit()
+    except Exception as e:
+        print "DBG failed saving results log. Exception: %s" % e
 
 def dispatch(flargs):
 
@@ -269,7 +279,7 @@ def dispatch_kind(vm_name, kind, args):
         job_log(vm_name, "SAVED %s" % kind)
     
         #timestamp = time.strftime("%Y%m%d_%H%M", time.gmtime())
-        if save_screenshot(result_id) is True:
+        if save_screenshot(vm, result_id) is True:
             job_log(vm_name, "SCREENSHOT ok")
 
         
@@ -386,6 +396,7 @@ def wait_for_results(vm, result_id, max_minute=20):
     p = r.pubsub()
     p.subscribe(vm.name)
     results = []
+    log = ""
     res = ""
 
     # timeout
@@ -393,14 +404,16 @@ def wait_for_results(vm, result_id, max_minute=20):
         print "DBG %s" % m
         try:
             if "ENDED" not in m['data']:
-                results.append(str(m['data']))
-                #print "DBG updating results with [ %s ]" % results
-                if res is not "STARTED" or res is not None:
-                    res += ", %s" % str(m['data'])
-                else:
-                    res += "%s" % str(m['data'])
-                upd_record_result(result_id, result=res )
+                log += "%s;; " % str(m['data']) 
+                if "+" in m['data']:
+                    results.append(str(m['data']))
+                    if res is not "STARTED" or res is not "":
+                        res += ", %s" % str(m['data'])
+                    else:
+                        res += "%s" % str(m['data'])
+                    upd_record_result(result_id, result=res.replace("+ ","").strip())
             else:
+                save_logs(result_id, log)
                 return results
         except TypeError:
             pass

@@ -36,13 +36,13 @@ class Report(db.Model):
 		self.exploit = exploit
 
 class Result(db.Model):
-	id        = db.Column(db.Integer, primary_key=True)
-	vm_name   = db.Column(db.String(15))
-	test_id   = db.Column(db.Integer, db.ForeignKey('test.id'))
-	kind      = db.Column(db.String(10))
-	result    = db.Column(db.Text)
-	scrshoot  = db.Column(db.BLOB)
-	status    = db.Column(db.Integer) # 0: ADDED, 1: STARTED 2: RUNNING 3: COMPLETED
+	id      = db.Column(db.Integer, primary_key=True)
+	vm_name = db.Column(db.String(15))
+	test_id = db.Column(db.Integer, db.ForeignKey('test.id'))
+	kind    = db.Column(db.String(10))
+	result  = db.Column(db.Text)
+	scrshot = db.Column(db.BLOB)
+	log     = db.Column(db.Text)
 
 	def __init__(self, vm_name, test_id, kind, status, result=None):
 		self.kind    = kind

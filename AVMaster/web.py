@@ -26,6 +26,7 @@ def result_view(t_id, r_id):
 	if not result:
 		result = None
 	else:
+		result.log = result.log.split(";; ")
 		result.result = result.result.split(", ")
 
 	return render_template("result.html", title=test.time, result=result)

@@ -37,8 +37,9 @@ class StreamToLogger(object):
          
          for line in buf.rstrip().splitlines():
             self.logger.log(self.log_level, line.rstrip())
-            if line.startswith("+") and self.r:
-               self.r.publish(self.avname, line.replace("+","").strip() )
+            #if line.startswith("+") and self.r:
+            #   self.r.publish(self.avname, line.replace("+","").strip() )
+            self.r.publish(self.avname, line )
 
 def setLogger( debug=True, filelog="results.txt", avname="channel"):
    logging.basicConfig(
