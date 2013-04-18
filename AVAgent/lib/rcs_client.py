@@ -9,6 +9,8 @@ pp = pprint.PrettyPrinter(indent=4)
 
 class Rcs_client:
 
+    myid = "0";
+
     def __init__(self, host, user, passwd):
         self.host = host
         self.user = user
@@ -89,7 +91,11 @@ class Rcs_client:
         link = "https://%s/auth/login" % self.host
         data = json.dumps(login)
         cj = cookielib.CookieJar()
-        self._post_response(link, cj, data)
+        resp = self._post_response(link, cj, data)
+        result = json.loads(resp)
+        #print result
+        self.myid = result['user']['_id']
+        #print "my id = %s" % self.myid
 
         self.cookie = cj
         return cj

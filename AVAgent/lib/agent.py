@@ -17,6 +17,11 @@ import random
 from ConfigParser import ConfigParser
 from rcs_client import Rcs_client
 import logger
+import redis
+import socket
+
+
+from urllib2 import HTTPError
 
 import ctypes
 MOUSEEVENTF_MOVE = 0x0001 # mouse move
@@ -96,13 +101,13 @@ class connection:
     passwd = "avmonitorp123"
 
     def __enter__(self):
-        print "DBG login %s@%s" % (self.user, self.host)
+        #print "DBG login %s@%s" % (self.user, self.host)
         self.conn = Rcs_client(self.host, self.user, self.passwd)
         self.conn.login()
         return self.conn
 
     def __exit__(self, type, value, traceback):
-        print "DBG logout"
+        #print "DBG logout"
         self.conn.logout()
 
 class AVAgent:
@@ -162,7 +167,7 @@ class AVAgent:
 
             return (target, factory_id, ident)
 
-    def _build_agent(self, factory, melt = None, demo = False):
+    def _build_agent(self, factory, melt = None, demo = False, tries = 0):
         with connection() as c:
             params = {}
             params['blackberry'] = {'platform': 'blackberry',
@@ -199,9 +204,16 @@ class AVAgent:
 
             params['exploit'] = {"generate": 
                 {"platforms": ["windows"], "binary": {"demo": False, "admin": False}, "exploit":"HT-2012-001", 
-                "melt":{"demo":False, "scout":True, "admin":False}}, "platform":"exploit", 
+                "melt":{"demo":False, "scout":True, "admin":False}}, "platform":"exploit", "deliver": {"user":"USERID"},
                 "melt":{"combo":"txt", "filename":"example.txt", "appname":"agent.exe", 
                 "input":"000"}, "factory":{"_id":"000"}
+            }
+
+            params['exploit_doc'] = {"generate": 
+                    {"platforms": ["windows"], "binary": {"demo": False, "admin": False}, "exploit":"HT-2013-002", 
+                    "melt":{"demo":False, "scout":True, "admin":False}}, 
+                "platform":"exploit", "deliver": {"user":"USERID"},
+                "melt":{"filename":"example.doc", "appname":"APPNAME", "input":"000", "url":"http://HOSTNAME/APPNAME" }, "factory":{"_id":"000"}
             }
 
             param = params[self.platform]
@@ -214,6 +226,11 @@ class AVAgent:
 
                 if melt:
                     print "- Melt build with: ", melt
+                    appname = "exp_%s" % self.hostname
+                    param['melt']['appname'] = appname
+                    param['melt']['url'] = "http://%s/%s" % (c.host, appname)
+                    if 'deliver' in param:
+                        param['deliver']['user'] = c.myid
                     r = c.build_melt(factory, param, melt, filename)
                 else:
                     print "- Silent build"
@@ -225,6 +242,15 @@ class AVAgent:
 
                 print "+ SUCCESS SCOUT BUILD"
                 return [n for n in contentnames if n.endswith('.exe')]
+            except HTTPError as err:
+                print "DBG trace %s" % traceback.format_exc()
+                if tries <= 3:
+                    tries+=1
+                    print "DBG problem building scout. tries number %s" % tries
+                    return self._build_agent(factory, melt, demo, tries)
+                else:
+                    print "+ FAILED SCOUT BUILD"
+                    raise err
             except Exception, e:
                 print "DBG trace %s" % traceback.format_exc()
                 print "+ FAILED SCOUT BUILD"
@@ -312,8 +338,6 @@ class AVAgent:
         return subprocess.Popen(["tasklist"], stdout=subprocess.PIPE).communicate()[0]
 
     def _send_results(self, results):
-        import redis
-        import socket
         try:
             print "DBG publish results"
             channel = socket.gethostname().replace("win7", "")
@@ -453,7 +477,9 @@ class AVAgent:
 
         meltfile = None
         if self.kind == 'melt':
-            if self.platform == 'exploit':
+            if self.platform == 'exploit_doc':
+                meltfile = 'assets/meltexploit.doc'
+            elif self.platform == 'exploit':
                 meltfile = 'assets/meltexploit.txt'
             else:
                 meltfile = 'assets/meltapp.exe'
@@ -507,17 +533,18 @@ def pull(args):
     """ starts a scout """
     if args.platform == "all":
         for platform in args.platform_type.keys():
-            if platform == "exploit":
+            if platform.startswith("exploit"):
                 continue
             print "pulling platform ", platform
             try:
                 execute_agent(args, "pull", platform)
-                print "+ PULLED %s" % platform
+                print "+ SUCCESS PULL %s" % platform
             except Exception, ex:
                 print "ERROR %s" % ex
                 vmavtest._send_results("ENDED")
     else:
         execute_agent(args, "pull", args.platform)
+        vmavtest._send_results("ENDED")
 
 def test(args):
     connection.host = "rcs-minotauro"
@@ -538,7 +565,7 @@ def clean(args):
     vmavtest._delete_targets(operation)
    
 def main():
-    platform_desktop = [ 'windows', 'linux', 'osx', 'exploit' ]
+    platform_desktop = [ 'windows', 'linux', 'osx', 'exploit', 'exploit_doc' ]
     platform_mobile =  [ 'android', 'blackberry', 'ios' ]
 
     platform_type = {}

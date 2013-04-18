@@ -39,10 +39,10 @@ def job_log(vm_name, status):
     print "+ %s: %s" % (vm_name, status)
 
 def update(flargs):
-    vms = len(args.vm.split(","))
+    vms = len(flargs.vm.split(","))
     try:
-        vm_name = args[0]
-        vm = VMachine(vm_config_file, vm_name)
+        vm_name = flargs[0]
+        vm = VMachine(vm_conf_file, vm_name)
         job_log(vm_name, "UPDATE")
 
         vm.revert_last_snapshot()
@@ -69,14 +69,12 @@ def update(flargs):
         sleep(updatetime * 60)
         sleep(random.randint(10,300))
 
-        running = True
         job_log(vm_name, "SHUTDOWN")
         r = vm.shutdown_upgrade()
 
         if r is False:
             return "%s, NOT Updated!"  % vm_name
 
-        count = 0
         sh = True
 
         if sh == True:
@@ -141,7 +139,6 @@ def end_test(t_id):
 def add_record_result(vm_name, kind, t_id, status, result=None):
     try:
         timestamp = time.strftime("%Y%m%d_%H%M", time.gmtime())
-
         r = Result(vm_name, t_id, kind, status, result)
         db.session.add(r)
         db.session.commit()
@@ -215,6 +212,8 @@ def dispatch(flargs):
             results.append( dispatch_kind(vm_name, "melt", args) )
             sleep(random.randint(5,10))
             results.append( dispatch_kind(vm_name, "exploit", args) )
+            sleep(random.randint(5,10))
+            results.append( dispatch_kind(vm_name, "mobile", args) )
         else:
             results.append( dispatch_kind(vm_name, kind, args) )
 
@@ -256,8 +255,9 @@ def dispatch_kind(vm_name, kind, args):
                     "assets/config_mobile.json",
                     "assets/keyinject.exe",
                     "assets/meltapp.exe",
-                    "assets/meltexploit.txt"    ]
-    executed = False
+                    "assets/meltexploit.txt",
+                    "assets/meltexploit.doc"     ]
+
     result = "%s, %s, ERROR GENERAL" % (vm_name, kind) 
 
     if wait_for_startup(vm) is False:
@@ -318,14 +318,15 @@ def push(flargs):
                     "assets/config_mobile.json",
                     "assets/keyinject.exe",
                     "assets/meltapp.exe",
-                    "assets/meltexploit.txt"    ]
-    executed = False
+                    "assets/meltexploit.txt",
+                    "assets/meltexploit.doc"    ]
+
     result = "ERROR GENERAL"
 
     if wait_for_startup(vm) is False:
         result = "ERROR wait for startup for %s" % vm_name 
     else:
-        copy_to_guest(vm, test_dir, filestocopy)
+        vm.send_files("../AVAgent", test_dir, filestocopy)
         job_log(vm_name, "ENVIRONMENT")
         result = "pushed"
     return result
@@ -343,7 +344,7 @@ def test_internet(flargs):
         if wait_for_startup(vm) is False:
             result = "ERROR wait for startup for %s" % vm_name 
         else:
-            copy_to_guest(vm, test_dir, filestocopy)
+            vm.send_files("../AVAgent", test_dir, filestocopy)
             # executing bat synchronized
             vm.execute_cmd("%s\\test_internet.bat" % test_dir)
             sleep(random.randint(100,200))
@@ -441,7 +442,7 @@ def main():
     parser.add_argument('-v', '--verbose', action='store_true', default=False,  
         help="Verbose")
     parser.add_argument('-k', '--kind', default="all", type=str,
-        help="Kind of test", choices=['silent', 'melt', 'exploit', 'all'])
+       help="Verbose", choices=['silent', 'melt', 'exploit', 'exploit_doc', 'mobile', 'all'])
     parser.add_argument('-c', '--cmd', required=False,
         help="Run VMRUN command")
     parser.add_argument('-u', '--updatetime', default=50, type=int,
