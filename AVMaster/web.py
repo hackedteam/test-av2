@@ -15,13 +15,13 @@ def index_view():
 
 	return render_template('index.html', title=title, reports=reports)
 
-@app.route('/report/<t_id>/result/<r_id>')
-def result_view(t_id, r_id):
+@app.route('/report/<t_id>/result/<name>/<kind>')
+def result_view(t_id, name, kind):
 	""" Test Result page
 	Show results of scheduled test on spcific virtual machine
 	"""
 	test = Test.query.filter_by(id=t_id).first_or_404()
-	result = Result.query.filter_by(test_id=t_id,id=r_id).first_or_404()
+	result = Result.query.filter_by(test_id=t_id,vm_name=name,kind=kind).first_or_404()
 
 	if not result:
 		result = None
@@ -71,13 +71,14 @@ def report_view(t_id):
 		res = Result.query.filter_by(vm_name=av,test_id=test.id)
 		report = {}
 		report['name'] = av
+		report['t_id'] = test.id
 		report['results'] = {}
 
 		for r in res:
 			if "END" in r.result.split(", ")[-1]: 
-				report['results'][r.kind] = [ t_id, r.id, r.result.split(", ")[-2] ]
+				report['results'][r.kind] = [ r.kind, r.result.split(", ")[-2] ]
 			else: 
-				report['results'][r.kind] = [ t_id, r.id, r.result.split(", ")[-1] ]
+				report['results'][r.kind] = [ r.kind, r.result.split(", ")[-1] ]
 
 		print report
 		reports.append(report)

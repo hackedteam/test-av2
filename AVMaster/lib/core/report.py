@@ -9,7 +9,8 @@ from email.MIMEText import MIMEText
 from ..web.models import Report as DBReport, db
 
 class Report:
-	def __init__(self, results=None):
+	def __init__(self, test_id=None, results=None):
+		self.test_id = test_id
 		self.results = results
 		
 		if results != None:
@@ -262,7 +263,7 @@ class Report:
 		host = "172.20.20.167"
 		port = "8000"
 
-		report_file = "http://%s:%s/%s/report_dispatch.html" % ( host, port, url_dir )
+		report_file = "http://%s:%s/report/%s" % ( host, port, self.test_id )
 
 		sortedresults = sorted(self.results, key = lambda x: x[0][0])
 		print "DBG sorted %s" % sortedresults
@@ -342,7 +343,7 @@ a.fill-div {
 			avname = rd['name']
 			l = linestart % avname
 			for col in hcolumns[1:]:
-				link = "http://%s:%s/%s/results_%s_%s.txt" % (host, port, url_dir, avname, col)
+				link = "http://%s:%s/report/%s/result/%s/%s" % (host, port, self.test_id, avname, col)
 
 				for kind in ["FAILED", "BLACKLISTED", "SUCCESS", "ERROR"]:
 					if kind in rd[col]:

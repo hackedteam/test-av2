@@ -529,7 +529,7 @@ def main():
 
     # REPORT
     
-    rep = Report(results)
+    rep = Report(test_id, results)
     if args.action == "dispatch":
         if rep.send_report_color_mail(logdir.split('/')[-1]) is False:
             print "[!] Problem sending HTML email Report!"
