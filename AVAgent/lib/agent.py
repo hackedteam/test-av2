@@ -249,11 +249,11 @@ class AVAgent:
                     print "DBG problem building scout. tries number %s" % tries
                     return self._build_agent(factory, melt, demo, tries)
                 else:
-                    print "+ FAILED SCOUT BUILD"
+                    print "+ ERROR SCOUT BUILD AFTER %s BUILDS" % tries
                     raise err
             except Exception, e:
                 print "DBG trace %s" % traceback.format_exc()
-                print "+ FAILED SCOUT BUILD"
+                print "+ ERROR SCOUT BUILD EXCEPTION RETRIEVED"
                 self._send_results("ENDED")
                 raise e
         
@@ -294,14 +294,15 @@ class AVAgent:
 
             assert len(instances) <= 1, "too many instances"
 
-            for i in range(0,12):
+            for i in range(1,20):
                 if len(instances) > 0:
                     print "+ SUCCESS SCOUT SYNC"
                     return instances[0]
-                sleep(1)
+                print "DBG timeout for sync retry n %s" % i
+                sleep(30)
 
             print "+ FAILED SCOUT SYNC"
-            self._send_results("ENDED")
+            #self._send_results("ENDED")
             return None
 
     def _check_elite(self, instance_id):
@@ -515,10 +516,10 @@ def execute_agent(args, level, platform):
             action[level]()
             vmavtest._send_results("ENDED")
         else:
-            print "+ FAILED SERVER ERRORS"
+            print "+ ERROR SERVER ERRORS"
         vmavtest._send_results("ENDED")
     else:
-        print "+ FAILED USER CREATE"
+        print "+ ERROR USER CREATE"
         vmavtest._send_results("ENDED")
 
 def elite(args):
