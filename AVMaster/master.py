@@ -10,7 +10,8 @@ from base64 import b64encode
 from time import sleep
 from ConfigParser import ConfigParser
 from multiprocessing import Pool
-from redis import Redis
+from redis import Redis, StrictRedis
+from redis.exceptions import ConnectionError
 from flask.ext.sqlalchemy import SQLAlchemy
 
 from lib.core.VMachine import VMachine
@@ -183,7 +184,8 @@ def save_screenshot(vm, result_id):
         vmman.takeScreenshot(vm, out_img)
         with open(out_img, 'rb') as f:
             result = Result.query.filter_by(id=result_id).first_or_404()
-            result.scrshoot = b64encode(f.read())
+            #result.scrshoot = b64encode(f.read())
+            result.scrshot = f.read()
             db.session.commit()
         return True
     except Exception as e:
@@ -261,7 +263,8 @@ def dispatch_kind(vm_name, kind, args):
     result = "%s, %s, ERROR GENERAL" % (vm_name, kind) 
 
     if wait_for_startup(vm) is False:
-        result = "%s, %s, ERROR: wait for startup for" % (vm_name, kind) 
+        result = "%s, %s, ERROR: timeout on startup" % (vm_name, kind)
+        result_id = add_record_result(vm_name, kind, test_id, status, result)
     else:
         #vm.login_in_guest()
         result_id = add_record_result(vm_name, kind, test_id, status, "STARTED")
@@ -269,6 +272,8 @@ def dispatch_kind(vm_name, kind, args):
 
         job_log(vm_name, "LOGGED")
         vm.send_files("../AVAgent", test_dir, filestocopy)
+        #for f in filestocopy:
+        #    vm.
         job_log(vm_name, "ENVIRONMENT")
         
         # executing bat synchronized
@@ -365,7 +370,7 @@ def test(flargs):
     conf = ConfigParser()
     conf.read(vm_conf_file)
     
-    results = [['comodo, silent, SUCCESS ELITE BLACKLISTED'], ['norton, silent, SUCCESS ELITE UNINSTALLED'], ['pctools, silent, SUCCESS ELITE UNINSTALLED']]
+   #results = [['comodo, silent, SUCCESS ELITE BLACKLISTED'], ['norton, silent, SUCCESS ELITE UNINSTALLED'], ['pctools, silent, SUCCESS ELITE UNINSTALLED']]
 
     print "DBG TEST START"
 
@@ -376,23 +381,29 @@ def test(flargs):
 
 
 def wait_for_startup(vm, message=None, max_minute=20):
-    r = Redis()
+    #r = Redis()
+    r = StrictRedis(socket_timeout=max_minute * 60)
 
     p = r.pubsub()
     p.subscribe(vm.name)
 
     # timeout
-    for m in p.listen():
-        print "DBG %s"  % m
-        try:
-            if "STARTED" in m['data']:
-                return True
-        except TypeError:
-            pass
+    try:
+        for m in p.listen():
+            print "DBG %s"  % m
+            try:
+                if "STARTED" in m['data']:
+                    return True
+            except TypeError:
+                pass
+    except ConnectionError:
+        print "DBG %s: Timeout occurred during startup"
+        return False
 
 
-def wait_for_results(vm, result_id, max_minute=20):
-    r = Redis()
+def wait_for_results(vm, result_id, max_minute=90 * 60):
+    #r = Redis()
+    r = StrictRedis(socket_timeout=max_minute)
 
     p = r.pubsub()
     p.subscribe(vm.name)
@@ -401,23 +412,27 @@ def wait_for_results(vm, result_id, max_minute=20):
     res = ""
 
     # timeout
-    for m in p.listen():
-        print "DBG %s" % m
-        try:
-            if "ENDED" not in m['data']:
-                log += "%s;; " % str(m['data']) 
-                if "+" in m['data']:
-                    results.append(str(m['data']))
-                    if res is not "STARTED" or res is not "":
-                        res += ", %s" % str(m['data'])
-                    else:
-                        res += "%s" % str(m['data'])
-                    upd_record_result(result_id, result=res.replace("+ ","").strip())
-            else:
-                save_logs(result_id, log)
-                return results
-        except TypeError:
-            pass
+    try:
+        for m in p.listen():
+            print "DBG %s" % m
+            try:
+                if "ENDED" not in m['data']:
+                    log += "%s;; " % str(m['data']) 
+                    if "+" in m['data']:
+                        results.append(str(m['data']))
+                        if res is not "STARTED" or res is not "":
+                            res += ", %s" % str(m['data'])
+                        else:
+                            res += "%s" % str(m['data'])
+                        upd_record_result(result_id, result=res.replace("+ ","").strip())
+                else:
+                    save_logs(result_id, log)
+                    return results
+            except TypeError:
+                pass
+    except ConnectionError:
+        print "DBG %s: Timeout occurred during execution"
+        return "ERROR: Timeout occurred during execution"
 
 
 def timestamp():

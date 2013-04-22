@@ -1,5 +1,6 @@
 import os
 
+from base64 import b64encode
 from flask import Flask, render_template
 
 from lib.web.models import db, app, init_db, Test, Result, Report
@@ -28,13 +29,14 @@ def result_view(t_id, name, kind):
 	else:
 		result.log = result.log.split(";; ")
 		result.result = result.result.split(", ")
+		result.scrshot = b64encode(result.scrshot)
 
 	return render_template("result.html", title=test.time, result=result)
 
 @app.route('/results/<t_id>')
 def results_view(t_id):
 	test = Test.query.filter_by(id=t_id).first_or_404()
-	results = Result.query.filter_by(test_id=t_id)
+	results = Result.query.filter_by(test_id=t_id).order_by(Result.vm_name)
 	return render_template("results.html", title=test.time, results=results)
 
 @app.route('/report/<t_id>')

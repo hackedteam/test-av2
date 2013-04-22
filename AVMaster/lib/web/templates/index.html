@@ -7,21 +7,15 @@
         <h1>{{ title }}</h1>
     </div>
     <table class="table table-striped table-bordered">
-        <thead><tr><th>ID</th><th>Added</th><th>Status</th></tr></thead>
+        <thead><tr><th>ID</th><th>Report</th><th>Results</th></tr></thead>
         <tbody>
 
 		{% for report in reports %}
 
             <tr>
-				<td><a href="/report/{{ report.id }}">{{ report.id }}</a></td>
 				<td>{{ report.time }}</td>
-				<td>
-					{% if report.status == 0 %}
-					RUNNING
-					{% else %}
-					COMPLETED
-					{% endif %}
-				</td>
+				<td><a href="/report/{{ report.id }}">open</a></td>
+				<td><a href="/results/{{ report.id }}">open</a></td>
 			</tr>
 
 		{% endfor %}
