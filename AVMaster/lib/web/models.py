@@ -4,8 +4,11 @@ from datetime import datetime
 from flask import Flask, request, render_template, flash, url_for, redirect
 from flask.ext.sqlalchemy import SQLAlchemy
 
+import jinja2
+
 app = Flask(__name__)
 app.config.from_pyfile('settings.py')
+app.jinja_env.undefined = jinja2.StrictUndefined
 db = SQLAlchemy(app)
 
 class Test(db.Model):

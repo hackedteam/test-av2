@@ -207,10 +207,13 @@ def save_screenshot(vm, result_id):
         print "DBG image was not saved. Exception handled: %s" % e
         return False
 
-def save_logs(result_id, log):
+def save_logs(result_id, log, update=False):
     try:
         result = Result.query.filter_by(id=result_id).first_or_404()
-        result.log = log
+        if update is True:
+            result.log += ", %s" log
+        else:
+            result.log = log
         db.session.commit()
     except Exception as e:
         print "DBG failed saving results log. Exception: %s" % e
@@ -440,16 +443,26 @@ def wait_for_results(vm, result_id, max_minute=60):
             print "DBG %s" % m
             try:
                 if "ENDED" not in m['data']:
-                    log += "%s;; " % str(m['data']) 
+
+                    #   SAVING LOGS
+
+                    if log is "":
+                        log = str(m['data'])
+                        save_logs(result_id, log)
+                    else:
+                        log += ", %s" % str(m['data'])
+                        save_logs(result_id, log, update=True)
+
+                    # SAVING RESULTS
+
                     if "+" in m['data']:
                         results.append(str(m['data']))
-                        if res is not "STARTED" or res is not "":
+                        if res is not "STARTED": # or res is not "":
                             res += ", %s" % str(m['data'])
                         else:
                             res += "%s" % str(m['data'])
                         upd_record_result(result_id, result=res.replace("+ ","").strip())
                 else:
-                    save_logs(result_id, log)
                     return results
             except TypeError:
                 pass

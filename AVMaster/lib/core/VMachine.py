@@ -3,6 +3,7 @@ import os
 from time import sleep
 from ConfigParser import ConfigParser, NoSectionError
 from pysphere.resources.vi_exception import VIException
+from datetime import datetime
 
 from VMManager import vSphere
 

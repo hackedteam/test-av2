@@ -23,16 +23,20 @@
 
 				{% for hcol in hcolumns %}
 					{% if hcol != "name" %}
-						{% if "BLACKLIST" in  report.results[hcol][1] %}
-							<td id="blacklisted-div"><a class="fill-div" href="/report/{{ report.t_id }}/result/{{ report.name }}/{{ report.results[hcol][0] }}">&nbsp;</a></td>
-						{% elif "SUCCESS" in  report.results[hcol][1] %}
-							<td id="success-div"><a class="fill-div" href="/report/{{ report.t_id }}/result/{{ report.name }}/{{ report.results[hcol][0] }}">&nbsp;</a></td>
-						{% elif "ERROR" in  report.results[hcol][1] %}
-							<td id="error-div"><a class="fill-div" href="/report/{{ report.t_id }}/result/{{ report.name }}/{{ report.results[hcol][0] }}">&nbsp;</a></td>
-						{% elif "FAILED" in  report.results[hcol][1] %}
-							<td id="failed-div"><a class="fill-div" href="/report/{{ report.t_id }}/result/{{ report.name }}/{{ report.results[hcol][0] }}">&nbsp;</a></td>
-						{% else %}
-							<td>&nbsp;</td>
+						{% if hcol > 2 %}
+							{% if "BLACKLIST" in  report.results[hcol][1] %}
+								<td id="blacklisted-div"><a class="fill-div" href="/report/{{ report.t_id }}/result/{{ report.name }}/{{ report.results[hcol][0] }}">&nbsp;</a></td>
+							{% elif "SUCCESS" in  report.results[hcol][1] %}
+								<td id="success-div"><a class="fill-div" href="/report/{{ report.t_id }}/result/{{ report.name }}/{{ report.results[hcol][0] }}">&nbsp;</a></td>
+							{% elif "ERROR" in  report.results[hcol][1] %}
+								<td id="error-div"><a class="fill-div" href="/report/{{ report.t_id }}/result/{{ report.name }}/{{ report.results[hcol][0] }}">&nbsp;</a></td>
+							{% elif "STARTED" in  report.results[hcol][1] %}
+								<td id="error-div"><a class="fill-div" href="/report/{{ report.t_id }}/result/{{ report.name }}/{{ report.results[hcol][0] }}">&nbsp;</a></td>
+							{% elif "FAILED" in  report.results[hcol][1] %}
+								<td id="failed-div"><a class="fill-div" href="/report/{{ report.t_id }}/result/{{ report.name }}/{{ report.results[hcol][0] }}">&nbsp;</a></td>
+							{% else %}
+								<td>&nbsp;</td>
+							{% endif %}
 						{% endif %}
 					{% endif %}
 				{% endfor %}

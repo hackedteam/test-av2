@@ -27,9 +27,11 @@ def result_view(t_id, name, kind):
 	if not result:
 		result = None
 	else:
-		result.log = result.log.split(";; ")
 		result.result = result.result.split(", ")
-		result.scrshot = b64encode(result.scrshot)
+		if result.log is not None:
+			result.log = result.log.split(", ")
+		if result.scrshot is not None:
+			result.scrshot = b64encode(result.scrshot)
 
 	return render_template("result.html", title=test.time, result=result)
 
