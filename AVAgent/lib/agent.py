@@ -294,12 +294,9 @@ class AVAgent:
 
             assert len(instances) <= 1, "too many instances"
 
-            for i in range(1,20):
-                if len(instances) > 0:
-                    print "+ SUCCESS SCOUT SYNC"
-                    return instances[0]
-                print "DBG timeout for sync retry n %s" % i
-                sleep(30)
+            if len(instances) > 0:
+                print "+ SUCCESS SCOUT SYNC"
+                return instances[0]
 
             print "+ FAILED SCOUT SYNC"
             #self._send_results("ENDED")
@@ -496,17 +493,20 @@ def execute_agent(args, level, platform):
     ftype = args.platform_type[platform]
     print "DBG ftype: %s" % ftype
 
+    vmavtest = AVAgent( args.backend, args.frontend , platform, args.kind, ftype, args.blacklist )
+
     """ starts a scout """
     if socket.gethostname() != 'zenovm':
         if not internet_checked and internet_on():
-            print "== ERROR: I reach Internet =="
+            print "+ ERROR: I reach Internet"
+            vmavtest._send_results("ENDED")
             exit(0)
     internet_checked = True
 
     print "- Network unreachable"
 
     print "- Server: %s/%s %s" % (args.backend,args.frontend, args.kind)
-    vmavtest = AVAgent( args.backend, args.frontend , platform, args.kind, ftype, args.blacklist )
+    #vmavtest = AVAgent( args.backend, args.frontend , platform, args.kind, ftype, args.blacklist )
 
     if vmavtest.create_user_machine():
         print "+ SUCCESS USER CONNECT"

@@ -37,7 +37,7 @@ def result_view(t_id, name, kind):
 def results_view(t_id):
 	test = Test.query.filter_by(id=t_id).first_or_404()
 	results = Result.query.filter_by(test_id=t_id).order_by(Result.vm_name)
-	return render_template("results.html", title=test.time, results=results)
+	return render_template("results.html", test=test, results=results)
 
 @app.route('/report/<t_id>')
 def report_view(t_id):

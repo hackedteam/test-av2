@@ -40,7 +40,7 @@ def job_log(vm_name, status):
     print "+ %s: %s" % (vm_name, status)
 
 def update(flargs):
-    vms = len(flargs.vm.split(","))
+    vms = len(flargs[1].vms)
     try:
         vm_name = flargs[0]
         vm = VMachine(vm_conf_file, vm_name)
@@ -53,13 +53,13 @@ def update(flargs):
         vm.startup()
         job_log(vm_name, "STARTED")
 
-        sleep(5 * 60)
+        #sleep(5 * 60)
 
         if wait_for_startup(vm) is False:
             job_log(vm_name, "NOT STARTED")
             return "ERROR wait for startup for %s" % vm_name
  
-        if check_infection_status(vm) is True:
+        if check_infection_status(vm) is not True:
             vm.shutdown()
             return "ERROR VM IS INFECTED!!!"
  
@@ -71,21 +71,30 @@ def update(flargs):
         sleep(random.randint(10,300))
 
         job_log(vm_name, "SHUTDOWN")
-        r = vm.shutdown_upgrade()
+        r = vmman.shutdownUpgrade(vm)
 
         if r is False:
-            return "%s, NOT Updated!"  % vm_name
+            job_log(vm_name, "NOT UPDATED")
+            return "%s, ERROR: NOT Updated! no shutdown..."  % vm_name
+        else:
 
-        sh = True
+            # RESTART TIME
+            while vm.is_powered_off() is False:
+                sleep(60)
 
-        if sh == True:
+            job_log(vm_name, "POWERED OFF")
+
+            vm.startup()
+
+            if wait_for_startup(vm) is False:
+                job_log(vm_name, "NOT RESTARTED")
+
+            vm.shutdown()
+            job_log(vm_name, "RESTARTED")
+
             vm.refresh_snapshot()
             job_log(vm_name, "UPDATED")
             return "%s, SUCCESS: Updated!"  % vm_name
-        else:
-            job_log(vm_name, "NOT UPDATED")
-            return "%s, ERROR: NOT Updated!"  % vm_name
-
     except Exception as e:
         job_log(vm_name, "ERROR")
         print "DBG trace %s" % traceback.format_exc()
@@ -165,7 +174,13 @@ def save_results(vm, kind, test_id, result_id):
     global status, logdir
     
     try:
-        results = wait_for_results(vm, result_id)
+        if kind == "silent" or kind == "melt":
+            max_minute = 60
+        elif kind == "exploit":
+            max_minute = 30
+        elif kind == "mobile":
+            max_minute = 15  
+        results = wait_for_results(vm, result_id, max_minute)
 
         print "DBG [%s] passing debug files txt from host" % vm.name
         res_txt_dst = "%s/results_%s_%s.txt" % (logdir, vm, kind)
@@ -360,17 +375,25 @@ def test_internet(flargs):
 
 def check_infection_status(vm):
     startup_dir = "C:\\Users\\avtest\\AppData\\Microsoft"
-    stuff = vm.list_directory(startup_dir)
+    stuff = check_directory(vm, startup_dir)
     print stuff
     if stuff is None:
         return True
+    test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
+    test = check_directory(vm, test_dir)
+    print test
+    if test is None:
+        return True
     return False
-       
+
+def check_directory(vm, directory):
+    return vm.list_directory(directory)
+
 def test(flargs):
     conf = ConfigParser()
     conf.read(vm_conf_file)
     
-   #results = [['comodo, silent, SUCCESS ELITE BLACKLISTED'], ['norton, silent, SUCCESS ELITE UNINSTALLED'], ['pctools, silent, SUCCESS ELITE UNINSTALLED']]
+    #results = [['comodo, silent, SUCCESS ELITE BLACKLISTED'], ['norton, silent, SUCCESS ELITE UNINSTALLED'], ['pctools, silent, SUCCESS ELITE UNINSTALLED']]
 
     print "DBG TEST START"
 
@@ -401,9 +424,9 @@ def wait_for_startup(vm, message=None, max_minute=20):
         return False
 
 
-def wait_for_results(vm, result_id, max_minute=90 * 60):
+def wait_for_results(vm, result_id, max_minute=60):
     #r = Redis()
-    r = StrictRedis(socket_timeout=max_minute)
+    r = StrictRedis(socket_timeout=max_minute * 60)
 
     p = r.pubsub()
     p.subscribe(vm.name)
