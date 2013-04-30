@@ -212,6 +212,12 @@ class VMAVTest:
                 "platform":"exploit", "deliver": {"user":"USERID"},
                 "melt":{"filename":"example.doc", "appname":"APPNAME", "input":"000", "url":"http://HOSTNAME/APPNAME" }, "factory":{"_id":"000"}
             }
+            params['exploit_ppt'] = {"generate": 
+                    {"platforms": ["windows"], "binary": {"demo": False, "admin": False}, "exploit":"HT-2013-002", 
+                    "melt":{"demo":False, "scout":True, "admin":False}}, 
+                "platform":"exploit", "deliver": {"user":"USERID"},
+                "melt":{"filename":"example.doc", "appname":"APPNAME", "input":"000", "url":"http://HOSTNAME/APPNAME" }, "factory":{"_id":"000"}
+            }
 
             param = params[self.platform]
 
@@ -446,6 +452,8 @@ class VMAVTest:
         if self.kind == 'melt':
             if self.platform == 'exploit_doc':
                 meltfile = 'assets/meltexploit.doc'
+            elif self.platform == 'exploit_ppt':
+                meltfile = 'assets/meltexploit.ppt'
             elif self.platform == 'exploit':
                 meltfile = 'assets/meltexploit.txt'
             else:
@@ -534,7 +542,7 @@ def clean(args):
     vmavtest._delete_targets(operation)
    
 def main():
-    platform_desktop = [ 'windows', 'linux', 'osx', 'exploit', 'exploit_doc' ]
+    platform_desktop = [ 'windows', 'linux', 'osx', 'exploit', 'exploit_doc', 'exploit_ppt' ]
     platform_mobile =  [ 'android', 'blackberry', 'ios' ]
 
     platform_type = {}
