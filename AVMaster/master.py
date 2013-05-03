@@ -211,7 +211,7 @@ def save_logs(result_id, log, update=False):
     try:
         result = Result.query.filter_by(id=result_id).first_or_404()
         if update is True:
-            result.log += ", %s" log
+            result.log += ", %s" % log
         else:
             result.log = log
         db.session.commit()

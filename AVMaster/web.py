@@ -35,6 +35,17 @@ def result_view(t_id, name, kind):
 
 	return render_template("result.html", title=test.time, result=result)
 
+@app.route('/report/<t_id>/result/<name>/<kind>/image')
+def image_view(t_id, name, kind):
+	result = Result.query.filter_by(test_id=t_id,vm_name=name,kind=kind).first_or_404()
+
+	if not result.scrshot:
+		screenshot = None
+	else:
+		screenshot = b64encode(result.scrshot)
+
+	return render_template("image.html", screenshot=screenshot)
+
 @app.route('/results/<t_id>')
 def results_view(t_id):
 	test = Test.query.filter_by(id=t_id).first_or_404()
