@@ -233,7 +233,11 @@ def dispatch(flargs):
             sleep(random.randint(5,10))
             results.append( dispatch_kind(vm_name, "exploit", args) )
             sleep(random.randint(5,10))
-            results.append( dispatch_kind(vm_name, "mobile", args) )
+            results.append( dispatch_kind(vm_name, "exploit_doc") )
+            sleep(random.randint(5,10))
+            results.append( dispatch_kind(vm_name, "exploit_ppsx") )
+            sleep(random.randint(5,10))
+            results.append( dispatch_kind(vm_name, "mobile") )
         else:
             results.append( dispatch_kind(vm_name, kind, args) )
 
@@ -276,7 +280,8 @@ def dispatch_kind(vm_name, kind, args):
                     "assets/keyinject.exe",
                     "assets/meltapp.exe",
                     "assets/meltexploit.txt",
-                    "assets/meltexploit.doc"     ]
+                    "assets/meltexploit.docx",
+                    "assets/meltexploit.ppsx"     ]
 
     result = "%s, %s, ERROR GENERAL" % (vm_name, kind) 
 
@@ -342,7 +347,8 @@ def push(flargs):
                     "assets/keyinject.exe",
                     "assets/meltapp.exe",
                     "assets/meltexploit.txt",
-                    "assets/meltexploit.doc"    ]
+                    "assets/meltexploit.docx",
+                    "assets/meltexploit.ppsx"    ]
 
     result = "ERROR GENERAL"
 
@@ -493,7 +499,7 @@ def main():
     parser.add_argument('-v', '--verbose', action='store_true', default=False,  
         help="Verbose")
     parser.add_argument('-k', '--kind', default="all", type=str,
-       help="Verbose", choices=['silent', 'melt', 'exploit', 'exploit_doc', 'mobile', 'all'])
+        help="Verbose", choices=['silent', 'melt', 'exploit', 'exploit_docx', 'exploit_ppsx', 'mobile', 'all'])
     parser.add_argument('-c', '--cmd', required=False,
         help="Run VMRUN command")
     parser.add_argument('-u', '--updatetime', default=50, type=int,

