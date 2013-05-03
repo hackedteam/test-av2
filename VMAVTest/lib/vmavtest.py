@@ -461,9 +461,13 @@ class VMAVTest:
 
         exe = self._build_agent( factory_id, meltfile )
 
-        if self.platform == 'exploit_doc':
+        if "exploit_" in self.platform:
             """ TODO: download """
-            appname = "exp_%s/avtest.swf" % self.hostname
+            if self.platform == 'exploit_doc': 
+                appname = "exp_%s/avtest.swf" % self.hostname
+            elif self.platform == 'exploit_ppsx':
+                appname = "pexp_%s/avtest.swf" % self.hostname
+
             url = "http://%s/%s" % (self.host[1], appname)
             print "DBG getting: %s" % url
             u = urllib2.urlopen(url)
