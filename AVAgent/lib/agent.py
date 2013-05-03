@@ -209,7 +209,7 @@ class AVAgent:
                 "input":"000"}, "factory":{"_id":"000"}
             }
 
-            params['exploit_doc'] = {"generate": 
+            params['exploit_docx'] = {"generate": 
                     {"platforms": ["windows"], "binary": {"demo": False, "admin": False}, "exploit":"HT-2013-002", 
                     "melt":{"demo":False, "scout":True, "admin":False}}, 
                 "platform":"exploit", "deliver": {"user":"USERID"},
@@ -481,7 +481,7 @@ class AVAgent:
 
         meltfile = None
         if self.kind == 'melt':
-            if self.platform == 'exploit_doc':
+            if self.platform == 'exploit_docx':
                 meltfile = 'assets/meltexploit.docx'
             elif self.platform == 'exploit_ppsx':
                 meltfile = 'assets/meltexploit.ppsx'
@@ -494,7 +494,7 @@ class AVAgent:
 
         if "exploit_" in self.platform:
             """ TODO: download """
-            if self.platform == 'exploit_doc': 
+            if self.platform == 'exploit_docx': 
                 appname = "exp_%s/avtest.swf" % self.hostname
             elif self.platform == 'exploit_ppsx':
                 appname = "pexp_%s/avtest.swf" % self.hostname
@@ -561,7 +561,7 @@ def scout(args):
     execute_agent(args, "scout", args.platform)
 
 def pull(args):
-    """ deploys one or all platforms ('windows', 'linux', 'osx', 'exploit', 'exploit_doc', 'android', 'blackberry', 'ios') """
+    """ deploys one or all platforms ('windows', 'linux', 'osx', 'exploit', 'exploit_docx', 'android', 'blackberry', 'ios') """
     if args.platform == "all":
         for platform in args.platform_type.keys():
             if platform.startswith("exploit"):
@@ -596,7 +596,7 @@ def clean(args):
     vmavtest._delete_targets(operation)
    
 def main():
-    platform_desktop = [ 'windows', 'linux', 'osx', 'exploit', 'exploit_doc', 'exploit_ppsx' ]
+    platform_desktop = [ 'windows', 'linux', 'osx', 'exploit', 'exploit_docx', 'exploit_ppsx' ]
     platform_mobile =  [ 'android', 'blackberry', 'ios' ]
 
     platform_type = {}
