@@ -160,7 +160,7 @@ def dispatch(args):
             sleep(random.randint(5,10))
             results.append( dispatch_kind(vm_name, "exploit") )
             sleep(random.randint(5,10))
-            results.append( dispatch_kind(vm_name, "exploit_doc") )
+            results.append( dispatch_kind(vm_name, "exploit_docx") )
             sleep(random.randint(5,10))
             results.append( dispatch_kind(vm_name, "exploit_ppsx") )
             sleep(random.randint(5,10))
