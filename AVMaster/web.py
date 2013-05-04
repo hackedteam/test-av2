@@ -44,7 +44,7 @@ def image_view(t_id, name, kind):
 	else:
 		screenshot = b64encode(result.scrshot)
 
-	return render_template("image.html", screenshot=screenshot)
+	return render_template("image.html", t_id=t_id, screenshot=screenshot)
 
 @app.route('/results/<t_id>')
 def results_view(t_id):
