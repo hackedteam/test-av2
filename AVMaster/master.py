@@ -233,11 +233,11 @@ def dispatch(flargs):
             sleep(random.randint(5,10))
             results.append( dispatch_kind(vm_name, "exploit", args) )
             sleep(random.randint(5,10))
-            results.append( dispatch_kind(vm_name, "exploit_doc") )
+            results.append( dispatch_kind(vm_name, "exploit_doc", args) )
             sleep(random.randint(5,10))
-            results.append( dispatch_kind(vm_name, "exploit_ppsx") )
+            results.append( dispatch_kind(vm_name, "exploit_ppsx", args) )
             sleep(random.randint(5,10))
-            results.append( dispatch_kind(vm_name, "mobile") )
+            results.append( dispatch_kind(vm_name, "mobile", args) )
         else:
             results.append( dispatch_kind(vm_name, kind, args) )
 
