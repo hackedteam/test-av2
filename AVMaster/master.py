@@ -178,8 +178,8 @@ def save_results(vm, kind, test_id, result_id):
             max_minute = 60
         elif kind == "exploit":
             max_minute = 30
-        elif kind == "mobile":
-            max_minute = 15  
+        elif kind == "mobile" or "exploit_" in kind:
+            max_minute = 5  
         results = wait_for_results(vm, result_id, max_minute)
 
         print "DBG [%s] passing debug files txt from host" % vm.name
@@ -233,7 +233,7 @@ def dispatch(flargs):
             sleep(random.randint(5,10))
             results.append( dispatch_kind(vm_name, "exploit", args) )
             sleep(random.randint(5,10))
-            results.append( dispatch_kind(vm_name, "exploit_doc", args) )
+            results.append( dispatch_kind(vm_name, "exploit_docx", args) )
             sleep(random.randint(5,10))
             results.append( dispatch_kind(vm_name, "exploit_ppsx", args) )
             sleep(random.randint(5,10))

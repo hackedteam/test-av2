@@ -493,7 +493,6 @@ class AVAgent:
         exe = self._build_agent( factory_id, meltfile )
 
         if "exploit_" in self.platform:
-            """ TODO: download """
             if self.platform == 'exploit_docx': 
                 appname = "exp_%s/avtest.swf" % self.hostname
             elif self.platform == 'exploit_ppsx':
@@ -501,18 +500,20 @@ class AVAgent:
 
             url = "http://%s/%s" % (self.host[1], appname)
             print "DBG getting: %s" % url
-            u = urllib2.urlopen(url)
-            localFile = open('build/file.swf', 'w')
-            localFile.write(u.read())
-            localFile.close()
-
             try:
-               with open('build/file.swf'): 
+                u = urllib2.urlopen(url)
+                localFile = open('build/file.swf', 'w')
+                localFile.write(u.read())
+                localFile.close()
+                with open('build/file.swf'): 
                     print "+ SUCCESS EXPLOIT"
+            except urllib2.HTTPError:
+                print "+ ERROR EXPLOIT DOWNLOAD"
+                pass
             except IOError:
-               print "+ ERROR EXPLOIT"
-     
-            pass
+                print "+ ERROR EXPLOIT SAVE"
+                pass
+
         return factory_id, ident, exe
 
 internet_checked = False
