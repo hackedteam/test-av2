@@ -470,18 +470,19 @@ class VMAVTest:
 
             url = "http://%s/%s" % (self.host[1], appname)
             print "DBG getting: %s" % url
-            u = urllib2.urlopen(url)
-            localFile = open('build/file.swf', 'w')
-            localFile.write(u.read())
-            localFile.close()
-
             try:
-               with open('build/file.swf'): 
+                u = urllib2.urlopen(url)
+                localFile = open('build/file.swf', 'w')
+                localFile.write(u.read())
+                localFile.close()
+
+                with open('build/file.swf'): 
                     print "+ SUCCESS EXPLOIT"
+            except urllib2.HTTPError:
+                print "+ ERROR DOWNLOADING EXPLOIT"
             except IOError:
-               print "+ ERROR EXPLOIT"
-     
-            pass
+               print "+ ERROR  SAVING EXPLOIT"
+
         return factory_id, ident, exe
 
 internet_checked = False
