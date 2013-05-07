@@ -573,10 +573,8 @@ def pull(args):
                 print "+ SUCCESS PULL %s" % platform
             except Exception, ex:
                 print "ERROR %s" % ex
-                vmavtest._send_results("ENDED")
     else:
         execute_agent(args, "pull", args.platform)
-        vmavtest._send_results("ENDED")
 
 def test(args):
     connection.host = "rcs-minotauro"
