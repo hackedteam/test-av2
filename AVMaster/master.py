@@ -207,13 +207,10 @@ def save_screenshot(vm, result_id):
         print "DBG image was not saved. Exception handled: %s" % e
         return False
 
-def save_logs(result_id, log, update=False):
+def save_logs(result_id, log):
     try:
         result = Result.query.filter_by(id=result_id).first_or_404()
-        if update is True:
-            result.log += ", %s" % log
-        else:
-            result.log = log
+        result.log = log
         db.session.commit()
     except Exception as e:
         print "DBG failed saving results log. Exception: %s" % e
@@ -457,7 +454,7 @@ def wait_for_results(vm, result_id, max_minute=60):
                         save_logs(result_id, log)
                     else:
                         log += ", %s" % str(m['data'])
-                        save_logs(result_id, log, update=True)
+                        save_logs(result_id, log)
 
                     # SAVING RESULTS
 

@@ -41,7 +41,6 @@ class VMachine:
 				self.delete_snapshot(snap_list[-2].get_name())
 
 	def send_files(self, src_dir, dst_dir, filestocopy):
-
 		with vSphere(self.path) as vm:
 
 			self._run_vm(vm, "login_in_guest", self.user, self.passwd)
@@ -62,8 +61,12 @@ class VMachine:
 					self._run_vm(vm, "make_directory", rdir)
 					memo.append( rdir )
 
-				print "DBG copy %s -> %s" % (src, dst)
-				self._run_vm(vm, "send_file", src, dst)
+				try:
+					print "DBG copy %s -> %s" % (src, dst)
+					self._run_vm(vm, "send_file", src, dst)
+				except:
+					print "DBG resending file %s -> %s" % (src, dst)
+					self._run_vm(vm, "send_file", src, dst)
 
 	def get_all_pid(self):
 		pids = []
