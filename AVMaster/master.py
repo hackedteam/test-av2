@@ -215,6 +215,30 @@ def save_logs(result_id, log):
     except Exception as e:
         print "DBG failed saving results log. Exception: %s" % e
 
+def copy_to_guest(vm, test_dir, filestocopy):
+    #lib_dir = "%s\\lib" % test_dir
+    #assets_dir = "%s\\assets" % test_dir
+    vmavtest = "../AVAgent"
+
+    memo = []
+    for filetocopy in filestocopy:
+        d,f = filetocopy.split("/")
+        src = "%s/%s/%s" % (vmavtest, d, f)
+
+        if d == ".":
+            dst =  "%s\\%s" % (test_dir, f)
+        else:
+            dst =  "%s\\%s\\%s" % (test_dir, d, f)
+
+        rdir = "%s\\%s" % (test_dir, d)
+        if not rdir in memo:
+            print "DBG mkdir %s " % (rdir)
+            vmman.mkdirInGuest( vm, rdir )
+            memo.append( rdir )
+
+        print "DBG copy %s -> %s" % (src, dst)
+        vmman.copyFileToGuest(vm, src, dst)
+
 def dispatch(flargs):
 
     try:
@@ -291,7 +315,8 @@ def dispatch_kind(vm_name, kind, args):
         print "DBG added result with id %s" % result_id
 
         job_log(vm_name, "LOGGED")
-        vm.send_files("../AVAgent", test_dir, filestocopy)
+#        vm.send_files("../AVAgent", test_dir, filestocopy)
+        copy_to_guest(vm, test_dir, filestocopy)
         #for f in filestocopy:
         #    vm.
         job_log(vm_name, "ENVIRONMENT")
