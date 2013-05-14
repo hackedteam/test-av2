@@ -1,4 +1,5 @@
 import os
+import sys
 
 from base64 import b64encode
 from flask import Flask, render_template
@@ -101,6 +102,10 @@ def report_view(t_id):
 	return render_template("report.html", title=title, av_list=av_list, hcolumns=hcolumns, reports=reports)
 
 if __name__ == "__main__":
+	port = 8000
+
+	if len(sys.argv) == 2:
+		port = sys.argv[1]
 	
 	init_db(DB_PATH)
-	app.run(host='0.0.0.0', port=8000)
+	app.run(host='0.0.0.0', port=port)
