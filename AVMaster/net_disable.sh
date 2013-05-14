@@ -4,3 +4,7 @@ shorewall restart /etc/shorewall-nat-disabled/ > networking_log.txt
 if [ -e "/var/log/rcs.log" ]; then
 	rm /var/log/rcs.log
 fi
+
+if [ -e "/var/log/detected" ]; then
+	rm /var/log/detected
+fi
