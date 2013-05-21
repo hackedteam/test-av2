@@ -70,6 +70,10 @@ TestAV.py
   verify $target contains instances
 
 
+Dipendenze:
+  - Flask (with Flask-SQLAlchemy)
+  - Redis
+  - SQLite / MySQL / PostgreSQL Database (via Flask-SQLAlchemy) and Python APIs
 
 
 

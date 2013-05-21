@@ -105,7 +105,7 @@ if __name__ == "__main__":
 	port = 8000
 
 	if len(sys.argv) == 2:
-		port = sys.argv[1]
+		port = int(sys.argv[1]) 
 	
 	init_db(DB_PATH)
 	app.run(host='0.0.0.0', port=port)
