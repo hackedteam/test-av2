@@ -1,0 +1,50 @@
+{% extends "layout.html" %}
+
+{% block body %}
+
+<div class="tasks">
+    <div class="page-header">
+        <h1>{{ title }}</h1>
+    </div>
+    <table class="table table-striped table-bordered">
+        <thead>
+        	{% for hcolumn in hcolumns %}
+
+        		<th>{{ hcolumn }}</th>
+
+        	{% endfor %}
+
+        </thead>
+        <tbody>
+
+		{% for report in reports %}
+			<tr>
+				<td width="50%">{{ report.name }}</td>
+
+				{% for hcol in hcolumns %}
+					{% if hcol != "name" %}
+						{% if hcol > 2 %}
+							{% if "BLACKLIST" in  report.results[hcol][1] %}
+								<td id="blacklisted-div"><a class="fill-div" href="/report/{{ report.t_id }}/result/{{ report.name }}/{{ report.results[hcol][0] }}">&nbsp;</a></td>
+							{% elif "SUCCESS" in  report.results[hcol][1] %}
+								<td id="success-div"><a class="fill-div" href="/report/{{ report.t_id }}/result/{{ report.name }}/{{ report.results[hcol][0] }}">&nbsp;</a></td>
+							{% elif "ERROR" in  report.results[hcol][1] %}
+								<td id="error-div"><a class="fill-div" href="/report/{{ report.t_id }}/result/{{ report.name }}/{{ report.results[hcol][0] }}">&nbsp;</a></td>
+							{% elif "STARTED" in  report.results[hcol][1] %}
+								<td id="error-div"><a class="fill-div" href="/report/{{ report.t_id }}/result/{{ report.name }}/{{ report.results[hcol][0] }}">&nbsp;</a></td>
+							{% elif "FAILED" in  report.results[hcol][1] %}
+								<td id="failed-div"><a class="fill-div" href="/report/{{ report.t_id }}/result/{{ report.name }}/{{ report.results[hcol][0] }}">&nbsp;</a></td>
+							{% else %}
+								<td>&nbsp;</td>
+							{% endif %}
+						{% endif %}
+					{% endif %}
+				{% endfor %}
+
+			</tr>
+		{% endfor %}
+
+		</tbody>
+	</table>
+
+{% endblock %}

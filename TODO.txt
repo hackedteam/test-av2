@@ -2,7 +2,7 @@ File da mettere su GDATA
 Nella dir VMAVTest
 build_silent_polluce.bat
 lib/ConsoleAPI.py
-lib/vmavtest.py
+lib/agent.py
 assets/config.json
 assets/key.exe
 assets/meltapp.exe
@@ -24,6 +24,6 @@ VMAVTest : vmtestav.py
 	- documentazione rest api? prese da rcs-core.
 
 	path: c:\Users\avtest\Desktop\vmavtest
-	input: vmavtest.py, ConsoleAPI.py mouse_emu.exe, config.json
+	input: agent.py, ConsoleAPI.py mouse_emu.exe, config.json
        	output: result.txt
 

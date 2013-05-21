@@ -1,54 +1,66 @@
 import argparse
 import os
 import time
-from time import sleep
-from ConfigParser import ConfigParser
-from multiprocessing import Pool
 import random
 import os.path
 import traceback
+import sqlite3
 
-from lib.VMachine import VMachine
-from lib.VMManager import VMManagerVS
-from lib.report import Report
-#from lib.logger import logger
-import lib.logger
+from base64 import b64encode
+from time import sleep
+from ConfigParser import ConfigParser
+from multiprocessing import Pool
+from redis import Redis, StrictRedis
+from redis.exceptions import ConnectionError
+from flask.ext.sqlalchemy import SQLAlchemy
 
+from lib.core.VMachine import VMachine
+from lib.core.VMManager import vSphere, VMRun
+from lib.core.report import Report
+from lib.web.models import db, app, Test, Result
+from lib.web.settings import DB_PATH
+from lib.core.logger import setLogger
 
 vm_conf_file = os.path.join("conf", "vms.cfg")
 
 # get configuration for AV update process (exe, vms, etc)
 
 logdir = ""
-vmman = VMManagerVS(vm_conf_file)
-updatetime = 50
-server = ""
+test_id = -1
+status = 0
 
+vmman = VMRun(vm_conf_file)
+
+#vsphere = vSphere( vm_conf_file )
+#vsphere.connect()
+
+updatetime = 50
 
 def job_log(vm_name, status):
     print "+ %s: %s" % (vm_name, status)
 
-def update(args):
+def update(flargs):
+    vms = len(flargs[1].vms)
     try:
-        vm_name = args[0]
+        vm_name = flargs[0]
         vm = VMachine(vm_conf_file, vm_name)
         job_log(vm_name, "UPDATE")
 
-        vmman.revertLastSnapshot(vm)
+        vm.revert_last_snapshot()
         job_log(vm_name, "REVERTED")
 
-        sleep(random.randint(10,60))
-        vmman.startup(vm)
+        sleep(random.randint(60, 60 * vms))
+        vm.startup()
         job_log(vm_name, "STARTED")
 
-        sleep(5 * 60)
+        #sleep(5 * 60)
 
         if wait_for_startup(vm) is False:
             job_log(vm_name, "NOT STARTED")
             return "ERROR wait for startup for %s" % vm_name
  
-        if check_infection_status(vm) is True:
-            vmman.shutdown(vm)
+        if check_infection_status(vm) is not True:
+            vm.shutdown()
             return "ERROR VM IS INFECTED!!!"
  
         out_img = "%s/screenshot_%s_update.png" % (logdir, vm_name)
@@ -58,60 +70,155 @@ def update(args):
         sleep(updatetime * 60)
         sleep(random.randint(10,300))
 
-        running = True
         job_log(vm_name, "SHUTDOWN")
         r = vmman.shutdownUpgrade(vm)
 
         if r is False:
-            return "%s, NOT Updated!"  % vm_name
+            job_log(vm_name, "NOT UPDATED")
+            return "%s, ERROR: NOT Updated! no shutdown..."  % vm_name
+        else:
 
-        count = 0
-        sh = True
+            # RESTART TIME
+            while vm.is_powered_off() is False:
+                sleep(60)
 
-        while running == True:
-            sleep(60)
-            running = vmman.VMisRunning(vm)
-            count +=1
-            job_log(vm_name, "RUNNING %s" % count)
-            if count >= 120:
-                sh = False
-                break
+            job_log(vm_name, "POWERED OFF")
 
-        if sh == True:
-            vmman.refreshSnapshot(vm)
+            vm.startup()
+
+            if wait_for_startup(vm) is False:
+                job_log(vm_name, "NOT RESTARTED")
+
+            vm.shutdown()
+            job_log(vm_name, "RESTARTED")
+
+            vm.refresh_snapshot()
             job_log(vm_name, "UPDATED")
             return "%s, SUCCESS: Updated!"  % vm_name
-        else:
-            job_log(vm_name, "NOT UPDATED")
-            return "%s, ERROR: NOT Updated!"  % vm_name
-
     except Exception as e:
         job_log(vm_name, "ERROR")
         print "DBG trace %s" % traceback.format_exc()
         return "%s, ERROR: not updated. Reason: %s" % (vm_name, e)
 
-
-def revert(args):
-    vm_name = args[0]
+def revert(flargs):
+    vm_name = flargs[0]
     job_log(vm_name, "REVERT")
     vm = VMachine(vm_conf_file, vm_name)
-    vmman.revertLastSnapshot(vm)
-    sleep(2)
+    vm.revert_last_snapshot()
     return "[*] %s reverted!" % vm_name
 
-def run_command(args):
-    vm_name, cmd = args
+def run_command(flargs):
+        #arg = args.kind
+    #if args.action == "command":
+    #    arg = args.cmd
+    vm_name, args = flargs
+    cmd = args.cmd
     if cmd is None:
         return False
-    vmx = VMachine(vm_conf_file, vm_name)
-    vmman._run_cmd(vmx, cmd)
+    vm = VMachine(vm_conf_file, vm_name)
+    vm._run_cmd(cmd)
 
     return True
+
+def start_test():
+    try:
+        timestamp = time.strftime("%Y%m%d_%H%M", time.gmtime())
+        
+        t = Test(0,str(timestamp))
+        db.session.add(t)
+        db.session.commit()
+        return t.id
+    except Exception as e:
+        print "DBG error inserting report in db. Exception: %s" % e
+        print DB_PATH
+        return None
+
+def end_test(t_id):
+    try:
+        t = Test.query.filter_by(id=t_id)
+        if t is None:
+            return False
+        t.status = 1
+        db.session.add(t)
+        db.session.commit()
+        return True
+    except Exception as e:
+        print "DBG error changing test status to completed. Exception: %s" % e
+        return False
+
+def add_record_result(vm_name, kind, t_id, status, result=None):
+    try:
+        timestamp = time.strftime("%Y%m%d_%H%M", time.gmtime())
+        r = Result(vm_name, t_id, kind, status, result)
+        db.session.add(r)
+        db.session.commit()
+        return r.id
+    except Exception as e:
+        print "DBG error inserting results of test in db. Exception: %s" % e
+        return
+
+def upd_record_result(r_id, status=None, result=None):
+    r = Result.query.filter_by(id=r_id).first()
+    if not r:
+        print "DBG result not found"
+        return
+    if result is not None:
+        r.result = result
+    if status is not None:
+        r.status = status
+
+    db.session.commit()
+
+
+def save_results(vm, kind, test_id, result_id):
+    global status, logdir
+    
+    try:
+        if kind == "silent" or kind == "melt":
+            max_minute = 60
+        elif kind == "exploit":
+            max_minute = 30
+        elif kind == "mobile" or "exploit_" in kind:
+            max_minute = 5  
+        results = wait_for_results(vm, result_id, max_minute)
+
+        print "DBG [%s] passing debug files txt from host" % vm.name
+        res_txt_dst = "%s/results_%s_%s.txt" % (logdir, vm, kind)
+        res_txt_src = "C:\\Users\\avtest\\Desktop\\AVTEST\\results.txt"
+        vm.get_file(res_txt_src, res_txt_dst)
+
+        print "DBG results are %s" % results
+        return "%s, %s, %s" % (vm.name, kind, results[-1])
+    except Exception as e:
+        return "%s, %s, ERROR saving results with exception: %s" % (vm, kind, e)
+
+def save_screenshot(vm, result_id):
+    try:
+        #out_img = "/tmp/screenshot_%s_%s.png" % (vm, kind)
+        out_img = "/tmp/screenshot_%s.png" % vm
+        vmman.takeScreenshot(vm, out_img)
+        with open(out_img, 'rb') as f:
+            result = Result.query.filter_by(id=result_id).first_or_404()
+            #result.scrshoot = b64encode(f.read())
+            result.scrshot = f.read()
+            db.session.commit()
+        return True
+    except Exception as e:
+        print "DBG image was not saved. Exception handled: %s" % e
+        return False
+
+def save_logs(result_id, log):
+    try:
+        result = Result.query.filter_by(id=result_id).first_or_404()
+        result.log = log
+        db.session.commit()
+    except Exception as e:
+        print "DBG failed saving results log. Exception: %s" % e
 
 def copy_to_guest(vm, test_dir, filestocopy):
     #lib_dir = "%s\\lib" % test_dir
     #assets_dir = "%s\\assets" % test_dir
-    vmavtest = "../VMAVTest"
+    vmavtest = "../AVAgent"
 
     memo = []
     for filetocopy in filestocopy:
@@ -132,41 +239,28 @@ def copy_to_guest(vm, test_dir, filestocopy):
         print "DBG copy %s -> %s" % (src, dst)
         vmman.copyFileToGuest(vm, src, dst)
 
-def save_results(vm, kind):
+def dispatch(flargs):
+
     try:
-        filename = "%s/results_%s_%s.txt" % (logdir, vm, kind)
-        vmman.copyFileFromGuest(vm, "c:\\Users\\avtest\\Desktop\\AVTEST\\results.txt", filename)
-
-        last = "ERROR save"
-        f = open(filename, 'rb')
-        for l in f.readlines():
-            if " + " in l:
-                last = l
-
-        # avast) 2013-03-05 05:03:09,892: INFO: + FAILED ELITE INSTALL\r\n'
-        return "%s, %s, %s" % (vm, kind, last)
-    except Exception as e:
-        return "%s, %s, ERROR saving results with exception: %s" % (vm, kind, e)
-
-def dispatch(args):
-    try:
-        vm_name, kind = args
+        vm_name, args = flargs
+        kind = args.kind
         results = []
         print "DBG %s, %s" %(vm_name,kind)
+
         if kind == "all":
-            results.append( dispatch_kind(vm_name, "silent") )
+            results.append( dispatch_kind(vm_name, "silent", args) )
             sleep(random.randint(5,10))
-            results.append( dispatch_kind(vm_name, "melt") )
+            results.append( dispatch_kind(vm_name, "melt", args) )
             sleep(random.randint(5,10))
-            results.append( dispatch_kind(vm_name, "exploit") )
+            results.append( dispatch_kind(vm_name, "exploit", args) )
             sleep(random.randint(5,10))
-            results.append( dispatch_kind(vm_name, "exploit_docx") )
+            results.append( dispatch_kind(vm_name, "exploit_docx", args) )
             sleep(random.randint(5,10))
-            results.append( dispatch_kind(vm_name, "exploit_ppsx") )
+            results.append( dispatch_kind(vm_name, "exploit_ppsx", args) )
             sleep(random.randint(5,10))
-            results.append( dispatch_kind(vm_name, "mobile") )
+            results.append( dispatch_kind(vm_name, "mobile", args) )
         else:
-            results.append( dispatch_kind(vm_name, kind) )
+            results.append( dispatch_kind(vm_name, kind, args) )
 
         return results
     except Exception as e:
@@ -174,25 +268,31 @@ def dispatch(args):
         print "DBG trace %s" % traceback.format_exc()
         return {'ERROR': e}
 
-def dispatch_kind(vm_name, kind):
+def dispatch_kind(vm_name, kind, args):
+    global status, test_id
+
+    print "DBG test_id is %s" % test_id
+
+    vms = len(args.vms)
     
     vm = VMachine(vm_conf_file, vm_name)
     job_log(vm_name, "DISPATCH %s" % kind)
     
-    vmman.revertLastSnapshot(vm)
+    vm.revert_last_snapshot()
     job_log(vm_name, "REVERTED")
 
-    sleep(5)
-    vmman.startup(vm)
-    sleep(5* 60)
+    sleep(random.randint(30, vms * 30))
+    vm.startup()
     job_log(vm_name, "STARTUP")
-    
+
+    status+=1
+
     test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
 
-    buildbat = "build_%s_%s.bat" % (kind, server)
+    buildbat = "build_%s_%s.bat" % (kind, args.server)
 
     filestocopy =[  "./%s" % buildbat,
-                    "lib/vmavtest.py",
+                    "lib/agent.py",
                     "lib/logger.py",
                     "lib/rcs_client.py",
                     "conf/vmavtest.cfg",
@@ -204,44 +304,44 @@ def dispatch_kind(vm_name, kind):
                     "assets/meltexploit.docx",
                     "assets/meltexploit.ppsx"     ]
 
-    executed = False
     result = "%s, %s, ERROR GENERAL" % (vm_name, kind) 
 
     if wait_for_startup(vm) is False:
-        result = "%s, %s, ERROR: wait for startup for" % (vm_name, kind) 
+        result = "%s, %s, ERROR: timeout on startup" % (vm_name, kind)
+        result_id = add_record_result(vm_name, kind, test_id, status, result)
     else:
+        #vm.login_in_guest()
+        result_id = add_record_result(vm_name, kind, test_id, status, "STARTED")
+        print "DBG added result with id %s" % result_id
+
+        job_log(vm_name, "LOGGED")
+#        vm.send_files("../AVAgent", test_dir, filestocopy)
         copy_to_guest(vm, test_dir, filestocopy)
+        #for f in filestocopy:
+        #    vm.
         job_log(vm_name, "ENVIRONMENT")
         
         # executing bat synchronized
-        executed = vmman.executeCmd(vm, "%s\\%s" % (test_dir, buildbat), interactive=True)
+        vmman.executeCmd(vm, "%s\\%s" % (test_dir, buildbat), interactive=True, bg=True)
         job_log(vm_name, "EXECUTED %s" % kind)
 
-        if executed is False:
-            print "DBG %s" % executed 
-            print "%s, ERROR: Execution failed!" % vm
-
-        #print "processes: %s" % vmman.listProcesses(vm)
-
-        #timestamp = time.strftime("%Y%m%d_%H%M", time.gmtime())
-        out_img = "%s/screenshot_%s_%s.png" % (logdir, vm, kind)
-        vmman.takeScreenshot(vm, out_img)
-        
-        # save results.txt locally
-        result = save_results(vm, kind)
-        job_log(vm_name, "FINISHED %s" % kind)
+        result = save_results(vm, kind, test_id, result_id)
+        job_log(vm_name, "SAVED %s" % kind)
     
+        #timestamp = time.strftime("%Y%m%d_%H%M", time.gmtime())
+        if save_screenshot(vm, result_id) is True:
+            job_log(vm_name, "SCREENSHOT ok")
+
+        
     # suspend & refresh snapshot
-    if executed:
-        vmman.shutdown(vm)
-        job_log(vm_name, "SHUTDOWN %s" % kind)
-    else:
-        vmman.suspend(vm)
-        job_log(vm_name, "SUSPENDED %s" % kind)
+    vm.suspend()
+    job_log(vm_name, "SUSPENDED %s" % kind)
+
     return result
 
-def push(args):
-    vm_name, kind = args
+def push(flargs):
+    vm_name, args = flargs
+    kind = args.kind
     
     vm = VMachine(vm_conf_file, vm_name)
     #job_log(vm_name, "DISPATCH %s" % kind)
@@ -252,15 +352,15 @@ def push(args):
     #sleep(5)
     #vmman.startup(vm)
     #sleep(5* 60)
-    job_log(vm_name, "STARTUP")
+    #job_log(vm_name, "STARTUP")
     
     test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
 
-    buildbat = "push_%s_%s.bat" % (kind, server)
+    buildbat = "push_%s_%s.bat" % (kind, args.server)
 
     filestocopy =[  "./%s" % buildbat,
                     "./push_all_minotauro.bat",
-                    "lib/vmavtest.py",
+                    "lib/agent.py",
                     "lib/logger.py",
                     "lib/rcs_client.py",
                     "conf/vmavtest.cfg",
@@ -271,33 +371,33 @@ def push(args):
                     "assets/meltexploit.txt",
                     "assets/meltexploit.docx",
                     "assets/meltexploit.ppsx"    ]
-    executed = False
+
     result = "ERROR GENERAL"
 
     if wait_for_startup(vm) is False:
         result = "ERROR wait for startup for %s" % vm_name 
     else:
-        copy_to_guest(vm, test_dir, filestocopy)
+        vm.send_files("../AVAgent", test_dir, filestocopy)
         job_log(vm_name, "ENVIRONMENT")
         result = "pushed"
     return result
 
-def test_internet(args):
-    vm_name = args[0]
+def test_internet(flargs):
+    vm_name = flargs[0]
     try:
         vm = VMachine(vm_conf_file, vm_name)
-        vmman.startup(vm)
+        vm.startup()
         test_dir = "C:\\Users\\avtest\\Desktop\\TEST_INTERNET"
         filestocopy =[  "./test_internet.bat",
-                        "lib/vmavtest.py",
+                        "lib/agent.py",
                         "lib/logger.py",
                         "lib/rcs_client.py" ]
         if wait_for_startup(vm) is False:
             result = "ERROR wait for startup for %s" % vm_name 
         else:
-            copy_to_guest(vm, test_dir, filestocopy)
+            vm.send_files("../AVAgent", test_dir, filestocopy)
             # executing bat synchronized
-            vmman.executeCmd(vm, "%s\\test_internet.bat" % test_dir)
+            vm.execute_cmd("%s\\test_internet.bat" % test_dir)
             sleep(random.randint(100,200))
             #vmman.shutdown(vm)
             return "[%s] dispatched test internet" % vm_name
@@ -306,57 +406,104 @@ def test_internet(args):
 
 def check_infection_status(vm):
     startup_dir = "C:\\Users\\avtest\\AppData\\Microsoft"
-    stuff = vmman.listDirectoryInGuest(vm, startup_dir)
+    stuff = check_directory(vm, startup_dir)
     print stuff
     if stuff is None:
         return True
+    test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
+    test = check_directory(vm, test_dir)
+    print test
+    if test is None:
+        return True
     return False
-    #if vmman.listDirectoryInGuest(vm) is None:
 
-       
-def test(args):
-    results = [
-    ['avira, silent, 2013-03-14 10:14:33, INFO: + FAILED SCOUT EXECUTE\r\n', 'avira, melt, 2013-03-14 10:39:00, INFO: + FAILED SCOUT SYNC\r\n', 'avira, exploit, 2013-03-14 11:00:29, INFO: + FAILED SCOUT SYNC\r\n'],
-    ['eset, silent, 2013-03-14 10:23:26, INFO: + FAILED SCOUT SYNC\r\n', 'eset, melt, 2013-03-14 10:46:24, INFO: + FAILED SCOUT SYNC\r\n', 'eset, exploit, 2013-03-14 11:12:24, INFO: + FAILED SCOUT SYNC\r\n'],
-    ['fsecure, silent, 2013-03-14 10:48:17, INFO: + SUCCESS ELITE UNINSTALLED\r\n', 'fsecure, melt, 2013-03-14 11:38:56, INFO: + SUCCESS ELITE UNINSTALLED\r\n', 'fsecure, exploit, 2013-03-14 12:00:25, INFO: + SUCCESS SCOUT SYNC\r\n'],
-    ['gdata, silent, 2013-03-14 10:19:02, INFO: + SUCCESS ELITE BLACKLISTED\r\n', 'gdata, melt, 2013-03-14 10:37:03, INFO: + SUCCESS ELITE BLACKLISTED\r\n', 'gdata, exploit, 2013-03-14 11:09:17, INFO: + SUCCESS SCOUT SYNC\r\n'],
-    ['mcafee, silent, 2013-03-14 10:21:29, INFO: + FAILED SCOUT SYNC\r\n', 'mcafee, melt, 2013-03-14 10:45:21, INFO: + FAILED SCOUT SYNC\r\n', 'mcafee, exploit, 2013-03-14 11:10:34, INFO: + FAILED SCOUT SYNC\r\n'],
-    ['msessential, silent, 2013-03-14 10:20:26, INFO: + SUCCESS SCOUT SYNC\r\n', 'msessential, melt, 2013-03-14 11:01:02, INFO: + SUCCESS SCOUT SYNC\r\n', 'msessential, exploit, 2013-03-14 11:37:08, INFO: + SUCCESS SCOUT SYNC\r\n'],
-    ['norton, silent, 2013-03-14 10:48:07, INFO: + SUCCESS ELITE UNINSTALLED\r\n', 'norton, melt, 2013-03-14 11:38:05, INFO: + SUCCESS ELITE UNINSTALLED\r\n', 'norton, exploit, 2013-03-14 12:02:31, INFO: + SUCCESS SCOUT SYNC\r\n'],
-    ['panda, silent, 2013-03-14 10:22:30, INFO: + FAILED SCOUT SYNC\r\n', 'panda, melt, 2013-03-14 11:13:02, INFO: + SUCCESS ELITE UNINSTALLED\r\n', 'panda, exploit, 2013-03-14 11:37:59, INFO: + FAILED SCOUT SYNC\r\n'],
-    ['trendm, silent, 2013-03-14 10:48:01, INFO: + SUCCESS ELITE UNINSTALLED\r\n', 'trendm, melt, 2013-03-14 11:39:32, INFO: + SUCCESS ELITE UNINSTALLED\r\n', 'trendm, exploit, 2013-03-14 12:02:22, INFO: + SUCCESS SCOUT SYNC\r\n'],
-    ['pctools, silent, 2013-03-14 10:41:10, INFO: + SUCCESS SCOUT SYNC\r\n', 'pctools, melt, 2013-03-14 11:37:05, INFO: + FAILED SCOUT SYNC\r\n', 'pctools, exploit, 2013-03-14 12:13:21, INFO: + FAILED SCOUT SYNC\r\n'],
-    ['avg, silent, 2013-03-14 10:49:13, INFO: + SUCCESS ELITE UNINSTALLED\r\n', 'avg, melt, 2013-03-14 11:39:02, INFO: + SUCCESS ELITE UNINSTALLED\r\n', 'avg, exploit, 2013-03-14 12:03:23, INFO: + SUCCESS SCOUT SYNC\r\n'],
-    ['bitdef, silent, 2013-03-14 11:18:52, INFO: + SUCCESS ELITE BLACKLISTED\r\n', 'bitdef, melt, 2013-03-14 11:38:39, INFO: + SUCCESS ELITE BLACKLISTED\r\n', 'bitdef, exploit, 2013-03-14 12:01:05, INFO: + SUCCESS SCOUT SYNC\r\n'],
-    ['sophos, silent, 2013-03-14 11:31:20, INFO: + FAILED SCOUT SYNC\r\n', 'sophos, melt, 2013-03-14 11:55:39, INFO: + FAILED SCOUT SYNC\r\n', 'sophos, exploit, 2013-03-14 12:19:33, INFO: + FAILED SCOUT SYNC\r\n'],
-    ['zoneal, silent, 2013-03-14 11:59:42, INFO: + SUCCESS ELITE UNINSTALLED\r\n', 'zoneal, melt, 2013-03-14 12:48:00, INFO: + SUCCESS ELITE UNINSTALLED\r\n', 'zoneal, exploit, 2013-03-14 13:08:56, INFO: + SUCCESS SCOUT SYNC\r\n'],
-    ['ahnlab, silent, 2013-03-14 12:04:05, INFO: + SUCCESS ELITE UNINSTALLED\r\n', 'ahnlab, melt, 2013-03-14 12:55:03, INFO: + SUCCESS ELITE UNINSTALLED\r\n', 'ahnlab, exploit, 2013-03-14 13:31:21, INFO: + SUCCESS SCOUT SYNC\r\n'],
-    ['norman, silent, 2013-03-14 12:33:00, INFO: + SUCCESS ELITE UNINSTALLED\r\n', 'norman, melt, 2013-03-14 13:23:48, INFO: + SUCCESS ELITE UNINSTALLED\r\n', 'norman, exploit, 2013-03-14 13:42:35, INFO: + SUCCESS SCOUT SYNC\r\n'],
-    ["comodo, silent, ERROR saving results with exception: [Errno 2] No such file or directory: '/var/log/avmonitor/report/dispatch_20130314_0900/results_comodo_silent.txt'", "comodo, melt, ERROR saving results with exception: [Errno 2] No such file or directory: '/var/log/avmonitor/report/dispatch_20130314_0900/results_comodo_melt.txt'", "comodo, exploit, ERROR saving results with exception: [Errno 2] No such file or directory: '/var/log/avmonitor/report/dispatch_20130314_0900/results_comodo_exploit.txt'"],
-    ['drweb, silent, 2013-03-14 12:22:05, INFO: + FAILED SCOUT SYNC\r\n', 'drweb, melt, 2013-03-14 12:46:31, INFO: + FAILED SCOUT SYNC\r\n', 'drweb, exploit, 2013-03-14 13:10:12, INFO: + FAILED SCOUT SYNC\r\n'],
-    ['kis, silent, 2013-03-14 12:51:06, INFO: + SUCCESS ELITE UNINSTALLED\r\n', 'kis, melt, 2013-03-14 13:39:55, INFO: + SUCCESS ELITE UNINSTALLED\r\n', 'kis, exploit, 2013-03-14 13:59:47, INFO: + SUCCESS SCOUT SYNC\r\n'],
-    ["emsisoft, silent, ERROR saving results with exception: [Errno 2] No such file or directory: '/var/log/avmonitor/report/dispatch_20130314_0900/results_emsisoft_silent.txt'", "emsisoft, melt, ERROR saving results with exception: [Errno 2] No such file or directory: '/var/log/avmonitor/report/dispatch_20130314_0900/results_emsisoft_melt.txt'", "emsisoft, exploit, ERROR saving results with exception: [Errno 2] No such file or directory: '/var/log/avmonitor/report/dispatch_20130314_0900/results_emsisoft_exploit.txt'"],
-    ]
+def check_directory(vm, directory):
+    return vm.list_directory(directory)
+
+def test(flargs):
+    conf = ConfigParser()
+    conf.read(vm_conf_file)
+    
+    #results = [['comodo, silent, SUCCESS ELITE BLACKLISTED'], ['norton, silent, SUCCESS ELITE UNINSTALLED'], ['pctools, silent, SUCCESS ELITE UNINSTALLED']]
+
+    print "DBG TEST START"
 
     r = Report(results)
-    r.send_report_color_mail('dispatch_20130314_0900')
+    r.save_db(1)
+
+    print "DBG TEST END"
 
 
-    
-def wait_for_startup(vm, max_count=20):
-    count = 0
-    while not "vmtoolsd.exe" in vmman.listProcesses(vm):
-        sleep(60)
-        count+=1
-        if count > max_count:
-            return False
-    return True
+def wait_for_startup(vm, message=None, max_minute=20):
+    #r = Redis()
+    r = StrictRedis(socket_timeout=max_minute * 60)
+
+    p = r.pubsub()
+    p.subscribe(vm.name)
+
+    # timeout
+    try:
+        for m in p.listen():
+            print "DBG %s"  % m
+            try:
+                if "STARTED" in m['data']:
+                    return True
+            except TypeError:
+                pass
+    except ConnectionError:
+        print "DBG %s: Timeout occurred during startup"
+        return False
+
+
+def wait_for_results(vm, result_id, max_minute=60):
+    #r = Redis()
+    r = StrictRedis(socket_timeout=max_minute * 60)
+
+    p = r.pubsub()
+    p.subscribe(vm.name)
+    results = []
+    log = ""
+    res = ""
+
+    # timeout
+    try:
+        for m in p.listen():
+            print "DBG %s" % m
+            try:
+                if "ENDED" not in m['data']:
+
+                    #   SAVING LOGS
+
+                    if log is "":
+                        log = str(m['data'])
+                        save_logs(result_id, log)
+                    else:
+                        log += ", %s" % str(m['data'])
+                        save_logs(result_id, log)
+
+                    # SAVING RESULTS
+
+                    if "+" in m['data']:
+                        results.append(str(m['data']))
+                        if res is not "STARTED": # or res is not "":
+                            res += ", %s" % str(m['data'])
+                        else:
+                            res += "%s" % str(m['data'])
+                        upd_record_result(result_id, result=res.replace("+ ","").strip())
+                else:
+                    return results
+            except TypeError:
+                pass
+    except ConnectionError:
+        print "DBG %s: Timeout occurred during execution"
+        return "ERROR: Timeout occurred during execution"
+
 
 def timestamp():
     return time.strftime("%Y%m%d_%H%M", time.gmtime())
 
 def main():
-    global logdir
+    global logdir, status, test_id
 
     # PARSING
 
@@ -380,7 +527,7 @@ def main():
     parser.add_argument('-u', '--updatetime', default=50, type=int,
         help="Update time in minutes")
     parser.add_argument('-s', '--server', default='minotauro', choices=['minotauro', 'zeus', 'castore', 'polluce'],
-        help="Update time in minutes")
+        help="Server name")
     args = parser.parse_args()
 
     # LOGGER
@@ -393,12 +540,16 @@ def main():
     if os.path.exists(sym):
         os.unlink(sym)
     os.symlink(logdir, sym)
-    lib.logger.setLogger(debug = args.verbose, filelog = "%s/master.logger.txt" % (logdir.rstrip('/')) )
+    setLogger(debug = args.verbose, filelog = "%s/master.logger.txt" % (logdir.rstrip('/')) )
 
     # GET CONFIGURATION FOR AV UPDATE PROCESS (exe, vms, etc)
 
     c = ConfigParser()
     c.read(vm_conf_file)
+
+    vSphere.hostname = c.get("vsphere", "host")
+    vSphere.username = c.get("vsphere", "user")
+    vSphere.password = c.get("vsphere", "passwd")
 
     if args.vm:
         if args.vm == "all":
@@ -408,10 +559,7 @@ def main():
     else:
         # get vm names
         vm_names = c.get("pool", "machines").split(",")
-
-    global server
-    server = args.server
-    print "DBG server: %s" % server
+    args.vms = vm_names
 
     [ job_log(v, "INIT") for v in vm_names ]
 
@@ -434,12 +582,18 @@ def main():
         os.system('sudo ./net_disable.sh')
         print "[!] Disabling NETWORKING!"
 
+    if args.action == "dispatch":
+        print "DBG add record to db"
+        test_id = start_test()
+
+
     # POOL EXECUTION    
 
     if args.pool:
         pool_size = args.pool
     else:
         pool_size = int(c.get("pool", "size"))
+        args.pool = pool_size
 
     pool = Pool(pool_size)
     
@@ -449,33 +603,22 @@ def main():
                 "dispatch": dispatch, "test_internet": test_internet,
                 "command": run_command, "push": push }
 
-    arg = args.kind
-    if args.action == "command":
-        arg = args.cmd
-    print "MASTER %s on %s, action %s, pool %s" % (arg, vm_names, args.action, args.pool)
-    r = pool.map_async(actions[args.action], [ ( n, arg ) for n in vm_names ])
+    print "MASTER on %s, action %s" % (vm_names, args.action)
+    r = pool.map_async(actions[args.action], [ ( n, args ) for n in vm_names ])
     results = r.get()
 
     # REPORT
     
-    rep = Report(results)
-    rep.save_file("%s/master_%s.txt" % (logdir, args.action))
-
-    
+    rep = Report(test_id, results)
     if args.action == "dispatch":
-        html_file = "%s/report_%s.html" % (logdir, args.action)
-        if rep.save_html(html_file) is False:
-            print "[!] Problem creating HTML Report!"
         if rep.send_report_color_mail(logdir.split('/')[-1]) is False:
             print "[!] Problem sending HTML email Report!"
     else:
         if rep.send_mail() is False:
             print "[!] Problem sending mail!"
 
-    
     os.system('sudo ./net_disable.sh')    
     print "[!] Disabling NETWORKING!"
-
 
 if __name__ == "__main__":	
     main()
