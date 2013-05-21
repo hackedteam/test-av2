@@ -505,15 +505,6 @@ class AVAgent:
                 localFile = open('build/file.swf', 'w')
                 localFile.write(u.read())
                 localFile.close()
-<<<<<<< HEAD:VMAVTest/lib/vmavtest.py
-
-                with open('build/file.swf'): 
-                    print "+ SUCCESS EXPLOIT"
-            except urllib2.HTTPError:
-                print "+ ERROR DOWNLOADING EXPLOIT"
-            except IOError:
-               print "+ ERROR  SAVING EXPLOIT"
-=======
                 with open('build/file.swf'): 
                     print "+ SUCCESS EXPLOIT"
             except urllib2.HTTPError:
@@ -522,7 +513,6 @@ class AVAgent:
             except IOError:
                 print "+ ERROR EXPLOIT SAVE"
                 pass
->>>>>>> refs/heads/devel:AVAgent/lib/agent.py
 
         return factory_id, ident, exe
 
