@@ -247,7 +247,17 @@ def dispatch(flargs):
         results = []
         print "DBG %s, %s" %(vm_name,kind)
 
-        if kind == "all":
+        if kind == "agents":
+            results.append( dispatch_kind(vm_name, "silent", args) )
+            sleep(random.randint(5,10))
+            results.append( dispatch_kind(vm_name, "melt", args) )
+        elif kind == "exploits":
+            results.append( dispatch_kind(vm_name, "exploit", args) )
+            sleep(random.randint(5,10))
+            results.append( dispatch_kind(vm_name, "exploit_docx", args) )
+            sleep(random.randint(5,10))
+            results.append( dispatch_kind(vm_name, "exploit_ppsx", args) )
+        elif kind == "all":
             results.append( dispatch_kind(vm_name, "silent", args) )
             sleep(random.randint(5,10))
             results.append( dispatch_kind(vm_name, "melt", args) )
@@ -521,7 +531,7 @@ def main():
     parser.add_argument('-v', '--verbose', action='store_true', default=False,  
         help="Verbose")
     parser.add_argument('-k', '--kind', default="all", type=str,
-        help="Verbose", choices=['silent', 'melt', 'exploit', 'exploit_docx', 'exploit_ppsx', 'mobile', 'all'])
+        help="Verbose", choices=['silent', 'melt', 'exploit', 'exploit_docx', 'exploit_ppsx', 'mobile', 'agents', 'exploits', 'all'])
     parser.add_argument('-c', '--cmd', required=False,
         help="Run VMRUN command")
     parser.add_argument('-u', '--updatetime', default=50, type=int,
