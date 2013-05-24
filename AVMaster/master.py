@@ -251,6 +251,8 @@ def dispatch(flargs):
             results.append( dispatch_kind(vm_name, "silent", args) )
             sleep(random.randint(5,10))
             results.append( dispatch_kind(vm_name, "melt", args) )
+            sleep(random.randint(5,10))
+            results.append( dispatch_kind(vm_name, "mobile", args) )
         elif kind == "exploits":
             results.append( dispatch_kind(vm_name, "exploit", args) )
             sleep(random.randint(5,10))
@@ -531,7 +533,9 @@ def main():
     parser.add_argument('-v', '--verbose', action='store_true', default=False,  
         help="Verbose")
     parser.add_argument('-k', '--kind', default="all", type=str,
-        help="Verbose", choices=['silent', 'melt', 'exploit', 'exploit_docx', 'exploit_ppsx', 'mobile', 'agents', 'exploits', 'all'])
+        choices=['silent', 'melt', 'exploit', 'exploit_docx', 'exploit_ppsx', 
+        'mobile', 'agents', 'exploits', 'all'],
+        help="Kind of test (or test case)", )
     parser.add_argument('-c', '--cmd', required=False,
         help="Run VMRUN command")
     parser.add_argument('-u', '--updatetime', default=50, type=int,
@@ -620,12 +624,13 @@ def main():
     # REPORT
     
     rep = Report(test_id, results)
-    if args.action == "dispatch":
+    if args.action == "dispatch" or args.action == "revert":
         if rep.send_report_color_mail(logdir.split('/')[-1]) is False:
             print "[!] Problem sending HTML email Report!"
     else:
-        if rep.send_mail() is False:
-            print "[!] Problem sending mail!"
+        if args.action == "update":
+            if rep.send_mail() is False:
+                print "[!] Problem sending mail!"
 
     os.system('sudo ./net_disable.sh')    
     print "[!] Disabling NETWORKING!"
