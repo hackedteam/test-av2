@@ -253,6 +253,8 @@ def dispatch(flargs):
             results.append( dispatch_kind(vm_name, "melt", args) )
             sleep(random.randint(5,10))
             results.append( dispatch_kind(vm_name, "mobile", args) )
+            sleep(random.randint(5,10))
+            results.append( dispatch_kind(vm_name, "exploit_docx", args) )
         elif kind == "exploits":
             results.append( dispatch_kind(vm_name, "exploit", args) )
             sleep(random.randint(5,10))
@@ -433,6 +435,7 @@ def check_directory(vm, directory):
     return vm.list_directory(directory)
 
 def test(flargs):
+    ''' 
     conf = ConfigParser()
     conf.read(vm_conf_file)
     
@@ -444,6 +447,15 @@ def test(flargs):
     r.save_db(1)
 
     print "DBG TEST END"
+    '''
+    results = [['fakeav, silent, STARTED', 
+        'fakeav, melt, ERROR', 
+        'fakeav, exploit, SUCCESS', 
+        'fakeav, exploit_ppsx, FAILED']]
+
+    rep = Report(9999, results)
+    if rep.send_report_color_mail("reportz") is False:
+        print "[!] Problem sending HTML email Report!"
 
 
 def wait_for_startup(vm, message=None, max_minute=20):
@@ -632,8 +644,10 @@ def main():
             if rep.send_mail() is False:
                 print "[!] Problem sending mail!"
 
-    os.system('sudo ./net_disable.sh')    
+    os.system('sudo ./net_disable.sh')
     print "[!] Disabling NETWORKING!"
+    os.system('sudo rm -fr /tmp/screenshot_*')    
+    print "[!] Deleting Screenshots!"
 
 if __name__ == "__main__":	
     main()
