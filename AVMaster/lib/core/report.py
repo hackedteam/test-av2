@@ -349,10 +349,10 @@ a.fill-div {
 					if kind in rd[col]:
 						l += linetoken % (kind.lower(), link)
 						break
-					elif "STARTED" in rd[col]:
-						print "DBG found line STARTED"
-						l += linetoken % ("error", link)
-						break
+				if "STARTED" in rd[col] or rd[col] == "n":
+					print "DBG found line STARTED"
+					l += linetoken % ("error", link)
+				
 			l += lineend
 
 			content += l
@@ -369,7 +369,7 @@ a.fill-div {
 			msg = MIMEMultipart()
 			msg["Subject"] = "AV Monitor Results"
 			msg["From"] = "avmonitor@hackingteam.com"
-			msg["To"] = "olli@hackingteam.com,zeno@hackingteam.com,alor@hackingteam.com"
+			msg["To"] = "olli@hackingteam.com,zeno@hackingteam.com,alor@hackingteam.com,g.landi@hackingteam.com"
 			body = MIMEText(content, 'html')
 			msg.attach(body)
 			smtp = smtplib.SMTP("mail.hackingteam.com", 25)

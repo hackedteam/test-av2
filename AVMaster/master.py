@@ -162,13 +162,13 @@ def upd_record_result(r_id, status=None, result=None):
     if not r:
         print "DBG result not found"
         return
+    print "DBG result: %s" % result
     if result is not None:
         r.result = result
+        db.session.commit()
     if status is not None:
         r.status = status
-
-    db.session.commit()
-
+        db.session.commit()
 
 def save_results(vm, kind, test_id, result_id):
     global status, logdir
@@ -236,7 +236,7 @@ def copy_to_guest(vm, test_dir, filestocopy):
             vmman.mkdirInGuest( vm, rdir )
             memo.append( rdir )
 
-        print "DBG copy %s -> %s" % (src, dst)
+        print "DBG %s copy %s -> %s" % (vm.name, src, dst)
         vmman.copyFileToGuest(vm, src, dst)
 
 def dispatch(flargs):
@@ -250,8 +250,8 @@ def dispatch(flargs):
         if kind == "agents":
             results.append( dispatch_kind(vm_name, "silent", args) )
             sleep(random.randint(5,10))
-            results.append( dispatch_kind(vm_name, "melt", args) )
-            sleep(random.randint(5,10))
+            #results.append( dispatch_kind(vm_name, "melt", args) )
+            #sleep(random.randint(5,10))
             results.append( dispatch_kind(vm_name, "mobile", args) )
             sleep(random.randint(5,10))
             results.append( dispatch_kind(vm_name, "exploit_docx", args) )
@@ -321,7 +321,7 @@ def dispatch_kind(vm_name, kind, args):
     result = "%s, %s, ERROR GENERAL" % (vm_name, kind) 
 
     if wait_for_startup(vm) is False:
-        result = "%s, %s, ERROR: timeout on startup" % (vm_name, kind)
+        result = "%s, %s, ERROR not STARTED" % (vm_name, kind)
         result_id = add_record_result(vm_name, kind, test_id, status, result)
     else:
         #vm.login_in_guest()
@@ -348,7 +348,8 @@ def dispatch_kind(vm_name, kind, args):
 
         
     # suspend & refresh snapshot
-    vm.suspend()
+    #vm.suspend()
+    vm.shutdown()
     job_log(vm_name, "SUSPENDED %s" % kind)
 
     return result
@@ -475,7 +476,7 @@ def wait_for_startup(vm, message=None, max_minute=20):
             except TypeError:
                 pass
     except ConnectionError:
-        print "DBG %s: Timeout occurred during startup"
+        print "DBG %s: not STARTED. Timeout occurred."
         return False
 
 
