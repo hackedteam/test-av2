@@ -575,7 +575,7 @@ def main():
     c.read(vm_conf_file)
 
     vSphere.hostname = c.get("vsphere", "host")
-    vSphere.username = c.get("vsphere", "user")
+    vSphere.username = "%s\\%s" % (c.get("vsphere", "domain"),c.get("vsphere", "user"))
     vSphere.password = c.get("vsphere", "passwd")
 
     if args.vm:
