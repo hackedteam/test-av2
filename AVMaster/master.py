@@ -459,7 +459,7 @@ def test(flargs):
         print "[!] Problem sending HTML email Report!"
 
 
-def wait_for_startup(vm, message=None, max_minute=20):
+def wait_for_startup(vm, message=None, max_minute=8):
     #r = Redis()
     r = StrictRedis(socket_timeout=max_minute * 60)
 
