@@ -436,18 +436,6 @@ def check_directory(vm, directory):
     return vm.list_directory(directory)
 
 def test(flargs):
-    ''' 
-    conf = ConfigParser()
-    conf.read(vm_conf_file)
-    
-    #results = [['comodo, silent, SUCCESS ELITE BLACKLISTED'], ['norton, silent, SUCCESS ELITE UNINSTALLED'], ['pctools, silent, SUCCESS ELITE UNINSTALLED']]
-
-    print "DBG TEST START"
-
-    r = Report(results)
-    r.save_db(1)
-
-    print "DBG TEST END"
     '''
     results = [['fakeav, silent, STARTED', 
         'fakeav, melt, ERROR', 
@@ -457,7 +445,14 @@ def test(flargs):
     rep = Report(9999, results)
     if rep.send_report_color_mail("reportz") is False:
         print "[!] Problem sending HTML email Report!"
+    '''
+    rep = Report(4)
+    print rep.results
+    if rep.send_report_color_mail() is False:
+        print "[!] Problem sending HTML email Report!"
 
+#    for result in rep.results:
+#        print "%s: %s" % (result.vm_name,result.result)
 
 def wait_for_startup(vm, message=None, max_minute=8):
     #r = Redis()

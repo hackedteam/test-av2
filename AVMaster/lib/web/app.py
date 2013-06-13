@@ -2,9 +2,9 @@ import os
 import sys
 
 from base64 import b64encode
-from flask import Flask, render_template
+from flask import render_template
 
-from lib.web.models import db, app, init_db, Test, Result, Report
+from lib.web.models import app, init_db, Test, Result
 from lib.web.settings import DB_PATH
 
 @app.route('/')
