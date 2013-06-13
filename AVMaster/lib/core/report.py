@@ -349,9 +349,10 @@ a.fill-div {
 					if kind in rd[col]:
 						l += linetoken % (kind.lower(), link)
 						break
-				if "STARTED" in rd[col] or rd[col] == "n":
-					print "DBG found line STARTED"
-					l += linetoken % ("error", link)
+					elif "STARTED" in rd[col] or rd[col] == "n":
+						print "DBG found line STARTED"
+						l += linetoken % ("error", link)
+						break
 				
 			l += lineend
 
