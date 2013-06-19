@@ -250,27 +250,29 @@ def dispatch(flargs):
         if kind == "agents":
             results.append( dispatch_kind(vm_name, "silent", args) )
             sleep(random.randint(5,10))
-            #results.append( dispatch_kind(vm_name, "melt", args) )
-            #sleep(random.randint(5,10))
             results.append( dispatch_kind(vm_name, "mobile", args) )
             sleep(random.randint(5,10))
             results.append( dispatch_kind(vm_name, "exploit_docx", args) )
+            sleep(random.randint(5,10))
+            results.append( dispatch_kind(vm_name, "exploit_web", args) )
         elif kind == "exploits":
             results.append( dispatch_kind(vm_name, "exploit", args) )
             sleep(random.randint(5,10))
             results.append( dispatch_kind(vm_name, "exploit_docx", args) )
             sleep(random.randint(5,10))
             results.append( dispatch_kind(vm_name, "exploit_ppsx", args) )
+            sleep(random.randint(5,10))
+            results.append( dispatch_kind(vm_name, "exploit_web", args) )
         elif kind == "all":
             results.append( dispatch_kind(vm_name, "silent", args) )
             sleep(random.randint(5,10))
             results.append( dispatch_kind(vm_name, "melt", args) )
             sleep(random.randint(5,10))
-            results.append( dispatch_kind(vm_name, "exploit", args) )
-            sleep(random.randint(5,10))
+#            results.append( dispatch_kind(vm_name, "exploit", args) )
+#            sleep(random.randint(5,10))
             results.append( dispatch_kind(vm_name, "exploit_docx", args) )
             sleep(random.randint(5,10))
-            results.append( dispatch_kind(vm_name, "exploit_ppsx", args) )
+            results.append( dispatch_kind(vm_name, "exploit_web", args) )
             sleep(random.randint(5,10))
             results.append( dispatch_kind(vm_name, "mobile", args) )
         else:
@@ -317,6 +319,11 @@ def dispatch_kind(vm_name, kind, args):
                     "assets/meltexploit.txt",
                     "assets/meltexploit.docx",
                     "assets/meltexploit.ppsx"     ]
+
+    if kind == "exploit_web":
+        filestocopy.append("assets/avtest.swf")
+        filestocopy.append("assets/owned.docm")
+        filestocopy.append("assets/PMIEFuck-WinWord.dll")
 
     result = "%s, %s, ERROR GENERAL" % (vm_name, kind) 
 
@@ -546,7 +553,7 @@ def main():
     parser.add_argument('-v', '--verbose', action='store_true', default=False,  
         help="Verbose")
     parser.add_argument('-k', '--kind', default="all", type=str,
-        choices=['silent', 'melt', 'exploit', 'exploit_docx', 'exploit_ppsx', 
+        choices=['silent', 'melt', 'exploit', 'exploit_docx', 'exploit_ppsx', 'exploit_web',
         'mobile', 'agents', 'exploits', 'all'],
         help="Kind of test (or test case)", )
     parser.add_argument('-c', '--cmd', required=False,
