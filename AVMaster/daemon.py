@@ -8,7 +8,7 @@ def init_web():
 	if len(sys.argv) == 2:
 		port = int(sys.argv[1]) 
 	
-#	init_db(DB_PATH)
+	#init_db(DB_PATH)
 	app.run(host='0.0.0.0', port=port)
 
 def main():

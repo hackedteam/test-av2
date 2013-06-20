@@ -39,6 +39,7 @@ class VMRun:
 
 		self.path 	= self.config.get("vsphere", "path")
 		self.host 	= self.config.get("vsphere", "host")
+		self.domain = self.config.get("vsphere", "domain")
 		self.user   = self.config.get("vsphere", "user")
 		self.passwd = self.config.get("vsphere", "passwd")
 
@@ -46,7 +47,7 @@ class VMRun:
 		pargs = [   self.path,
 					"-T", "vc",
 					"-h", self.host,
-					"-u", self.user, "-p", self.passwd, cmd, vmx.path ]
+					"-u", "%s\\%s" % (self.domain,self.user), "-p", self.passwd, cmd, vmx.path ]
 
 		if vmx_creds != [] and len(vmx_creds) == 2:
 			idx = pargs.index("-p")+2
