@@ -139,6 +139,9 @@ class VMachine:
 	def is_powered_off(self):
 		return self._run_cmd("is_powered_off")
 
+	def is_powered_on(self):
+		return self._run_cmd("is_powered_on")
+
 	def login_in_guest(self):
 		return self._run_cmd("login_in_guest", self.user, self.passwd)
 
@@ -153,6 +156,10 @@ class VMachine:
 
 	def list_processes(self):
 		return self._run_cmd("list_processes")
+
+	#def check_tools(self):
+	#	self.login_in_guest()
+	#	return self.list_processes()
 
 	#	VM
 

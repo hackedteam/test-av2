@@ -6,14 +6,30 @@ import datetime
 from email.MIMEMultipart import MIMEMultipart
 from email.MIMEText import MIMEText
 
-#from ..web.models import Report as DBReport, db
-from ..web.models import Test, Result, db
-
+from ..web.models import Report as DBReport, db
 
 class Report:
-	def __init__(self, test_id=None): #, results=None):
+	def __init__(self, test_id=None, results=None):
 		self.test_id = test_id
-		self.results = self._get_results()
+		self.results = results
+		
+		if results != None:
+			self.report = self._prepare_report()
+		else:
+			self.report = None
+
+
+	def _prepare_report(self):
+		r = ""
+		for l in self.results:
+			if l is list:
+				for el in l:
+					print "  %s\n" % el
+					r+= "  %s\n" % el
+			else:
+				print "%s\n" % l
+				r+= "%s\n" % l
+		return r
 
 	def save_file(self, filename):
 		if self.report is None:
@@ -30,21 +46,196 @@ class Report:
 			print "[report:save_file] Impossible save file. Exception: %s" % e
 			return False
 
-	def _get_results(self):
-		results = Result.query.filter_by(test_id=self.test_id)
-		if results is not None:
-			rs = []
-			for result in results:
-				r = "%s, %s, %s" % (result.vm_name, result.kind, result.result.split(", ")[-1])
-#				r['name'] = result.vm_name
-#				r[result.kind] = result.result.split(", ")[-1]
-				rs.append(r)
-			return rs
-		else:
-			print "DBG No results for test with id %s." % self.test_id 
-			return None
+	def _parse_results(self,filename):
+
+		success = []
+		errors  = []
+		failed  = []
+
+		with open(filename, 'rb') as f:
+			
+			for l in f.readlines():
+				try:
+					e=eval(l)
+					for k in e:
+						j = k.split(",")
+						print j
+
+						if "SUCCESS" in j[3] or "FAILED" in j[3]:
+							print j[0],j[1],j[3].split(":")[2][3:-2].replace("+","")
+							#j[0],j[1],j[3]
+							res = {}
+							
+							res['av'] = j[0]
+							res['kind'] = j[1]
+							'''
+							res['av'] = j[1]
+							res['kind'] = j[0]
+							'''
+							res['result'] = j[3].split(":")[2][3:-2].replace("+","")
+
+							if "SUCCESS" in j[3]:
+								success.append(res)
+								print len(success)
+							else:
+								failed.append(res)
+								print len(failed)
+				except:
+					if "ERROR" in l:
+						errors.append(l)
+						print len(errors)
+					#print "failed: %s" % e
+					pass
+		return success,errors,failed
+
+	def _add_header(self, name):
+		
+		html_table_open = '''
+		<table border=1 cellpadding=1 cellspacing=2 width=70%>
+			<tr><td with=15%>Virtual Machine</td>
+				<td with=15%>Kind of test</td>
+				<td width=50%>Result</td>
+				<td width=10%>TXT Report</td>
+				<td width=10%>Screenshot</td></tr>
+		'''		
+
+		html_head  = "<h2>%s</h2>" % name
+		html_head += html_table_open
+		return html_head
+
+	def _add_results(self, res):
+
+		html_section = '''
+		<tr><td>AV_NAME</td>
+			<td>AV_KIND</td>
+			<td>AV_RESULT</td>
+			<td><a href="AV_TXT_LINK">txt report</td>
+			<td><a href="AV_SCREEN_LINK"><img src="AV_SCREEN_LINK" width=150 height=150></a></td></tr>
+		'''
 	
-	def send_mail(self, result):
+		html_results = ""
+
+		for s in res:
+			html_table = html_section
+			html_table = html_table.replace("AV_NAME",s['av'])
+			html_table = html_table.replace("AV_KIND",s['kind'])
+			html_table = html_table.replace("AV_RESULT",s['result'])
+			html_table = html_table.replace("AV_TXT_LINK","results_%s_%s.txt" % (s['av'],s['kind']) )
+			html_table = html_table.replace("AV_SCREEN_LINK","screenshot_%s_%s.png" % (s['av'],s['kind']) )
+			html_results += html_table
+		return html_results
+
+	def _add_errors(self, errors):
+
+		html_table_head = '''
+		<table border=1 cellpadding=1 cellspacing=2 width=70%>
+			<tr><td with=15%>Virtual Machine</td>
+				<td with=15%>Kind of test</td>
+				<td width=50%>Result</td>
+				<td width=10%>TXT Report</td>
+				<td width=10%>Screenshot</td></tr>
+		'''	
+
+		html_section = '''
+		<tr><td>AV_NAME</td>
+			<td>AV_KIND</td>
+			<td>AV_ERROR</td>
+			<td><a href="AV_TXT_LINK">txt report</a></td>
+			<td><a href="AV_SCREEN_LINK"><img src="AV_SCREEN_LINK" width=150 height=150></a></td></tr>
+		'''
+
+		html_errs = html_table_head
+		
+		for e in errors:
+			html_table = html_section
+			html_table = html_table.replace( "AV_NAME", e['av'] )
+			html_table = html_table.replace("AV_KIND", e['kind'])
+			html_table = html_table.replace( "AV_ERROR", e['result'] )
+			html_table = html_table.replace( "AV_TXT_LINK", "results_%s_%s.txt" % (e['av'],e['kind']) )
+			html_table = html_table.replace( "AV_SCREEN_LINK", "screenshot_%s_%s.png" % (e['av'],e['kind']) )
+			html_errs += html_table
+		html_errs += "</table>"
+
+		return html_errs
+
+
+
+	def _write_html_report(self, result, html_file_name=None):
+
+		html_table_closed = '</table>'
+
+		content  = ""
+		content += "<html><body>"
+		content += "<h2>%s</h2>" % datetime.datetime.now()
+
+		if len(result['failed']) > 0:
+			content +=  self._add_header("Failed") 
+			content +=  self._add_results(result['failed'] )
+			content +=  html_table_closed 
+
+		if len(result['errors']) > 0:
+			content +=  "<h2>Errors</h2>"
+			content +=  self._add_errors(result['errors'])
+
+		if len(result['success']) > 0:
+			content +=  self._add_header("Success") 
+			content +=  self._add_results(result['success'])
+			content +=  html_table_closed 
+
+		content += "</body></html>"
+
+		if html_file_name is None:
+			return content
+		else:
+			f = open(html_file_name, 'wb') 
+			f.write(content)
+			f.close()
+
+	def _get_results(self):
+		errors  = []
+		success = []
+		failed  = []
+
+		record  = {}
+		
+		for result in self.results:
+			for r in result:
+				record = {}
+				l = r.split(",")
+
+				if len(l) == 3:
+					record['av']     = l[0].strip()
+					record['kind']   = l[1].strip()
+ 					record['result'] = l[2].strip()
+					errors.append(record)
+
+				elif len(l) == 4:
+					record['av']     = l[0].strip()
+					record['kind']   = l[1].strip()
+					record['result'] = l[3].replace("\r\n","").replace("+","").strip()
+
+					if "SUCCESS" in record['result']:
+						success.append(record)
+
+					elif "FAILED" in record['result']:
+						failed.append(record)
+
+		res_list = {} 
+		res_list["success"] = success
+		res_list["errors"]  = errors
+		res_list["failed"]  = failed
+
+		return res_list
+
+	def save_html(self, html_file, on_file=True):
+		print "saving in %s" % html_file
+		res_list = self._get_results()
+		if on_file is True:
+			self._write_html_report(res_list, html_file)
+		else:
+			self._write_html_report(res_list)
+	
+	def send_mail(self):
 		if self.report is None:
 			return False
 		try:
@@ -52,7 +243,7 @@ class Report:
 			msg["Subject"] = "AV Monitor"
 			msg["From"] = "avmonitor@hackingteam.com"
 			msg["To"] = "olli@hackingteam.com,zeno@hackingteam.com"
-			body = MIMEText(result)
+			body = MIMEText(self.report)
 			msg.attach(body)
 			smtp = smtplib.SMTP("mail.hackingteam.com", 25)
 			#smtp.sendmail(msg["From"], msg["To"].split(","), msg.as_string())
@@ -64,7 +255,9 @@ class Report:
 			return False
 
 
-	def _build_mail_body(self):
+	def _build_mail_body(self,  url_dir):
+
+		hresults = []
 		hcolumns = ['name']
 
 		host = "172.20.20.167"
@@ -72,35 +265,26 @@ class Report:
 
 		report_file = "http://%s:%s/report/%s" % ( host, port, self.test_id )
 
-		res = Result.query.filter_by(test_id=self.test_id).order_by(Result.vm_name)
+		sortedresults = sorted(self.results, key = lambda x: x[0][0])
+		print "DBG sorted %s" % sortedresults
 
-		if res is None:
-			print "DBG Results are None"
-			return None
-		results = []
-		vms = []
-		hcolumns = ['name']
-		result = {}
+		for av in sortedresults:
+			name = av[0].split(",")[0]
+			#k = len(av)
 
-		for r in res:
-			if r.vm_name not in vms:
-				if result != {}:
-					results.append(result)
-				result = {}
-				vms.append(r.vm_name)
-				result['name'] = r.vm_name				
+			hres = []
+			hres.append(name)
 
-			if r.kind not in hcolumns:
-				hcolumns.append(r.kind)
+			for ares in av:
+				r = ares.split(", ")
+				hres.append(r[-1])
+				if r[1] not in hcolumns:
+					hcolumns.append(r[1])
 
-			result[r.kind] = r.result.split(", ")[-1]
+			hresults.append(hres)
 
-		# se alla fine del for vuoto vuol dire che avevo una sola vm
-		if results == []:
-			results.append(result)
 
-		print "DBG results %s" % results
-		print "DBG hcolumns %s" % hcolumns
+		print "DBG hresults %s" % hresults
 		style  = """
 <html>
 <style type'text/css'>
@@ -152,23 +336,31 @@ a.fill-div {
 		header += header_en
 		content += header
 
-		for res in results:
-			print "DBG res is %s" % res
-			avname = res['name']
+		for res in hresults:
+			rd = dict(zip(hcolumns,res))
+			print "DBG rd %s" % rd
+			#rd['name'], rd['silent'], rd['melt'], rd['exploit']
+			avname = rd['name']
 			l = linestart % avname
 			for col in hcolumns[1:]:
 				link = "http://%s:%s/report/%s/result/%s/%s" % (host, port, self.test_id, avname, col)
 
 				for kind in ["FAILED", "BLACKLISTED", "SUCCESS", "ERROR"]:
-					if kind in res[col]:
+					print "DBG parsing rd[%s]" % col  
+					if kind in rd[col]:
 						l += linetoken % (kind.lower(), link)
 						break
-					elif "STARTED" in res[col] or res[col] == "n":
+					elif "STARTED" in rd[col] or rd[col] == "n":
 						print "DBG found line STARTED"
 						l += linetoken % ("error", link)
 						break
+					#else: #if "STARTED" in rd[col] or rd[col] == "n":
+					#	print "DBG found nothing. assuming ERROR"
+					#	l += linetoken % ("error", link)
+					#	break
 				
 			l += lineend
+
 			content += l
 
 		content += legend
@@ -176,15 +368,14 @@ a.fill-div {
 
 		return content
 
-	def send_report_color_mail(self):
-		content = self._build_mail_body()
+	def send_report_color_mail(self,  url_dir):
+		content = self._build_mail_body(url_dir)
 
 		try:
 			msg = MIMEMultipart()
 			msg["Subject"] = "AV Monitor Results"
 			msg["From"] = "avmonitor@hackingteam.com"
-			#msg["To"] = "olli@hackingteam.com,zeno@hackingteam.com,alor@hackingteam.com,g.landi@hackingteam.com"
-			msg["To"] = "olli@hackingteam.com"
+			msg["To"] = "olli@hackingteam.com,zeno@hackingteam.com,alor@hackingteam.com,g.landi@hackingteam.com"
 			body = MIMEText(content, 'html')
 			msg.attach(body)
 			smtp = smtplib.SMTP("mail.hackingteam.com", 25)

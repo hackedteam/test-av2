@@ -366,15 +366,19 @@ def push(flargs):
     kind = args.kind
     
     vm = VMachine(vm_conf_file, vm_name)
-    #job_log(vm_name, "DISPATCH %s" % kind)
-    
-    #vmman.revertLastSnapshot(vm)
-    #job_log(vm_name, "REVERTED")
 
-    #sleep(5)
-    #vmman.startup(vm)
-    #sleep(5* 60)
-    #job_log(vm_name, "STARTUP")
+    if vm.is_powered_on():
+        print "[!] %s is already powered on. please shutdown vm before." % vm_name
+        return "%s not pushed %s" % (vm_name, kind)
+
+    job_log(vm_name, "PUSH %s" % kind)
+        
+    vm.revert_last_snapshot()
+    job_log(vm_name, "REVERTED")
+
+    sleep(random.randint(30, 60))
+    vm.startup()
+    job_log(vm_name, "STARTUP")
     
     test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
 
@@ -399,9 +403,12 @@ def push(flargs):
     if wait_for_startup(vm) is False:
         result = "ERROR wait for startup for %s" % vm_name 
     else:
-        vm.send_files("../AVAgent", test_dir, filestocopy)
+        copy_to_guest(vm, test_dir, filestocopy)
+#        vm.send_files("../AVAgent", test_dir, filestocopy)
         job_log(vm_name, "ENVIRONMENT")
-        result = "pushed"
+        result = "%s, pushed %s." % (vm_name, kind)
+
+#    copy_to_guest(vm, test_dir, filestocopy)
     return result
 
 def test_internet(flargs):
@@ -478,7 +485,7 @@ def wait_for_startup(vm, message=None, max_minute=8):
             except TypeError:
                 pass
     except ConnectionError:
-        print "DBG %s: not STARTED. Timeout occurred."
+        print "DBG %s: not STARTED. Timeout occurred." % vm
         return False
 
 
@@ -639,11 +646,11 @@ def main():
     # REPORT
     
     rep = Report(test_id, results)
-    if args.action == "dispatch" or args.action == "revert":
+    if args.action == "dispatch": 
         if rep.send_report_color_mail(logdir.split('/')[-1]) is False:
             print "[!] Problem sending HTML email Report!"
     else:
-        if args.action == "update":
+        if args.action == "update" or args.action == "revert":
             if rep.send_mail() is False:
                 print "[!] Problem sending mail!"
 

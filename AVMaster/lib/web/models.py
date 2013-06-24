@@ -26,7 +26,7 @@ class Test(db.Model):
 class Report(db.Model):
 	id      = db.Column(db.Integer, primary_key=True)
 	test_id = db.Column(db.Integer, db.ForeignKey('test.id'))
-	av      = db.Column(db.String(8))
+	av      = db.Column(db.String(16))
 	silent  = db.Column(db.Integer) # 0: SUCCESS 1: FAILED 2: ERROR
 	melt    = db.Column(db.Integer) # 0: SUCCESS 1: FAILED 2: ERROR
 	exploit = db.Column(db.Integer) # 0: SUCCESS 1: FAILED 2: ERROR
@@ -40,9 +40,9 @@ class Report(db.Model):
 
 class Result(db.Model):
 	id      = db.Column(db.Integer, primary_key=True)
-	vm_name = db.Column(db.String(15))
+	vm_name = db.Column(db.String(16))
 	test_id = db.Column(db.Integer, db.ForeignKey('test.id'))
-	kind    = db.Column(db.String(10))
+	kind    = db.Column(db.String(16))
 	result  = db.Column(db.Text)
 	scrshot = db.Column(db.BLOB)
 	log     = db.Column(db.Text)
