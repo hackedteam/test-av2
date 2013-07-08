@@ -3,6 +3,7 @@ import sys
 
 from base64 import b64encode
 from flask import render_template
+from sqlalchemy import desc
 
 from lib.web.models import app, Test, Result, init_db
 #from lib.web.db import init_db
@@ -14,7 +15,7 @@ def index_view():
 	Shows list of reports
 	"""
 	title = "Reports"
-	reports = Test.query.all().order_by(Test.id.desc())
+	reports = Test.query.order_by(desc(Test.id))
 
 	return render_template('index.html', title=title, reports=reports)
 
