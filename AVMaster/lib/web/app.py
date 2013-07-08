@@ -14,7 +14,7 @@ def index_view():
 	Shows list of reports
 	"""
 	title = "Reports"
-	reports = Test.query.all()
+	reports = Test.query.all().order_by(Test.id.desc())
 
 	return render_template('index.html', title=title, reports=reports)
 

@@ -116,7 +116,10 @@ class AVAgent:
     def __init__(self, backend, frontend=None, platform='windows', kind='silent', ftype='desktop', blacklist=[]):
         self.kind = kind
         self.host = (backend, frontend)
-        self.hostname = socket.gethostname().replace("win7", "")
+        if "winxp" in socket.gethostname():
+            self.hostname = socket.gethostname().replace("winxp", "")
+        else:
+            self.hostname = socket.gethostname().replace("win7", "")
         self.blacklist = blacklist
         self.platform = platform
         self.ftype = ftype
