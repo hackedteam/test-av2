@@ -162,13 +162,13 @@ def upd_record_result(r_id, status=None, result=None):
     if not r:
         print "DBG result not found"
         return
+    print "DBG result: %s" % result
     if result is not None:
         r.result = result
+        db.session.commit()
     if status is not None:
         r.status = status
-
-    db.session.commit()
-
+        db.session.commit()
 
 def save_results(vm, kind, test_id, result_id):
     global status, logdir
@@ -236,7 +236,7 @@ def copy_to_guest(vm, test_dir, filestocopy):
             vmman.mkdirInGuest( vm, rdir )
             memo.append( rdir )
 
-        print "DBG copy %s -> %s" % (src, dst)
+        print "DBG %s copy %s -> %s" % (vm.name, src, dst)
         vmman.copyFileToGuest(vm, src, dst)
 
 def dispatch(flargs):
@@ -247,16 +247,32 @@ def dispatch(flargs):
         results = []
         print "DBG %s, %s" %(vm_name,kind)
 
-        if kind == "all":
+        if kind == "agents":
             results.append( dispatch_kind(vm_name, "silent", args) )
             sleep(random.randint(5,10))
-            results.append( dispatch_kind(vm_name, "melt", args) )
+            results.append( dispatch_kind(vm_name, "mobile", args) )
             sleep(random.randint(5,10))
+            results.append( dispatch_kind(vm_name, "exploit_docx", args) )
+            sleep(random.randint(5,10))
+            results.append( dispatch_kind(vm_name, "exploit_web", args) )
+        elif kind == "exploits":
             results.append( dispatch_kind(vm_name, "exploit", args) )
             sleep(random.randint(5,10))
             results.append( dispatch_kind(vm_name, "exploit_docx", args) )
             sleep(random.randint(5,10))
             results.append( dispatch_kind(vm_name, "exploit_ppsx", args) )
+            sleep(random.randint(5,10))
+            results.append( dispatch_kind(vm_name, "exploit_web", args) )
+        elif kind == "all":
+            results.append( dispatch_kind(vm_name, "silent", args) )
+            sleep(random.randint(5,10))
+            results.append( dispatch_kind(vm_name, "melt", args) )
+            sleep(random.randint(5,10))
+#            results.append( dispatch_kind(vm_name, "exploit", args) )
+#            sleep(random.randint(5,10))
+            results.append( dispatch_kind(vm_name, "exploit_docx", args) )
+            sleep(random.randint(5,10))
+            results.append( dispatch_kind(vm_name, "exploit_web", args) )
             sleep(random.randint(5,10))
             results.append( dispatch_kind(vm_name, "mobile", args) )
         else:
@@ -304,10 +320,15 @@ def dispatch_kind(vm_name, kind, args):
                     "assets/meltexploit.docx",
                     "assets/meltexploit.ppsx"     ]
 
+    if kind == "exploit_web":
+        filestocopy.append("assets/avtest.swf")
+        filestocopy.append("assets/owned.docm")
+        filestocopy.append("assets/PMIEFuck-WinWord.dll")
+
     result = "%s, %s, ERROR GENERAL" % (vm_name, kind) 
 
     if wait_for_startup(vm) is False:
-        result = "%s, %s, ERROR: timeout on startup" % (vm_name, kind)
+        result = "%s, %s, ERROR not STARTED" % (vm_name, kind)
         result_id = add_record_result(vm_name, kind, test_id, status, result)
     else:
         #vm.login_in_guest()
@@ -334,7 +355,8 @@ def dispatch_kind(vm_name, kind, args):
 
         
     # suspend & refresh snapshot
-    vm.suspend()
+    #vm.suspend()
+    vm.shutdown()
     job_log(vm_name, "SUSPENDED %s" % kind)
 
     return result
@@ -344,15 +366,19 @@ def push(flargs):
     kind = args.kind
     
     vm = VMachine(vm_conf_file, vm_name)
-    #job_log(vm_name, "DISPATCH %s" % kind)
-    
-    #vmman.revertLastSnapshot(vm)
-    #job_log(vm_name, "REVERTED")
 
-    #sleep(5)
-    #vmman.startup(vm)
-    #sleep(5* 60)
-    #job_log(vm_name, "STARTUP")
+    if vm.is_powered_on():
+        print "[!] %s is already powered on. please shutdown vm before." % vm_name
+        return "%s not pushed %s" % (vm_name, kind)
+
+    job_log(vm_name, "PUSH %s" % kind)
+        
+    vm.revert_last_snapshot()
+    job_log(vm_name, "REVERTED")
+
+    sleep(random.randint(30, 60))
+    vm.startup()
+    job_log(vm_name, "STARTUP")
     
     test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
 
@@ -377,9 +403,12 @@ def push(flargs):
     if wait_for_startup(vm) is False:
         result = "ERROR wait for startup for %s" % vm_name 
     else:
-        vm.send_files("../AVAgent", test_dir, filestocopy)
+        copy_to_guest(vm, test_dir, filestocopy)
+#        vm.send_files("../AVAgent", test_dir, filestocopy)
         job_log(vm_name, "ENVIRONMENT")
-        result = "pushed"
+        result = "%s, pushed %s." % (vm_name, kind)
+
+#    copy_to_guest(vm, test_dir, filestocopy)
     return result
 
 def test_internet(flargs):
@@ -421,20 +450,25 @@ def check_directory(vm, directory):
     return vm.list_directory(directory)
 
 def test(flargs):
-    conf = ConfigParser()
-    conf.read(vm_conf_file)
-    
-    #results = [['comodo, silent, SUCCESS ELITE BLACKLISTED'], ['norton, silent, SUCCESS ELITE UNINSTALLED'], ['pctools, silent, SUCCESS ELITE UNINSTALLED']]
+    '''
+    results = [['fakeav, silent, STARTED', 
+        'fakeav, melt, ERROR', 
+        'fakeav, exploit, SUCCESS', 
+        'fakeav, exploit_ppsx, FAILED']]
 
-    print "DBG TEST START"
+    rep = Report(9999, results)
+    if rep.send_report_color_mail("reportz") is False:
+        print "[!] Problem sending HTML email Report!"
+    '''
+    rep = Report(4)
+    print rep.results
+    if rep.send_report_color_mail() is False:
+        print "[!] Problem sending HTML email Report!"
 
-    r = Report(results)
-    r.save_db(1)
+#    for result in rep.results:
+#        print "%s: %s" % (result.vm_name,result.result)
 
-    print "DBG TEST END"
-
-
-def wait_for_startup(vm, message=None, max_minute=20):
+def wait_for_startup(vm, message=None, max_minute=8):
     #r = Redis()
     r = StrictRedis(socket_timeout=max_minute * 60)
 
@@ -451,7 +485,7 @@ def wait_for_startup(vm, message=None, max_minute=20):
             except TypeError:
                 pass
     except ConnectionError:
-        print "DBG %s: Timeout occurred during startup"
+        print "DBG %s: not STARTED. Timeout occurred." % vm
         return False
 
 
@@ -521,7 +555,9 @@ def main():
     parser.add_argument('-v', '--verbose', action='store_true', default=False,  
         help="Verbose")
     parser.add_argument('-k', '--kind', default="all", type=str,
-        help="Verbose", choices=['silent', 'melt', 'exploit', 'exploit_docx', 'exploit_ppsx', 'mobile', 'all'])
+        choices=['silent', 'melt', 'exploit', 'exploit_docx', 'exploit_ppsx', 'exploit_web',
+        'mobile', 'agents', 'exploits', 'all'],
+        help="Kind of test (or test case)", )
     parser.add_argument('-c', '--cmd', required=False,
         help="Run VMRUN command")
     parser.add_argument('-u', '--updatetime', default=50, type=int,
@@ -548,7 +584,7 @@ def main():
     c.read(vm_conf_file)
 
     vSphere.hostname = c.get("vsphere", "host")
-    vSphere.username = c.get("vsphere", "user")
+    vSphere.username = "%s\\%s" % (c.get("vsphere", "domain"),c.get("vsphere", "user"))
     vSphere.password = c.get("vsphere", "passwd")
 
     if args.vm:
@@ -610,15 +646,18 @@ def main():
     # REPORT
     
     rep = Report(test_id, results)
-    if args.action == "dispatch":
+    if args.action == "dispatch": 
         if rep.send_report_color_mail(logdir.split('/')[-1]) is False:
             print "[!] Problem sending HTML email Report!"
     else:
-        if rep.send_mail() is False:
-            print "[!] Problem sending mail!"
+        if args.action == "update" or args.action == "revert":
+            if rep.send_mail() is False:
+                print "[!] Problem sending mail!"
 
-    os.system('sudo ./net_disable.sh')    
+    os.system('sudo ./net_disable.sh')
     print "[!] Disabling NETWORKING!"
+    os.system('sudo rm -fr /tmp/screenshot_*')    
+    print "[!] Deleting Screenshots!"
 
 if __name__ == "__main__":	
     main()

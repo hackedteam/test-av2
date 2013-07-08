@@ -2,9 +2,10 @@ import os
 import sys
 
 from base64 import b64encode
-from flask import Flask, render_template
+from flask import render_template
 
-from lib.web.models import db, app, init_db, Test, Result, Report
+from lib.web.models import app, Test, Result, init_db
+#from lib.web.db import init_db
 from lib.web.settings import DB_PATH
 
 @app.route('/')
@@ -13,7 +14,7 @@ def index_view():
 	Shows list of reports
 	"""
 	title = "Reports"
-	reports = Test.query.all()
+	reports = Test.query.all().order_by(Test.id.desc())
 
 	return render_template('index.html', title=title, reports=reports)
 
@@ -105,7 +106,7 @@ if __name__ == "__main__":
 	port = 8000
 
 	if len(sys.argv) == 2:
-		port = sys.argv[1]
+		port = int(sys.argv[1]) 
 	
 	init_db(DB_PATH)
 	app.run(host='0.0.0.0', port=port)

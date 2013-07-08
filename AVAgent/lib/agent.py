@@ -1,4 +1,6 @@
+import os
 import sys
+import shutil
 from time import sleep
 import time
 import socket
@@ -114,7 +116,10 @@ class AVAgent:
     def __init__(self, backend, frontend=None, platform='windows', kind='silent', ftype='desktop', blacklist=[]):
         self.kind = kind
         self.host = (backend, frontend)
-        self.hostname = socket.gethostname().replace("win7", "")
+        if "winxp" in socket.gethostname():
+            self.hostname = socket.gethostname().replace("winxp", "")
+        else:
+            self.hostname = socket.gethostname().replace("win7", "")
         self.blacklist = blacklist
         self.platform = platform
         self.ftype = ftype
@@ -221,11 +226,16 @@ class AVAgent:
                 "platform":"exploit", "deliver": {"user":"USERID"},
                 "melt":{"filename":"example.ppsx", "appname":"APPNAME", "input":"000", "url":"http://HOSTNAME/APPNAME" }, "factory":{"_id":"000"}
             }
+            params['exploit_web'] = {"generate": 
+                    {"platforms": ["windows"], "binary": {"demo": False, "admin": False}, "exploit":"HT-2013-002", 
+                    "melt":{"demo":False, "scout":True, "admin":False}}, 
+                "platform":"exploit", "deliver": {"user":"USERID"},
+                "melt":{"filename":"example.docx", "appname":"APPNAME", "input":"000", "url":"http://HOSTNAME/APPNAME" }, "factory":{"_id":"000"}
+            }
 
             param = params[self.platform]
 
             try:
-                
                 filename = 'build/%s/build.zip' % self.platform
                 if os.path.exists(filename):
                     os.remove(filename)
@@ -246,8 +256,39 @@ class AVAgent:
 
                 # CHECK FOR DELETED FILES
 
-                print "+ SUCCESS SCOUT BUILD"
-                return [n for n in contentnames if n.endswith('.exe')]
+                for content in contentnames:
+                    dst = content.split("/")
+
+                    src_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
+                    dst_dir = "C:\\Users\\avtest\\Desktop\\AVTEST\\copy"
+
+                    for i in range(0,(len(dst)-1)):
+                        src_dir += "\\%s" % dst[i]
+                        dst_dir += "\\%s" % dst[i]
+
+                    if not os.path.exists(dst_dir): 
+                        os.makedirs(dst_dir)
+
+                    src_exe = "%s\\%s" % (src_dir,dst[-1])
+                    if ".exe" not in dst[-1] or ".bat" not in dst[-1] or ".dll" not in dst[-1]:
+                        dst_exe = "%s\\%s.exe" % (dst_dir,dst[-1])
+                    else:
+                        dst_exe = "%s\\%s" % (dst_dir,dst[-1])
+
+                    print "Copying %s to %s" % (src_exe, dst_exe)
+                    try:
+                        shutil.copy(src_exe, dst_exe)
+
+                        if os.path.exists(dst_exe) and os.path.exists(src_exe):
+                            print "+ SUCCESS SCOUT BUILD"
+                            return [n for n in contentnames if n.endswith('.exe')]
+                        else:
+                            print "+ FAILED SCOUT BUILD. SIGNATURE DETECTION"
+                            send_results("ENDED")
+                    except:
+                        print "+ FAILED SCOUT BUILD. SIGNATURE DETECTION"
+                        send_results("ENDED")
+                        return 
             except HTTPError as err:
                 print "DBG trace %s" % traceback.format_exc()
                 if tries <= 3:
@@ -260,7 +301,7 @@ class AVAgent:
             except Exception, e:
                 print "DBG trace %s" % traceback.format_exc()
                 print "+ ERROR SCOUT BUILD EXCEPTION RETRIEVED"
-                self._send_results("ENDED")
+                send_results("ENDED")
                 raise e
         
     def _execute_build(self, exenames):
@@ -277,7 +318,7 @@ class AVAgent:
         except Exception, e:
             print "DBG trace %s" % traceback.format_exc()
             print "+ FAILED SCOUT EXECUTE"
-            self._send_results("ENDED")
+            send_results("ENDED")
             raise e
 
     def _click_mouse(self, x, y):
@@ -318,7 +359,7 @@ class AVAgent:
                 print "+ SUCCESS ELITE SYNC"
             else:
                 print "+ FAILED ELITE SYNC"
-                self._send_results("ENDED")
+                send_results("ENDED")
             return ret
 
     def _uninstall(self, instance_id):
@@ -340,17 +381,6 @@ class AVAgent:
 
     def _list_processes(self):
         return subprocess.Popen(["tasklist"], stdout=subprocess.PIPE).communicate()[0]
-
-    def _send_results(self, results):
-        try:
-            print "DBG publish results"
-            channel = socket.gethostname().replace("win7", "")
-            r = redis.Redis("10.0.20.1")
-            r.publish(channel, results)
-            return True
-        except Exception as e:
-            print "DBG problem saving results. fault: %s" % e
-            return False
 
     def server_errors(self):
         with connection() as c:
@@ -384,7 +414,7 @@ class AVAgent:
 
         if not instance:
             print "- exiting execute_elite because did't sync"
-            self._send_results("ENDED")
+            send_results("ENDED")
             return
 
         print "- Try upgrade to elite"
@@ -398,13 +428,13 @@ class AVAgent:
             else:
                 result = "+ FAILED ELITE UPGRADE"
                 print result
-            self._send_results("ENDED")
+            send_results("ENDED")
             return
         else:
             if self.hostname in self.blacklist:
                 result = "+ FAILED ELITE BLACKLISTED"
                 print result
-                self._send_results("ENDED")
+                send_results("ENDED")
                 return
 
         print "- Elite, Wait for 25 minutes: %s" % time.ctime() 
@@ -428,7 +458,7 @@ class AVAgent:
 
         print "- Result: %s" % elite
         print "- sending Results to Master"
-        self._send_results("ENDED")
+        send_results("ENDED")
 
     def execute_scout(self):
         """ build and execute the  """
@@ -456,7 +486,7 @@ class AVAgent:
         if not instance:
             output = self._list_processes()
             print output
-            self._send_results("ENDED")
+            send_results("ENDED")
         print "- Result: %s" % instance
         return instance
 
@@ -497,24 +527,80 @@ class AVAgent:
                 appname = "exp_%s/avtest.swf" % self.hostname
             elif self.platform == 'exploit_ppsx':
                 appname = "pexp_%s/avtest.swf" % self.hostname
+            elif self.platform == 'exploit_web':
+                dllname = "exp_%s/PMIEFuck-WinWord.dll" % self.hostname
+                docname = "exp_%s/owned.docm" % self.hostname
 
             url = "http://%s/%s" % (self.host[1], appname)
             print "DBG getting: %s" % url
+            done = False
             try:
                 u = urllib2.urlopen(url)
                 localFile = open('build/file.swf', 'w')
                 localFile.write(u.read())
                 localFile.close()
+                sleep(2)
                 with open('build/file.swf'): 
-                    print "+ SUCCESS EXPLOIT"
+                    done = True
+                if "exploit_web" in self.platform:
+                    url = "http://%s/%s" % (self.host[1], docname)
+                    u = urllib2.urlopen(url)
+                    docFile = open('build/owned.docm', 'w')
+                    docFile.write(u.read())
+                    docFile.close()
+                    sleep(2)
+                    with open('build/owned.docm'):
+                        done = True
+                    url = "http://%s/%s" % (self.host[1], dllname)
+                    u = urllib2.urlopen(url)
+                    docFile = open('build/PMIEFuck-WinWord.dll', 'w')
+                    docFile.write(u.read())
+                    docFile.close()
+                    sleep(2)
+                    with open('build/PMIEFuck-WinWord.dll'):
+                        done = True
+                if done == True:
+                    print "+ SUCCESS EXPLOIT SAVE"
             except urllib2.HTTPError:
                 print "+ ERROR EXPLOIT DOWNLOAD"
                 pass
             except IOError:
-                print "+ ERROR EXPLOIT SAVE"
+                print "+ FAILED EXPLOIT SAVE"
                 pass
 
         return factory_id, ident, exe
+
+    def execute_web_expl(self, websrv):
+        """ WEBZ: we need to download some files only """
+        def check_file(filename):
+            try:
+                with open(filename):
+                    print "DBG %s saved"
+                    return True
+            except IOError:
+                print "DBG failed saving %s" % appname
+                return False
+
+        appname = ""
+        done = True
+        filez = [ "assets/avtest.swf", "assets/owned.docm", "assets/PMIEFuck-WinWord.dll" ]
+
+        for appname in filez:
+            if check_file(appname) is False:
+                done = False
+                break
+        if done is True:
+                print "+ SUCCESS EXPLOIT SAVE"
+        else:
+            print "+ FAILED EXPLOIT SAVE"
+
+def send_results(results):
+    try:
+        channel = socket.gethostname().replace("win7", "")
+        r = redis.Redis("10.0.20.1")
+        r.publish(channel, results)
+    except Exception as e:
+        print "DBG problem saving results. fault: %s" % e
 
 internet_checked = False
 def execute_agent(args, level, platform):
@@ -530,39 +616,40 @@ def execute_agent(args, level, platform):
     if socket.gethostname() != 'zenovm':
         if not internet_checked and internet_on():
             print "+ ERROR: I reach Internet"
-            vmavtest._send_results("ENDED")
+            send_results("ENDED")
             exit(0)
+
     internet_checked = True
-
     print "- Network unreachable"
-
     print "- Server: %s/%s %s" % (args.backend,args.frontend, args.kind)
-    #vmavtest = AVAgent( args.backend, args.frontend , platform, args.kind, ftype, args.blacklist )
 
-    if vmavtest.create_user_machine():
-        print "+ SUCCESS USER CONNECT"
-        if not vmavtest.server_errors():
-            print "+ SUCCESS SERVER CONNECT"
-            action = {"elite": vmavtest.execute_elite, "scout": vmavtest.execute_scout, "pull": vmavtest.execute_pull}
-            action[level]()
-            vmavtest._send_results("ENDED")
-        else:
-            print "+ ERROR SERVER ERRORS"
-        vmavtest._send_results("ENDED")
+    if platform == "exploit_web":
+        vmavtest.execute_web_expl(args.frontend)
     else:
-        print "+ ERROR USER CREATE"
-        vmavtest._send_results("ENDED")
+        if vmavtest.create_user_machine():
+            print "+ SUCCESS USER CONNECT"
+            if not vmavtest.server_errors():
+                print "+ SUCCESS SERVER CONNECT"
+                action = {"elite": vmavtest.execute_elite, "scout": vmavtest.execute_scout, "pull": vmavtest.execute_pull}
+                action[level]()
+            else:
+                print "+ ERROR SERVER ERRORS"
+        else:
+            print "+ ERROR USER CREATE"
 
 def elite(args):
     """ starts a elite """
     execute_agent(args, "elite", args.platform)
+    send_results("ENDED")
 
 def scout(args):
     """ starts a scout """
     execute_agent(args, "scout", args.platform)
+    send_results("ENDED")
 
 def pull(args):
-    """ deploys one or all platforms ('windows', 'linux', 'osx', 'exploit', 'exploit_docx', 'android', 'blackberry', 'ios') """
+    """ deploys one or all platforms 
+    ('windows', 'linux', 'osx', 'exploit', 'exploit_docx', 'android', 'blackberry', 'ios') """
     if args.platform == "all":
         for platform in args.platform_type.keys():
             if platform.startswith("exploit"):
@@ -573,8 +660,10 @@ def pull(args):
                 print "+ SUCCESS PULL %s" % platform
             except Exception, ex:
                 print "ERROR %s" % ex
+                pass
     else:
         execute_agent(args, "pull", args.platform)
+    send_results("ENDED")
 
 def test(args):
     connection.host = "rcs-minotauro"
@@ -595,7 +684,7 @@ def clean(args):
     vmavtest._delete_targets(operation)
    
 def main():
-    platform_desktop = [ 'windows', 'linux', 'osx', 'exploit', 'exploit_docx', 'exploit_ppsx' ]
+    platform_desktop = [ 'windows', 'linux', 'osx', 'exploit', 'exploit_docx', 'exploit_ppsx', 'exploit_web' ]
     platform_mobile =  [ 'android', 'blackberry', 'ios' ]
 
     platform_type = {}

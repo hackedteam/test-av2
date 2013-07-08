@@ -270,7 +270,7 @@ class Report:
 
 		for av in sortedresults:
 			name = av[0].split(",")[0]
-			k = len(av)
+			#k = len(av)
 
 			hres = []
 			hres.append(name)
@@ -346,13 +346,19 @@ a.fill-div {
 				link = "http://%s:%s/report/%s/result/%s/%s" % (host, port, self.test_id, avname, col)
 
 				for kind in ["FAILED", "BLACKLISTED", "SUCCESS", "ERROR"]:
+					print "DBG parsing rd[%s]" % col  
 					if kind in rd[col]:
 						l += linetoken % (kind.lower(), link)
 						break
-					elif "STARTED" in rd[col]:
+					elif "STARTED" in rd[col] or rd[col] == "n":
 						print "DBG found line STARTED"
 						l += linetoken % ("error", link)
 						break
+					#else: #if "STARTED" in rd[col] or rd[col] == "n":
+					#	print "DBG found nothing. assuming ERROR"
+					#	l += linetoken % ("error", link)
+					#	break
+				
 			l += lineend
 
 			content += l
@@ -369,7 +375,7 @@ a.fill-div {
 			msg = MIMEMultipart()
 			msg["Subject"] = "AV Monitor Results"
 			msg["From"] = "avmonitor@hackingteam.com"
-			msg["To"] = "olli@hackingteam.com,zeno@hackingteam.com,alor@hackingteam.com"
+			msg["To"] = "olli@hackingteam.com,zeno@hackingteam.com,alor@hackingteam.com,g.landi@hackingteam.com"
 			body = MIMEText(content, 'html')
 			msg.attach(body)
 			smtp = smtplib.SMTP("mail.hackingteam.com", 25)
