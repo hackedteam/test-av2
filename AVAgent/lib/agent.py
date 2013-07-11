@@ -120,10 +120,12 @@ class AVAgent:
             self.hostname = socket.gethostname().replace("winxp", "")
         else:
             self.hostname = socket.gethostname().replace("win7", "")
+#        self.hostname = socket.gethostname()
         self.blacklist = blacklist
         self.platform = platform
         self.ftype = ftype
         print "DBG blacklist: %s" % self.blacklist
+        print "DBG hostname: %s" % self.hostname
 
     def _delete_targets(self, operation):
         with connection() as c:
@@ -711,7 +713,10 @@ def main():
     parser.set_defaults(platform_type =  platform_type)
 
     args = parser.parse_args()
-    avname = socket.gethostname().replace("win7", "").lower()
+    if "winxp" in socket.gethostname():
+        avname = socket.gethostname().replace("winxp", "").lower()
+    else:
+        avname = socket.gethostname().replace("win7", "").lower()
 
     logger.setLogger(debug = args.verbose, avname=avname)
     connection.host = args.backend

@@ -308,7 +308,7 @@ def dispatch_kind(vm_name, kind, args):
     status+=1
 
     test_dir_7  = "C:\\Users\\avtest\\Desktop\\AVTEST"
-    test_dir_xp = "C:\\Documents and Settings\\avtest\\Desktop\\AVTEST"
+#    test_dir_xp = "C:\\Documents and Settings\\avtest\\Desktop\\AVTEST"
 
     buildbat = "build_%s_%s.bat" % (kind, args.server)
 
@@ -406,11 +406,8 @@ def push(flargs):
         result = "ERROR wait for startup for %s" % vm_name 
     else:
         copy_to_guest(vm, test_dir, filestocopy)
-#        vm.send_files("../AVAgent", test_dir, filestocopy)
         job_log(vm_name, "ENVIRONMENT")
         result = "%s, pushed %s." % (vm_name, kind)
-
-#    copy_to_guest(vm, test_dir, filestocopy)
     return result
 
 def test_internet(flargs):

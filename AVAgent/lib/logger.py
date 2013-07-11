@@ -11,16 +11,12 @@ class StreamToLogger(object):
       self.terminal = terminal
       #self.formatter = logging.Formatter(fmt='%(asctime)s',datefmt='%Y-%m-%d %H:%M:%S')
       self.logger = logging.getLogger(logger)
-      
       self.debug = debug
       self.log_level = log_level
       self.linebuf = ''
       self.r = redis.Redis("10.0.20.1")
-
-      #if not self.r.ping():
-      #   self.r = None
-
       self.avname = avname
+      print 'DBG avname: ' + avname
  
    def flush(self):
       pass
@@ -39,6 +35,7 @@ class StreamToLogger(object):
             self.logger.log(self.log_level, line.rstrip())
             #if line.startswith("+") and self.r:
             #   self.r.publish(self.avname, line.replace("+","").strip() )
+            #print "channel %s, line: %s" % (self.avname,line)
             self.r.publish(self.avname, line )
 
 def setLogger( debug=True, filelog="results.txt", avname="channel"):
