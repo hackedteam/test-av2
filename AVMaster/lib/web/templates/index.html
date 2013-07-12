@@ -14,7 +14,13 @@
 
             <tr>
 				<td>{{ report.time }}</td>
-				<td><a href="/report/{{ report.id }}">open</a></td>
+				<td>
+					{% if report.status < 1 %}
+						<b>In Progress..</b>
+					{% else %}
+						<a href="/report/{{ report.id }}">open</a>
+					{% endif %}
+				</td>
 				<td><a href="/results/{{ report.id }}">open</a></td>
 			</tr>
 

@@ -15,28 +15,12 @@ class Test(db.Model):
 	id      = db.Column(db.Integer, primary_key=True)
 	#time   = db.Column(db.DateTime)
 	time    = db.Column(db.String(25))
-	#status  = db.Column(db.Integer) # 0: started, 1: completed
+	status  = db.Column(db.Integer) # 0: started, 1: completed
 	results = db.relationship('Result', backref='test', lazy='dynamic')
-	repot   = db.relationship('Report')
 
 	def __init__(self, status, time):
 		self.status = status
 		self.time   = time
-
-class Report(db.Model):
-	id      = db.Column(db.Integer, primary_key=True)
-	test_id = db.Column(db.Integer, db.ForeignKey('test.id'))
-	av      = db.Column(db.String(16))
-	silent  = db.Column(db.Integer) # 0: SUCCESS 1: FAILED 2: ERROR
-	melt    = db.Column(db.Integer) # 0: SUCCESS 1: FAILED 2: ERROR
-	exploit = db.Column(db.Integer) # 0: SUCCESS 1: FAILED 2: ERROR
-
-	def __init__(self, test_id, av, silent=None, melt=None, exploit=None):
-		self.av = av
-		self.test_id = test_id
-		self.silent = silent
-		self.melt = melt
-		self.exploit = exploit
 
 class Result(db.Model):
 	id      = db.Column(db.Integer, primary_key=True)

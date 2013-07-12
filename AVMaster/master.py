@@ -121,25 +121,27 @@ def run_command(flargs):
     return True
 
 def start_test():
+    global db
+
     try:
         timestamp = time.strftime("%Y%m%d_%H%M", time.gmtime())
         
         t = Test(0,str(timestamp))
         db.session.add(t)
         db.session.commit()
-        return t.id
+        return t
     except Exception as e:
         print "DBG error inserting report in db. Exception: %s" % e
         print DB_PATH
         return None
 
-def end_test(t_id):
+def end_test(test):
     try:
-        t = Test.query.filter_by(id=t_id)
-        if t is None:
+        #t = Test.query.filter_by(id=t_id)
+        if test is None:
             return False
-        t.status = 1
-        db.session.add(t)
+        test.status = 1
+        db.session.add(test)
         db.session.commit()
         return True
     except Exception as e:
@@ -247,6 +249,8 @@ def dispatch(flargs):
         results = []
         print "DBG %s, %s" %(vm_name,kind)
 
+        # GROUP OF TESTS Implementation
+
         if kind == "agents":
             results.append( dispatch_kind(vm_name, "silent", args) )
             sleep(random.randint(5,10))
@@ -303,7 +307,8 @@ def dispatch_kind(vm_name, kind, args):
 
     status+=1
 
-    test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
+    test_dir_7  = "C:\\Users\\avtest\\Desktop\\AVTEST"
+#    test_dir_xp = "C:\\Documents and Settings\\avtest\\Desktop\\AVTEST"
 
     buildbat = "build_%s_%s.bat" % (kind, args.server)
 
@@ -331,15 +336,12 @@ def dispatch_kind(vm_name, kind, args):
         result = "%s, %s, ERROR not STARTED" % (vm_name, kind)
         result_id = add_record_result(vm_name, kind, test_id, status, result)
     else:
-        #vm.login_in_guest()
         result_id = add_record_result(vm_name, kind, test_id, status, "STARTED")
         print "DBG added result with id %s" % result_id
 
         job_log(vm_name, "LOGGED")
-#        vm.send_files("../AVAgent", test_dir, filestocopy)
+        test_dir = test_dir_7
         copy_to_guest(vm, test_dir, filestocopy)
-        #for f in filestocopy:
-        #    vm.
         job_log(vm_name, "ENVIRONMENT")
         
         # executing bat synchronized
@@ -404,11 +406,8 @@ def push(flargs):
         result = "ERROR wait for startup for %s" % vm_name 
     else:
         copy_to_guest(vm, test_dir, filestocopy)
-#        vm.send_files("../AVAgent", test_dir, filestocopy)
         job_log(vm_name, "ENVIRONMENT")
         result = "%s, pushed %s." % (vm_name, kind)
-
-#    copy_to_guest(vm, test_dir, filestocopy)
     return result
 
 def test_internet(flargs):
@@ -449,7 +448,7 @@ def check_infection_status(vm):
 def check_directory(vm, directory):
     return vm.list_directory(directory)
 
-def test(flargs):
+def do_test(flargs):
     '''
     results = [['fakeav, silent, STARTED', 
         'fakeav, melt, ERROR', 
@@ -606,7 +605,7 @@ def main():
 
     if args.action == "test":
         #get_results("eset")
-        test(args)
+        do_test(args)
         exit(0)
 
     # SHUT DOWN NETWORK
@@ -620,8 +619,12 @@ def main():
 
     if args.action == "dispatch":
         print "DBG add record to db"
-        test_id = start_test()
-
+        test = start_test()
+        if test.id is not None:
+            test_id = test.id
+        else:
+            print "[!] Problems with DB insert. QUITTING!"
+            return
 
     # POOL EXECUTION    
 
@@ -642,6 +645,10 @@ def main():
     print "MASTER on %s, action %s" % (vm_names, args.action)
     r = pool.map_async(actions[args.action], [ ( n, args ) for n in vm_names ])
     results = r.get()
+
+    print "Finalizing test."
+    if end_test(test) is False:
+        print "[!] problem updating test status!"
 
     # REPORT
     

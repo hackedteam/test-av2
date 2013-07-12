@@ -6,7 +6,7 @@ import datetime
 from email.MIMEMultipart import MIMEMultipart
 from email.MIMEText import MIMEText
 
-from ..web.models import Report as DBReport, db
+from ..web.models import db
 
 class Report:
 	def __init__(self, test_id=None, results=None):
