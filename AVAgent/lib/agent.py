@@ -272,7 +272,7 @@ class AVAgent:
                         os.makedirs(dst_dir)
 
                     src_exe = "%s\\%s" % (src_dir,dst[-1])
-                    if ".exe" not in dst[-1] or ".bat" not in dst[-1] or ".dll" not in dst[-1]:
+                    if "exe" not in src_exe or "bat" not in src_exe or "dll" not in src_exe:
                         dst_exe = "%s\\%s.exe" % (dst_dir,dst[-1])
                     else:
                         dst_exe = "%s\\%s" % (dst_dir,dst[-1])
@@ -285,10 +285,10 @@ class AVAgent:
                             print "+ SUCCESS SCOUT BUILD"
                             return [n for n in contentnames if n.endswith('.exe')]
                         else:
-                            print "+ FAILED SCOUT BUILD. SIGNATURE DETECTION"
+                            print "+ FAILED SCOUT BUILD. SIGNATURE DETECTION: %s" % src_exe
                             send_results("ENDED")
                     except:
-                        print "+ FAILED SCOUT BUILD. SIGNATURE DETECTION"
+                        print "+ FAILED SCOUT BUILD. SIGNATURE DETECTION: %s" % src_exe
                         send_results("ENDED")
                         return 
             except HTTPError as err:
@@ -347,7 +347,7 @@ class AVAgent:
                 print "+ SUCCESS SCOUT SYNC"
                 return instances[0]
 
-            print "+ FAILED SCOUT SYNC"
+            print "+ SCOUT DOESN'T SYNCED"
             #self._send_results("ENDED")
             return None
 
@@ -486,6 +486,7 @@ class AVAgent:
                 self._click_mouse(100 + i ,0)
 
         if not instance:
+            print "+ FAILED SCOUT SYNC"
             output = self._list_processes()
             print output
             send_results("ENDED")
