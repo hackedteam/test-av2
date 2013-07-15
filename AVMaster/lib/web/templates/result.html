@@ -32,6 +32,13 @@
 				<p><b>Screenshot</b><br />
 					<a href="/report/{{ result.test_id }}/result/{{ result.vm_name }}/{{ result.kind }}/image" border=0><img src="data:image/png;base64,{{ result.scrshot }}" border=0 width=300 height=300></a>
 				</p> 
+				{% if sample %}
+
+				<p><b>Sample</b></br>
+					<a href="/report/{{ result.test_id }}/result/{{ result.vm_name }}/{{ result.kind }}/sample">Download</a>
+				</p>
+
+				{% endif %}
 			</td>
 		</tr>
 	</table>

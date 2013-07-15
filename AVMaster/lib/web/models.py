@@ -40,6 +40,14 @@ class Result(db.Model):
 		if result is not None:
 			self.result = result
 
+class Sample(db.Model):
+	id   = db.Column(db.Integer, primary_key=True)
+	r_id = db.Column(db.Integer, db.ForeignKey('result.id'))
+	exe  = db.Column(db.BLOB)
+
+	def __init__(self, r_id, exe):
+		self.r_id = r_id
+		self.exe  = exe 
 
 def init_db(db_path):
 	""" If no db found create one """

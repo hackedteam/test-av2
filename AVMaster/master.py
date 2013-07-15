@@ -17,7 +17,7 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from lib.core.VMachine import VMachine
 from lib.core.VMManager import vSphere, VMRun
 from lib.core.report import Report
-from lib.web.models import db, app, Test, Result
+from lib.web.models import db, Test, Result, Sample
 from lib.web.settings import DB_PATH
 from lib.core.logger import setLogger
 
@@ -487,18 +487,24 @@ def wait_for_startup(vm, message=None, max_minute=8):
         print "DBG %s: not STARTED. Timeout occurred." % vm
         return False
 
+def add_record_sample(result_id, build_zip_dst):
+    print "DBG Saving Sample"
+    if not os.path.exists(build_zip_dst):
+        return False
+    with open(build_zip_dst, 'rb') as f:
+        sample = Sample(result_id, f.read())
+        db.session.add(sample)
+        db.session.commit()
+    return True
 
 def wait_for_results(vm, result_id, max_minute=60):
-    #r = Redis()
     r = StrictRedis(socket_timeout=max_minute * 60)
-
     p = r.pubsub()
     p.subscribe(vm.name)
     results = []
     log = ""
     res = ""
 
-    # timeout
     try:
         for m in p.listen():
             print "DBG %s" % m
@@ -514,7 +520,7 @@ def wait_for_results(vm, result_id, max_minute=60):
                         log += ", %s" % str(m['data'])
                         save_logs(result_id, log)
 
-                    # SAVING RESULTS
+                    # SAVING CURRENT RESULT
 
                     if "+" in m['data']:
                         results.append(str(m['data']))
@@ -523,6 +529,32 @@ def wait_for_results(vm, result_id, max_minute=60):
                         else:
                             res += "%s" % str(m['data'])
                         upd_record_result(result_id, result=res.replace("+ ","").strip())
+                    
+                    if "FAILED SCOUT BUILD" in m['data'] or "FAILED SCOUT EXECUTE" in m['data']:
+
+                        # SAVING SAMPLE
+
+                        test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST\\build"
+                        platform = m['data'].split(" ")[-1].split("\\")[-2]
+                        build_zip_src = "%s\\%s\\build.zip" % (test_dir, platform)
+                        build_zip_dst = "tmp/detected_%s.zip" % vm
+                        print "DBG copying %s to %s" % (build_zip_src, build_zip_dst)
+                        vm.get_file(build_zip_src, build_zip_dst)
+                        #vmman.copyFileFromGuest(vm, build_zip_src, build_zip_dst)
+                        print "DBG adding record sample"
+                        a = add_record_sample(result_id, build_zip_dst)
+                        if a:
+                            print "sample SAVED on db"
+                            #os.system('sudo rm -fr %s') % build_zip_dst
+                        else:
+                            print "sample NOT SAVED on db"
+
+                    elif "FAILED SCOUT SYNC" in m['data']:
+
+                        # SAVING VM STATUS
+
+                        print "DBG creating snapshot for troubleshooting"
+                        vm.create_snapshot("infected_%s_nosync")
                 else:
                     return results
             except TypeError:

@@ -2,10 +2,10 @@ import os
 import sys
 
 from base64 import b64encode
-from flask import render_template
+from flask import render_template, Response
 from sqlalchemy import desc
 
-from lib.web.models import app, Test, Result, init_db
+from lib.web.models import app, Test, Result, Sample, init_db
 #from lib.web.db import init_db
 from lib.web.settings import DB_PATH
 
@@ -36,7 +36,11 @@ def result_view(t_id, name, kind):
 		if result.scrshot is not None:
 			result.scrshot = b64encode(result.scrshot)
 
-	return render_template("result.html", title=test.time, result=result)
+		sample = Sample.query.filter_by(r_id=result.id)
+		if not sample:
+			sample = None
+
+	return render_template("result.html", title=test.time, result=result, sample=sample)
 
 @app.route('/report/<t_id>/result/<name>/<kind>/image')
 def image_view(t_id, name, kind):
@@ -48,6 +52,20 @@ def image_view(t_id, name, kind):
 		screenshot = b64encode(result.scrshot)
 
 	return render_template("image.html", t_id=t_id, screenshot=screenshot)
+
+@app.route('/report/<t_id>/result/<name>/<kind>/sample')
+def sample_view(t_id, name, kind):
+	result = Result.query.filter_by(test_id=t_id,vm_name=name,kind=kind).first_or_404()
+	sample = Sample.query.filter_by(r_id=result.id).first()
+	print "this is sample %s" %  sample
+
+#	s = Sample.query.all()
+#	print "printing all shit"
+#	for ss in s:
+#		print ss.exe
+
+	return Response(sample.exe, mimetype="application/zip",
+		headers={ "Content-Disposition":"attachment;filename=build.zip" })
 
 @app.route('/results/<t_id>')
 def results_view(t_id):
