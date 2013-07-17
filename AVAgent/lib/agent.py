@@ -347,7 +347,7 @@ class AVAgent:
                 print "+ SUCCESS SCOUT SYNC"
                 return instances[0]
 
-            print "+ SCOUT DOESN'T SYNCED"
+            print "+ NO SCOUT SYNC"
             #self._send_results("ENDED")
             return None
 

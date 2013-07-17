@@ -259,6 +259,20 @@ def dispatch(flargs):
             results.append( dispatch_kind(vm_name, "exploit_docx", args) )
             sleep(random.randint(5,10))
             results.append( dispatch_kind(vm_name, "exploit_web", args) )
+        elif kind == "silentmelt":
+            results.append( dispatch_kind(vm_name, "silent", args) )
+            sleep(random.randint(5,10))
+            results.append( dispatch_kind(vm_name, "melt", args) )
+        elif kind == "release":
+            results.append( dispatch_kind(vm_name, "silent", args) )
+            sleep(random.randint(5,10))
+            results.append( dispatch_kind(vm_name, "melt", args) )
+            sleep(random.randint(5,10))
+            results.append( dispatch_kind(vm_name, "mobile", args) )
+            sleep(random.randint(5,10))
+            results.append( dispatch_kind(vm_name, "exploit_docx", args) )
+            sleep(random.randint(5,10))
+            results.append( dispatch_kind(vm_name, "exploit_web", args) )
         elif kind == "exploits":
             results.append( dispatch_kind(vm_name, "exploit", args) )
             sleep(random.randint(5,10))
@@ -549,12 +563,12 @@ def wait_for_results(vm, result_id, max_minute=60):
                         else:
                             print "sample NOT SAVED on db"
 
-                    elif "FAILED SCOUT SYNC" in m['data']:
+#                    elif "FAILED SCOUT SYNC" in m['data']:
 
-                        # SAVING VM STATUS
+#                        # SAVING VM STATUS
 
-                        print "DBG creating snapshot for troubleshooting"
-                        vm.create_snapshot("infected_%s_nosync")
+#                        print "DBG creating snapshot for troubleshooting"
+#                        vm.create_snapshot("infected_%s_nosync")
                 else:
                     return results
             except TypeError:
@@ -587,7 +601,7 @@ def main():
         help="Verbose")
     parser.add_argument('-k', '--kind', default="all", type=str,
         choices=['silent', 'melt', 'exploit', 'exploit_docx', 'exploit_ppsx', 'exploit_web',
-        'mobile', 'agents', 'exploits', 'all'],
+        'mobile', 'agents', 'exploits', 'silentmelt', 'release', 'all'],
         help="Kind of test (or test case)", )
     parser.add_argument('-c', '--cmd', required=False,
         help="Run VMRUN command")

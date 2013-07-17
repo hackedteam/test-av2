@@ -57,12 +57,6 @@ def image_view(t_id, name, kind):
 def sample_view(t_id, name, kind):
 	result = Result.query.filter_by(test_id=t_id,vm_name=name,kind=kind).first_or_404()
 	sample = Sample.query.filter_by(r_id=result.id).first()
-	print "this is sample %s" %  sample
-
-#	s = Sample.query.all()
-#	print "printing all shit"
-#	for ss in s:
-#		print ss.exe
 
 	return Response(sample.exe, mimetype="application/zip",
 		headers={ "Content-Disposition":"attachment;filename=build.zip" })
