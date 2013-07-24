@@ -574,7 +574,7 @@ def wait_for_results(vm, result_id, max_minute=60):
             except TypeError:
                 pass
     except ConnectionError:
-        print "DBG %s: Timeout occurred during execution"
+        print "DBG %s: Timeout occurred during execution" % vm
         return "ERROR: Timeout occurred during execution"
 
 

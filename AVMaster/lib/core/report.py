@@ -318,12 +318,12 @@ a.fill-div {
 <body>		
 		"""
 
-		header_st = "<table><tr>"
-		header_en = "</tr>"
-		linestart = "<tr><td>%s</td>"
-		linetoken = "<td id='%s-div'><a href='%s' class='fill-div'></a></td>"
-		lineend   = "</tr>"
-		legend    = "</table><p>Legend:</p><table><tr><td id=success-div></td><td>SUCCESS</td><tr><td id=failed-div></td><td>FAILED</td><tr><td id=error-div></td><td>ERROR</td><tr><td id=blacklisted-div></td><td>BLACKLISTED</td></tr></table>"
+		header_st = "<table>\n  <tr>\n"
+		header_en = "  </tr>\n"
+		linestart = "  <tr><td>%s</td>"
+		linetoken = "    <td id='%s-div'><a href='%s' class='fill-div'></a></td>\n"
+		lineend   = "  </tr>\n"
+		legend    = "</table>\n<p>Legend:</p>\n<table><tr><td id=success-div></td><td>SUCCESS</td><tr><td id=failed-div></td><td>FAILED</td><tr><td id=error-div></td><td>ERROR</td><tr><td id=blacklisted-div></td><td>BLACKLISTED</td></tr></table>\n"
 		footer    = "<br><br><b>View full <a href='%s'>report</a><b></body></html>" % report_file
 
 		content = style 
