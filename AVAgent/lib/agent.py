@@ -599,7 +599,7 @@ class AVAgent:
 
 def send_results(results):
     try:
-        channel = socket.gethostname().replace("win7", "")
+        channel = socket.gethostname().replace("win7", "").replace("winxp", "")
         r = redis.Redis("10.0.20.1")
         r.publish(channel, results)
     except Exception as e:
