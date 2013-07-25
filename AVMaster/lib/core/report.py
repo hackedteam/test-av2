@@ -345,20 +345,25 @@ a.fill-div {
 			for col in hcolumns[1:]:
 				link = "http://%s:%s/report/%s/result/%s/%s" % (host, port, self.test_id, avname, col)
 
+				found = False
 				for kind in ["FAILED", "BLACKLISTED", "SUCCESS", "ERROR"]:
 					print "DBG parsing rd[%s]" % col  
 					if kind in rd[col]:
 						l += linetoken % (kind.lower(), link)
+						found = True
 						break
 					elif "STARTED" in rd[col]: #or rd[col] == "n":
 						print "DBG found line STARTED"
 						l += linetoken % ("error", link)
+						found = True
 						break
 					#else: #if "STARTED" in rd[col] or rd[col] == "n":
 					#	print "DBG found nothing. assuming ERROR"
 					#	l += linetoken % ("error", link)
 					#	break
-				
+				if not found:
+					print "DBG found nothing. assuming ERROR"
+					l += linetoken % ("error", link)
 			l += lineend
 
 			content += l
