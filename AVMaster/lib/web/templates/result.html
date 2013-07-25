@@ -18,14 +18,13 @@
 				{% endfor %}
 				</ul><br />
 				<b>logs:</b><br />
-				<ul>
-
+				
 				{% if result.log %}
 				{% for log in result.log %}
-					<li>{{ log }}</li>
+					{{ log }}<br />
 				{% endfor %}
 				{% endif %}
-				</ul></p>
+				</p>
 			</td>
 
 			<td> 
