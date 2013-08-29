@@ -81,38 +81,23 @@ class Report:
 
 
 		print "DBG hresults %s" % hresults
-		style  = """
-<html>
-<style type'text/css'>
-#success-div {
-    background-color: green;
-    width: 20px;
-    height: 10px;
-}
-#error-div {
-    background-color: black;
-    width: 20px;
-    height: 10px;
-}
-#failed-div {
-    background-color: red;
-    width: 20px;
-    height: 10px;
-}
-#blacklisted-div {
-	background-color: grey;
-	width: 20px;
-	height: 10px;
-}
-a.fill-div {
-    display: block;
-    height: 100%;
-    width: 100%;
-    text-decoration: none;
-}
-</style>
-<body>		
-		"""
+		style  = """<html><head><style type'text/css'>
+#suc { background-color: green; width: 10px; height: 10px; }
+#err { background-color: black; width: 10px; height: 10px; }
+#fai { background-color: red; width: 10px; height: 10px; }
+#bla { background-color: grey; width: 10px; height: 10px; }
+a.fill { display: block; height: 100%; width: 100%; text-decoration: none; }
+</style></head>"""		
+
+		'''
+		style  = """<html><style type'text/css'>
+#suc-div { background-color: green; width: 10px; height: 10px; }
+#err-div { background-color: black; width: 10px; height: 10px; }
+#fai-div { background-color: red; width: 10px; height: 10px; }
+#bla-div { background-color: grey; width: 10px; height: 10px; }
+a.fill-div { display: block; height: 100%; width: 100%; text-decoration: none; }
+</style><body>"""
+
 
 		header_st = "<table>\n  <tr>\n"
 		header_en = "  </tr>\n"
@@ -121,13 +106,22 @@ a.fill-div {
 		lineend   = "  </tr>\n"
 		legend    = "</table>\n<p>Legend:</p>\n<table><tr><td id=success-div></td><td>SUCCESS</td><tr><td id=failed-div></td><td>FAILED</td><tr><td id=error-div></td><td>ERROR</td><tr><td id=blacklisted-div></td><td>BLACKLISTED</td></tr></table>\n"
 		footer    = "<br><br><b>View full <a href='%s'>report</a><b></body></html>" % report_file
+		'''
+
+		header_st = "<body><table><tr>"
+		header_en = "</tr>"
+		linestart = "<tr><td>%s</td>"
+		linetoken = "<td id='%s'><a href='%s' class='fill'></a></td>"
+		lineend   = "</tr>"
+		legend    = "</table><p>Legend:</p><table><tr><td id=suc></td><td>SUCCESS</td><tr><td id=fai></td><td>FAILED</td><tr><td id=err></td><td>ERROR</td><tr><td id=bla></td><td>BLACKLISTED</td></tr></table>"
+		footer    = "<br><br><b>View full <a href='%s'>report</a><b></body></html>" % report_file
 
 		content = style 
 
 		header = header_st
 
 		for col in hcolumns:
-			header += "<td>%s</td>" % col
+			header += "<td>%s</td>" % col # col.replace("exploit_","")
 
 		header += header_en
 		content += header
@@ -145,17 +139,19 @@ a.fill-div {
 				for kind in ["FAILED", "BLACKLISTED", "SUCCESS", "ERROR"]:
 					print "DBG parsing rd[%s]" % col  
 					if kind in rd[col]:
-						l += linetoken % (kind.lower(), link)
+						l += linetoken % (kind.lower()[0:3], link)
 						found = True
 						break
 					elif "STARTED" in rd[col]: #or rd[col] == "n":
 						print "DBG found line STARTED"
-						l += linetoken % ("error", link)
+#						l += linetoken % ("error", link)
+						l += linetoken % ("err", link)
 						found = True
 						break
 				if not found:
 					print "DBG found nothing. assuming ERROR"
-					l += linetoken % ("error", link)
+#					l += linetoken % ("error", link)
+					l += linetoken % ("err", link)
 			l += lineend
 
 			content += l
@@ -173,6 +169,9 @@ a.fill-div {
 			msg["Subject"] = "AV Monitor Results"
 			msg["From"] = "avmonitor@hackingteam.com"
 			msg["To"] = "olli@hackingteam.com,zeno@hackingteam.com,alor@hackingteam.com,g.landi@hackingteam.com"
+			#msg["To"] = "olli@hackingteam.com,zeno@hackingteam.com"
+			#msg["To"] = "olli@hackingteam.com"
+			print "CONTENT LENGTH: %s" % len(content)
 			body = MIMEText(content, 'html')
 			msg.attach(body)
 			smtp = smtplib.SMTP("mail.hackingteam.com", 25)

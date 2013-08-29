@@ -24,8 +24,8 @@ class Test(db.Model):
 
 class Result(db.Model):
 	id      = db.Column(db.Integer, primary_key=True)
-	vm_name = db.Column(db.String(16))
-	test_id = db.Column(db.Integer, db.ForeignKey('test.id'))
+	vm_name = db.Column(db.String(16), index=True)
+	test_id = db.Column(db.Integer, db.ForeignKey('test.id'), index=True)
 	kind    = db.Column(db.String(16))
 	result  = db.Column(db.Text)
 	scrshot = db.Column(db.BLOB)
