@@ -307,20 +307,6 @@ def dispatch_kind(vm_name, kind, args):
 
     print "DBG test_id is %s" % test_id
 
-    vms = len(args.vms)
-    
-    vm = VMachine(vm_conf_file, vm_name)
-    job_log(vm_name, "DISPATCH %s" % kind)
-    
-    vm.revert_last_snapshot()
-    job_log(vm_name, "REVERTED")
-
-    sleep(random.randint(30, vms * 30))
-    vm.startup()
-    job_log(vm_name, "STARTUP")
-
-    status+=1
-
     test_dir_7  = "C:\\Users\\avtest\\Desktop\\AVTEST"
 #    test_dir_xp = "C:\\Documents and Settings\\avtest\\Desktop\\AVTEST"
 
@@ -346,10 +332,12 @@ def dispatch_kind(vm_name, kind, args):
 
     result = "%s, %s, ERROR GENERAL" % (vm_name, kind) 
 
-    if wait_for_startup(vm) is False:
-        result = "%s, %s, ERROR not STARTED" % (vm_name, kind)
-        result_id = add_record_result(vm_name, kind, test_id, status, result)
-    else:
+    vms = len(args.vms)
+    
+    vm = VMachine(vm_conf_file, vm_name)
+    job_log(vm.name, "DISPATCH %s" % kind)
+
+    if wake_up(vm, vms) is True:
         result_id = add_record_result(vm_name, kind, test_id, status, "STARTED")
         print "DBG added result with id %s" % result_id
 
@@ -368,7 +356,6 @@ def dispatch_kind(vm_name, kind, args):
         #timestamp = time.strftime("%Y%m%d_%H%M", time.gmtime())
         if save_screenshot(vm, result_id) is True:
             job_log(vm_name, "SCREENSHOT ok")
-
         
     # suspend & refresh snapshot
     #vm.suspend()
@@ -423,6 +410,24 @@ def push(flargs):
         job_log(vm_name, "ENVIRONMENT")
         result = "%s, pushed %s." % (vm_name, kind)
     return result
+
+
+def wake_up(vm, delay, tries=0):    
+    vm.revert_last_snapshot()
+    job_log(vm.name, "REVERTED")
+
+    sleep(random.randint(30, delay * 30))
+    vm.startup()
+    job_log(vm.name, "STARTUP")
+
+    if wait_for_startup(vm) is False:
+        if tries < 3:
+            tries+=1
+            print "DBG %s, ERROR not STARTED (try n %s)" % (vm.name, tries)
+            return wake_up(vm, delay, tries)
+        else:
+            return False
+    return True
 
 def test_internet(flargs):
     vm_name = flargs[0]
