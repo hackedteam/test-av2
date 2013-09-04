@@ -177,9 +177,9 @@ def save_results(vm, kind, test_id, result_id):
     
     try:
         if kind == "silent" or kind == "melt":
-            max_minute = 60
+            max_minute = 45
         elif kind == "exploit":
-            max_minute = 30
+            max_minute = 20
         elif kind == "mobile" or "exploit_" in kind:
             max_minute = 5  
         results = wait_for_results(vm, result_id, max_minute)
@@ -302,7 +302,7 @@ def dispatch(flargs):
         print "DBG trace %s" % traceback.format_exc()
         return {'ERROR': e}
 
-def dispatch_kind(vm_name, kind, args):
+def dispatch_kind(vm_name, kind, args, r_id=None, tries=0):
     global status, test_id
 
     print "DBG test_id is %s" % test_id
@@ -330,16 +330,25 @@ def dispatch_kind(vm_name, kind, args):
         filestocopy.append("assets/owned.docm")
         filestocopy.append("assets/PMIEFuck-WinWord.dll")
 
-    result = "%s, %s, ERROR GENERAL" % (vm_name, kind) 
+    result = "%s, %s, ERROR GENERAL" % (vm_name, kind)
 
-    vms = len(args.vms)
+    if tries > 0:
+        vms = 1
+        rev = False
+    else:
+        vms = len(args.vms)
+        rev = True
     
     vm = VMachine(vm_conf_file, vm_name)
     job_log(vm.name, "DISPATCH %s" % kind)
 
-    if wake_up(vm, vms) is True:
-        result_id = add_record_result(vm_name, kind, test_id, status, "STARTED")
-        print "DBG added result with id %s" % result_id
+    if wake_up(vm, vms, revert=rev) is True:
+        print "DBG %s, wakeup done. revert is %s" % (vm,rev)
+        if r_id is None:
+            result_id = add_record_result(vm_name, kind, test_id, status, "STARTED")
+        else:
+            result_id = r_id
+        print "DBG %s added result with id %s" % (vm_name,result_id)
 
         job_log(vm_name, "LOGGED")
         test_dir = test_dir_7
@@ -347,12 +356,42 @@ def dispatch_kind(vm_name, kind, args):
         job_log(vm_name, "ENVIRONMENT")
         
         # executing bat synchronized
+        
         vmman.executeCmd(vm, "%s\\%s" % (test_dir, buildbat), interactive=True, bg=True)
+
+        sleep(3)
+        out = vmman.listProcesses(vm)
+        found = False
+        tick = 0
+
+        while tick <= 5:
+#            if "python.exe" in out or "build_silent_minotauro.bat" in out or "cmd.exe" in out:
+            if "python.exe" in out or "minotauro.bat" in out or "cmd.exe" in out:
+                found = True
+#            else:
+#                for line in out:
+#                    if "cmd.exe" in line and "avtest" in line:
+#                        found = True
+#                        break
+            if found == True:
+                break
+            print "DBG Python.EXE not found. sleeping 5 secs"
+            print "DBG processes:\n%s" % out
+            tick+=1
+            sleep(5)
+
+        if found == False:
+            tries+=1
+            print "%s STARTED but not EXECUTED. Retry %d setup" % (vm_name, tries)
+            return dispatch_kind(vm_name, kind, args, result_id, tries)
+
         job_log(vm_name, "EXECUTED %s" % kind)
 
         result = save_results(vm, kind, test_id, result_id)
         job_log(vm_name, "SAVED %s" % kind)
-    
+        
+        #execute(vm, test_id, result_id, "%s\\%s" % (test_dir, buildbat), kind)
+
         #timestamp = time.strftime("%Y%m%d_%H%M", time.gmtime())
         if save_screenshot(vm, result_id) is True:
             job_log(vm_name, "SCREENSHOT ok")
@@ -411,10 +450,12 @@ def push(flargs):
         result = "%s, pushed %s." % (vm_name, kind)
     return result
 
-
-def wake_up(vm, delay, tries=0):    
-    vm.revert_last_snapshot()
-    job_log(vm.name, "REVERTED")
+def wake_up(vm, delay, tries=0, revert=True):
+    if revert is True:
+        vm.revert_last_snapshot()
+        job_log(vm.name, "REVERTED")
+    else:
+        vm.shutdown()
 
     sleep(random.randint(30, delay * 30))
     vm.startup()
@@ -424,10 +465,19 @@ def wake_up(vm, delay, tries=0):
         if tries < 3:
             tries+=1
             print "DBG %s, ERROR not STARTED (try n %s)" % (vm.name, tries)
-            return wake_up(vm, delay, tries)
+            return wake_up(vm, delay, tries, revert)
         else:
             return False
     return True
+
+def execute(vm, test_id, result_id, dst_dir, kind):
+    vmman.executeCmd(vm, dst_dir, interactive=True, bg=True)
+    job_log(vm.name, "EXECUTED")
+
+    result = save_results(vm, kind, test_id, result_id)
+    job_log(vm_name, "SAVED %s" % kind)
+
+
 
 def test_internet(flargs):
     vm_name = flargs[0]
@@ -478,15 +528,23 @@ def do_test(flargs):
     if rep.send_report_color_mail("reportz") is False:
         print "[!] Problem sending HTML email Report!"
     '''
-    results = [['360cn, silent, + SUCCESS ELITE BLACKLISTED', '360cn, melt, + SUCCESS SCOUT SYNC', '360cn, exploit_docx, + SUCCESS EXPLOIT SAVE', '360cn, exploit_web, + SUCCESS EXPLOIT SAVE', '360cn, mobile, + SUCCESS PULL android'], ['avast, silent, + SUCCESS ELITE UNINSTALLED', 'avast, melt, + SUCCESS SCOUT SYNC', 'avast, exploit_docx, + SUCCESS EXPLOIT SAVE', 'avast, exploit_web, + SUCCESS EXPLOIT SAVE', 'avast, mobile, + SUCCESS PULL android'], ['avira, silent, + SUCCESS ELITE UNINSTALLED', 'avira, melt, + SUCCESS SCOUT SYNC', 'avira, exploit_docx, + SUCCESS EXPLOIT SAVE', 'avira, exploit_web, + SUCCESS EXPLOIT SAVE', 'avira, mobile, + SUCCESS PULL android'], ['avg, silent, + SUCCESS ELITE BLACKLISTED', 'avg, melt, + SUCCESS SCOUT SYNC', 'avg, exploit_docx, + SUCCESS EXPLOIT SAVE', 'avg, exploit_web, + SUCCESS EXPLOIT SAVE', 'avg, mobile, + SUCCESS PULL android'], ['ahnlab, silent, + SUCCESS ELITE UNINSTALLED', 'ahnlab, melt, + SUCCESS SCOUT SYNC', 'ahnlab, exploit_docx, + SUCCESS EXPLOIT SAVE', 'ahnlab, exploit_web, + SUCCESS EXPLOIT SAVE', 'ahnlab, mobile, + SUCCESS PULL android'], ['adaware, silent, + SUCCESS ELITE UNINSTALLED', 'adaware, melt, + SUCCESS SCOUT SYNC', 'adaware, exploit_docx, + SUCCESS EXPLOIT SAVE', 'adaware, exploit_web, + SUCCESS EXPLOIT SAVE', 'adaware, mobile, + SUCCESS PULL android'], ['avg32, silent, + SUCCESS ELITE BLACKLISTED', 'avg32, melt, + SUCCESS SCOUT SYNC', 'avg32, exploit_docx, + SUCCESS EXPLOIT SAVE', 'avg32, exploit_web, + SUCCESS EXPLOIT SAVE', 'avg32, mobile, + SUCCESS PULL android'], ['avast32, silent, + SUCCESS ELITE UNINSTALLED', 'avast32, melt, + SUCCESS SCOUT SYNC', 'avast32, exploit_docx, + SUCCESS EXPLOIT SAVE', 'avast32, exploit_web, + SUCCESS EXPLOIT SAVE', 'avast32, mobile, + SUCCESS PULL android'], ['bitdef, silent, + SUCCESS ELITE BLACKLISTED', 'bitdef, melt, + FAILED SCOUT SYNC', 'bitdef, exploit_docx, + SUCCESS EXPLOIT SAVE', 'bitdef, exploit_web, + SUCCESS EXPLOIT SAVE', 'bitdef, mobile, + SUCCESS PULL android'], ['comodo, silent, + SUCCESS ELITE BLACKLISTED', 'comodo, melt, + SUCCESS SCOUT SYNC', 'comodo, exploit_docx, + SUCCESS EXPLOIT SAVE', 'comodo, exploit_web, + SUCCESS EXPLOIT SAVE', 'comodo, mobile, + SUCCESS PULL android'], ['drweb, silent, + SUCCESS ELITE BLACKLISTED', 'drweb, melt, + SUCCESS SCOUT SYNC', 'drweb, exploit_docx, + SUCCESS EXPLOIT SAVE', 'drweb, exploit_web, + SUCCESS EXPLOIT SAVE', 'drweb, mobile, + SUCCESS PULL android'], ['eset, silent, + SUCCESS ELITE UNINSTALLED', 'eset, melt, + SUCCESS SCOUT SYNC', 'eset, exploit_docx, + SUCCESS EXPLOIT SAVE', 'eset, exploit_web, + SUCCESS EXPLOIT SAVE', 'eset, mobile, + SUCCESS PULL android'], ['fsecure, silent, + SUCCESS ELITE UNINSTALLED', 'fsecure, melt, + SUCCESS SCOUT SYNC', 'fsecure, exploit_docx, + SUCCESS EXPLOIT SAVE', 'fsecure, exploit_web, + SUCCESS EXPLOIT SAVE', 'fsecure, mobile, + SUCCESS PULL android'], ['gdata, silent, + SUCCESS ELITE BLACKLISTED', 'gdata, melt, + SUCCESS SCOUT SYNC', 'gdata, exploit_docx, + SUCCESS EXPLOIT SAVE', 'gdata, exploit_web, + SUCCESS EXPLOIT SAVE', 'gdata, mobile, + SUCCESS PULL android'], ['kis, silent, + SUCCESS ELITE UNINSTALLED', 'kis, melt, + SUCCESS SCOUT SYNC', 'kis, exploit_docx, + SUCCESS EXPLOIT SAVE', 'kis, exploit_web, + SUCCESS EXPLOIT SAVE', 'kis, mobile, + SUCCESS PULL android'], ['kis32, silent, + SUCCESS ELITE BLACKLISTED', 'kis32, melt, + SUCCESS SCOUT SYNC', 'kis32, exploit_docx, + SUCCESS EXPLOIT SAVE', 'kis32, exploit_web, + SUCCESS EXPLOIT SAVE', 'kis32, mobile, + SUCCESS PULL android'], ['mcafee, silent, + SUCCESS ELITE UNINSTALLED', 'mcafee, melt, + SUCCESS SCOUT SYNC', 'mcafee, exploit_docx, + SUCCESS EXPLOIT SAVE', 'mcafee, exploit_web, + SUCCESS EXPLOIT SAVE', 'mcafee, mobile, + SUCCESS PULL android'], ['msessential, silent, + SUCCESS ELITE UNINSTALLED', 'msessential, melt, + SUCCESS SCOUT SYNC', 'msessential, exploit_docx, + SUCCESS EXPLOIT SAVE', 'msessential, exploit_web, + SUCCESS EXPLOIT SAVE', 'msessential, mobile, + SUCCESS PULL android'], ['mbytes, silent, + SUCCESS ELITE UNINSTALLED', 'mbytes, melt, + SUCCESS SCOUT SYNC', 'mbytes, exploit_docx, + SUCCESS EXPLOIT SAVE', 'mbytes, exploit_web, + SUCCESS EXPLOIT SAVE', 'mbytes, mobile, + SUCCESS PULL android'], ['norton, silent, + SUCCESS ELITE UNINSTALLED', 'norton, melt, + SUCCESS SCOUT SYNC', 'norton, exploit_docx, + SUCCESS EXPLOIT SAVE', 'norton, exploit_web, + SUCCESS EXPLOIT SAVE', 'norton, mobile, + SUCCESS PULL android'], ['norman, silent, n', 'norman, melt, + SUCCESS SCOUT SYNC', 'norman, exploit_docx, + SUCCESS EXPLOIT SAVE', 'norman, exploit_web, + SUCCESS EXPLOIT SAVE', 'norman, mobile, + SUCCESS PULL android'], ['panda, silent, + SUCCESS ELITE UNINSTALLED', 'panda, melt, + SUCCESS SCOUT SYNC', 'panda, exploit_docx, + SUCCESS EXPLOIT SAVE', 'panda, exploit_web, + SUCCESS EXPLOIT SAVE', 'panda, mobile, + SUCCESS PULL android'], ['pctools, silent, + SUCCESS ELITE UNINSTALLED', 'pctools, melt, + SUCCESS SCOUT SYNC', 'pctools, exploit_docx, + SUCCESS EXPLOIT SAVE', 'pctools, exploit_web, + SUCCESS EXPLOIT SAVE', 'pctools, mobile, + SUCCESS PULL android'], ['risint, silent, + SUCCESS ELITE UNINSTALLED', 'risint, melt, + SUCCESS SCOUT SYNC', 'risint, exploit_docx, + SUCCESS EXPLOIT SAVE', 'risint, exploit_web, + SUCCESS EXPLOIT SAVE', 'risint, mobile, + SUCCESS PULL android'], ['sophos, silent, + SUCCESS ELITE BLACKLISTED', 'sophos, melt, + SUCCESS SCOUT SYNC', 'sophos, exploit_docx, + SUCCESS EXPLOIT SAVE', 'sophos, exploit_web, + SUCCESS EXPLOIT SAVE', 'sophos, mobile, + SUCCESS PULL android'], ['trendm, silent, + SUCCESS ELITE UNINSTALLED', 'trendm, melt, + SUCCESS SCOUT SYNC', 'trendm, exploit_docx, + SUCCESS EXPLOIT SAVE', 'trendm, exploit_web, + SUCCESS EXPLOIT SAVE', 'trendm, mobile, + SUCCESS PULL android'], ['zoneal, silent, + SUCCESS ELITE UNINSTALLED', 'zoneal, melt, + SUCCESS SCOUT SYNC', 'zoneal, exploit_docx, + SUCCESS EXPLOIT SAVE', 'zoneal, exploit_web, + SUCCESS EXPLOIT SAVE', 'zoneal, mobile, + SUCCESS PULL android']]
+#    results = [['360cn, silent, + SUCCESS ELITE BLACKLISTED', '360cn, melt, + SUCCESS SCOUT SYNC', '360cn, exploit_docx, + SUCCESS EXPLOIT SAVE', '360cn, exploit_web, + SUCCESS EXPLOIT SAVE', '360cn, mobile, + SUCCESS PULL android'], ['avast, silent, + SUCCESS ELITE UNINSTALLED', 'avast, melt, + SUCCESS SCOUT SYNC', 'avast, exploit_docx, + SUCCESS EXPLOIT SAVE', 'avast, exploit_web, + SUCCESS EXPLOIT SAVE', 'avast, mobile, + SUCCESS PULL android'], ['avira, silent, + SUCCESS ELITE UNINSTALLED', 'avira, melt, + SUCCESS SCOUT SYNC', 'avira, exploit_docx, + SUCCESS EXPLOIT SAVE', 'avira, exploit_web, + SUCCESS EXPLOIT SAVE', 'avira, mobile, + SUCCESS PULL android'], ['avg, silent, + SUCCESS ELITE BLACKLISTED', 'avg, melt, + SUCCESS SCOUT SYNC', 'avg, exploit_docx, + SUCCESS EXPLOIT SAVE', 'avg, exploit_web, + SUCCESS EXPLOIT SAVE', 'avg, mobile, + SUCCESS PULL android'], ['ahnlab, silent, + SUCCESS ELITE UNINSTALLED', 'ahnlab, melt, + SUCCESS SCOUT SYNC', 'ahnlab, exploit_docx, + SUCCESS EXPLOIT SAVE', 'ahnlab, exploit_web, + SUCCESS EXPLOIT SAVE', 'ahnlab, mobile, + SUCCESS PULL android'], ['adaware, silent, + SUCCESS ELITE UNINSTALLED', 'adaware, melt, + SUCCESS SCOUT SYNC', 'adaware, exploit_docx, + SUCCESS EXPLOIT SAVE', 'adaware, exploit_web, + SUCCESS EXPLOIT SAVE', 'adaware, mobile, + SUCCESS PULL android'], ['avg32, silent, + SUCCESS ELITE BLACKLISTED', 'avg32, melt, + SUCCESS SCOUT SYNC', 'avg32, exploit_docx, + SUCCESS EXPLOIT SAVE', 'avg32, exploit_web, + SUCCESS EXPLOIT SAVE', 'avg32, mobile, + SUCCESS PULL android'], ['avast32, silent, + SUCCESS ELITE UNINSTALLED', 'avast32, melt, + SUCCESS SCOUT SYNC', 'avast32, exploit_docx, + SUCCESS EXPLOIT SAVE', 'avast32, exploit_web, + SUCCESS EXPLOIT SAVE', 'avast32, mobile, + SUCCESS PULL android'], ['bitdef, silent, + SUCCESS ELITE BLACKLISTED', 'bitdef, melt, + FAILED SCOUT SYNC', 'bitdef, exploit_docx, + SUCCESS EXPLOIT SAVE', 'bitdef, exploit_web, + SUCCESS EXPLOIT SAVE', 'bitdef, mobile, + SUCCESS PULL android'], ['comodo, silent, + SUCCESS ELITE BLACKLISTED', 'comodo, melt, + SUCCESS SCOUT SYNC', 'comodo, exploit_docx, + SUCCESS EXPLOIT SAVE', 'comodo, exploit_web, + SUCCESS EXPLOIT SAVE', 'comodo, mobile, + SUCCESS PULL android'], ['drweb, silent, + SUCCESS ELITE BLACKLISTED', 'drweb, melt, + SUCCESS SCOUT SYNC', 'drweb, exploit_docx, + SUCCESS EXPLOIT SAVE', 'drweb, exploit_web, + SUCCESS EXPLOIT SAVE', 'drweb, mobile, + SUCCESS PULL android'], ['eset, silent, + SUCCESS ELITE UNINSTALLED', 'eset, melt, + SUCCESS SCOUT SYNC', 'eset, exploit_docx, + SUCCESS EXPLOIT SAVE', 'eset, exploit_web, + SUCCESS EXPLOIT SAVE', 'eset, mobile, + SUCCESS PULL android'], ['fsecure, silent, + SUCCESS ELITE UNINSTALLED', 'fsecure, melt, + SUCCESS SCOUT SYNC', 'fsecure, exploit_docx, + SUCCESS EXPLOIT SAVE', 'fsecure, exploit_web, + SUCCESS EXPLOIT SAVE', 'fsecure, mobile, + SUCCESS PULL android'], ['gdata, silent, + SUCCESS ELITE BLACKLISTED', 'gdata, melt, + SUCCESS SCOUT SYNC', 'gdata, exploit_docx, + SUCCESS EXPLOIT SAVE', 'gdata, exploit_web, + SUCCESS EXPLOIT SAVE', 'gdata, mobile, + SUCCESS PULL android'], ['kis, silent, + SUCCESS ELITE UNINSTALLED', 'kis, melt, + SUCCESS SCOUT SYNC', 'kis, exploit_docx, + SUCCESS EXPLOIT SAVE', 'kis, exploit_web, + SUCCESS EXPLOIT SAVE', 'kis, mobile, + SUCCESS PULL android'], ['kis32, silent, + SUCCESS ELITE BLACKLISTED', 'kis32, melt, + SUCCESS SCOUT SYNC', 'kis32, exploit_docx, + SUCCESS EXPLOIT SAVE', 'kis32, exploit_web, + SUCCESS EXPLOIT SAVE', 'kis32, mobile, + SUCCESS PULL android'], ['mcafee, silent, + SUCCESS ELITE UNINSTALLED', 'mcafee, melt, + SUCCESS SCOUT SYNC', 'mcafee, exploit_docx, + SUCCESS EXPLOIT SAVE', 'mcafee, exploit_web, + SUCCESS EXPLOIT SAVE', 'mcafee, mobile, + SUCCESS PULL android'], ['msessential, silent, + SUCCESS ELITE UNINSTALLED', 'msessential, melt, + SUCCESS SCOUT SYNC', 'msessential, exploit_docx, + SUCCESS EXPLOIT SAVE', 'msessential, exploit_web, + SUCCESS EXPLOIT SAVE', 'msessential, mobile, + SUCCESS PULL android'], ['mbytes, silent, + SUCCESS ELITE UNINSTALLED', 'mbytes, melt, + SUCCESS SCOUT SYNC', 'mbytes, exploit_docx, + SUCCESS EXPLOIT SAVE', 'mbytes, exploit_web, + SUCCESS EXPLOIT SAVE', 'mbytes, mobile, + SUCCESS PULL android'], ['norton, silent, + SUCCESS ELITE UNINSTALLED', 'norton, melt, + SUCCESS SCOUT SYNC', 'norton, exploit_docx, + SUCCESS EXPLOIT SAVE', 'norton, exploit_web, + SUCCESS EXPLOIT SAVE', 'norton, mobile, + SUCCESS PULL android'], ['norman, silent, n', 'norman, melt, + SUCCESS SCOUT SYNC', 'norman, exploit_docx, + SUCCESS EXPLOIT SAVE', 'norman, exploit_web, + SUCCESS EXPLOIT SAVE', 'norman, mobile, + SUCCESS PULL android'], ['panda, silent, + SUCCESS ELITE UNINSTALLED', 'panda, melt, + SUCCESS SCOUT SYNC', 'panda, exploit_docx, + SUCCESS EXPLOIT SAVE', 'panda, exploit_web, + SUCCESS EXPLOIT SAVE', 'panda, mobile, + SUCCESS PULL android'], ['pctools, silent, + SUCCESS ELITE UNINSTALLED', 'pctools, melt, + SUCCESS SCOUT SYNC', 'pctools, exploit_docx, + SUCCESS EXPLOIT SAVE', 'pctools, exploit_web, + SUCCESS EXPLOIT SAVE', 'pctools, mobile, + SUCCESS PULL android'], ['risint, silent, + SUCCESS ELITE UNINSTALLED', 'risint, melt, + SUCCESS SCOUT SYNC', 'risint, exploit_docx, + SUCCESS EXPLOIT SAVE', 'risint, exploit_web, + SUCCESS EXPLOIT SAVE', 'risint, mobile, + SUCCESS PULL android'], ['sophos, silent, + SUCCESS ELITE BLACKLISTED', 'sophos, melt, + SUCCESS SCOUT SYNC', 'sophos, exploit_docx, + SUCCESS EXPLOIT SAVE', 'sophos, exploit_web, + SUCCESS EXPLOIT SAVE', 'sophos, mobile, + SUCCESS PULL android'], ['trendm, silent, + SUCCESS ELITE UNINSTALLED', 'trendm, melt, + SUCCESS SCOUT SYNC', 'trendm, exploit_docx, + SUCCESS EXPLOIT SAVE', 'trendm, exploit_web, + SUCCESS EXPLOIT SAVE', 'trendm, mobile, + SUCCESS PULL android'], ['zoneal, silent, + SUCCESS ELITE UNINSTALLED', 'zoneal, melt, + SUCCESS SCOUT SYNC', 'zoneal, exploit_docx, + SUCCESS EXPLOIT SAVE', 'zoneal, exploit_web, + SUCCESS EXPLOIT SAVE', 'zoneal, mobile, + SUCCESS PULL android']]
 #    results = [['360cn, silent, + SUCCESS ELITE BLACKLISTED', '360cn, melt, + SUCCESS SCOUT SYNC', '360cn, exploit_docx, + SUCCESS EXPLOIT SAVE', '360cn, exploit_web, + SUCCESS EXPLOIT SAVE', '360cn, mobile, + SUCCESS PULL android'], ['avast, silent, + SUCCESS ELITE UNINSTALLED', 'avast, melt, + SUCCESS SCOUT SYNC', 'avast, exploit_docx, + SUCCESS EXPLOIT SAVE', 'avast, exploit_web, + SUCCESS EXPLOIT SAVE', 'avast, mobile, + SUCCESS PULL android'], ['avira, silent, + SUCCESS ELITE UNINSTALLED', 'avira, melt, + SUCCESS SCOUT SYNC', 'avira, exploit_docx, + SUCCESS EXPLOIT SAVE', 'avira, exploit_web, + SUCCESS EXPLOIT SAVE', 'avira, mobile, + SUCCESS PULL android'], ['avg, silent, + SUCCESS ELITE BLACKLISTED', 'avg, melt, + SUCCESS SCOUT SYNC', 'avg, exploit_docx, + SUCCESS EXPLOIT SAVE', 'avg, exploit_web, + SUCCESS EXPLOIT SAVE', 'avg, mobile, + SUCCESS PULL android'], ['ahnlab, silent, + SUCCESS ELITE UNINSTALLED', 'ahnlab, melt, + SUCCESS SCOUT SYNC', 'ahnlab, exploit_docx, + SUCCESS EXPLOIT SAVE', 'ahnlab, exploit_web, + SUCCESS EXPLOIT SAVE', 'ahnlab, mobile, + SUCCESS PULL android'], ['adaware, silent, + SUCCESS ELITE UNINSTALLED', 'adaware, melt, + SUCCESS SCOUT SYNC', 'adaware, exploit_docx, + SUCCESS EXPLOIT SAVE', 'adaware, exploit_web, + SUCCESS EXPLOIT SAVE', 'adaware, mobile, + SUCCESS PULL android'], ['avg32, silent, + SUCCESS ELITE BLACKLISTED', 'avg32, melt, + SUCCESS SCOUT SYNC', 'avg32, exploit_docx, + SUCCESS EXPLOIT SAVE', 'avg32, exploit_web, + SUCCESS EXPLOIT SAVE', 'avg32, mobile, + SUCCESS PULL android'], ['avast32, silent, + SUCCESS ELITE UNINSTALLED', 'avast32, melt, + SUCCESS SCOUT SYNC', 'avast32, exploit_docx, + SUCCESS EXPLOIT SAVE', 'avast32, exploit_web, + SUCCESS EXPLOIT SAVE', 'avast32, mobile, + SUCCESS PULL android'], ['bitdef, silent, + SUCCESS ELITE BLACKLISTED', 'bitdef, melt, + FAILED SCOUT SYNC', 'bitdef, exploit_docx, + SUCCESS EXPLOIT SAVE', 'bitdef, exploit_web, + SUCCESS EXPLOIT SAVE', 'bitdef, mobile, + SUCCESS PULL android'], ['comodo, silent, + SUCCESS ELITE BLACKLISTED', 'comodo, melt, + SUCCESS SCOUT SYNC', 'comodo, exploit_docx, + SUCCESS EXPLOIT SAVE', 'comodo, exploit_web, + SUCCESS EXPLOIT SAVE', 'comodo, mobile, + SUCCESS PULL android'], ['drweb, silent, + SUCCESS ELITE BLACKLISTED', 'drweb, melt, + SUCCESS SCOUT SYNC', 'drweb, exploit_docx, + SUCCESS EXPLOIT SAVE', 'drweb, exploit_web, + SUCCESS EXPLOIT SAVE', 'drweb, mobile, + SUCCESS PULL android'], ['eset, silent, + SUCCESS ELITE UNINSTALLED', 'eset, melt, + SUCCESS SCOUT SYNC', 'eset, exploit_docx, + SUCCESS EXPLOIT SAVE', 'eset, exploit_web, + SUCCESS EXPLOIT SAVE', 'eset, mobile, + SUCCESS PULL android'], ['fsecure, silent, + SUCCESS ELITE UNINSTALLED', 'fsecure, melt, + SUCCESS SCOUT SYNC', 'fsecure, exploit_docx, + SUCCESS EXPLOIT SAVE', 'fsecure, exploit_web, + SUCCESS EXPLOIT SAVE', 'fsecure, mobile, + SUCCESS PULL android'], ['gdata, silent, + SUCCESS ELITE BLACKLISTED', 'gdata, melt, + SUCCESS SCOUT SYNC', 'gdata, exploit_docx, + SUCCESS EXPLOIT SAVE', 'gdata, exploit_web, + SUCCESS EXPLOIT SAVE', 'gdata, mobile, + SUCCESS PULL android'], ['kis, silent, + SUCCESS ELITE UNINSTALLED', 'kis, melt, + SUCCESS SCOUT SYNC', 'kis, exploit_docx, + SUCCESS EXPLOIT SAVE', 'kis, exploit_web, + SUCCESS EXPLOIT SAVE', 'kis, mobile, + SUCCESS PULL android'], ['kis32, silent, + SUCCESS ELITE BLACKLISTED', 'kis32, melt, + SUCCESS SCOUT SYNC', 'kis32, exploit_docx, + SUCCESS EXPLOIT SAVE', 'kis32, exploit_web, + SUCCESS EXPLOIT SAVE', 'kis32, mobile, + SUCCESS PULL android'], ['mcafee, silent, + SUCCESS ELITE UNINSTALLED', 'mcafee, melt, + SUCCESS SCOUT SYNC', 'mcafee, exploit_docx, + SUCCESS EXPLOIT SAVE', 'mcafee, exploit_web, + SUCCESS EXPLOIT SAVE', 'mcafee, mobile, + SUCCESS PULL android'], ['msessential, silent, + SUCCESS ELITE UNINSTALLED', 'msessential, melt, + SUCCESS SCOUT SYNC', 'msessential, exploit_docx, + SUCCESS EXPLOIT SAVE', 'msessential, exploit_web, + SUCCESS EXPLOIT SAVE', 'msessential, mobile, + SUCCESS PULL android'], ['mbytes, silent, + SUCCESS ELITE UNINSTALLED', 'mbytes, melt, + SUCCESS SCOUT SYNC', 'mbytes, exploit_docx, + SUCCESS EXPLOIT SAVE', 'mbytes, exploit_web, + SUCCESS EXPLOIT SAVE', 'mbytes, mobile, + SUCCESS PULL android'], ['norton, silent, + SUCCESS ELITE UNINSTALLED', 'norton, melt, + SUCCESS SCOUT SYNC', 'norton, exploit_docx, + SUCCESS EXPLOIT SAVE', 'norton, exploit_web, + SUCCESS EXPLOIT SAVE', 'norton, mobile, + SUCCESS PULL android'], ['norman, silent, n', 'norman, melt, + SUCCESS SCOUT SYNC', 'norman, exploit_docx, + SUCCESS EXPLOIT SAVE', 'norman, exploit_web, + SUCCESS EXPLOIT SAVE', 'norman, mobile, + SUCCESS PULL android'], ['panda, silent, + SUCCESS ELITE UNINSTALLED', 'panda, melt, + SUCCESS SCOUT SYNC', 'panda, exploit_docx, + SUCCESS EXPLOIT SAVE', 'panda, exploit_web, + SUCCESS EXPLOIT SAVE', 'panda, mobile, + SUCCESS PULL android'], ['pctools, silent, + SUCCESS', 'pctools, melt, + SUCCESS', 'pctools, exploit_docx, + SUCCESS', 'pctools, exploit_web, + SUCCESS', 'pctools, mobile, SUCCESS']] #, ['risint, silent, + SUCCESS ELITE UNINSTALLED', 'risint, melt, + SUCCESS SCOUT SYNC', 'risint, exploit_docx, + SUCCESS EXPLOIT SAVE', 'risint, exploit_web, + SUCCESS EXPLOIT SAVE', 'risint, mobile, + SUCCESS PULL android'], ['sophos, silent, + SUCCESS ELITE BLACKLISTED', 'sophos, melt, + SUCCESS SCOUT SYNC', 'sophos, exploit_docx, + SUCCESS EXPLOIT SAVE', 'sophos, exploit_web, + SUCCESS EXPLOIT SAVE', 'sophos, mobile, + SUCCESS PULL android'], ['trendm, silent, + SUCCESS ELITE UNINSTALLED', 'trendm, melt, + SUCCESS SCOUT SYNC', 'trendm, exploit_docx, + SUCCESS EXPLOIT SAVE', 'trendm, exploit_web, + SUCCESS EXPLOIT SAVE', 'trendm, mobile, + SUCCESS PULL android'], ['zoneal, silent, + SUCCESS ELITE UNINSTALLED', 'zoneal, melt, + SUCCESS SCOUT SYNC', 'zoneal, exploit_docx, + SUCCESS EXPLOIT SAVE', 'zoneal, exploit_web, + SUCCESS EXPLOIT SAVE', 'zoneal, mobile, + SUCCESS PULL android']]
-    rep = Report(42, results)
+#    rep = Report(42, results)
     #print rep.results
-    if rep.send_report_color_mail("rep") is False:
-        print "[!] Problem sending HTML email Report!"
+#    if rep.send_report_color_mail("rep") is False:
+#        print "[!] Problem sending HTML email Report!"
 
 #    for result in rep.results:
 #        print "%s: %s" % (result.vm_name,result.result)
+
+    vm_name = "gdata"
+    vm = VMachine(vm_conf_file, vm_name)
+    out = vmman.listProcesses(vm)
+    if "msdtc.exe" in out:
+        print "found"
+    else: print "not found"
+    print "end test"
 
 def wait_for_startup(vm, message=None, max_minute=8):
     #r = Redis()
@@ -569,13 +627,6 @@ def wait_for_results(vm, result_id, max_minute=60):
                             #os.system('sudo rm -fr %s') % build_zip_dst
                         else:
                             print "sample NOT SAVED on db"
-
-#                    elif "FAILED SCOUT SYNC" in m['data']:
-
-#                        # SAVING VM STATUS
-
-#                        print "DBG creating snapshot for troubleshooting"
-#                        vm.create_snapshot("infected_%s_nosync")
                 else:
                     return results
             except TypeError:

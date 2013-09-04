@@ -191,8 +191,7 @@ class VMRun:
 
 	def listProcesses(self, vmx):
 		sys.stdout.write("[%s] List processes\n" % vmx)
-		out = self._run_cmd(vmx, "listProcessesInGuest", vmx_creds=[vmx.user,vmx.passwd], popen=True)
-		return out
+		return self._run_cmd(vmx, "listProcessesInGuest", vmx_creds=[vmx.user,vmx.passwd], popen=True)
 
 	def takeScreenshot(self, vmx, out_img):
 		sys.stdout.write("[%s] Taking screenshot.\n" % vmx)

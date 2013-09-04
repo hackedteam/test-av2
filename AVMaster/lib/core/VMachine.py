@@ -143,6 +143,7 @@ class VMachine:
 		return self._run_cmd("is_powered_on")
 
 	def login_in_guest(self):
+#		print "login with %s and %s" % (self.user, self.passwd)
 		return self._run_cmd("login_in_guest", self.user, self.passwd)
 
 	def list_snapshots(self):
@@ -155,6 +156,7 @@ class VMachine:
 		return self._run_cmd("terminate_process", pid)
 
 	def list_processes(self):
+		self.login_in_guest()
 		return self._run_cmd("list_processes")
 
 	#def check_tools(self):
