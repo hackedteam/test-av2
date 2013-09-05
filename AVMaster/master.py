@@ -286,8 +286,8 @@ def dispatch(flargs):
             sleep(random.randint(5,10))
             results.append( dispatch_kind(vm_name, "melt", args) )
             sleep(random.randint(5,10))
-#            results.append( dispatch_kind(vm_name, "exploit", args) )
-#            sleep(random.randint(5,10))
+            results.append( dispatch_kind(vm_name, "exploit", args) )
+            sleep(random.randint(5,10))
             results.append( dispatch_kind(vm_name, "exploit_docx", args) )
             sleep(random.randint(5,10))
             results.append( dispatch_kind(vm_name, "exploit_web", args) )
@@ -363,19 +363,16 @@ def dispatch_kind(vm_name, kind, args, r_id=None, tries=0):
         out = vmman.listProcesses(vm)
         found = False
         tick = 0
+        script_name = "build_%s_minotauro.bat" % kind
+        print "DBG script to find is %s" % script_name
 
         while tick <= 5:
-#            if "python.exe" in out or "build_silent_minotauro.bat" in out or "cmd.exe" in out:
-            if "python.exe" in out or "minotauro.bat" in out or "cmd.exe" in out:
+            if "python.exe" in out or script_name in out or "cmd.exe" in out:
                 found = True
-#            else:
-#                for line in out:
-#                    if "cmd.exe" in line and "avtest" in line:
-#                        found = True
-#                        break
+                print "DBG process found for %s!" % vm_name
             if found == True:
                 break
-            print "DBG Python.EXE not found. sleeping 5 secs"
+            print "DBG Python.EXE not found for %s. sleeping 5 secs (retry %d)" % (vm_name, tick)
             print "DBG processes:\n%s" % out
             tick+=1
             sleep(5)
