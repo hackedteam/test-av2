@@ -303,9 +303,14 @@ def dispatch(flargs):
         return {'ERROR': e}
 
 def dispatch_kind(vm_name, kind, args, r_id=None, tries=0):
+
+    #   PREPARE FILES
+
     global status, test_id
 
     print "DBG test_id is %s" % test_id
+
+    delay = len(args.vms)
 
     test_dir_7  = "C:\\Users\\avtest\\Desktop\\AVTEST"
 #    test_dir_xp = "C:\\Documents and Settings\\avtest\\Desktop\\AVTEST"
@@ -330,75 +335,173 @@ def dispatch_kind(vm_name, kind, args, r_id=None, tries=0):
         filestocopy.append("assets/owned.docm")
         filestocopy.append("assets/PMIEFuck-WinWord.dll")
 
-    result = "%s, %s, ERROR GENERAL" % (vm_name, kind)
+    res = "%s, %s, ERROR GENERAL" % (vm_name, kind)
 
-    if tries > 0:
-        vms = 1
-        rev = False
-    else:
-        vms = len(args.vms)
-        rev = True
-    
     vm = VMachine(vm_conf_file, vm_name)
     job_log(vm.name, "DISPATCH %s" % kind)
 
-    if wake_up(vm, vms, revert=rev) is True:
-        print "DBG %s, wakeup done. revert is %s" % (vm,rev)
-        if r_id is None:
-            result_id = add_record_result(vm_name, kind, test_id, status, "STARTED")
-        else:
-            result_id = r_id
-        print "DBG %s added result with id %s" % (vm_name,result_id)
+    #   STARTUP VM
 
-        job_log(vm_name, "LOGGED")
-        test_dir = test_dir_7
-        copy_to_guest(vm, test_dir, filestocopy)
-        job_log(vm_name, "ENVIRONMENT")
-        
-        # executing bat synchronized
-        
-        vmman.executeCmd(vm, "%s\\%s" % (test_dir, buildbat), interactive=True, bg=True)
-
-        sleep(3)
-        out = vmman.listProcesses(vm)
-        found = False
-        tick = 0
-        script_name = "build_%s_minotauro.bat" % kind
-        print "DBG script to find is %s" % script_name
-
-        while tick <= 5:
-            if "python.exe" in out or script_name in out or "cmd.exe" in out:
-                found = True
-                print "DBG process found for %s!" % vm_name
-            if found == True:
-                break
-            print "DBG Python.EXE not found for %s. sleeping 5 secs (retry %d)" % (vm_name, tick)
-            print "DBG processes:\n%s" % out
-            tick+=1
+    if tries <= 0:
+        vm.revert_last_snapshot()
+        job_log(vm.name, "REVERTED")
+        sleep(random.randint(30, delay * 30))
+    elif tries == 10:
+        return "%s, %s, ERROR not started after 10 tries." % (vm_name, kind)
+    else:
+        vm.shutdown()
+        while vm.is_powered_off() is False:
             sleep(5)
 
-        if found == False:
+    vm.startup()
+    job_log(vm.name, "STARTUP")
+
+    #   OPEN CHANNEL
+
+    if kind == "silent" or kind == "melt":
+        max_minute = 45
+    elif kind == "exploit":
+        max_minute = 20
+    elif kind == "mobile" or "exploit_" in kind:
+        max_minute = 5  
+
+    r = StrictRedis(socket_timeout=max_minute * 60)
+    p = r.pubsub()
+    p.subscribe(vm.name)
+
+    started = False
+    results = []
+    log = ""
+    res = ""
+
+    try:
+        for m in p.listen():
+            print "DBG %s: %s"  % (m['channel'], m['data'])
+            try:
+                if started is False:
+                    if "STARTED" in m['data']: # and started is False:
+                        started = True
+
+                        # PREPARE ENVIRONMENT
+
+#                        print "DBG %s, wakeup done. revert is %s" % (vm,rev)
+                        if r_id is None:
+                            result_id = add_record_result(vm_name, kind, test_id, status, "STARTED")
+                        else:
+                            result_id = r_id
+                        print "DBG %s added result with id %s" % (vm_name,result_id)
+
+                        job_log(vm_name, "LOGGED")
+                        test_dir = test_dir_7
+                        copy_to_guest(vm, test_dir, filestocopy)
+                        job_log(vm_name, "ENVIRONMENT")
+
+                        # EXECUTE 
+                        
+                        vmman.executeCmd(vm, "%s\\%s" % (test_dir, buildbat), interactive=True, bg=True)
+
+                        # CHECK FOR ERROR IN EXECUTION
+
+                        sleep(3)
+                        out = vmman.listProcesses(vm)
+                        found = False
+                        tick = 0
+                        script_name = "build_%s_minotauro.bat" % kind
+                        print "DBG script to find is %s" % script_name
+
+                        while tick <= 5:
+                            if "python.exe" in out or script_name in out or "cmd.exe" in out:
+                                found = True
+                                print "DBG process found for %s!" % vm_name
+                            if found == True:
+                                break
+                            print "DBG Python.EXE not found for %s. sleeping 5 secs (retry %d)" % (vm_name, tick)
+                            print "DBG processes:\n%s" % out
+                            tick+=1
+                            sleep(5)
+
+                        if found == False:
+                            tries+=1
+                            print "%s STARTED but not EXECUTED. Retry %d setup" % (vm_name, tries)
+                            return dispatch_kind(vm_name, kind, args, result_id, tries)
+
+                        job_log(vm_name, "EXECUTED %s" % kind)
+
+                else: # started is True
+
+                    if "ENDED" not in m['data']: # and started is True:
+
+                        #   SAVING LOGS
+
+                        if log is "":
+                            log = str(m['data'])
+                            save_logs(result_id, log)
+                        else:
+                            log += ", %s" % str(m['data'])
+                            save_logs(result_id, log)
+
+                        # SAVING CURRENT RESULT
+
+                        if "+" in m['data']:
+                            results.append(str(m['data']))
+                            if "STARTED" not in res: # or res is not "":
+                                res += ", %s" % str(m['data'])
+                            else:
+                                res += "%s" % str(m['data'])
+                            upd_record_result(result_id, result=res.replace("+ ","").strip())
+                        
+                        if "FAILED SCOUT BUILD" in m['data'] or "FAILED SCOUT EXECUTE" in m['data']:
+
+                            # SAVING SAMPLE
+
+                            test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST\\build"
+                            platform = m['data'].split(" ")[-1].split("\\")[-2]
+                            build_zip_src = "%s\\%s\\build.zip" % (test_dir, platform)
+                            build_zip_dst = "tmp/detected_%s.zip" % vm
+                            print "DBG copying %s to %s" % (build_zip_src, build_zip_dst)
+                            vm.get_file(build_zip_src, build_zip_dst)
+                            #vmman.copyFileFromGuest(vm, build_zip_src, build_zip_dst)
+                            print "DBG adding record sample"
+                            a = add_record_sample(result_id, build_zip_dst)
+                            if a:
+                                print "sample SAVED on db"
+                                #os.system('sudo rm -fr %s') % build_zip_dst
+                            else:
+                                print "sample NOT SAVED on db"
+                    else:
+                        print "DBG [%s] passing debug files txt from host" % vm.name
+                        res_txt_dst = "%s/results_%s_%s.txt" % (logdir, vm, kind)
+                        res_txt_src = "C:\\Users\\avtest\\Desktop\\AVTEST\\results.txt"
+                        vm.get_file(res_txt_src, res_txt_dst)
+
+                        print "DBG results are %s" % results
+
+                        job_log(vm_name, "SAVED %s" % kind)
+                        
+                        #execute(vm, test_id, result_id, "%s\\%s" % (test_dir, buildbat), kind)
+
+                        #timestamp = time.strftime("%Y%m%d_%H%M", time.gmtime())
+                        if save_screenshot(vm, result_id) is True:
+                            job_log(vm_name, "SCREENSHOT ok")
+                            
+                        # suspend & refresh snapshot
+                        #vm.suspend()
+                        vm.shutdown()
+                        job_log(vm_name, "SUSPENDED %s" % kind)
+
+    #                    return results # should be: vm_name, kind, results
+                        return "%s, %s, %s" % (vm_name, kind, res.split(",")[-1].replace("+ ",""))
+            except TypeError:
+                pass
+    except ConnectionError:
+        if started is False:
             tries+=1
-            print "%s STARTED but not EXECUTED. Retry %d setup" % (vm_name, tries)
+            print "DBG %s: not STARTED. Timeout occurred." % vm
             return dispatch_kind(vm_name, kind, args, result_id, tries)
-
-        job_log(vm_name, "EXECUTED %s" % kind)
-
-        result = save_results(vm, kind, test_id, result_id)
-        job_log(vm_name, "SAVED %s" % kind)
-        
-        #execute(vm, test_id, result_id, "%s\\%s" % (test_dir, buildbat), kind)
-
-        #timestamp = time.strftime("%Y%m%d_%H%M", time.gmtime())
-        if save_screenshot(vm, result_id) is True:
-            job_log(vm_name, "SCREENSHOT ok")
-        
-    # suspend & refresh snapshot
-    #vm.suspend()
-    vm.shutdown()
-    job_log(vm_name, "SUSPENDED %s" % kind)
-
-    return result
+        else:
+            tries+=1
+            print "DBG %s: Timeout occurred during execution" % vm
+            return dispatch_kind(vm_name, kind, args, result_id, tries)
 
 def push(flargs):
     vm_name, args = flargs
@@ -446,35 +549,6 @@ def push(flargs):
         job_log(vm_name, "ENVIRONMENT")
         result = "%s, pushed %s." % (vm_name, kind)
     return result
-
-def wake_up(vm, delay, tries=0, revert=True):
-    if revert is True:
-        vm.revert_last_snapshot()
-        job_log(vm.name, "REVERTED")
-    else:
-        vm.shutdown()
-
-    sleep(random.randint(30, delay * 30))
-    vm.startup()
-    job_log(vm.name, "STARTUP")
-
-    if wait_for_startup(vm) is False:
-        if tries < 3:
-            tries+=1
-            print "DBG %s, ERROR not STARTED (try n %s)" % (vm.name, tries)
-            return wake_up(vm, delay, tries, revert)
-        else:
-            return False
-    return True
-
-def execute(vm, test_id, result_id, dst_dir, kind):
-    vmman.executeCmd(vm, dst_dir, interactive=True, bg=True)
-    job_log(vm.name, "EXECUTED")
-
-    result = save_results(vm, kind, test_id, result_id)
-    job_log(vm_name, "SAVED %s" % kind)
-
-
 
 def test_internet(flargs):
     vm_name = flargs[0]
@@ -543,26 +617,6 @@ def do_test(flargs):
     else: print "not found"
     print "end test"
 
-def wait_for_startup(vm, message=None, max_minute=8):
-    #r = Redis()
-    r = StrictRedis(socket_timeout=max_minute * 60)
-
-    p = r.pubsub()
-    p.subscribe(vm.name)
-
-    # timeout
-    try:
-        for m in p.listen():
-            print "DBG %s"  % m
-            try:
-                if "STARTED" in m['data']:
-                    return True
-            except TypeError:
-                pass
-    except ConnectionError:
-        print "DBG %s: not STARTED. Timeout occurred." % vm
-        return False
-
 def add_record_sample(result_id, build_zip_dst):
     print "DBG Saving Sample"
     if not os.path.exists(build_zip_dst):
@@ -572,66 +626,6 @@ def add_record_sample(result_id, build_zip_dst):
         db.session.add(sample)
         db.session.commit()
     return True
-
-def wait_for_results(vm, result_id, max_minute=60):
-    r = StrictRedis(socket_timeout=max_minute * 60)
-    p = r.pubsub()
-    p.subscribe(vm.name)
-    results = []
-    log = ""
-    res = ""
-
-    try:
-        for m in p.listen():
-            print "DBG %s" % m
-            try:
-                if "ENDED" not in m['data']:
-
-                    #   SAVING LOGS
-
-                    if log is "":
-                        log = str(m['data'])
-                        save_logs(result_id, log)
-                    else:
-                        log += ", %s" % str(m['data'])
-                        save_logs(result_id, log)
-
-                    # SAVING CURRENT RESULT
-
-                    if "+" in m['data']:
-                        results.append(str(m['data']))
-                        if res is not "STARTED": # or res is not "":
-                            res += ", %s" % str(m['data'])
-                        else:
-                            res += "%s" % str(m['data'])
-                        upd_record_result(result_id, result=res.replace("+ ","").strip())
-                    
-                    if "FAILED SCOUT BUILD" in m['data'] or "FAILED SCOUT EXECUTE" in m['data']:
-
-                        # SAVING SAMPLE
-
-                        test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST\\build"
-                        platform = m['data'].split(" ")[-1].split("\\")[-2]
-                        build_zip_src = "%s\\%s\\build.zip" % (test_dir, platform)
-                        build_zip_dst = "tmp/detected_%s.zip" % vm
-                        print "DBG copying %s to %s" % (build_zip_src, build_zip_dst)
-                        vm.get_file(build_zip_src, build_zip_dst)
-                        #vmman.copyFileFromGuest(vm, build_zip_src, build_zip_dst)
-                        print "DBG adding record sample"
-                        a = add_record_sample(result_id, build_zip_dst)
-                        if a:
-                            print "sample SAVED on db"
-                            #os.system('sudo rm -fr %s') % build_zip_dst
-                        else:
-                            print "sample NOT SAVED on db"
-                else:
-                    return results
-            except TypeError:
-                pass
-    except ConnectionError:
-        print "DBG %s: Timeout occurred during execution" % vm
-        return "ERROR: Timeout occurred during execution"
-
 
 def timestamp():
     return time.strftime("%Y%m%d_%H%M", time.gmtime())
