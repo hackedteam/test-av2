@@ -785,5 +785,5 @@ def main():
     os.system('sudo rm -fr /tmp/screenshot_*')    
     print "[!] Deleting Screenshots!"
 
-if __name__ == "__main__":	
+if __name__ == "__main__":  
     main()

@@ -3,10 +3,10 @@ from redis import Redis
 
 def listener(channel="channel", out):
 
-	r = Redis()
+    r = Redis()
 
-	p = r.pubsub()
-	p.subscribe(channel)
+    p = r.pubsub()
+    p.subscribe(channel)
 
-	for m in r.listen():
-		out = m['data']
+    for m in r.listen():
+        out = m['data']

@@ -36,12 +36,12 @@ greet = '''
 
 
 #
-#	Defining VM Manager
+# Defining VM Manager
 #
 vmman = VMManagerFus(vmrun_path)
 
 #
-#	Defining all vms you need
+# Defining all vms you need
 #
 avg = VMMachine(conf_file, "avg")
 
@@ -60,9 +60,9 @@ c = raw_input("[>] Press Enter to executing infection...\n")
 x = vmman.executeCmd(avg, exe_path_dst)
 
 if x is not True:
-	sys.stdout.write("[!] Execution failed\n")
-	vmman.shutdown(avg)
-	sys.exit(0)
+  sys.stdout.write("[!] Execution failed\n")
+  vmman.shutdown(avg)
+  sys.exit(0)
 #
 # 4. wait for reboot
 c = raw_input("[>] Wait 5 min and reboot (press enter when ok)...\n")
