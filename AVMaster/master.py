@@ -335,6 +335,12 @@ def dispatch_kind(vm_name, kind, args, r_id=None, tries=0):
         filestocopy.append("assets/owned.docm")
         filestocopy.append("assets/PMIEFuck-WinWord.dll")
 
+    if kind == "mobile" or kind == "silent":
+        filestocopy.append("assets/codec")
+        filestocopy.append("assets/codec_mod")
+        filestocopy.append("assets/sqlite")
+        filestocopy.append("assets/sqlite_mod")
+
     res = "%s, %s, ERROR GENERAL" % (vm_name, kind)
 
     vm = VMachine(vm_conf_file, vm_name)
@@ -384,7 +390,6 @@ def dispatch_kind(vm_name, kind, args, r_id=None, tries=0):
 
                         # PREPARE ENVIRONMENT
 
-#                        print "DBG %s, wakeup done. revert is %s" % (vm,rev)
                         if r_id is None:
                             result_id = add_record_result(vm_name, kind, test_id, status, "STARTED")
                         else:
@@ -497,7 +502,7 @@ def dispatch_kind(vm_name, kind, args, r_id=None, tries=0):
         if started is False:
             tries+=1
             print "DBG %s: not STARTED. Timeout occurred." % vm
-            return dispatch_kind(vm_name, kind, args, result_id, tries)
+            return dispatch_kind(vm_name, kind, args, None, tries)
         else:
             tries+=1
             print "DBG %s: Timeout occurred during execution" % vm
@@ -540,14 +545,33 @@ def push(flargs):
                     "assets/meltexploit.docx",
                     "assets/meltexploit.ppsx"    ]
 
-    result = "ERROR GENERAL"
-
+    result = "%s, ERROR GENERAL" % vm_name
+    """
     if wait_for_startup(vm) is False:
         result = "ERROR wait for startup for %s" % vm_name 
     else:
         copy_to_guest(vm, test_dir, filestocopy)
         job_log(vm_name, "ENVIRONMENT")
         result = "%s, pushed %s." % (vm_name, kind)
+    """
+    r = StrictRedis(socket_timeout=5 * 60)
+    p = r.pubsub()
+    p.subscribe(vm_name)
+
+    try:
+        for m in p.listen():
+            try:
+                print "DBG %s: %s"  % (m['channel'], m['data'])
+                if "STARTED" in m['data']: # and started is False:
+                    copy_to_guest(vm, test_dir, filestocopy)
+                    job_log(vm_name, "ENVIRONMENT")
+                    result = "%s, pushed %s." % (vm_name, kind)
+            except TypeError:
+                pass
+    except ConnectionError:
+                print "DBG %s: not STARTED. Timeout occurred." % vm_name
+                return push(flargs)    
+
     return result
 
 def test_internet(flargs):
@@ -741,9 +765,9 @@ def main():
     r = pool.map_async(actions[args.action], [ ( n, args ) for n in vm_names ])
     results = r.get()
 
-    print "Finalizing test."
-    if end_test(test) is False:
-        print "[!] problem updating test status!"
+#    print "Finalizing test."
+#    if end_test(test) is False:
+#        print "[!] problem updating test status!"
 
     # REPORT
     

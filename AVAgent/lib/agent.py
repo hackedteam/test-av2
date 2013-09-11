@@ -118,8 +118,10 @@ class AVAgent:
         self.host = (backend, frontend)
         if "winxp" in socket.gethostname():
             self.hostname = socket.gethostname().replace("winxp", "")
-        else:
+        elif "win7" in socket.gethostname():
             self.hostname = socket.gethostname().replace("win7", "")
+        else:
+            self.hostname = socket.gethostname().replace("win8", "")
 #        self.hostname = socket.gethostname()
         self.blacklist = blacklist
         self.platform = platform
@@ -512,6 +514,9 @@ class AVAgent:
 
         print "- Built"
 
+#        print "+ platfoooorm %s" % self.platform
+#        print "+ kiiiiiiiind %s" % self.kind
+
         meltfile = None
         if self.kind == 'melt':
             if self.platform == 'exploit_docx':
@@ -524,6 +529,30 @@ class AVAgent:
                 meltfile = 'assets/meltapp.exe'
 
         exe = self._build_agent( factory_id, meltfile )
+
+        if self.kind == "silent" and self.platform == "windows":
+            try:
+                print "Check for codec/sqlite files detection"
+                src_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
+                dst_dir = "C:\\Users\\avtest\\Desktop\\AVTEST\\copy"
+
+                if not os.path.exists(dst_dir):
+                    os.makedirs(dst_dir)
+                
+                print "DBG copying assets codec and sqlite"
+
+                shutil.copy("%s\\assets\\sqlite" % src_dir, "%s\\sqlite.exe" % dst_dir)
+                shutil.copy("%s\\assets\\sqlite_mod" % src_dir, "%s\\sqlite_mod.exe" % dst_dir)
+
+                shutil.copy("%s\\assets\\codec" % src_dir, "%s\\codec.exe" % dst_dir)
+                shutil.copy("%s\\assets\\codec_mod" % src_dir, "%s\\codec_mod.exe" % dst_dir)
+
+                print "+ SUCCESS CODEC/SQLITE SAVE"
+            except IOError:
+                print "+ FAILED CODEC/SQLITE SAVE"
+                send_results("ENDED")
+                return
+#                pass
 
         if "exploit_" in self.platform:
             if self.platform == 'exploit_docx': 
@@ -599,7 +628,7 @@ class AVAgent:
 
 def send_results(results):
     try:
-        channel = socket.gethostname().replace("win7", "").replace("winxp", "")
+        channel = socket.gethostname().replace("win7", "").replace("winxp", "").replace("win8", "")
         r = redis.Redis("10.0.20.1")
         r.publish(channel, results)
     except Exception as e:
@@ -716,8 +745,10 @@ def main():
     args = parser.parse_args()
     if "winxp" in socket.gethostname():
         avname = socket.gethostname().replace("winxp", "").lower()
-    else:
+    elif "win7" in socket.gethostname():
         avname = socket.gethostname().replace("win7", "").lower()
+    else:
+        avname = socket.gethostname().replace("win8", "").lower()
 
     logger.setLogger(debug = args.verbose, avname=avname)
     connection.host = args.backend
