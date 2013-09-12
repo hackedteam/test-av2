@@ -34,9 +34,80 @@ All'accensione della VM:
   <- ack(+SUCCESS/+FAILED) / nack (+ERROR) |> +ENDCOMMAND
 
 Commands:
+results: +SUCCESS: success, +ERROR: system, components, +FAILED: AV detecion
 
 STARTAGENT  | +SUCCESS STARTAGENT
-PUSH (namefile, content) | +SUCCESS PUSG
+SET_SERVER (backend,frontend)
+SET_PLATFORM (platform)
+SET_BLACKLIST (avs)
+PUSH (namefile, content) | +SUCCESS PUSH
+BUILD (kind, args)
+  BUILD_SILENT
+  BUILD_MELT(filehost)
+STATICDETECTION (dir) | +SUCCES / +FAILED
+EXECUTE_SIMPLE
+EXECUTE_SCOUT // aspetta n minuti, muove mouse, aspetta sync
+UPGRADE_ELITE // set upgrade, aspetta upgrade, check bl
+UNINSTALL
+
+
+Per ogni comando esiste una classe nella format command_COMMANDNAME
+Es:
+command_STARTAGENT
+
+def class command_STARTAGENT extends command:
+  def __init__(vmname):
+
+  # server side, overloaded
+  def send(args):
+    return "+CMD STARTAGENT"
+
+  # client side, overloaded
+  def receive(sent):
+    return "+SUCCESS STARTAGENT"
+
+  # server side, overloaded
+  def parse_results(received):
+
+  def unit_test():
+    parse_results(receive(send(...))) == OK
+
+
+def class command_PUSH extends command:
+  def __init__(vmname):
+
+  # server side, overloaded
+  def send(args):
+    filename = args[0]
+    content = bin2hex(file.read(filename))
+    return "+CMD PUSH %s %s" % filename, content
+
+  # client side, overloaded
+  def receive(sent):
+    filename = sent[0]
+    hexcontent = sent[1]
+    file.open(filename).write(hex2bin(hexcontent)
+    return "+SUCCESS PUSH"
+
+  # server side, overloaded
+  def parse_results(received):
+
+  def unit_test():
+    parse_results(receive(send(...))) == OK
+
+def class command:
+  def send(args):
+    pass
+  def server():
+    redis = redis.open()
+    redis.publish(send(args))
+    received = redis.read()
+    parse_results(received)
+
+  def client():
+    redis = redis.open()
+    sent = redis.read()
+    receive(sent)
 
 
 Segue una descrizione di un piano di realizzazione di una rete di macchine virtuali atte alla verifica di visibilità delle build RCS su un insieme significativo di Antivirus e Antimalware.

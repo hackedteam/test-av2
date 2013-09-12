@@ -20,7 +20,7 @@ def server():
     r = Redis("10.0.20.1")
     p = r.pubsub()
     p.subscribe(channel)
-    for cmd in ["START","PUSH","SILENT"]:
+    for cmd in ["START","PUSH","SILENT","END"]:
         r.publish(channel, "+CMD %s" % cmd)
         for m in p.listen():
             out = m['data']
