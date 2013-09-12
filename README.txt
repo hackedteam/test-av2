@@ -24,11 +24,20 @@ AVAgent
     - update os/av
     - push
     - silent / melt
+    - save file (con un payload)
   - restuire i risultati dei comandi
 
 
 All'accensione della VM:
-- master ->
+- master <-> agent
+  -> COMMAND [name] [arguments]
+  <- ack(+SUCCESS/+FAILED) / nack (+ERROR) |> +ENDCOMMAND
+
+Commands:
+
+STARTAGENT  | +SUCCESS STARTAGENT
+PUSH (namefile, content) | +SUCCESS PUSG
+
 
 Segue una descrizione di un piano di realizzazione di una rete di macchine virtuali atte alla verifica di visibilità delle build RCS su un insieme significativo di Antivirus e Antimalware.
 
