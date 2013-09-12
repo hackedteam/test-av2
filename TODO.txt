@@ -1,29 +1,26 @@
-File da mettere su GDATA
-Nella dir VMAVTest
-build_silent_polluce.bat
-lib/ConsoleAPI.py
-lib/agent.py
-assets/config.json
-assets/key.exe
-assets/meltapp.exe
+- PROJECT
+	- rivedere user story
+	- ridefinire e uniformare nomi e scope dei comandi
+		- elencare i casi d'uso del prodotto
+		- identificare la sintassi per avmaster
+		- ridefinire la sintassi di avagent
+	- procedure
+
+- AVMaster
+
+- AVAgent
+	- avtest per sergent, con upgrade
+	- test firme statiche
+	- test silent melt
 
 
+- python daemon
+	Es: python daemon 8002
+	- da automatizzare, creazione dir data, lancio demone
 
-AVUpdate
-	- DONE
+- report
+	- utilizzare sorgente unica (db)
 
-AVTestDispatcher
-	- preso da vmman
-
-VMAVTest : vmtestav.py
-	- ConsoleAPI: aggiungere
-		- createTarget
-		- createFactory
-		- deleteTarget
-		sistemare config e build
-	- documentazione rest api? prese da rcs-core.
-
-	path: c:\Users\avtest\Desktop\vmavtest
-	input: agent.py, ConsoleAPI.py mouse_emu.exe, config.json
-       	output: result.txt
+- unit test, integration
+	- TDD, integrare test case nel sistema
 

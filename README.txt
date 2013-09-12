@@ -1,4 +1,36 @@
-Segue una descrizione di un piano di realizzazione di una rete di macchine virtuali atte alla verifica di visibilità delle build RCS su un insieme significativo di Antivirus e Antimalware. 
+AVMaster
+  - istanziare il demone db
+  - gestire redis
+
+  - comandare le vm
+    - accendere, spegnere, monitare vm
+    - riceve START da publish.py, che e' installato nativo sulle VM
+    - push di avagent e dei file accessori (zipped)
+    - eseguire remotamente avagent
+      - ricezione STARTAGENT
+    - inoltrare i comandi ad avagent
+      - TRAMITE REDIS
+    - raccogliere i risultati di avagent
+    - quando riceve + END oppure va in timeout, considera chiuso il lavoro sulla vm
+
+  - mandare mail di report
+
+AVAgent
+  - aprire il canale redis
+    - manda STARTAGENT
+  - unzip dei file accessori (tra cui la conf?)
+  - ricevere i comandi
+  - eseguire i comandi
+    - update os/av
+    - push
+    - silent / melt
+  - restuire i risultati dei comandi
+
+
+All'accensione della VM:
+- master ->
+
+Segue una descrizione di un piano di realizzazione di una rete di macchine virtuali atte alla verifica di visibilità delle build RCS su un insieme significativo di Antivirus e Antimalware.
 
 Obiettivo:
  - una VM per antivirus
@@ -23,9 +55,9 @@ Siccome occorre avere le VM pronte nel più breve tempo possibile, abbiamo speso
 
 La macchina AVMaster (DEV 172.20.20.167, AV 10.0.20.2 ) è una Linux Ubuntu, dispone di due cartelle di script ShoreWall, una di nome "natenabled", l'altra "natdisabled".
 
-La macchina Template (DEV 192.168.100.110, AV 10.0.20.61) è Windows 7 enterprise N.  
+La macchina Template (DEV 192.168.100.110, AV 10.0.20.61) è Windows 7 enterprise N.
  - Creata cartella c:/SHARE per la condivisione dei file
- - Aggiunte le rotte statiche per raggiungere i DNS e  
+ - Aggiunte le rotte statiche per raggiungere i DNS e
 	route -p ADD 172.20.20.0 MASK 255.255.255.0 192.168.100.1
 	route -p ADD 192.168.200.0 MASK 255.255.255.0 192.168.100.1
 

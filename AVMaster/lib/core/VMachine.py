@@ -7,29 +7,31 @@ from datetime import datetime
 
 from VMManager import vSphere
 
+
 class VMachine:
+
     def __init__(self, conf_file, name):
         self.name = name
         try:
             self.config = ConfigParser()
-            self.config.read( conf_file )
-            self.path     = self.config.get("vms", name)
+            self.config.read(conf_file)
+            self.path = self.config.get("vms", name)
             self.snapshot = self.config.get("vm_config", "snapshot")
-            self.user     = self.config.get("vm_config", "user")
-            self.passwd   = self.config.get("vm_config", "passwd")
-            #self.vi_srv   = vi_srv 
-                
+            self.user = self.config.get("vm_config", "user")
+            self.passwd = self.config.get("vm_config", "passwd")
+            #self.vi_srv   = vi_srv
+
         except NoSectionError:
             print "[!] VM or VM stuff not found on %s" % conf_file
             return None
-        
+
     def __str__(self):
         return "%s" % self.name
 
     #   FUNCTIONS
 
     def refresh_snapshot(self, delete=True):
-        untouchables = [ "ready", "activated", "_datarecovery_" ]
+        untouchables = ["ready", "activated", "_datarecovery_"]
         date = datetime.now().strftime('%Y%m%d-%H%M')
         self.create_snapshot(date)
         if delete is True:
@@ -47,19 +49,19 @@ class VMachine:
 
             memo = []
             for filetocopy in filestocopy:
-                d,f = filetocopy.split("/")
+                d, f = filetocopy.split("/")
                 src = "%s/%s/%s" % (src_dir, d, f)
 
                 if d == ".":
-                    dst =  "%s\\%s" % (dst_dir, f)
+                    dst = "%s\\%s" % (dst_dir, f)
                 else:
-                    dst =  "%s\\%s\\%s" % (dst_dir, d, f)
+                    dst = "%s\\%s\\%s" % (dst_dir, d, f)
 
                 rdir = "%s\\%s" % (dst_dir, d)
                 if not rdir in memo:
                     print "DBG mkdir %s " % (rdir)
                     self._run_vm(vm, "make_directory", rdir)
-                    memo.append( rdir )
+                    memo.append(rdir)
 
                 try:
                     print "DBG copy %s -> %s" % (src, dst)
@@ -96,12 +98,12 @@ class VMachine:
         print "exiting"
 
     def shutdown_upgrade(self, timeout=120):
-        
+
         tick = 0
 
         shutdown_cmd = "C:\\WINDOWS\\system32\\shutdown.exe"
-        args = [ "/s", "/t", "0" ]
-        
+        args = ["/s", "/t", "0"]
+
         self.execute_cmd(shutdown_cmd, args=args)
 
         while self.is_powered_off() is False:
@@ -159,7 +161,7 @@ class VMachine:
         self.login_in_guest()
         return self._run_cmd("list_processes")
 
-    #def check_tools(self):
+    # def check_tools(self):
     #   self.login_in_guest()
     #   return self.list_processes()
 
@@ -167,23 +169,23 @@ class VMachine:
 
     def list_directory(self, dir_path):
         with vSphere(self.path) as vm:
-            self._run_vm(vm, "login_in_guest", self.user, self.passwd )
+            self._run_vm(vm, "login_in_guest", self.user, self.passwd)
             return self._run_vm(vm, "list_files", dir_path)
 
     def make_directory(self, dst_dir):
         with vSphere(self.path) as vm:
-            self._run_vm(vm, "login_in_guest", self.user, self.passwd )
+            self._run_vm(vm, "login_in_guest", self.user, self.passwd)
             return self._run_vm(vm, "make_directory", dst_dir)
 
     def send_file(self, src_file, dst_file):
         with vSphere(self.path) as vm:
-            self._run_vm(vm, "login_in_guest", self.user, self.passwd )
-            return self._run_vm(vm, "send_file", src_file, dst_file )
+            self._run_vm(vm, "login_in_guest", self.user, self.passwd)
+            return self._run_vm(vm, "send_file", src_file, dst_file)
 
     def get_file(self, src_file, dst_file):
         with vSphere(self.path) as vm:
-            self._run_vm(vm, "login_in_guest", self.user, self.passwd )
-            return self._run_vm(vm, "get_file", src_file, dst_file )
+            self._run_vm(vm, "login_in_guest", self.user, self.passwd)
+            return self._run_vm(vm, "get_file", src_file, dst_file)
 
     #   PRIMITIVES
 
@@ -194,7 +196,7 @@ class VMachine:
             if len(params) is None:
                 return f
             else:
-                return f( *params )
+                return f(*params)
         except Exception as e:
             print "%s, ERROR: Problem running %s. Reason: %s" % (self.name, func, e)
 
@@ -206,14 +208,14 @@ class VMachine:
                 if len(params) is None:
                     return f
                 else:
-                    return f( *params )
+                    return f(*params)
         except Exception as e:
             print "%s, ERROR: Problem running %s. Reason: %s" % (self.name, func, e)
 
     def _run_task(self, func, *params):
-        
+
         def wait_for(task):
-            s = task.wait_for_state(['success','error'])
+            s = task.wait_for_state(['success', 'error'])
 
             if s == 'error':
                 print "DBG ERROR: problem with task %s: %s" % (func, task.get_error_message())
@@ -231,7 +233,3 @@ class VMachine:
                 return wait_for(task)
         except Exception as e:
             print "%s, ERROR: Problem running %s. Reason: %s" % (self.name, func, e)
-
-
-
-
