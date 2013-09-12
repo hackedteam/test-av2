@@ -565,7 +565,7 @@ def push(flargs):
                 if "STARTED" in m['data']: # and started is False:
                     copy_to_guest(vm, test_dir, filestocopy)
                     job_log(vm_name, "ENVIRONMENT")
-                    result = "%s, pushed %s." % (vm_name, kind)
+                    return "%s, pushed %s." % (vm_name, kind)
             except TypeError:
                 pass
     except ConnectionError:
