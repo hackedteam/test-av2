@@ -1,7 +1,6 @@
 import logging
 import sys
-import redis
-import logger
+from redis import Redis
 
 class StreamToLogger(object):
 
@@ -10,15 +9,16 @@ class StreamToLogger(object):
     """
 
     def __init__(self, logger, log_level=logging.INFO, terminal=sys.stdout,
-                 debug=False, avname="channel"):
+                 debug=False, avname="channel", redis=True):
         self.terminal = terminal
         #self.formatter = logging.Formatter(fmt='%(asctime)s',datefmt='%Y-%m-%d %H:%M:%S')
         self.logger = logging.getLogger(logger)
         self.debug = debug
         self.log_level = log_level
         self.linebuf = ''
-        self.r = redis.Redis("10.0.20.1")
+        self.r = Redis("10.0.20.1")
         self.avname = avname
+        self.redis = redis
         print 'DBG avname: ' + avname
 
     def flush(self):
@@ -38,10 +38,11 @@ class StreamToLogger(object):
                 # if line.startswith("+") and self.r:
                 #   self.r.publish(self.avname, line.replace("+","").strip() )
                 # print "channel %s, line: %s" % (self.avname,line)
-                self.r.publish(self.avname, line)
+                if redis:
+                    self.r.publish(self.avname, line)
 
 
-def setLogger(debug=True, filelog="results.txt", avname="channel"):
+def setLogger(debug=True, filelog="results.txt", avname="channel", enable_redis=False):
     logging.basicConfig(
 
         level=logging.DEBUG if debug else logging.INFO,
@@ -54,13 +55,13 @@ def setLogger(debug=True, filelog="results.txt", avname="channel"):
     terminal = sys.stdout
 
     sys.stdout = StreamToLogger(
-        'STDOUT', logging.INFO, terminal, debug, avname=avname)
+        'STDOUT', logging.INFO, terminal, debug, avname=avname, redis=enable_redis)
     sys.stderr = StreamToLogger(
-        'STDERR', logging.ERROR, terminal, avname=avname)
+        'STDERR', logging.ERROR, terminal, avname=avname, redis=enable_redis)
 
 
 if __name__ == "__main__":
-    setLogger(False, avname="Test")
+    setLogger(True, avname="Test", enable_redis=False)
     print "+ STATT"
     print "Test to standard out"
     print "DBG   test debug "
