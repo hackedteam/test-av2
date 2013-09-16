@@ -39,6 +39,26 @@ updatetime = 50
 def job_log(vm_name, status):
     print "+ %s: %s" % (vm_name, status)
 
+def wait_for_startup(vm, message=None, max_minute=8):
+    #r = Redis()
+    r = StrictRedis(socket_timeout=max_minute * 60)
+
+    p = r.pubsub()
+    p.subscribe(vm.name)
+
+    # timeout
+    try:
+        for m in p.listen():
+            print "DBG %s"  % m
+            try:
+                if "STARTED" in m['data']:
+                    return True
+            except TypeError:
+                pass
+    except ConnectionError:
+        print "DBG %s: not STARTED. Timeout occurred." % vm
+        return False
+
 def update(flargs):
     vms = len(flargs[1].vms)
     try:
