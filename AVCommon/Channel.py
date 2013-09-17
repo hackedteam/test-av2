@@ -1,11 +1,11 @@
-import os
-from redis import Redis, StrictRedis
-from redis.exceptions import ConnectionError
-import thread
-import time
+
+from redis import StrictRedis
+import ast
 
 
 class Channel():
+    redis = None
+
     def __init__(self, host, channel):
         self.host = host
         self.channel = channel
@@ -13,17 +13,20 @@ class Channel():
         print "  DBG init %s %s" % (host, channel)
 
     def write(self, message):
-        print "  DBG write %s" % message
+        print "  DBG write: %s\n    type: %s" % (str(message), type(message))
         if not self.redis.exists(self.channel):
-            print "  DBG write, creade new channel %s" % self.channel            
+            print "  DBG write, create new channel %s" % self.channel
         self.redis.rpush(self.channel, message)
 
     def read(self, blocking=False):
         if blocking:
-            value = self.redis.blpop(self.channel)
+            message = self.redis.blpop(self.channel)
         else:
-            value = self.redis.lpop(self.channel)
+            message = self.redis.lpop(self.channel)
 
-        print "  DBG received: %s" % value
-        return value
+        print "  DBG read: %s" % message
+        parsed = ast.literal_eval(message)
+
+        print "      type: %s" % type(parsed)
+        return parsed
 

@@ -1,18 +1,37 @@
 from Channel import Channel
 import time
 import thread
+from redis import StrictRedis
+import ast
 
 """
-execute via py.test
+execute via nose or py.test
 """
 
 count = 0
+
 
 def server(s):
     global count
     for c, m in s.read():
         print "RECEIVED: %s | %s" % (c, m)
         count += 1
+
+
+def test_Redis():
+    host = "localhost"
+    r = StrictRedis(host, socket_timeout=60)
+    msg = "Hello world"
+
+    r.delete("channel")
+    r.rpush("channel", msg)
+    m = r.lpop("channel")
+    print m
+    assert(m == msg)
+
+    r.rpush("channel", [1, 2, 3])
+    m = ast.literal_eval(r.lpop("channel"))
+    print m, type(m)
 
 
 def test_ChannelList():
@@ -42,5 +61,6 @@ def test_ChannelList():
     assert(r4 == "+STARTED C2")
 
 if __name__ == '__main__':
+    test_Redis()
     test_ChannelList()
     #test ChannelRedis()

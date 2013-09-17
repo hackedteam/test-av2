@@ -2,8 +2,10 @@ import string
 import random
 from Channel import Channel
 
+
 def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for x in range(size))
+
 
 class MQStar():
     session = ""
@@ -12,7 +14,7 @@ class MQStar():
     def __init__(self, host):
         self.host = host
         self.session = id_generator()
-        channelServer = "%s_to_server" % self.session
+        channelServer = "MQ_%s_to_server" % self.session
         self.channelToServer = Channel(self.host, channelServer)
 
     def _makeChannel(self, frm="server", to="server"):
@@ -20,9 +22,14 @@ class MQStar():
         channel = Channel(self.host, name)
         return channel
 
+    def clean(self):
+        for k in self.channelToServer.redis.keys("MQ_*"):
+            print "DBG clean %s" % k
+            self.channelToServer.redis.delete(k)
+
     def addClient(self, client):
         if client not in self.channels.keys():
-            ch = self._makeChannel(session=self.session, to=client)
+            ch = self._makeChannel(to=client)
             #chRight = self.channelToServer
             self.channels[client] = ch
 
@@ -34,22 +41,28 @@ class MQStar():
         if client not in self.channels.keys():
             print "DBG error, client not found"
         ch = self.channelToServer
-        ch.write([client, message])
+        payload = (client, message)
+        ch.write(payload)
 
     def serverRead(self):
-        client, message = self.channelServer.read()
-        return (client, message)
+        payload = self.channelToServer.read()
+        print "DBG read: %s\n    type: %s" % (str(payload), type(payload))
+        client, message = payload
+        return payload
 
-    def sendToClient(self, client, message):
+    def sendToClient(self,  client, message, frm="server",):
         if client not in self.channels.keys():
             print "DBG error, client not found"
-        ch = self.channel[client]
-        ch.write(message)
+        ch = self.channels[client]
+        payload = frm, message
+        ch.write(payload)
 
     def clientRead(self, client):
         if client not in self.channels.keys():
             print "DBG error, client not found"
-        ch = self.channel[client]
-        message = ch.read()
+        ch = self.channels[client]
+        payload = ch.read()
+        server, message = payload
+        assert(server == "server")
         return message
  
