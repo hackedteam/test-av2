@@ -25,7 +25,10 @@ class Channel():
             message = self.redis.lpop(self.channel)
 
         print "  DBG read: %s" % message
-        parsed = ast.literal_eval(message)
+        try:
+            parsed = ast.literal_eval(message)
+        except:
+            parsed = message
 
         print "      type: %s" % type(parsed)
         return parsed

@@ -11,9 +11,13 @@ class MQStar():
     session = ""
     channels = {}
     """MQStar is a MessageQueue with a star topology based on Redis"""
-    def __init__(self, host):
+    def __init__(self, host, session=None):
         self.host = host
-        self.session = id_generator()
+        if not session:
+            self.session = id_generator()
+        else:
+            self.session = session
+
         channelServer = "MQ_%s_to_server" % self.session
         self.channelToServer = Channel(self.host, channelServer)
 
@@ -37,27 +41,27 @@ class MQStar():
         for c in clients:
             self.addClient(c)
 
-    def sendToServer(self, client, message):
+    def sendServer(self, client, message):
         if client not in self.channels.keys():
             print "DBG error, client not found"
         ch = self.channelToServer
         payload = (client, message)
         ch.write(payload)
 
-    def serverRead(self):
+    def receiveServer(self):
         payload = self.channelToServer.read()
         print "DBG read: %s\n    type: %s" % (str(payload), type(payload))
         client, message = payload
         return payload
 
-    def sendToClient(self,  client, message, frm="server",):
+    def sendClient(self,  client, message, frm="server",):
         if client not in self.channels.keys():
             print "DBG error, client not found"
         ch = self.channels[client]
         payload = frm, message
         ch.write(payload)
 
-    def clientRead(self, client):
+    def receiveClient(self, client):
         if client not in self.channels.keys():
             print "DBG error, client not found"
         ch = self.channels[client]
