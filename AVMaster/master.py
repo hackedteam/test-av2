@@ -795,6 +795,7 @@ def main():
     if args.action == "dispatch": 
         if rep.send_report_color_mail(logdir.split('/')[-1]) is False:
             print "[!] Problem sending HTML email Report!"
+        end_test(test)
     else:
         if args.action == "update": # or args.action == "revert":
             if rep.send_mail() is False:
