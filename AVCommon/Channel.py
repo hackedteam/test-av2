@@ -18,13 +18,17 @@ class Channel():
             print "  DBG write, create new channel %s" % self.channel
         self.redis.rpush(self.channel, message)
 
-    def read(self, blocking=False):
+    def read(self, blocking=False, timout=0):
         if blocking:
-            message = self.redis.blpop(self.channel)
+            try:
+                ch, message = self.redis.blpop(self.channel, timout)
+            except:
+                print "  DBG timeout: %s" % str(self.channel)
+                message = None
         else:
             message = self.redis.lpop(self.channel)
 
-        print "  DBG read: %s" % message
+        print "  DBG read: %s" % str(message)
         try:
             parsed = ast.literal_eval(message)
         except:

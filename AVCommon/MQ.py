@@ -48,25 +48,22 @@ class MQStar():
         payload = (client, message)
         ch.write(payload)
 
-    def receiveServer(self):
-        payload = self.channelToServer.read()
+    def receiveServer(self, blocking=False, timeout=60):
+        payload = self.channelToServer.read(blocking, timeout)
         print "DBG read: %s\n    type: %s" % (str(payload), type(payload))
-        client, message = payload
+        #client, message = payload
         return payload
 
-    def sendClient(self,  client, message, frm="server",):
+    def sendClient(self,  client, message):
         if client not in self.channels.keys():
             print "DBG error, client not found"
         ch = self.channels[client]
-        payload = frm, message
-        ch.write(payload)
+        ch.write(message)
 
-    def receiveClient(self, client):
+    def receiveClient(self, client, blocking=False, timeout=60):
         if client not in self.channels.keys():
             print "DBG error, client not found"
         ch = self.channels[client]
-        payload = ch.read()
-        server, message = payload
-        assert(server == "server")
+        message = ch.read(blocking, timeout)
         return message
  

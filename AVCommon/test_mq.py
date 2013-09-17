@@ -1,4 +1,49 @@
 from MQ import MQStar
+import time
+import threading
+
+received = []
+
+
+def server(mq):
+    global received
+    exit = False
+    print "SERVER"
+    while not exit:
+        rec = mq.receiveServer(blocking=True, timeout=5)
+        if rec is not None:
+            print "DBG %s %s" % (rec, type(rec))
+            c, m = rec
+            print "SERVER RECEIVED: %s>%s" % (c, m)
+            received.append(m)
+
+            if m == "STOP":
+                print "DBG EXITING"
+                exit = True
+        else:
+            exit = True
+
+
+def test_blockingMQ():
+    global received
+
+    host = "localhost"
+    mq1 = MQStar(host)
+    mq2 = MQStar(host, session=mq1.session)
+
+    c = "client1"
+
+    mq1.addClient(c)
+    thread1 = threading.Thread(target=server, args=(mq1,))
+    thread1.start()
+
+    mq2.sendServer(c, "WORKS")
+    time.sleep(1)
+    mq2.sendServer(c, "FINE TO THE")
+    time.sleep(1)
+    mq2.sendServer(c, "STOP")
+
+    assert(len(received) == 2)
 
 
 def test_MultipleMQ():
@@ -39,3 +84,4 @@ def test_MQ():
 if __name__ == '__main__':
     test_MQ()
     test_MultipleMQ()
+    test_blockingMQ()
