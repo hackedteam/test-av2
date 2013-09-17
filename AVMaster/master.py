@@ -419,7 +419,9 @@ def dispatch_kind(vm_name, kind, args, r_id=None, tries=0):
                         job_log(vm_name, "LOGGED")
                         test_dir = test_dir_7
                         copy_to_guest(vm, test_dir, filestocopy)
+
                         job_log(vm_name, "ENVIRONMENT")
+                        upd_record_result(result_id, result="ENVIRONMENT")
 
                         # EXECUTE 
                         
@@ -451,6 +453,7 @@ def dispatch_kind(vm_name, kind, args, r_id=None, tries=0):
                             return dispatch_kind(vm_name, kind, args, result_id, tries)
 
                         job_log(vm_name, "EXECUTED %s" % kind)
+                        upd_record_result(result_id, result="EXECUTED")
 
                 else: # started is True
 
