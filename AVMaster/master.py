@@ -322,65 +322,77 @@ def dispatch(flargs):
         print "DBG trace %s" % traceback.format_exc()
         return {'ERROR': e}
 
-def dispatch_kind(vm_name, kind, args, r_id=None, tries=0):
+def dispatch_kind(vm_name, kind, args, r_id=None, tries=0, status=0):
+
+    global test_id
+
+    ##     STATUS LIST     ##
+    #                       #
+    #   0 - NOT STARTED     #
+    #   1 - STARTED         #
+    #   2 - ENVIRONMENT     #
+    #   3 - EXECUTED        #
+    #                       #
+    #########################
 
     #   PREPARE FILES
 
-    global status, test_id
+    if status == 0:
 
-    print "DBG test_id is %s" % test_id
+        #global status, test_id
+        print "DBG test_id is %s" % test_id
 
-    delay = len(args.vms)
+        delay = len(args.vms)
 
-    test_dir_7  = "C:\\Users\\avtest\\Desktop\\AVTEST"
-#    test_dir_xp = "C:\\Documents and Settings\\avtest\\Desktop\\AVTEST"
+        test_dir_7  = "C:\\Users\\avtest\\Desktop\\AVTEST"
+    #    test_dir_xp = "C:\\Documents and Settings\\avtest\\Desktop\\AVTEST"
 
-    buildbat = "build_%s_%s.bat" % (kind, args.server)
+        buildbat = "build_%s_%s.bat" % (kind, args.server)
 
-    filestocopy =[  "./%s" % buildbat,
-                    "lib/agent.py",
-                    "lib/logger.py",
-                    "lib/rcs_client.py",
-                    "conf/vmavtest.cfg",
-                    "assets/config_desktop.json",
-                    "assets/config_mobile.json",
-                    "assets/keyinject.exe",
-                    "assets/meltapp.exe",
-                    "assets/meltexploit.txt",
-                    "assets/meltexploit.docx",
-                    "assets/meltexploit.ppsx"     ]
+        filestocopy =[  "./%s" % buildbat,
+                        "lib/agent.py",
+                        "lib/logger.py",
+                        "lib/rcs_client.py",
+                        "conf/vmavtest.cfg",
+                        "assets/config_desktop.json",
+                        "assets/config_mobile.json",
+                        "assets/keyinject.exe",
+                        "assets/meltapp.exe",
+                        "assets/meltexploit.txt",
+                        "assets/meltexploit.docx",
+                        "assets/meltexploit.ppsx"     ]
 
-    if kind == "exploit_web":
-        filestocopy.append("assets/avtest.swf")
-        filestocopy.append("assets/owned.docm")
-        filestocopy.append("assets/PMIEFuck-WinWord.dll")
+        if kind == "exploit_web":
+            filestocopy.append("assets/avtest.swf")
+            filestocopy.append("assets/owned.docm")
+            filestocopy.append("assets/PMIEFuck-WinWord.dll")
 
-    if kind == "mobile" or kind == "silent":
-        filestocopy.append("assets/codec")
-        filestocopy.append("assets/codec_mod")
-        filestocopy.append("assets/sqlite")
-        filestocopy.append("assets/sqlite_mod")
+        if kind == "mobile" or kind == "silent":
+            filestocopy.append("assets/codec")
+            filestocopy.append("assets/codec_mod")
+            filestocopy.append("assets/sqlite")
+            filestocopy.append("assets/sqlite_mod")
 
-    res = "%s, %s, ERROR GENERAL" % (vm_name, kind)
+        res = "%s, %s, ERROR GENERAL" % (vm_name, kind)
 
-    vm = VMachine(vm_conf_file, vm_name)
-    job_log(vm.name, "DISPATCH %s" % kind)
+        vm = VMachine(vm_conf_file, vm_name)
+        job_log(vm.name, "DISPATCH %s" % kind)
 
-    #   STARTUP VM
+        #   STARTUP VM
 
-    if tries <= 0:
-        vm.revert_last_snapshot()
-        job_log(vm.name, "REVERTED")
-        sleep(random.randint(30, delay * 30))
-    elif tries == 10:
-        return "%s, %s, ERROR not started after 10 tries." % (vm_name, kind)
-    else:
-        vm.shutdown()
-        while vm.is_powered_off() is False:
-            sleep(5)
+        if tries <= 0:
+            vm.revert_last_snapshot()
+            job_log(vm.name, "REVERTED")
+            sleep(random.randint(30, delay * 30))
+        elif tries == 10:
+            return "%s, %s, ERROR not started after 10 tries." % (vm_name, kind)
+        else:
+            vm.shutdown()
+            while vm.is_powered_off() is False:
+                sleep(5)
 
-    vm.startup()
-    job_log(vm.name, "STARTUP")
+        vm.startup()
+        job_log(vm.name, "STARTUP")
 
     #   OPEN CHANNEL
 
@@ -395,7 +407,6 @@ def dispatch_kind(vm_name, kind, args, r_id=None, tries=0):
     p = r.pubsub()
     p.subscribe(vm.name)
 
-    started = False
     results = []
     log = ""
     res = ""
@@ -404,58 +415,64 @@ def dispatch_kind(vm_name, kind, args, r_id=None, tries=0):
         for m in p.listen():
             print "DBG %s: %s"  % (m['channel'], m['data'])
             try:
-                if started is False:
+                if status == 0:
                     if "STARTED" in m['data']: # and started is False:
-                        started = True
-
-                        # PREPARE ENVIRONMENT
-
-                        if r_id is None:
-                            result_id = add_record_result(vm_name, kind, test_id, status, "STARTED")
-                        else:
-                            result_id = r_id
+                        result_id = add_record_result(vm_name, kind, test_id, status, "STARTED")
                         print "DBG %s added result with id %s" % (vm_name,result_id)
+                        status = 1
 
-                        job_log(vm_name, "LOGGED")
-                        test_dir = test_dir_7
-                        copy_to_guest(vm, test_dir, filestocopy)
+                if status == 1:
 
-                        job_log(vm_name, "ENVIRONMENT")
-                        upd_record_result(result_id, result="ENVIRONMENT")
+                    # PREPARE ENVIRONMENT
 
-                        # EXECUTE 
-                        
-                        vmman.executeCmd(vm, "%s\\%s" % (test_dir, buildbat), interactive=True, bg=True)
+#                    job_log(vm_name, "LOGGED")
 
-                        # CHECK FOR ERROR IN EXECUTION
+                    test_dir = test_dir_7
+                    copy_to_guest(vm, test_dir, filestocopy)
 
-                        sleep(3)
-                        out = vmman.listProcesses(vm)
-                        found = False
-                        tick = 0
-                        script_name = "build_%s_minotauro.bat" % kind
-                        print "DBG script to find is %s" % script_name
+                    job_log(vm_name, "ENVIRONMENT")
+                    upd_record_result(result_id, result="ENVIRONMENT")
 
-                        while tick <= 5:
-                            if "python.exe" in out or script_name in out or "cmd.exe" in out:
-                                found = True
-                                print "DBG process found for %s!" % vm_name
-                            if found == True:
-                                break
-                            print "DBG Python.EXE not found for %s. sleeping 5 secs (retry %d)" % (vm_name, tick)
-                            print "DBG processes:\n%s" % out
-                            tick+=1
-                            sleep(5)
+                    status = 2
 
-                        if found == False:
-                            tries+=1
-                            print "%s STARTED but not EXECUTED. Retry %d setup" % (vm_name, tries)
-                            return dispatch_kind(vm_name, kind, args, result_id, tries)
+                if status == 2:
 
-                        job_log(vm_name, "EXECUTED %s" % kind)
-                        upd_record_result(result_id, result="EXECUTED")
+                    # EXECUTE 
+                    
+                    vmman.executeCmd(vm, "%s\\%s" % (test_dir, buildbat), interactive=True, bg=True)
 
-                else: # started is True
+                    # CHECK FOR ERROR IN EXECUTION
+
+                    sleep(3)
+                    out = vmman.listProcesses(vm)
+                    found = False
+                    tick = 0
+                    script_name = "build_%s_minotauro.bat" % kind
+                    print "DBG script to find is %s" % script_name
+
+                    while tick <= 5:
+                        if "python.exe" in out or script_name in out or "cmd.exe" in out:
+                            found = True
+                            print "DBG process found for %s!" % vm_name
+                            print "DBG %s" % out
+                            break
+
+                        print "DBG Python.EXE not found for %s. sleeping 5 secs (retry %d)" % (vm_name, tick)
+                        print "DBG processes:\n%s" % out
+                        tick+=1
+                        sleep(5)
+
+                    if found == False:
+                        tries+=1
+                        print "%s STARTED but not EXECUTED. Retry %d setup" % (vm_name, tries)
+                        return dispatch_kind(vm_name, kind, args, result_id, tries, status=status)
+
+                    job_log(vm_name, "EXECUTED %s" % kind)
+                    upd_record_result(result_id, result="EXECUTED")
+
+                    status = 3 
+
+                if status == 3:
 
                     if "ENDED" not in m['data']: # and started is True:
 
@@ -522,14 +539,15 @@ def dispatch_kind(vm_name, kind, args, r_id=None, tries=0):
             except TypeError:
                 pass
     except ConnectionError:
-        if started is False:
+#        if started is False:
+        if status == 0:
             tries+=1
-            print "DBG %s: not STARTED. Timeout occurred." % vm
-            return dispatch_kind(vm_name, kind, args, None, tries)
+            print "DBG %s: not STARTED. Timeout occurred. (status %d)" % (vm, status)
+            return dispatch_kind(vm_name, kind, args, None, tries, status=status)
         else:
             tries+=1
-            print "DBG %s: Timeout occurred during execution" % vm
-            return dispatch_kind(vm_name, kind, args, result_id, tries)
+            print "DBG %s: Timeout occurred during execution(status %d)" % (vm, status)
+            return dispatch_kind(vm_name, kind, args, result_id, tries, status=status)
 
 def push(flargs):
     vm_name, args = flargs
