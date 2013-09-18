@@ -1,76 +1,90 @@
 import sys, os
 import inspect
+
+import abc
 import commands
 
+#knownCommands = []
+def initCommands():
+        #print "DBG initCommands"
+        #global knownCommands
+        print dir(commands)
+       
+        cwd=os.getcwd()
+        if cwd not in sys.path:
+            sys.path.append(cwd)
+
+        if(len(dir(commands)) > 6):
+            return
+
+        for py in [f[:-3] for f in os.listdir(cwd + "/commands") if f.startswith('Command_') and f.endswith('.py') and f != '__init__.py']:
+            print "py: %s" % str(py)
+            #print "commands: %s" % commands
+            #print commands.__name__
+            Command.knownCommands.append(py.split('_')[1])
+            rpath = "%s.%s" % (commands.__name__, py)
+            mod = __import__(rpath)
+            #print "mod: %s" % mod
+            classes = [getattr(mod, x) for x in dir(mod) if isinstance(getattr(mod, x), type)]
+            for cls in classes:
+                setattr(commands, cls.__name__, cls)
+        print "DBG knownCommands: %s" % Command.knownCommands
+        assert(len(dir(commands)) > 6)
+        assert(len(Command.knownCommands) > 0)
+        return
+
 class Command():
+    __metaclass__ = abc.ABCMeta
+
+    knownCommands = []
+
     answer = ""
     OK="OK"
     KO="KO"
 
-    knownCommands = []
-
     """command"""
     def __init__(self, name):
         self.name = name
-        print dir(commands)
-        if(len(dir(commands)) == 6):
-            self._initCommands()
-
-    def _initCommands(self):
-        print "DBG _initCommands"
-        for py in [f[:-3] for f in os.listdir(commands.__path__[0]) if f.endswith('.py') and f != '__init__.py']:
-            print "py: %s" % str(py)
-            self.knownCommands.append(py)
-            mod = __import__("commands.%s" % py)
-            classes = [getattr(mod, x) for x in dir(mod) if isinstance(getattr(mod, x), type)]
-            for cls in classes:
-                setattr(commands, cls.__name__, cls)
-
+        initCommands()
+        assert(len(dir(commands)) > 6)
+        assert(len(Command.knownCommands) > 0)
+    
+    @staticmethod
     def unserialize(serialized):
+        initCommands()
+        assert(len(dir(commands)) > 6)
+
         ident, command, answer = serialized.split(',')
         assert(ident == "CMD")
 
         className = "Command_%s" % command
-        if className in self.knownCommands:
-            m = commands.getattr(className)
-            c = m.getattr(className)
+        print Command.knownCommands
+        assert(command in Command.knownCommands)
+
+        if command in Command.knownCommands:
+            m = getattr(commands, className)
+            c = getattr(m, className)
             cmd = c(command)
             cmd.answer = answer
-
             return cmd
-
-        #g = globals().copy()
-        #for name, obj in g.iteritems():
-        #    print name,obj
-
-        for module in sys.modules.keys():
-            break
-            #if module.startswith("Command_"):
-            print module
-            #current_module = sys.modules[__name__]
-            for name, obj in inspect.getmembers(module):
-                if inspect.isclass(obj):
-                    print "   %s" % obj
-
-        c.answer = answer
-        return c
 
     def serialize(self):
         return "CMD,%s,%s" % (self.name, self.answer)
 
     """ server side """
+    @abc.abstractmethod
     def onInit(self):
         pass
 
+    @abc.abstractmethod
+    def onAnswer(self, answer):
+        pass
+
     """ client side """
-    def onReceive(self):
+    @abc.abstractmethod
+    def Execute(self):
         return self.answer
 
     def __str__(self):
         return self.name
-
-    unserialize = staticmethod(unserialize)
-
-
-
 

@@ -1,36 +1,38 @@
 from Command import Command
-#from commands import Command_START
+
 import os
 import commands
 
-def test_command():
-    c = Command("START")
+
+def test_commandSerialize():
+    try:
+        c = Command("START")
+        assert("Should not be able to instance an abstract class" is False)
+    except Exception:
+        pass
+
+    c = Command.unserialize("CMD,START,")
     s = c.serialize()
     cmd = Command.unserialize(s)
 
     print cmd, type(cmd)
     assert(str(cmd) == "START")
-    assert(type(cmd) == type(c))
+
+    from commands import Command_START
+    print type(cmd)
+    assert(type(cmd) == Command_START.Command_START)
+
 
 def test_commandStart():
+    from commands import Command_START
     print commands
-    c=Command_START.Command_START()
+    c = Command_START.Command_START("START")
+    assert(c)
+    assert(c.name == "START")
 
-def listModules():
-    #import os
-    #print commands.__path__[0]
-    #for f in os.listdir(commands.__path__[0]):
-    #    print f
-    for py in [f[:-3] for f in os.listdir(commands.__path__[0]) if f.endswith('.py') and f != '__init__.py']:
-        print "py: %s" % str(py)
-        mod = __import__("commands.%s" % py)
-        classes = [getattr(mod, x) for x in dir(mod) if isinstance(getattr(mod, x), type)]
-        for cls in classes:
-            setattr(commands, cls.__name__, cls)
-    print dir(commands)
+    c.onInit()
+    c.onAnswer(c.Execute())
 
 if __name__ == '__main__':
-    #listModules()
-    #test_commandStart()
-    #print dir(commands)
-    test_command()
+    test_commandSerialize()
+    test_commandStart()

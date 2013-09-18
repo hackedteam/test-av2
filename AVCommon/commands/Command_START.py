@@ -1,17 +1,18 @@
 from Command import Command
 
 class Command_START(Command):
-    def __init__(self):
-        self.super("START")
 
     """ server side """
     def onInit(self):
         print "DBG onInit"
         pass
 
+    def onAnswer(self, answer):
+        print "DBG onAnswer"
+
     """ client side """
-    def onReceive(self):
-        print "DBG onReceive"
+    def Execute(self):
+        print "DBG Execute"
         return self.OK
 
 
