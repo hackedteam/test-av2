@@ -18,7 +18,7 @@ class MQStar():
         else:
             self.session = session
 
-        channelServer = "MQ_%s_to_server" % self.session
+        channelServer = " MQ_%s_to_server" % self.session
         self.channelToServer = Channel(self.host, channelServer)
 
     def _makeChannel(self, frm="server", to="server"):
@@ -28,7 +28,7 @@ class MQStar():
 
     def clean(self):
         for k in self.channelToServer.redis.keys("MQ_*"):
-            print "DBG clean %s" % k
+            print " MQ clean %s" % k
             self.channelToServer.redis.delete(k)
 
     def addClient(self, client):
@@ -43,26 +43,27 @@ class MQStar():
 
     def sendServer(self, client, message):
         if client not in self.channels.keys():
-            print "DBG error, client not found"
+            print " MQ error, client not found"
         ch = self.channelToServer
         payload = (client, message)
         ch.write(payload)
 
     def receiveServer(self, blocking=False, timeout=60):
         payload = self.channelToServer.read(blocking, timeout)
-        print "DBG read: %s\n    type: %s" % (str(payload), type(payload))
+        print " MQ read: %s\n    type: %s" % (str(payload), type(payload))
         #client, message = payload
         return payload
 
     def sendClient(self,  client, message):
         if client not in self.channels.keys():
-            print "DBG error, client not found"
+            print " MQ error, sendClient, client not found: %s" % self.channels
         ch = self.channels[client]
         ch.write(message)
 
     def receiveClient(self, client, blocking=False, timeout=60):
+        assert(isinstance(client, str))
         if client not in self.channels.keys():
-            print "DBG error, client not found"
+            print " MQ error, receiveClient, client (%s) not found: %s" % (client, self.channels)
         ch = self.channels[client]
         message = ch.read(blocking, timeout)
         return message

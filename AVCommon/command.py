@@ -16,9 +16,11 @@ class Command():
 
     knownCommands = {"START": None}
 
-    answer = ""
     OK="OK"
     KO="KO"
+
+    answer = ""
+    result = OK
 
     """command"""
     def __init__(self, name):
@@ -30,8 +32,9 @@ class Command():
     def unserialize(serialized):
         initCommands()
 
-        ident, command, answer = serialized.split(',', 2)
-        assert(ident == "CMD")
+        #ident, command, answer = serialized.split(',', 2)
+        #assert(ident == "CMD")
+        command, result, answer = serialized
 
         className = "Command_%s" % command
         #print Command.knownCommands
@@ -46,10 +49,11 @@ class Command():
                 cmd.answer = ast.literal_eval(answer)
             except:
                 cmd.answer = answer
+            cmd.result = result
             return cmd
 
     def serialize(self):
-        return "CMD,%s,%s" % (self.name, self.answer)
+        return (self.name, self.result, self.answer)
 
     """ server side """
     @abc.abstractmethod

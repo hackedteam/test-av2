@@ -11,7 +11,7 @@ def test_commandAbstract():
         pass
 
 def test_commandSerialize():
-    c = Command.unserialize("CMD,START,")
+    c = Command.unserialize( ("START","OK","nothing") )
     s = c.serialize()
     cmd = Command.unserialize(s)
 
@@ -22,8 +22,9 @@ def test_commandSerialize():
     assert(str(type(cmd)) == "<class 'Command_START.Command_START'>")
 
 def test_commandAnswer():
-    c = Command.unserialize("CMD,START,['whatever','end']")
+    c = Command.unserialize( ["START","OK",['whatever','end']])
     s = c.serialize()
+    assert(len(s) == 3)
     cmd = Command.unserialize(s)
     print "unserisalized: %s" % type(cmd.answer)
     assert(type(cmd.answer) == list)
