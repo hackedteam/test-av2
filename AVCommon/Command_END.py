@@ -1,7 +1,7 @@
 import Command
 
 
-class Command_START(Command.Command):
+class Command_END(Command.Command):
 
     """ server side """
     def onInit(self):
@@ -14,6 +14,7 @@ class Command_START(Command.Command):
     """ client side """
     def Execute(self):
         print "    CS Execute"
+
         return True, ""
 
 

@@ -20,22 +20,30 @@ class Protocol:
 
     def sendNextCommand(self):
         #print self.commands
+        if len(self.commands) == 0:
+            return False
         c = self.commands.pop(0)
         print "PROTO S sendNextCommand: %s" % str(c)
         cmd = Command.unserialize(c)
         self._sendCommand(cmd)
+        return True
 
     """ client side """
     def receiveCommand(self):
         assert(isinstance(self.client, str))
         #print "PROTO receiveCommand %s" % (self.client)
-        msg = self.mq.receiveClient(self.client)
+        msg = self.mq.receiveClient(self.client, blocking=True, timeout=5)
         print "PROTO C receiveCommand %s, %s" % (self.client, msg)
         cmd = Command.unserialize(msg)
+
+        try:
+            cmd.success, cmd.answer = cmd.Execute()
+        except Exception, e:
+            cmd.success = False
+            cmd.answer = e
         
-        cmd.answer = cmd.Execute()
         self.answerCommand(cmd)
-        return msg
+        return cmd
 
     """ client side """
     def answerCommand(self, reply):
