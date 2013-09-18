@@ -2,41 +2,18 @@ import sys, os
 import inspect
 
 import abc
-import commands
 
-#knownCommands = []
 def initCommands():
-        #print "DBG initCommands"
-        #global knownCommands
-        print dir(commands)
-       
-        cwd=os.getcwd()
-        if cwd not in sys.path:
-            sys.path.append(cwd)
-
-        if(len(dir(commands)) > 6):
-            return
-
-        for py in [f[:-3] for f in os.listdir(cwd + "/commands") if f.startswith('Command_') and f.endswith('.py') and f != '__init__.py']:
-            print "py: %s" % str(py)
-            #print "commands: %s" % commands
-            #print commands.__name__
-            Command.knownCommands.append(py.split('_')[1])
-            rpath = "%s.%s" % (commands.__name__, py)
-            mod = __import__(rpath)
-            #print "mod: %s" % mod
-            classes = [getattr(mod, x) for x in dir(mod) if isinstance(getattr(mod, x), type)]
-            for cls in classes:
-                setattr(commands, cls.__name__, cls)
-        print "DBG knownCommands: %s" % Command.knownCommands
-        assert(len(dir(commands)) > 6)
-        assert(len(Command.knownCommands) > 0)
-        return
+    cwd=os.getcwd()
+    if cwd not in sys.path:
+        sys.path.append(cwd)
+    for m in Command.knownCommands.keys():
+        Command.knownCommands[m]=__import__("Command_%s" % m)
 
 class Command():
     __metaclass__ = abc.ABCMeta
 
-    knownCommands = []
+    knownCommands = {"START": None}
 
     answer = ""
     OK="OK"
@@ -46,23 +23,22 @@ class Command():
     def __init__(self, name):
         self.name = name
         initCommands()
-        assert(len(dir(commands)) > 6)
         assert(len(Command.knownCommands) > 0)
     
     @staticmethod
     def unserialize(serialized):
         initCommands()
-        assert(len(dir(commands)) > 6)
 
         ident, command, answer = serialized.split(',')
         assert(ident == "CMD")
 
         className = "Command_%s" % command
         print Command.knownCommands
-        assert(command in Command.knownCommands)
+        assert(command in Command.knownCommands.keys())
 
+        print dir(Command.knownCommands[command])
         if command in Command.knownCommands:
-            m = getattr(commands, className)
+            m = Command.knownCommands[command]
             c = getattr(m, className)
             cmd = c(command)
             cmd.answer = answer

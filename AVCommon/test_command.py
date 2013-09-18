@@ -3,7 +3,6 @@ from Command import Command
 import os
 import commands
 
-
 def test_commandSerialize():
     try:
         c = Command("START")
@@ -18,14 +17,12 @@ def test_commandSerialize():
     print cmd, type(cmd)
     assert(str(cmd) == "START")
 
-    from commands import Command_START
     print type(cmd)
-    assert(type(cmd) == Command_START.Command_START)
+    assert(str(type(cmd)) == "<class 'Command_START.Command_START'>")
 
 
 def test_commandStart():
-    from commands import Command_START
-    print commands
+    import Command_START
     c = Command_START.Command_START("START")
     assert(c)
     assert(c.name == "START")

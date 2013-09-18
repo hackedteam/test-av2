@@ -1,6 +1,7 @@
-from Command import Command
+import Command
 
-class Command_START(Command):
+
+class Command_START(Command.Command):
 
     """ server side """
     def onInit(self):
