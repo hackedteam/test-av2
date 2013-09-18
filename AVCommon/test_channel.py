@@ -3,6 +3,8 @@ import time
 import thread
 from redis import StrictRedis
 import ast
+import string
+import random
 
 """
 execute via nose or py.test
@@ -60,7 +62,28 @@ def test_ChannelList():
     assert(r3 == "+STARTED C1")
     assert(r4 == "+STARTED C2")
 
+def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
+    return ''.join(random.choice(chars) for x in range(size))
+
+def test_ChannelRandom():
+    global count
+    channel = id_generator()
+    host = "localhost"
+
+    s = Channel(host, channel)
+    c1 = Channel(host, channel + ".c1")
+
+    messages = [ id_generator(size=1000) for i in range(100)]
+
+    for m in messages:
+        c1.write(m)
+    
+    for m in messages:
+        r = c1.read()
+        assert(m == r)
+
 if __name__ == '__main__':
     test_Redis()
     test_ChannelList()
+    test_ChannelRandom()
     #test ChannelRedis()

@@ -14,7 +14,6 @@ class Command_END(Command.Command):
     """ client side """
     def Execute(self):
         print "    CS Execute"
-
-        return True, ""
+        return True, "It's time to die"
 
 

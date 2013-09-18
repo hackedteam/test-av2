@@ -14,6 +14,6 @@ class Command_START(Command.Command):
     """ client side """
     def Execute(self):
         print "    CS Execute"
-        return True, ""
+        return True, "I'm doing Science and I'm alive"
 
 
