@@ -2,6 +2,7 @@ import sys, os
 import inspect
 
 import abc
+import ast
 
 def initCommands():
     cwd=os.getcwd()
@@ -29,19 +30,22 @@ class Command():
     def unserialize(serialized):
         initCommands()
 
-        ident, command, answer = serialized.split(',')
+        ident, command, answer = serialized.split(',', 2)
         assert(ident == "CMD")
 
         className = "Command_%s" % command
-        print Command.knownCommands
+        #print Command.knownCommands
         assert(command in Command.knownCommands.keys())
 
-        print dir(Command.knownCommands[command])
+        #print "DBG dir: ", dir(Command.knownCommands[command])
         if command in Command.knownCommands:
             m = Command.knownCommands[command]
             c = getattr(m, className)
             cmd = c(command)
-            cmd.answer = answer
+            try:
+                cmd.answer = ast.literal_eval(answer)
+            except:
+                cmd.answer = answer
             return cmd
 
     def serialize(self):

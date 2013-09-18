@@ -3,22 +3,32 @@ from Command import Command
 import os
 import commands
 
-def test_commandSerialize():
+def test_commandAbstract():
     try:
         c = Command("START")
         assert("Should not be able to instance an abstract class" is False)
     except Exception:
         pass
 
+def test_commandSerialize():
     c = Command.unserialize("CMD,START,")
     s = c.serialize()
     cmd = Command.unserialize(s)
 
-    print cmd, type(cmd)
+    print "cmd: ", cmd, type(cmd)
     assert(str(cmd) == "START")
 
-    print type(cmd)
+    print "type: ", type(cmd)
     assert(str(type(cmd)) == "<class 'Command_START.Command_START'>")
+
+def test_commandAnswer():
+    c = Command.unserialize("CMD,START,['whatever','end']")
+    s = c.serialize()
+    cmd = Command.unserialize(s)
+    print "unserisalized: %s" % type(cmd.answer)
+    assert(type(cmd.answer) == list)
+    assert(cmd.answer == ['whatever','end'])
+    assert(str(cmd) == "START")
 
 
 def test_commandStart():
@@ -33,3 +43,5 @@ def test_commandStart():
 if __name__ == '__main__':
     test_commandSerialize()
     test_commandStart()
+    test_commandAnswer()
+    test_commandAbstract()
