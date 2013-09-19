@@ -3,6 +3,7 @@ import inspect
 import logging
 import abc
 import ast
+from Decorators import returns
 
 
 def initCommands():
@@ -12,19 +13,18 @@ def initCommands():
     for m in Command.commands:
         try:
             Command.knownCommands[m] = __import__("Command_%s" % m)
-        except:
+        except:  # pragma: no cover
             import AVCommon
             Command.knownCommands[m] = __import__("AVCommon.Command_%s" % m)
-
 
 
 class Command():
     __metaclass__ = abc.ABCMeta
 
-    commands = ["START", "END"]
+    commands = ["START", "END", "STARTVM"]
     knownCommands = dict(zip(commands,  [None] * len(commands)))
 
-    answer = ""
+    payload = ""
     success = True
 
     """command"""
@@ -39,7 +39,7 @@ class Command():
 
         #ident, command, answer = serialized.split(',', 2)
         #assert(ident == "CMD")
-        command, success, answer = serialized
+        command, success, payload = serialized
 
         className = "Command_%s" % command
         #print Command.knownCommands
@@ -53,29 +53,29 @@ class Command():
             c = getattr(m, className)
             cmd = c(command)
             try:
-                cmd.answer = ast.literal_eval(answer)
+                cmd.payload = ast.literal_eval(payload)
             except:
-                cmd.answer = answer
+                cmd.payload = payload
             cmd.success = success
             return cmd
 
     def serialize(self):
-        return (self.name, self.success, self.answer)
+        return (self.name, self.success, self.payload)
 
     """ server side """
     @abc.abstractmethod
-    def onInit(self):
-        pass
+    def onInit(self, args):
+        pass  # pragma: no cover
 
     @abc.abstractmethod
     def onAnswer(self, success, answer):
-        pass
+        pass  # pragma: no cover
 
     """ client side """
     @abc.abstractmethod
-    def Execute(self):
-        return self.answer
+    def Execute(self, args):
+        pass  # pragma: no cover
 
     def __str__(self):
-        return "%s,%s,%s" % (self.name, self.success, self.answer)
+        return "%s,%s,%s" % (self.name, self.success, self.payload)
 

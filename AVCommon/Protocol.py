@@ -2,6 +2,7 @@ from Command import Command
 from MQ import MQStar
 import logging
 
+
 class Protocol:
     commands = []
 
@@ -15,7 +16,7 @@ class Protocol:
 
     """server side"""
     def _sendCommand(self, cmd):
-        cmd.onInit()
+        cmd.onInit(cmd.payload)
         self.mq.sendClient(self.client, cmd.serialize())
 
     def sendNextCommand(self):
@@ -37,11 +38,13 @@ class Protocol:
         cmd = Command.unserialize(msg)
 
         try:
-            cmd.success, cmd.answer = cmd.Execute()
+            ret = cmd.Execute(cmd.payload)
+            cmd.success, cmd.payload = ret
         except Exception, e:
             cmd.success = False
-            cmd.answer = e
+            cmd.payload = e
 
+        assert isinstance(cmd.success, bool)
         self.answerCommand(cmd)
         return cmd
 
@@ -58,6 +61,6 @@ class Protocol:
         print "PROTO S receiveAnswer %s: %s" % (client, cmd)
 
         assert(cmd.success is not None)
-        cmd.onAnswer(cmd.success, cmd.answer)
+        cmd.onAnswer(cmd.success, cmd.payload)
 
         return cmd

@@ -3,6 +3,7 @@ import time
 import threading
 import logging, sys
 import logging.config
+from redis import StrictRedis
 
 received = []
 
@@ -12,7 +13,7 @@ def server(mq):
     exit = False
     print "SERVER"
     while not exit:
-        rec = mq.receiveServer(blocking=True, timeout=5)
+        rec = mq.receiveServer(blocking=True, timeout=2)
         if rec is not None:
             logging.debug("%s %s" % (rec, type(rec)))
             c, m = rec
@@ -40,13 +41,14 @@ def test_blockingMQ():
     thread1.start()
 
     mq2.sendServer(c, "WORKS")
-    time.sleep(1)
     mq2.sendServer(c, "FINE TO THE")
     time.sleep(1)
     mq2.sendServer(c, "STOP")
 
+    time.sleep(1)
     print "RECEIVED: ", received
     assert len(received) == 3
+
 
 def test_MultipleMQ():
     host = "localhost"
@@ -58,6 +60,24 @@ def test_MultipleMQ():
     c, m = mq2.receiveServer()
     assert (c == client)
     assert (m == message)
+
+
+def test_MQClean():
+    host = "localhost"
+    mq = MQStar(host)
+
+    redis = StrictRedis(host, socket_timeout=60)
+
+    clients = ["c1", "c2", "c3"]
+    mq.addClients(clients)
+    mq.sendClient("c1", "whatever")
+
+    rkeys = redis.keys("MQ_*")
+    assert rkeys
+
+    mq.clean()
+    rkeys = redis.keys("MQ_*")
+    assert not rkeys
 
 
 def test_MQ():
@@ -85,6 +105,8 @@ def test_MQ():
 
 if __name__ == '__main__':
     logging.config.fileConfig('../logging.conf')
+    test_MQClean()
     test_MQ()
     test_MultipleMQ()
     test_blockingMQ()
+

@@ -11,11 +11,11 @@ class Channel():
         self.channel = channel
         self.redis = StrictRedis(host, socket_timeout=60)
         logging.debug("  CH init %s %s" % (host, channel))
+        if not self.redis.exists(self.channel):
+            logging.debug("  CH write, new channel %s" % self.channel)
 
     def write(self, message):
         logging.debug("  CH write: %s\n    type: %s" % (str(message), type(message)))
-        if not self.redis.exists(self.channel):
-            logging.debug("  CH write, create new channel %s" % self.channel)
         self.redis.rpush(self.channel, message)
 
     def read(self, blocking=False, timout=0):

@@ -37,11 +37,11 @@ def test_commandAnswer():
     s = c.serialize()
     assert(len(s) == 3)
     cmd = Command.unserialize(s)
-    logging.debug("unserisalized: %s" % type(cmd.answer))
+    logging.debug("unserisalized: %s" % type(cmd.payload))
 
     assert(cmd.success)
-    assert(type(cmd.answer) == list)
-    assert(cmd.answer == ['whatever','end'])
+    assert(type(cmd.payload) == list)
+    assert(cmd.payload == ['whatever','end'])
     assert(str(cmd).startswith("START"))
 
 
@@ -51,8 +51,8 @@ def test_commandStart():
     assert(c)
     assert(c.name == "START")
 
-    c.onInit()
-    ret, answer = c.Execute()
+    c.onInit("whatever")
+    ret, answer = c.Execute("arguments")
     c.onAnswer(ret, answer)
 
 if __name__ == '__main__':

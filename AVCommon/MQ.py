@@ -22,7 +22,7 @@ class MQStar():
         self.channelToServer = Channel(self.host, channelServer)
 
     def _makeChannel(self, frm="server", to="server"):
-        name = "%s_%s_%s" % (self.session, frm, to)
+        name = "MQ_%s_%s_%s" % (self.session, frm, to)
         channel = Channel(self.host, name)
         return channel
 
@@ -50,13 +50,14 @@ class MQStar():
 
     def receiveServer(self, blocking=False, timeout=60):
         payload = self.channelToServer.read(blocking, timeout)
-        logging.debug(" MQ read: %s\n    type: %s" % (str(payload), type(payload)))
+        logging.debug(" MQ read: %s type: %s" % (str(payload), type(payload)))
         #client, message = payload
         return payload
 
     def sendClient(self,  client, message):
         if client not in self.channels.keys():
-            logging.debug(" MQ error, sendClient, client not found: %s" % self.channels)
+            logging.debug(" MQ error, sendClient, client not found: %s" %
+                self.channels)
         ch = self.channels[client]
         ch.write(message)
 

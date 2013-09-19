@@ -1,8 +1,7 @@
 import Command
 import logging
-from Decorators import *
 
-class Command_END(Command.Command):
+class Command_STARTVM(Command.Command):
 
     """ server side """
     def onInit(self, args):
@@ -15,6 +14,4 @@ class Command_END(Command.Command):
     """ client side, returns (bool,*) """
     def Execute(self, args):
         logging.debug("    CS Execute")
-        return True, "It's time to die"
-
-
+        return True, "I'm doing Science and I'm alive"

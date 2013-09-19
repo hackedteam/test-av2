@@ -20,7 +20,7 @@ def server(mq, clients, commands):
     ended = 0
     answered = 0
     while not exit and ended < len(clients):
-        rec = mq.receiveServer(blocking=True, timeout=5)
+        rec = mq.receiveServer(blocking=True, timeout=10)
         if rec is not None:
             print "- SERVER RECEIVED %s %s" % (rec, type(rec))
             c, msg = rec
@@ -64,6 +64,7 @@ def test_Protocol():
         print "- CLIENT RECEIVED: ", received
         if received.name == "END":
             exit = True
+
 
 if __name__ == '__main__':
     logging.config.fileConfig('../logging.conf')
