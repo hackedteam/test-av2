@@ -1,6 +1,6 @@
 from Command import Command
 from MQ import MQStar
-
+import logging
 
 class Protocol:
     commands = []
@@ -41,7 +41,7 @@ class Protocol:
         except Exception, e:
             cmd.success = False
             cmd.answer = e
-        
+
         self.answerCommand(cmd)
         return cmd
 
@@ -57,6 +57,7 @@ class Protocol:
         cmd = Command.unserialize(msg)
         print "PROTO S receiveAnswer %s: %s" % (client, cmd)
 
+        assert(cmd.success is not None)
         cmd.onAnswer(cmd.success, cmd.answer)
 
         return cmd

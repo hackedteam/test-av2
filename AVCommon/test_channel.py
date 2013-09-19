@@ -5,6 +5,8 @@ from redis import StrictRedis
 import ast
 import string
 import random
+import logging, sys
+import logging.config
 
 """
 execute via nose or py.test
@@ -35,6 +37,12 @@ def test_Redis():
     m = ast.literal_eval(r.lpop("channel"))
     print m, type(m)
 
+def test_ChannelTimeout():
+    channel = "test"
+    host = "localhost"
+    s = Channel(host, channel)
+    r = s.read(blocking=True, timout=1)
+    assert r is None
 
 def test_ChannelList():
     global count
@@ -77,12 +85,14 @@ def test_ChannelRandom():
 
     for m in messages:
         c1.write(m)
-    
+
     for m in messages:
         r = c1.read()
         assert(m == r)
 
 if __name__ == '__main__':
+    logging.config.fileConfig('../logging.conf')
+    test_ChannelTimeout()
     test_Redis()
     test_ChannelList()
     test_ChannelRandom()

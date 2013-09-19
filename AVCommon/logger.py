@@ -64,5 +64,5 @@ if __name__ == "__main__":
     setLogger(True, avname="Test", enable_redis=False)
     print "+ STATT"
     print "Test to standard out"
-    print "DBG   test debug "
+    logging.debug("  test debug ")
     raise Exception('Test to standard error')

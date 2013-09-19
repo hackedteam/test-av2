@@ -1,21 +1,28 @@
 import sys, os
 import inspect
-
+import logging
 import abc
 import ast
 
+
 def initCommands():
-    cwd=os.getcwd()
+    cwd = os.getcwd()
     if cwd not in sys.path:
         sys.path.append(cwd)
-    for m in Command.knownCommands.keys():
-        Command.knownCommands[m]=__import__("Command_%s" % m)
+    for m in Command.commands:
+        try:
+            Command.knownCommands[m] = __import__("Command_%s" % m)
+        except:
+            import AVCommon
+            Command.knownCommands[m] = __import__("AVCommon.Command_%s" % m)
+
+
 
 class Command():
     __metaclass__ = abc.ABCMeta
 
-    commands=["START", "END"]
-    knownCommands = dict(zip (commands,  [None] * len(commands)))
+    commands = ["START", "END"]
+    knownCommands = dict(zip(commands,  [None] * len(commands)))
 
     answer = ""
     success = True
@@ -25,7 +32,7 @@ class Command():
         self.name = name
         initCommands()
         assert(len(Command.knownCommands) > 0)
-    
+
     @staticmethod
     def unserialize(serialized):
         initCommands()
@@ -40,7 +47,7 @@ class Command():
         assert(isinstance(command, str))
         assert(command in Command.knownCommands.keys())
 
-        #print "DBG dir: ", dir(Command.knownCommands[command])
+        #logging.debug("dir: ", dir(Command.knownCommands[command]))
         if command in Command.knownCommands:
             m = Command.knownCommands[command]
             c = getattr(m, className)

@@ -2,6 +2,8 @@ from Command import Command
 
 import os
 import commands
+import logging, sys
+import logging.config
 
 def test_commandAbstract():
     try:
@@ -16,10 +18,10 @@ def test_commandSerialize():
     cmd = Command.unserialize(s)
     assert(not cmd.success)
 
-    print "cmd: ", cmd, type(cmd)
+    logging.debug("cmd: %s %s", cmd, type(cmd))
     assert(str(cmd).startswith("START"))
 
-    print "type: ", type(cmd)
+    logging.debug("type: %s", type(cmd))
     assert(str(type(cmd)) == "<class 'Command_START.Command_START'>")
 
     Command.unserialize( ("START", None, None) )
@@ -35,7 +37,7 @@ def test_commandAnswer():
     s = c.serialize()
     assert(len(s) == 3)
     cmd = Command.unserialize(s)
-    print "unserisalized: %s" % type(cmd.answer)
+    logging.debug("unserisalized: %s" % type(cmd.answer))
 
     assert(cmd.success)
     assert(type(cmd.answer) == list)
@@ -50,9 +52,11 @@ def test_commandStart():
     assert(c.name == "START")
 
     c.onInit()
-    c.onAnswer(c.Execute())
+    ret, answer = c.Execute()
+    c.onAnswer(ret, answer)
 
 if __name__ == '__main__':
+    logging.config.fileConfig('../logging.conf')
     test_commandSerialize()
     test_commandStart()
     test_commandAnswer()

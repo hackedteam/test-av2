@@ -1,7 +1,7 @@
 import string
 import random
 from Channel import Channel
-
+import logging
 
 def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for x in range(size))
@@ -28,7 +28,7 @@ class MQStar():
 
     def clean(self):
         for k in self.channelToServer.redis.keys("MQ_*"):
-            print " MQ clean %s" % k
+            logging.debug(" MQ clean %s" % k)
             self.channelToServer.redis.delete(k)
 
     def addClient(self, client):
@@ -43,28 +43,28 @@ class MQStar():
 
     def sendServer(self, client, message):
         if client not in self.channels.keys():
-            print " MQ error, client not found"
+            logging.debug(" MQ error, client not found")
         ch = self.channelToServer
         payload = (client, message)
         ch.write(payload)
 
     def receiveServer(self, blocking=False, timeout=60):
         payload = self.channelToServer.read(blocking, timeout)
-        print " MQ read: %s\n    type: %s" % (str(payload), type(payload))
+        logging.debug(" MQ read: %s\n    type: %s" % (str(payload), type(payload)))
         #client, message = payload
         return payload
 
     def sendClient(self,  client, message):
         if client not in self.channels.keys():
-            print " MQ error, sendClient, client not found: %s" % self.channels
+            logging.debug(" MQ error, sendClient, client not found: %s" % self.channels)
         ch = self.channels[client]
         ch.write(message)
 
     def receiveClient(self, client, blocking=False, timeout=60):
         assert(isinstance(client, str))
         if client not in self.channels.keys():
-            print " MQ error, receiveClient, client (%s) not found: %s" % (client, self.channels)
+            logging.debug(" MQ error, receiveClient, client (%s) not found: %s" % (client, self.channels))
         ch = self.channels[client]
         message = ch.read(blocking, timeout)
         return message
- 
+

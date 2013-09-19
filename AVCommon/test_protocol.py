@@ -2,6 +2,8 @@ from Protocol import Protocol
 from Command import Command
 from MQ import MQStar
 import threading
+import logging, sys
+import logging.config
 
 
 def server(mq, clients, commands):
@@ -14,7 +16,7 @@ def server(mq, clients, commands):
     for c in clients:
         p[c] = Protocol(mq, c, commands)
         p[c].sendNextCommand()
-    
+
     ended = 0
     answered = 0
     while not exit and ended < len(clients):
@@ -39,6 +41,7 @@ def server(mq, clients, commands):
     assert(ended == len(clients))
     assert(answered == (len(clients) * numcommands))
 
+
 def test_Protocol():
     host = "localhost"
     mq1 = MQStar(host)
@@ -51,6 +54,8 @@ def test_Protocol():
     thread1.start()
     cmdStart = Command.unserialize(('START', True, 'nothing else to say'))
 
+    assert cmdStart
+
     print "- CLIENT: ", c
     pc = Protocol(mq1, c)
     exit = False
@@ -61,4 +66,5 @@ def test_Protocol():
             exit = True
 
 if __name__ == '__main__':
+    logging.config.fileConfig('../logging.conf')
     test_Protocol()

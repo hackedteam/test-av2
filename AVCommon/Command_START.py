@@ -1,19 +1,19 @@
 import Command
-
+import logging
 
 class Command_START(Command.Command):
 
     """ server side """
     def onInit(self):
-        print "    CS onInit"
+        logging.debug("    CS onInit")
         pass
 
     def onAnswer(self, success, answer):
-        print "    CS onAnswer"
+        logging.debug("    CS onAnswer")
 
     """ client side """
     def Execute(self):
-        print "    CS Execute"
+        logging.debug("    CS Execute")
         return True, "I'm doing Science and I'm alive"
 
 

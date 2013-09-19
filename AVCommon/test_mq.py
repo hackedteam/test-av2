@@ -1,6 +1,8 @@
 from MQ import MQStar
 import time
 import threading
+import logging, sys
+import logging.config
 
 received = []
 
@@ -12,13 +14,13 @@ def server(mq):
     while not exit:
         rec = mq.receiveServer(blocking=True, timeout=5)
         if rec is not None:
-            print "DBG %s %s" % (rec, type(rec))
+            logging.debug("%s %s" % (rec, type(rec)))
             c, m = rec
             print "SERVER RECEIVED: %s>%s" % (c, m)
             received.append(m)
 
             if m == "STOP":
-                print "DBG EXITING"
+                logging.debug("EXITING")
                 exit = True
         else:
             exit = True
@@ -43,8 +45,8 @@ def test_blockingMQ():
     time.sleep(1)
     mq2.sendServer(c, "STOP")
 
-    assert(len(received) == 2)
-
+    print "RECEIVED: ", received
+    assert len(received) == 3
 
 def test_MultipleMQ():
     host = "localhost"
@@ -82,6 +84,7 @@ def test_MQ():
         assert(m.startswith("END "))
 
 if __name__ == '__main__':
+    logging.config.fileConfig('../logging.conf')
     test_MQ()
     test_MultipleMQ()
     test_blockingMQ()
