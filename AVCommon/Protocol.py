@@ -57,4 +57,6 @@ class Protocol:
         cmd = Command.unserialize(msg)
         print "PROTO S receiveAnswer %s: %s" % (client, cmd)
 
+        cmd.onAnswer(cmd.success, cmd.answer)
+
         return cmd

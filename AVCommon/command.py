@@ -61,7 +61,7 @@ class Command():
         pass
 
     @abc.abstractmethod
-    def onAnswer(self, answer):
+    def onAnswer(self, success, answer):
         pass
 
     """ client side """

@@ -8,7 +8,7 @@ class Command_START(Command.Command):
         print "    CS onInit"
         pass
 
-    def onAnswer(self, answer):
+    def onAnswer(self, success, answer):
         print "    CS onAnswer"
 
     """ client side """
