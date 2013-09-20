@@ -5,7 +5,6 @@ import abc
 import ast
 from Decorators import returns
 
-
 def initCommands():
     cwd = os.getcwd()
     if cwd not in sys.path:
@@ -21,11 +20,16 @@ def initCommands():
 class Command():
     __metaclass__ = abc.ABCMeta
 
-    commands = ["START", "END", "STARTVM"]
+    commands = ["START", "STARTVM", "STOPVM", "REVERT", "UPDATE", "PULL", "PUSH",
+        "EXECUTE_VM", "SCREENSHOT", "START_AGENT", "SET_SERVER", "SET_PARAMS",
+        "SET_BLACKLIST", "BUILD", "EXECUTE_AGENT", "UPGRADE_ELITE", "CHECK_STATIC",
+        "PROCEDURE", "END"]
+    # STARTVM STOPVM REVERT UPDATE PULL PUSH EXECUTE_VM SCREENSHOT START_AGENT SET_SERVER SET_PARAMS SET_BLACKLIST BUILD EXECUTE_AGENT UPGRADE_ELITE CHECK_STATIC PROCEDURE END
     knownCommands = dict(zip(commands,  [None] * len(commands)))
 
     payload = ""
     success = None
+    context = None
 
     """command"""
     def __init__(self, name):
@@ -58,7 +62,10 @@ class Command():
         if command in Command.knownCommands:
             m = Command.knownCommands[command]
             c = getattr(m, className)
+            print sys.path
             cmd = c(command)
+            print c
+
             try:
                 cmd.payload = ast.literal_eval(payload)
             except:
@@ -89,6 +96,11 @@ class Command():
 
 class ServerCommand(Command):
     side = "server"
+    def onInit(self, args):
+        pass  # pragma: no cover
+
+    def onAnswer(self, success, answer):
+        pass  # pragma: no cover
 
 
 class ClientCommand(Command):

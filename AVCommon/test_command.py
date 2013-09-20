@@ -32,24 +32,27 @@ def test_commandSerialize():
         pass
 
 def test_commandUnserialize():
+    Command.context = "mycontext"
     s = Command.unserialize( "START" )
-
     assert s.name == "START"
     assert s.payload is None
     assert s.success is None
     assert s.side == "client"
+    assert s.context == "mycontext"
 
     s = Command.unserialize( ["STARTVM", None, ["kis", "mcafee"]] )
     assert s.name == "STARTVM"
     assert s.payload == ["kis", "mcafee"]
     assert s.success is None
     assert s.side == "server"
+    assert s.context == "mycontext"
 
     s = Command.unserialize( ["STARTVM", ["kis", "mcafee"]] )
     assert s.name == "STARTVM"
     assert s.payload == ["kis", "mcafee"]
     assert s.success is None
     assert s.side == "server"
+    assert s.context == "mycontext"
 
 
 def test_commandAnswer():
