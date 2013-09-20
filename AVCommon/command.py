@@ -25,7 +25,7 @@ class Command():
     knownCommands = dict(zip(commands,  [None] * len(commands)))
 
     payload = ""
-    success = True
+    success = None
 
     """command"""
     def __init__(self, name):
@@ -39,7 +39,14 @@ class Command():
 
         #ident, command, answer = serialized.split(',', 2)
         #assert(ident == "CMD")
-        command, success, payload = serialized
+
+        if len(serialized) == 3:
+            command, success, payload = serialized
+        elif len(serialized) == 2:
+            success = None
+            command, payload = serialized
+        else:
+            command, success, payload = serialized, None, None
 
         className = "Command_%s" % command
         #print Command.knownCommands
@@ -79,3 +86,10 @@ class Command():
     def __str__(self):
         return "%s,%s,%s" % (self.name, self.success, self.payload)
 
+
+class ServerCommand(Command):
+    side = "server"
+
+
+class ClientCommand(Command):
+    side = "client"

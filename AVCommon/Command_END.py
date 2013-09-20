@@ -2,7 +2,7 @@ import Command
 import logging
 from Decorators import *
 
-class Command_END(Command.Command):
+class Command_END(Command.ClientCommand):
 
     """ server side """
     def onInit(self, args):

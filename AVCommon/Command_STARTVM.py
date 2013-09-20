@@ -1,7 +1,8 @@
 import Command
 import logging
 
-class Command_STARTVM(Command.Command):
+
+class Command_STARTVM(Command.ServerCommand):
 
     """ server side """
     def onInit(self, args):

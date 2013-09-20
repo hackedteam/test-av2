@@ -31,6 +31,26 @@ def test_commandSerialize():
     except:
         pass
 
+def test_commandUnserialize():
+    s = Command.unserialize( "START" )
+
+    assert s.name == "START"
+    assert s.payload is None
+    assert s.success is None
+    assert s.side == "client"
+
+    s = Command.unserialize( ["STARTVM", None, ["kis", "mcafee"]] )
+    assert s.name == "STARTVM"
+    assert s.payload == ["kis", "mcafee"]
+    assert s.success is None
+    assert s.side == "server"
+
+    s = Command.unserialize( ["STARTVM", ["kis", "mcafee"]] )
+    assert s.name == "STARTVM"
+    assert s.payload == ["kis", "mcafee"]
+    assert s.success is None
+    assert s.side == "server"
+
 
 def test_commandAnswer():
     c = Command.unserialize( ["START", True, ['whatever','end']])
@@ -61,3 +81,4 @@ if __name__ == '__main__':
     test_commandStart()
     test_commandAnswer()
     test_commandAbstract()
+    test_commandUnserialize()

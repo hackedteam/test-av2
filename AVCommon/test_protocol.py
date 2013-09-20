@@ -2,7 +2,7 @@ from Protocol import Protocol
 from Command import Command
 from MQ import MQStar
 import threading
-import logging, sys
+import logging
 import logging.config
 
 

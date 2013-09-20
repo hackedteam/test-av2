@@ -1,7 +1,8 @@
 import Command
 import logging
 
-class Command_START(Command.Command):
+
+class Command_START(Command.ClientCommand):
 
     """ server side """
     def onInit(self, args):
@@ -15,5 +16,3 @@ class Command_START(Command.Command):
     def Execute(self, args):
         logging.debug("    CS Execute")
         return True, "I'm doing Science and I'm alive"
-
-
