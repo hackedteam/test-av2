@@ -1,3 +1,6 @@
+import sys
+sys.path.append("../AVCommon")
+
 import logging, sys
 import logging.config
 

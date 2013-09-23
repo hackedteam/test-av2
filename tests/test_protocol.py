@@ -1,3 +1,6 @@
+import sys
+sys.path.append("../AVCommon")
+
 from Protocol import Protocol
 from Command import Command
 from MQ import MQStar

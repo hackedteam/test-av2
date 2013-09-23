@@ -1,3 +1,6 @@
+import sys
+sys.path.append("../AVCommon")
+
 from Channel import Channel
 import time
 import thread
@@ -7,6 +10,8 @@ import string
 import random
 import logging, sys
 import logging.config
+
+
 
 """
 execute via nose or py.test

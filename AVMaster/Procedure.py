@@ -1,14 +1,12 @@
-import os, sys
-prev = os.path.join(os.getcwd(), "..")
-if not prev in sys.path:
-    sys.path.append(prev)
+import sys
+sys.path.append("../AVCommon")
 
-from AVCommon import Protocol
-from AVCommon import MQ
-from AVCommon.Command import Command
+import Protocol
+import MQ
+from Command import Command
 
 class Procedure :
     """docstring for Procedure"""
     def __init__(self, name, proc=[]):
         self.name = name
-        self.proc = [ Command.Command.unserialize(c) for c in proc ]
+        self.proc = [ Command.unserialize(c) for c in proc ]

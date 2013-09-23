@@ -1,3 +1,6 @@
+import sys
+sys.path.append("../AVCommon")
+
 from Command import Command
 
 import os

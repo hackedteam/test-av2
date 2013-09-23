@@ -1,3 +1,6 @@
+import sys
+sys.path.append("../AVCommon")
+
 from MQ import MQStar
 import time
 import threading

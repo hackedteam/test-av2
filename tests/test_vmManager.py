@@ -1,3 +1,7 @@
+import sys
+sys.path.append("../AVCommon")
+sys.path.append("../AVMaster")
+
 from vmManager import *
 
 prev = os.path.join(os.getcwd(), "..")
