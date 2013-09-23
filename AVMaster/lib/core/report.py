@@ -61,7 +61,9 @@ class Report:
 
 		report_file = "http://%s:%s/report/%s" % ( host, port, self.test_id )
 
-		sortedresults = sorted(self.results, key = lambda x: x[0][0])
+		res = [ x for x in self.results if len(x)>0 and len(x[0])>0 ]
+
+		sortedresults = sorted(res, key = lambda x: x[0][0])
 		print "DBG sorted %s" % sortedresults
 
 		for av in sortedresults:
@@ -168,8 +170,8 @@ a.fill-div { display: block; height: 100%; width: 100%; text-decoration: none; }
 			msg = MIMEMultipart()
 			msg["Subject"] = "AV Monitor Results"
 			msg["From"] = "avmonitor@hackingteam.com"
-			msg["To"] = "olli@hackingteam.com,zeno@hackingteam.com,alor@hackingteam.com,g.landi@hackingteam.com"
-			#msg["To"] = "olli@hackingteam.com,zeno@hackingteam.com"
+			#msg["To"] = "olli@hackingteam.com,zeno@hackingteam.com,alor@hackingteam.com,g.landi@hackingteam.com"
+			msg["To"] = "olli@hackingteam.com,zeno@hackingteam.com"
 			#msg["To"] = "olli@hackingteam.com"
 			print "CONTENT LENGTH: %s" % len(content)
 			body = MIMEText(content, 'html')
