@@ -50,19 +50,24 @@ class Command():
 
         #ident, command, answer = serialized.split(',', 2)
         #assert(ident == "CMD")
+        success = None
+        payload = None
 
-        if len(serialized) == 3:
+        if isinstance(serialized, dict):
+            assert len(serialized)==1
+            command = serialized.keys()[0]
+            payload = serialized[command]
+        elif len(serialized) == 3:
             command, success, payload = serialized
         elif len(serialized) == 2:
-            success = None
             command, payload = serialized
         else:
-            command, success, payload = serialized, None, None
+            command = serialized
 
         className = "Command_%s" % command
         #print Command.knownCommands
         assert(isinstance(success, bool) or success is None)
-        assert(isinstance(command, str))
+        assert isinstance(command, str),"not a string: %s" % command
         #logging.debug("%s Command.knownCommands.keys: %s" % (command, Command.knownCommands.keys()))
         assert command in Command.knownCommands.keys(), "Unknown command: %s" % command
 

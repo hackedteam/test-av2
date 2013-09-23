@@ -6,14 +6,15 @@ if not prev in sys.path:
     sys.path.append(prev)
 
 from AVCommon import Protocol
+from AVCommon import MQStar
 
 class Dispatcher(object):
     """docstring for Dispatcher"""
-    def __init__(self, arg):
+    def __init__(self, vms, procedure ):
         super(Dispatcher, self).__init__()
         self.arg = arg
 
-    def server(mq, clients, commands):
+    def dispatch(mq, clients, procedure):
         global received
         exit = False
         print "- SERVER ", len(commands)
@@ -48,25 +49,15 @@ class Dispatcher(object):
         assert(ended == len(clients))
         assert(answered == (len(clients) * numcommands))
 
-    def startServer():
+    def startServer(self):
         host = "localhost"
-        mq1 = MQStar(host)
-        mq1.clean()
-        c = "client1"
-        mq1.addClient(c)
+        mq = MQStar(host)
+        mq.clean()
+        for vm in self.vms:
+            mq.addClient(vm.name)
 
-        commands = [("START", None, None), ("END", None, None)]
-        thread1 = threading.Thread(target=server, args=(mq1, [c], commands))
+        mq.addClient("")
+
+        thread1 = threading.Thread(target=self.server, args=(vm_mq, [c], commands))
         thread1.start()
-        cmdStart = Command.unserialize(('START', True, 'nothing else to say'))
 
-        assert cmdStart
-
-        print "- CLIENT: ", c
-        pc = Protocol(mq1, c)
-        exit = False
-        while not exit:
-            received = pc.receiveCommand()
-            print "- CLIENT RECEIVED: ", received
-            if received.name == "END":
-                exit = True

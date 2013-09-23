@@ -6,13 +6,15 @@ from vmManager import *
 
 from AVCommon import Protocol
 from AVCommon import MQ
-
+from Procedure import Procedure
 
 def test_dispatcher():
-    v = vmManager()
+    #v = vmManager()
     host = "localhost"
 
     vms = ["kis", "mcafee"]
+    agentFiles = ["file.exe"]
+    params = "parameters.json"
 
     update = Procedure("UPDATE", [ "REVERT", "STARTVM", "UPDATE", "STOPVM" ] )
 
@@ -21,12 +23,11 @@ def test_dispatcher():
     scout = Procedure("SCOUT", [
                         ("PROCEDURE", "dispatch"),
                         ("PUSH", agentFiles),
-                        ("STARTAGENT", None),
+                        ("START_AGENT", None),
                         ("SET_PARAMS", params),
                         ("BUILD", ["silent"]),
-                        ("EXECUTE", ["build/agent.exe"]),
+                        ("EXECUTE_VM", ["build/agent.exe"]),
                     ])
-    d = dispatcher()
 
 if __name__ == '__main__':
     test_dispatcher()

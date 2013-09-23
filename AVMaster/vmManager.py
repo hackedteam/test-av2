@@ -9,7 +9,6 @@ from AVCommon import Protocol
 
 
 class VMManager:
-    def __init__(p):
-        assert isinstance(p, Protocol)
-
+    def __init__(protocol):
+        assert isinstance(protocol, Protocol)
 

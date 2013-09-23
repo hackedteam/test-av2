@@ -1,0 +1,19 @@
+UPDATE:
+    - REVERT
+    - STARTVM
+    - UPDATE
+    - STOPVM
+
+DISPATCH:
+    - REVERT
+    - STARTVM
+    - UPDATE
+    - PUSH:
+        - file.sh
+        - anotherfile.sh
+
+SCOUT:
+    - PROCEDURE: DISPATCH
+    - START_AGENT
+    - SET_PARAMS:
+        - kind=scout
