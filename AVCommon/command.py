@@ -6,6 +6,7 @@ import ast
 from Decorators import returns
 
 def initCommands():
+    logging.debug("initCommands")
     cwd = os.getcwd()
     if cwd not in sys.path:
         sys.path.append(cwd)
@@ -15,7 +16,9 @@ def initCommands():
         except:  # pragma: no cover
             import AVCommon
             Command.knownCommands[m] = __import__("AVCommon.Command_%s" % m)
-
+    #logging.debug("dir(): %s %s" % (dir(), dir("AVCommon")) )
+    logging.info("Commands: %s" % Command.knownCommands.keys())
+    return True
 
 class Command():
     __metaclass__ = abc.ABCMeta
@@ -31,15 +34,19 @@ class Command():
     success = None
     context = None
 
+    init = False;
+
     """command"""
     def __init__(self, name):
         self.name = name
-        initCommands()
+        if not Command.init:
+            Command.init = initCommands()
         assert(len(Command.knownCommands) > 0)
 
     @staticmethod
     def unserialize(serialized):
-        initCommands()
+        if not Command.init:
+            Command.init = initCommands()
 
         #ident, command, answer = serialized.split(',', 2)
         #assert(ident == "CMD")
@@ -56,15 +63,16 @@ class Command():
         #print Command.knownCommands
         assert(isinstance(success, bool) or success is None)
         assert(isinstance(command, str))
-        assert(command in Command.knownCommands.keys())
+        #logging.debug("%s Command.knownCommands.keys: %s" % (command, Command.knownCommands.keys()))
+        assert command in Command.knownCommands.keys(), "Unknown command: %s" % command
 
         #logging.debug("dir: ", dir(Command.knownCommands[command]))
-        if command in Command.knownCommands:
+        if command in Command.knownCommands.keys():
             m = Command.knownCommands[command]
             c = getattr(m, className)
-            print sys.path
+            #print sys.path
             cmd = c(command)
-            print c
+            #print c
 
             try:
                 cmd.payload = ast.literal_eval(payload)

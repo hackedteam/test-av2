@@ -8,7 +8,7 @@ if not prev in sys.path:
 from AVCommon import Protocol
 
 
-class vmManager:
+class VMManager:
     def __init__(p):
         assert isinstance(p, Protocol)
 

@@ -8,6 +8,9 @@ import MQ
 from Procedure import Procedure
 from Command import Command
 
+import logging
+import logging.config
+
 def test_dispatcher():
     c = Command.unserialize( ["START", True, ['whatever','end']])
     agentFiles = ""
@@ -18,7 +21,7 @@ def test_dispatcher():
     scout = Procedure("SCOUT", [
                         ("PROCEDURE", "dispatch"),
                         ("PUSH", agentFiles),
-                        ("STARTAGENT", None),
+                        ("START_AGENT", None),
                         ("SET_PARAMS", params),
                         ("BUILD", ["silent"]),
                         ("EXECUTE_AGENT", ["build/agent.exe"]),
@@ -29,4 +32,5 @@ def test_dispatcher():
     assert scout
 
 if __name__ == '__main__':
+    logging.config.fileConfig('../logging.conf')
     test_dispatcher()
