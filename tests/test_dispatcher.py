@@ -4,7 +4,6 @@ sys.path.append("../AVMaster")
 
 from vmManager import *
 
-from AVCommon import Protocol
 from AVCommon import MQ
 from Procedure import Procedure
 

@@ -5,7 +5,6 @@ prev = os.path.join(os.getcwd(), "..")
 if not prev in sys.path:
     sys.path.append(prev)
 
-from AVCommon import Protocol
 from AVCommon import MQStar
 
 class Dispatcher(object):
@@ -20,10 +19,13 @@ class Dispatcher(object):
         print "- SERVER ", len(commands)
         numcommands = len(commands)
 
-        p = {}
+        avmachines = []
         for c in clients:
-            p[c] = Protocol(mq, c, commands)
-            p[c].sendNextCommand()
+            avmachines.append(AVMachine(mq, c, procedure))
+
+        for a in avmachines:
+            a.start()
+            a.executeNextCommand()
 
         ended = 0
         answered = 0

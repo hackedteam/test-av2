@@ -16,4 +16,5 @@ SCOUT:
     - PROCEDURE: DISPATCH
     - START_AGENT
     - SET_PARAMS:
-        - kind=scout
+        - kind: scout
+        - platform: windows

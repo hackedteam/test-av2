@@ -12,7 +12,6 @@ import logging, sys
 import logging.config
 
 
-
 """
 execute via nose or py.test
 """

@@ -32,7 +32,15 @@ def test_dispatcher():
     assert dispatch
     assert scout
 
-def testProcedureYaml():
+
+def test_procedure_file():
+    procedures = Procedure.loadFromFile("../AVCommon/procedures.yaml")
+    assert procedures, "empty procedures"
+    logging.debug("procedures: %s" % procedures)
+    for p in procedures.values():
+        assert isinstance(p, Procedure), "not a Procedure: %s" % p
+
+def test_procedure_yaml():
     yaml = """UPDATE:
     - REVERT
     - STARTVM
@@ -51,7 +59,8 @@ SCOUT:
     - PROCEDURE: DISPATCH
     - START_AGENT
     - SET_PARAMS:
-        - kind=scout
+        - kind: scout
+        - platform: windows
 """
     procedures = Procedure.loadFromYaml(yaml)
     assert procedures, "empty procedures"
@@ -61,5 +70,6 @@ SCOUT:
 
 if __name__ == '__main__':
     logging.config.fileConfig('../logging.conf')
-    testProcedureYaml()
+    test_procedure_file()
+    test_procedure_yaml()
     test_dispatcher()

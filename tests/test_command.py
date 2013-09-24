@@ -50,12 +50,49 @@ def test_commandUnserialize():
     assert s.side == "server"
     assert s.context == "mycontext"
 
+    s = Command.unserialize( {"STARTVM": ["kis", "mcafee"]} )
+    assert s.name == "STARTVM"
+    assert s.payload == ["kis", "mcafee"]
+    assert s.success is None
+    assert s.side == "server"
+    assert s.context == "mycontext"
+
     s = Command.unserialize( ["STARTVM", ["kis", "mcafee"]] )
     assert s.name == "STARTVM"
     assert s.payload == ["kis", "mcafee"]
     assert s.success is None
     assert s.side == "server"
     assert s.context == "mycontext"
+
+    s.success = True
+    q = Command.unserialize( s )
+    assert q.name == "STARTVM"
+    assert q.payload == ["kis", "mcafee"]
+    assert q.success is True
+    assert q.side == "server"
+    assert q.context == "mycontext"
+
+    try:
+        s = Command.unserialize( )
+        assert False, "should not unserialize this"
+    except:
+        pass
+    try:
+        s = Command.unserialize( "A", 1, 2 )
+        assert False, "should not unserialize this"
+    except:
+        pass
+    try:
+        s = Command.unserialize( "B", True, 2 , 3 )
+        assert False, "should not unserialize this"
+    except:
+        pass
+    try:
+        s = Command.unserialize({"STARTVM": ["kis", "mcafee"], "WHATEVER": []})
+        assert False, "should not unserialize this"
+    except:
+        pass
+
 
 
 def test_commandAnswer():

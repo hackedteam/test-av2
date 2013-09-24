@@ -1,7 +1,6 @@
 import sys
 sys.path.append("../AVCommon")
 
-import Protocol
 import MQ
 from Command import Command
 
@@ -29,10 +28,7 @@ class Procedure :
     def nextCommand(self):
         return self.proc.pop(0)
 
-    def empty(self):
-        return self.proc == []
-
-    def __length__(self):
+    def __len__(self):
         return len(self.proc)
 
     @staticmethod
@@ -55,4 +51,4 @@ class Procedure :
     @staticmethod
     def loadFromFile(filename):
         stream = file(filename, 'r')
-        return loadFromYaml(strema)
+        return Procedure.loadFromYaml(stream)

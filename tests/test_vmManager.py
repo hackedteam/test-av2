@@ -18,8 +18,6 @@ def test_instance():
     mq = MQ.MQStar(host)
     c = "vm"
 
-    p = Protocol.Protocol(mq, c, commands)
-    vm = vmManager(p)
 
 if __name__ == '__main__':
     test_instance()

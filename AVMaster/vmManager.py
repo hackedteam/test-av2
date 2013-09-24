@@ -9,6 +9,9 @@ from AVCommon import Protocol
 
 
 class VMManager:
-    def __init__(protocol):
-        assert isinstance(protocol, Protocol)
+    def __init__(name):
+        self.name = name
+
+    def execute(cmd)
+
 

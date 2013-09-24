@@ -26,7 +26,7 @@ class Command():
     commands = ["START", "STARTVM", "STOPVM", "REVERT", "UPDATE", "PULL", "PUSH",
         "EXECUTE_VM", "SCREENSHOT", "START_AGENT", "SET_SERVER", "SET_PARAMS",
         "SET_BLACKLIST", "BUILD", "EXECUTE_AGENT", "UPGRADE_ELITE", "CHECK_STATIC",
-        "PROCEDURE", "END"]
+        "PROCEDURE", "END", "EVAL_SERVER", "EVAL_CLIENT"]
     # STARTVM STOPVM REVERT UPDATE PULL PUSH EXECUTE_VM SCREENSHOT START_AGENT SET_SERVER SET_PARAMS SET_BLACKLIST BUILD EXECUTE_AGENT UPGRADE_ELITE CHECK_STATIC PROCEDURE END
     knownCommands = dict(zip(commands,  [None] * len(commands)))
 
@@ -53,7 +53,10 @@ class Command():
         success = None
         payload = None
 
-        if isinstance(serialized, dict):
+        assert serialized, "cannot unserialize a null argument"
+        if isinstance(serialized, Command):
+            return serialized
+        elif isinstance(serialized, dict):
             assert len(serialized)==1
             command = serialized.keys()[0]
             payload = serialized[command]

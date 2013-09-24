@@ -6,7 +6,7 @@ prev = os.path.join(os.getcwd(), "..")
 if not prev in sys.path:
     sys.path.append(prev)
 
-from AVCommon import Protocol
+from AVCommon import Procedure
 
 
 class Master():
