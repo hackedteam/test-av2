@@ -28,6 +28,8 @@ vm_conf_file = os.path.join("conf", "vms.cfg")
 logdir = ""
 test_id = -1
 status = 0
+log = ""
+res = ""
 
 vmman = VMRun(vm_conf_file)
 
@@ -325,26 +327,13 @@ def dispatch(flargs):
 def dispatch_kind(vm_name, kind, args, r_id=None, tries=0, status=0):
 
     #global status, test_id
-    global test_id
-
-    ##     STATUS LIST     ##
-    #                       #
-    #   0 - NOT STARTED     #
-    #   1 - STARTED         #
-    #   2 - ENVIRONMENT     #
-    #   3 - EXECUTED        #
-    #                       #
-    #########################
+    global test_id, res
 
     #   PREPARE FILES
 
     print "DBG test_id is %s" % test_id
 
-    result_id = -1
-
     delay = len(args.vms)
-
-    test_dir_7  = "C:\\Users\\avtest\\Desktop\\AVTEST"
 
     buildbat = "build_%s_%s.bat" % (kind, args.server)
 
@@ -372,9 +361,6 @@ def dispatch_kind(vm_name, kind, args, r_id=None, tries=0, status=0):
         filestocopy.append("assets/sqlite")
         filestocopy.append("assets/sqlite_mod")
 
-    test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST\\build"
-
-
     #   OPEN CHANNEL
 
     if kind == "silent" or kind == "melt":
@@ -393,178 +379,200 @@ def dispatch_kind(vm_name, kind, args, r_id=None, tries=0, status=0):
     p = r.pubsub()
     p.subscribe(vm.name)
 
-    results = []
-    log = ""
-    res = ""
+#    results = []
 
-    if tries == 2:
-        return "%s, %s, ERROR not started after 10 tries." % (vm_name, kind)
-
-    if status == 0:
-
-        print "DBG %s %s is in status %d" % (vm_name, kind, status)
-
-        #   STARTUP VM
-
+    #   STARTUP VM
+    if r_id is None:
         result_id = add_record_result(vm_name, kind, test_id, status, "NOT STARTED")
+    else:
+        result_id = r_id
 
-        if tries <= 0:
-            vm.revert_last_snapshot()
-            job_log(vm.name, "REVERTED")
-            sleep(random.randint(30, delay * 30))
-        elif tries == 3:
-            return "%s, %s, ERROR not started after 10 tries." % (vm_name, kind)
-        else:
-            vm.shutdown()
-            while vm.is_powered_off() is False:
-                sleep(5)
+    vm.revert_last_snapshot()
+    job_log(vm.name, "REVERTED")
+    sleep(random.randint(30, delay * 30))
+    vm.startup()
+    job_log(vm.name, "STARTUP")
 
-        vm.startup()
-        job_log(vm.name, "STARTUP")
-
+#    print "DBG starting Test Loop"
     try:
         for m in p.listen():
-            print "DBG %s: %s"  % (m['channel'], m['data'])
+            #
+            # 1. dispatch vm test case
+            # 2. executing test
+            # 3. report results
+            #
             try:
-                if status == 0:
-                    if "STARTED" in m['data']: # and started is False:
-                        upd_record_result(r_id, status, "STARTED")
-                        print "DBG %s added result with id %s" % (vm_name,result_id)
-                        status = 1
+                print "DBG message on chan %s: %s"  % (m['channel'], m['data'])
+                print "DBG status: %d, vm: %s, kind: %s, passing msg '%s'" % (status,vm.name,kind,m['data'])
+                status = dispatch_status(vm, kind, args.server, test_id, result_id, status, m['data'])
 
-                if status == 1:
+                if status == 4:
+                    print "DBG STATUS 4"
+                    print "DBG [%s] passing debug files txt from host" % vm.name
 
-                    print "DBG %s %s is in status %d" % (vm_name, kind, status)
-
-                    # PREPARE ENVIRONMENT
-
-#                    job_log(vm_name, "LOGGED")
-
-                    test_dir = test_dir_7
-                    copy_to_guest(vm, test_dir, filestocopy)
-
-                    job_log(vm_name, "ENVIRONMENT")
-                    upd_record_result(result_id, result="ENVIRONMENT")
-
-                    status = 2
-
-                if status == 2:
-
-                    print "DBG %s %s is in status %d" % (vm_name, kind, status)
-
-                    # EXECUTE 
+                    res_txt_dst = "%s/results_%s_%s.txt" % (logdir, vm, kind)
+                    res_txt_src = "C:\\Users\\avtest\\Desktop\\AVTEST\\results.txt"
+                    vm.get_file(res_txt_src, res_txt_dst)
+                    job_log(vm.name, "SAVED %s" % kind)
                     
-                    vmman.executeCmd(vm, "%s\\%s" % (test_dir, buildbat), interactive=True, bg=True)
-
-                    # CHECK FOR ERROR IN EXECUTION
-
-#                    sleep(3)
-                    out = vmman.listProcesses(vm)
-                    found = False
-                    tick = 0
-                    script_name = "build_%s_minotauro.bat" % kind
-                    print "DBG script to find is %s" % script_name
-
-                    while tick <= 5:
-                        if "python.exe" in out or script_name in out or "cmd.exe" in out:
-                            found = True
-                            print "DBG process found for %s!" % vm_name
-                            print "DBG %s" % out
-                            break
-
-                        print "DBG Python.EXE not found for %s. sleeping 5 secs (retry %d)" % (vm_name, tick)
-                        print "DBG processes:\n%s" % out
-                        tick+=1
-                        sleep(5)
-
-                    if found == False:
-                        tries+=1
-                        print "%s STARTED but not EXECUTED. Retry %d setup" % (vm_name, tries)
-                        return dispatch_kind(vm_name, kind, args, r_id=result_id, tries=tries, status=status)
-
-                    job_log(vm_name, "EXECUTED %s" % kind)
-                    upd_record_result(result_id, result="EXECUTED")
-
-                    status = 3 
-
-                if status == 3:
-
-                    print "DBG %s %s is in status %d" % (vm_name, kind, status)
-
-                    if "ENDED" not in m['data']: # and started is True:
-
-                        #   SAVING LOGS
-
-                        if log is "":
-                            log = str(m['data'])
-                            save_logs(result_id, log)
-                        else:
-                            log += ", %s" % str(m['data'])
-                            save_logs(result_id, log)
-
-                        # SAVING CURRENT RESULT
-
-                        if "+" in m['data']:
-                            results.append(str(m['data']))
-                            if "STARTED" not in res: # or res is not "":
-                                res += ", %s" % str(m['data'])
-                            else:
-                                res += "%s" % str(m['data'])
-                            upd_record_result(result_id, result=res.replace("+ ","").strip())
+                    if save_screenshot(vm, result_id) is True:
+                        job_log(vm.name, "SCREENSHOT ok")
                         
-                        if "FAILED SCOUT BUILD" in m['data'] or "FAILED SCOUT EXECUTE" in m['data']:
+                    # suspend & refresh snapshot
+                    vm.shutdown()
+                    job_log(vm.name, "SUSPENDED %s" % kind)
 
-                            # SAVING SAMPLE
-
-#                            test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST\\build"
-                            platform = m['data'].split(" ")[-1].split("\\")[-2]
-                            build_zip_src = "%s\\%s\\build.zip" % (test_dir, platform)
-                            build_zip_dst = "tmp/detected_%s.zip" % vm
-                            print "DBG copying %s to %s" % (build_zip_src, build_zip_dst)
-                            vm.get_file(build_zip_src, build_zip_dst)
-                            #vmman.copyFileFromGuest(vm, build_zip_src, build_zip_dst)
-                            print "DBG adding record sample"
-                            a = add_record_sample(result_id, build_zip_dst)
-                            if a:
-                                print "sample SAVED on db"
-                                #os.system('sudo rm -fr %s') % build_zip_dst
-                            else:
-                                print "sample NOT SAVED on db"
-                    else:
-                        print "DBG [%s] passing debug files txt from host" % vm.name
-                        res_txt_dst = "%s/results_%s_%s.txt" % (logdir, vm, kind)
-                        res_txt_src = "C:\\Users\\avtest\\Desktop\\AVTEST\\results.txt"
-                        vm.get_file(res_txt_src, res_txt_dst)
-
-                        print "DBG results are %s" % results
-
-                        job_log(vm_name, "SAVED %s" % kind)
-                        
-                        #execute(vm, test_id, result_id, "%s\\%s" % (test_dir, buildbat), kind)
-
-                        #timestamp = time.strftime("%Y%m%d_%H%M", time.gmtime())
-                        if save_screenshot(vm, result_id) is True:
-                            job_log(vm_name, "SCREENSHOT ok")
-                            
-                        # suspend & refresh snapshot
-                        #vm.suspend()
-                        vm.shutdown()
-                        job_log(vm_name, "SUSPENDED %s" % kind)
-
-    #                    return results # should be: vm_name, kind, results
-                        return "%s, %s, %s" % (vm_name, kind, res.split(",")[-1].replace("+ ",""))
+                    return "%s, %s, %s" % (vm.name, kind, res)
             except TypeError:
                 pass
     except ConnectionError:
-#        if started is False:
-        if status == 0:
-            tries+=1
-            print "DBG %s: not STARTED. Timeout occurred. (status %d)" % (vm, status)
-            return dispatch_kind(vm_name, kind, args, r_id=result_id, tries=tries, status=status)
+        print "DBG ERROR: ConnectionError Exception trapped, restarting %s %s" % (vm_name, kind)
+        status = 0
+        tries += 1
+        if tries < 2:
+            dispatch_kind(vm_name, kind, args, result_id, tries, status)
         else:
-            tries+=1
-            print "DBG %s: Timeout occurred during execution. (status %d)" % (vm, status)
-            return dispatch_kind(vm_name, kind, args, r_id=result_id, tries=tries, status=status)
+#        dispatch_status(vm, kind, args.server, test_id, r_id, status, m['data'])
+            upd_record_result(result_id, result="ERROR NOT EXECUTED")
+            return "%s, %s, ERROR NOT EXECUTED" % (vm_name, kind)
+
+def dispatch_status(vm, kind, server, test_id, r_id, status, message):
+#    print "DBG dispatch status %d (start)" % status
+
+    global log, res
+
+    if status == 0: # check for startup vm
+        res = ""
+
+        if "STARTED" in message:
+            upd_record_result(r_id, status, "STARTED")
+            print "DBG %s added result with id %s" % (vm.name,r_id)
+            status = 1
+            #return dispatch_status(vm.name, kind, server, test_id, r_id, status, message)
+            print "DBG new status %d" % status
+
+    if status == 1: # prepare environment
+
+        buildbat = "build_%s_%s.bat" % (kind, server)
+
+        filestocopy =[  "./%s" % buildbat,
+                        "lib/agent.py",
+                        "lib/logger.py",
+                        "lib/rcs_client.py",
+                        "conf/vmavtest.cfg",
+                        "assets/config_desktop.json",
+                        "assets/config_mobile.json",
+                        "assets/keyinject.exe",
+                        "assets/meltapp.exe",
+                        "assets/meltexploit.txt",
+                        "assets/meltexploit.docx",
+                        "assets/meltexploit.ppsx"     ]
+
+        if kind == "exploit_web":
+            filestocopy.append("assets/avtest.swf")
+            filestocopy.append("assets/owned.docm")
+            filestocopy.append("assets/PMIEFuck-WinWord.dll")
+
+        if kind == "mobile" or kind == "silent":
+            filestocopy.append("assets/codec")
+            filestocopy.append("assets/codec_mod")
+            filestocopy.append("assets/sqlite")
+            filestocopy.append("assets/sqlite_mod")
+
+        #test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST\\build"
+        test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
+        copy_to_guest(vm, test_dir, filestocopy)
+
+        job_log(vm.name, "ENVIRONMENT")
+        upd_record_result(r_id, result="ENVIRONMENT")
+        status = 2
+        #dispatch_status(vm.name, kind, server, test_id, r_id, status, message)
+        print "DBG new status %d" % status
+
+    if status == 2:
+
+        # EXECUTE 
+        
+        vmman.executeCmd(vm, "%s\\%s" % (test_dir, buildbat), interactive=True, bg=True)
+
+        status = 3
+
+        """
+
+        # CHECK FOR ERROR IN EXECUTION
+
+        out = vmman.listProcesses(vm)
+        found = False
+        tick = 0
+        print "DBG script to find is %s" % buildbat
+
+        while tick <= 3:
+            if "python.exe" in out or buildbat in out or "cmd.exe" in out:
+                found = True
+                #print "DBG process found for %s, %s!" % (vm.name,kind)
+                #print "DBG %s" % out
+                break
+
+            print "DBG Python.EXE not found for %s. sleeping 5 secs (retry %d)" % (vm.name, tick)
+            print "DBG processes:\n%s" % out
+            tick+=1
+            sleep(5)
+
+        if found is False:
+            print "%s not EXECUTED. Retry ENVIRONMENT" % vm.name
+            status = 1
+            dispatch_status(vm, kind, server, test_id, r_id, status, message)
+        else:
+            job_log(vm.name, "EXECUTED %s, %s" % (vm.name,kind))
+            upd_record_result(r_id, result="EXECUTED")
+
+            status = 3
+            print "DBG new status %d" % status
+
+        """
+
+    if status == 3:
+
+        if "ENDED" in message: 
+            status = 4
+            print "DBG new status %d" % status
+            return status
+        else:
+            #   SAVING LOGS
+
+            if log is "":
+                log = str(message)
+                save_logs(r_id, log)
+            else:
+                log += ", %s" % str(message)
+                save_logs(r_id, log)
+
+            # SAVING CURRENT RESULT
+
+            if "+" in message:
+                res += " %s" % message
+                upd_record_result(r_id, result=message.replace("+ ","").strip())
+            
+            if "FAILED SCOUT BUILD" in message or "FAILED SCOUT EXECUTE" in message:
+
+                # SAVING SAMPLE
+
+                platform = message.split(" ")[-1].split("\\")[-2]
+                build_zip_src = "%s\\%s\\build.zip" % (test_dir, platform)
+                build_zip_dst = "tmp/detected_%s.zip" % vm
+                print "DBG copying %s to %s" % (build_zip_src, build_zip_dst)
+                vm.get_file(build_zip_src, build_zip_dst)
+                print "DBG adding record sample"
+                a = add_record_sample(r_id, build_zip_dst)
+                if a:
+                    print "sample SAVED on db"
+                    #os.system('sudo rm -fr %s') % build_zip_dst
+                else:
+                    print "sample NOT SAVED on db"
+    return status
+
+
+
 
 def push(flargs):
     vm_name, args = flargs
