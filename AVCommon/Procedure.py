@@ -16,7 +16,7 @@ import pprint
 pp = pprint.PrettyPrinter(indent=4)
 
 
-class Procedure :
+class Procedure:
     proc = []
     name = ""
 
@@ -28,9 +28,9 @@ class Procedure :
         else:
             self.proc = [Command.unserialize(c) for c in proc]
 
-    #def next(self):
-    #    for c in self.proc:
-    #        yield c
+    def next(self):
+        for c in self.proc:
+            yield c
 
     def next_command(self):
         c = self.proc.pop(0)

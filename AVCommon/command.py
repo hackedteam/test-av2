@@ -70,8 +70,7 @@ class Command():
         className = "Command_%s" % command
         #print Command.knownCommands
         assert(isinstance(success, bool) or success is None)
-        assert isinstance(command, str),"not a string: %s" % command
-        #logging.debug("%s Command.knownCommands.keys: %s" % (command, Command.knownCommands.keys()))
+        assert isinstance(command, str), "not a string: %s" % command
         assert command in Command.known_commands.keys(), "Unknown command: %s" % command
 
         #logging.debug("dir: ", dir(Command.knownCommands[command]))
@@ -82,10 +81,13 @@ class Command():
             cmd = c(command)
             #print c
 
-            try:
-                cmd.payload = ast.literal_eval(payload)
-            except:
-                cmd.payload = payload
+            if payload.startswith("*"):
+                cmd.payload = payload[1:]
+            else:
+                try:
+                    cmd.payload = ast.literal_eval(payload)
+                except:
+                    cmd.payload = payload
             cmd.success = success
             return cmd
 

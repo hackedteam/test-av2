@@ -2,8 +2,11 @@ from Command import Command
 from MQ import MQStar
 import logging
 import copy
+import threading
+
 
 class ProtocolClient:
+
     def __init__(self, mq, client):
         self.mq = mq
         self.client = client
@@ -14,8 +17,10 @@ class ProtocolClient:
     def _executeCommand(self, cmd):
         try:
             ret = cmd.execute(cmd.payload)
+            logging.debug("cmd.execute: %s" % str(ret))
             cmd.success, cmd.payload = ret
         except Exception, e:
+            logging.error(e)
             cmd.success = False
             cmd.payload = e
 
@@ -24,6 +29,7 @@ class ProtocolClient:
         return cmd
 
     """ client side """
+
     def receive_command(self):
         assert(isinstance(self.client, str))
         #logging.debug("PROTO receiveCommand %s" % (self.client))
@@ -50,17 +56,24 @@ class Protocol(ProtocolClient):
         assert(isinstance(mq, MQStar))
 
     """server side"""
+
     def _send_command_mq(self, cmd):
         cmd.on_init(cmd.payload)
         self.mq.send_client(self.client, cmd.serialize())
 
     def _execute(self, cmd, blocking=False):
         logging.debug("PROTO S executing server")
-        t = threading.Thread(self._executeCommand, ())
+        t = threading.Thread(target=self._executeCommand, args=(cmd,))
         t.start()
 
         if blocking:
             t.join()
+
+    def next(self):
+        logging.debug("next")
+        for c in self.procedure.next():
+            logging.debug("next, got a new command")
+            yield self.send_command(c)
 
     def send_next_command(self):
         if not self.procedure:

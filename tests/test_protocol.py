@@ -72,7 +72,43 @@ def test_ProtocolProcedure():
         if received.name == "END":
             exit = True
 
+def test_ProtocolEval():
+    host = "localhost"
+    mq = MQStar(host)
+    mq.clean()
+    c = "client1"
+    mq.add_client(c)
+
+    commands = [("EVAL_SERVER", "dir()"), ("EVAL_SERVER", "locals()"), 
+        ("EVAL_SERVER", "__import__('os').getcwd()"), ("EVAL_SERVER", "*'END'")]
+    procedure = Procedure("PROC", commands)
+
+    p = Protocol(mq, c, procedure)
+    
+    for p in p.next():
+        logging.debug("ret: %s" % p)
+            
+    exit = False
+    while not exit:
+        rec = mq.receive_server(blocking=True, timeout=10)
+        if rec is not None:
+            print "- SERVER RECEIVED %s %s" % (rec, type(rec))
+            c, msg = rec
+            answer = p.receive_answer(c, msg)
+            answered += 1
+            print "- SERVER RECEIVED ANSWER: ", answer.success
+            if answer.name == "END" or not answer.success:
+                ended += 1
+                "- SERVER RECEIVE END"
+            if answer.success:
+                p.send_next_command()
+
+        else:
+            print "- SERVER RECEIVED empty"
+            exit = True
+
 
 if __name__ == '__main__':
     logging.config.fileConfig('../logging.conf')
-    test_ProtocolProcedure()
+    #test_ProtocolProcedure()
+    test_ProtocolEval()
