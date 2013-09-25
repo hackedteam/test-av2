@@ -2,13 +2,13 @@ import sys
 sys.path.append("../AVCommon")
 sys.path.append("../AVMaster")
 
-from vmManager import *
+import VMManager as vm
 
 from AVCommon import MQ
 from Procedure import Procedure
 
 def test_dispatcher():
-    #v = vmManager()
+
     host = "localhost"
 
     vms = ["kis", "mcafee"]

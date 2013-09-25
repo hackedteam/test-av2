@@ -17,31 +17,31 @@ class Dispatcher(object):
         global received
         exit = False
         print "- SERVER ", len(commands)
-        numcommands = len(commands)
+        num_commands = len(commands)
 
-        avmachines = []
+        av_machines = []
         for c in clients:
-            avmachines.append(AVMachine(mq, c, procedure))
+            av_machines.append(AVMachine(mq, c, procedure))
 
         for a in avmachines:
             a.start()
-            a.executeNextCommand()
+            a.execute_next_command()
 
         ended = 0
         answered = 0
         while not exit and ended < len(clients):
-            rec = mq.receiveServer(blocking=True, timeout=10)
+            rec = mq.receive_server(blocking=True, timeout=10)
             if rec is not None:
                 print "- SERVER RECEIVED %s %s" % (rec, type(rec))
                 c, msg = rec
-                answer = p[c].receiveAnswer(c, msg)
+                answer = p[c].receive_answer(c, msg)
                 answered += 1
                 print "- SERVER RECEIVED ANSWER: ", answer.success
                 if answer.name == "END" or not answer.success:
                     ended += 1
                     "- SERVER RECEIVE END"
                 if answer.success:
-                    p[c].sendNextCommand()
+                    p[c].send_next_command()
 
             else:
                 print "- SERVER RECEIVED empty"
@@ -56,9 +56,9 @@ class Dispatcher(object):
         mq = MQStar(host)
         mq.clean()
         for vm in self.vms:
-            mq.addClient(vm.name)
+            mq.add_client(vm.name)
 
-        mq.addClient("")
+        mq.add_client("")
 
         thread1 = threading.Thread(target=self.server, args=(vm_mq, [c], commands))
         thread1.start()

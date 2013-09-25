@@ -19,13 +19,13 @@ class Master():
 
         vms = [ AVMachine(vm) for vm in vm_names]
 
-        procedures = Procedure.loadFromFile("procedures.yaml")
+        procedures = Procedure.load_from_file("procedures.yaml")
         proc = procedures[vm.procedure]
 
         assert proc, "cannot find the specified procedure: %s" % vm.procedure
         dispatcher = Dispatcher(vms, procedures)
 
-        dispatcher.startServer()
+        dispatcher.start_server()
 
 
 def main():

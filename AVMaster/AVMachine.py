@@ -21,8 +21,8 @@ class AVMachine(threading.Thread):
         self.procedure = procedure
         self.mq = mq
 
-        mq.addClient(name)
-        mq.addClient("avmanager_%s" % name)
+        mq.add_client(name)
+        mq.add_client("avmanager_%s" % name)
 
         self.p = Protocol(mq, name)
         self.vmman = VMManager(name)
@@ -30,19 +30,19 @@ class AVMachine(threading.Thread):
 
     def run():
         while not exit:
-            rec = receiveCommand.receiveClient(blocking=True, timeout=0)
+            rec = receive_command.receive_client(blocking=True, timeout=0)
             if rec is not None:
                 print "- CLIENT RECEIVED %s %s" % (rec, type(rec))
 
 
-    def executeNextCommand(self):
+    def execute_next_command(self):
         if not self.procedure:
             return None
 
-        cmd = self.procedure.nextCommand()
+        cmd = self.procedure.next_command()
         if cmd.side == "client":
             p = Protocol(mq, name)
-            p.sendNextCommand(cmd)
+            p.send_next_command(cmd)
         else:
             VMManager.execute(name, cmd)
 

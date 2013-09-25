@@ -4,14 +4,14 @@ import logging
 class Command_BUILD(Command.ClientCommand):
 
     """ server side """
-    def onInit(self, args):
-        logging.debug("    CS onInit")
+    def on_init(self, args):
+        logging.debug("    CS on_init")
 
-    def onAnswer(self, success, answer):
-        logging.debug("    CS onAnswer")
+    def on_answer(self, success, answer):
+        logging.debug("    CS on_answer")
 
     """ client side, returns (bool,*) """
-    def Execute(self, args):
+    def execute(self, args):
         logging.debug("    CS Execute")
         return True, ""
 

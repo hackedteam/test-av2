@@ -1,8 +1,9 @@
 import sys
+import os
 sys.path.append("../AVCommon")
 sys.path.append("../AVMaster")
 
-from vmManager import *
+import VMManager as vm
 
 prev = os.path.join(os.getcwd(), "..")
 if not prev in sys.path:

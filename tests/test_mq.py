@@ -16,7 +16,7 @@ def server(mq):
     exit = False
     print "SERVER"
     while not exit:
-        rec = mq.receiveServer(blocking=True, timeout=2)
+        rec = mq.receive_server(blocking=True, timeout=2)
         if rec is not None:
             logging.debug("%s %s" % (rec, type(rec)))
             c, m = rec
@@ -39,14 +39,14 @@ def test_blockingMQ():
 
     c = "client1"
 
-    mq1.addClient(c)
+    mq1.add_client(c)
     thread1 = threading.Thread(target=server, args=(mq1,))
     thread1.start()
 
-    mq2.sendServer(c, "WORKS")
-    mq2.sendServer(c, "FINE TO THE")
+    mq2.send_server(c, "WORKS")
+    mq2.send_server(c, "FINE TO THE")
     time.sleep(1)
-    mq2.sendServer(c, "STOP")
+    mq2.send_server(c, "STOP")
 
     time.sleep(1)
     print "RECEIVED: ", received
@@ -59,8 +59,8 @@ def test_MultipleMQ():
     mq2 = MQStar(host, session=mq1.session)
 
     client, message = "c1", "HELLO"
-    mq1.sendServer(client, message)
-    c, m = mq2.receiveServer()
+    mq1.send_server(client, message)
+    c, m = mq2.receive_server()
     assert (c == client)
     assert (m == message)
 
@@ -72,8 +72,8 @@ def test_MQClean():
     redis = StrictRedis(host, socket_timeout=60)
 
     clients = ["c1", "c2", "c3"]
-    mq.addClients(clients)
-    mq.sendClient("c1", "whatever")
+    mq.add_clients(clients)
+    mq.send_client("c1", "whatever")
 
     rkeys = redis.keys("MQ_*")
     assert rkeys
@@ -90,19 +90,19 @@ def test_MQ():
     mq.clean()
 
     clients = ["c1", "c2", "c3"]
-    mq.addClients(clients)
+    mq.add_clients(clients)
 
     for c in clients:
-        mq.sendServer(c, "STARTED")
+        mq.send_server(c, "STARTED")
 
     for i in range(len(clients)):
-        c, m = mq.receiveServer()
+        c, m = mq.receive_server()
         assert(c in clients)
         assert(m == "STARTED")
-        mq.sendClient(c, "END %s" % i)
+        mq.send_client(c, "END %s" % i)
 
     for c in clients:
-        m = mq.receiveClient(c)
+        m = mq.receive_client(c)
         print m
         assert(m.startswith("END "))
 

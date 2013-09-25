@@ -114,9 +114,9 @@ def test_commandStart():
     assert(c)
     assert(c.name == "START")
 
-    c.onInit("whatever")
-    ret, answer = c.Execute("arguments")
-    c.onAnswer(ret, answer)
+    c.on_init("whatever")
+    ret, answer = c.execute("arguments")
+    c.on_answer(ret, answer)
 
 if __name__ == '__main__':
     logging.config.fileConfig('../logging.conf')

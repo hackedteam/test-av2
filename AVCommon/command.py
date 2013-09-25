@@ -5,19 +5,19 @@ import abc
 import ast
 from Decorators import returns
 
-def initCommands():
+def init_commands():
     logging.debug("initCommands")
     cwd = os.getcwd()
     if cwd not in sys.path:
         sys.path.append(cwd)
     for m in Command.commands:
         try:
-            Command.knownCommands[m] = __import__("Command_%s" % m)
+            Command.known_commands[m] = __import__("Command_%s" % m)
         except:  # pragma: no cover
             import AVCommon
-            Command.knownCommands[m] = __import__("AVCommon.Command_%s" % m)
+            Command.known_commands[m] = __import__("AVCommon.Command_%s" % m)
     #logging.debug("dir(): %s %s" % (dir(), dir("AVCommon")) )
-    logging.info("Commands: %s" % Command.knownCommands.keys())
+    logging.info("Commands: %s" % Command.known_commands.keys())
     return True
 
 class Command():
@@ -28,7 +28,7 @@ class Command():
         "SET_BLACKLIST", "BUILD", "EXECUTE_AGENT", "UPGRADE_ELITE", "CHECK_STATIC",
         "PROCEDURE", "END", "EVAL_SERVER", "EVAL_CLIENT"]
     # STARTVM STOPVM REVERT UPDATE PULL PUSH EXECUTE_VM SCREENSHOT START_AGENT SET_SERVER SET_PARAMS SET_BLACKLIST BUILD EXECUTE_AGENT UPGRADE_ELITE CHECK_STATIC PROCEDURE END
-    knownCommands = dict(zip(commands,  [None] * len(commands)))
+    known_commands = dict(zip(commands,  [None] * len(commands)))
 
     payload = ""
     success = None
@@ -40,13 +40,13 @@ class Command():
     def __init__(self, name):
         self.name = name
         if not Command.init:
-            Command.init = initCommands()
-        assert(len(Command.knownCommands) > 0)
+            Command.init = init_commands()
+        assert(len(Command.known_commands) > 0)
 
     @staticmethod
     def unserialize(serialized):
         if not Command.init:
-            Command.init = initCommands()
+            Command.init = init_commands()
 
         #ident, command, answer = serialized.split(',', 2)
         #assert(ident == "CMD")
@@ -72,11 +72,11 @@ class Command():
         assert(isinstance(success, bool) or success is None)
         assert isinstance(command, str),"not a string: %s" % command
         #logging.debug("%s Command.knownCommands.keys: %s" % (command, Command.knownCommands.keys()))
-        assert command in Command.knownCommands.keys(), "Unknown command: %s" % command
+        assert command in Command.known_commands.keys(), "Unknown command: %s" % command
 
         #logging.debug("dir: ", dir(Command.knownCommands[command]))
-        if command in Command.knownCommands.keys():
-            m = Command.knownCommands[command]
+        if command in Command.known_commands.keys():
+            m = Command.known_commands[command]
             c = getattr(m, className)
             #print sys.path
             cmd = c(command)
@@ -94,16 +94,16 @@ class Command():
 
     """ server side """
     @abc.abstractmethod
-    def onInit(self, args):
+    def on_init(self, args):
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def onAnswer(self, success, answer):
+    def on_answer(self, success, answer):
         pass  # pragma: no cover
 
     """ client side """
     @abc.abstractmethod
-    def Execute(self, args):
+    def execute(self, args):
         pass  # pragma: no cover
 
     def __str__(self):
@@ -112,10 +112,10 @@ class Command():
 
 class ServerCommand(Command):
     side = "server"
-    def onInit(self, args):
+    def on_init(self, args):
         pass  # pragma: no cover
 
-    def onAnswer(self, success, answer):
+    def on_answer(self, success, answer):
         pass  # pragma: no cover
 
 

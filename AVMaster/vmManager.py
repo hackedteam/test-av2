@@ -12,6 +12,7 @@ class VMManager:
     def __init__(name):
         self.name = name
 
-    def execute(cmd)
+    def execute(cmd):
+    	pass
 
 

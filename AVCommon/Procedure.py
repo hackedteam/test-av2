@@ -21,34 +21,42 @@ class Procedure :
     name = ""
 
     """docstring for Procedure"""
-    def __init__(self, name, proc=[]):
+    def __init__(self, name, proc=None):
         self.name = name
-        self.proc = [Command.unserialize(c) for c in proc]
+        if not proc:
+            self.proc = []
+        else:
+            self.proc = [Command.unserialize(c) for c in proc]
 
-    def nextCommand(self):
-        return self.proc.pop(0)
+    #def next(self):
+    #    for c in self.proc:
+    #        yield c
+
+    def next_command(self):
+        c = self.proc.pop(0)
+        return c
 
     def __len__(self):
         return len(self.proc)
 
     @staticmethod
-    def loadFromYaml(stream):
+    def load_from_yaml(stream):
         procedures = {}
         data = load(stream, Loader=Loader)
         pp.pprint(data)
         for name in data.keys():
-            commandList = []
-            commandData = data[name]
+            command_list = []
+            command_data = data[name]
             logging.debug("new procedure: %s\nargs: %s" % (name, data[name]))
-            for c in commandData:
+            for c in command_data:
                 c = Command.unserialize(c)
-                commandList.append(c)
+                command_list.append(c)
                 logging.debug("  command: %s" % c)
 
-            procedures[name] = Procedure(commandList)
+            procedures[name] = Procedure(command_list)
         return procedures
 
     @staticmethod
-    def loadFromFile(filename):
+    def load_from_file(filename):
         stream = file(filename, 'r')
-        return Procedure.loadFromYaml(stream)
+        return Procedure.load_from_yaml(stream)

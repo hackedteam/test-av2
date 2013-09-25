@@ -18,50 +18,50 @@ class MQStar():
         else:
             self.session = session
 
-        channelServer = " MQ_%s_to_server" % self.session
-        self.channelToServer = Channel(self.host, channelServer)
+        channel_server = " MQ_%s_to_server" % self.session
+        self.channel_to_server = Channel(self.host, channel_server)
 
-    def _makeChannel(self, frm="server", to="server"):
+    def _make_channel(self, frm="server", to="server"):
         name = "MQ_%s_%s_%s" % (self.session, frm, to)
         channel = Channel(self.host, name)
         return channel
 
     def clean(self):
-        for k in self.channelToServer.redis.keys("MQ_*"):
+        for k in self.channel_to_server.redis.keys("MQ_*"):
             logging.debug(" MQ clean %s" % k)
-            self.channelToServer.redis.delete(k)
+            self.channel_to_server.redis.delete(k)
 
-    def addClient(self, client):
+    def add_client(self, client):
         if client not in self.channels.keys():
-            ch = self._makeChannel(to=client)
+            ch = self._make_channel(to=client)
             #chRight = self.channelToServer
             self.channels[client] = ch
 
-    def addClients(self, clients):
+    def add_clients(self, clients):
         for c in clients:
-            self.addClient(c)
+            self.add_client(c)
 
-    def sendServer(self, client, message):
+    def send_server(self, client, message):
         if client not in self.channels.keys():
             logging.debug(" MQ error, client not found")
-        ch = self.channelToServer
+        ch = self.channel_to_server
         payload = (client, message)
         ch.write(payload)
 
-    def receiveServer(self, blocking=False, timeout=60):
-        payload = self.channelToServer.read(blocking, timeout)
+    def receive_server(self, blocking=False, timeout=60):
+        payload = self.channel_to_server.read(blocking, timeout)
         logging.debug(" MQ read: %s type: %s" % (str(payload), type(payload)))
         #client, message = payload
         return payload
 
-    def sendClient(self,  client, message):
+    def send_client(self,  client, message):
         if client not in self.channels.keys():
             logging.debug(" MQ error, sendClient, client not found: %s" %
                 self.channels)
         ch = self.channels[client]
         ch.write(message)
 
-    def receiveClient(self, client, blocking=False, timeout=60):
+    def receive_client(self, client, blocking=False, timeout=60):
         assert(isinstance(client, str))
         if client not in self.channels.keys():
             logging.debug(" MQ error, receiveClient, client (%s) not found: %s" % (client, self.channels))
