@@ -69,7 +69,7 @@ def test_ChannelList():
     r3 = s.read()
     r4 = s.read()
 
-    assert(rc1 == "START")
+    assert rc1 == "START", "not a START: %s" % rc1
     assert(rc2 == "START")
     assert(r3 == "+STARTED C1")
     assert(r4 == "+STARTED C2")

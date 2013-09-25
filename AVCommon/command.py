@@ -3,6 +3,7 @@ import inspect
 import logging
 import abc
 import ast
+import re
 from Decorators import returns
 
 def init_commands():
@@ -50,10 +51,12 @@ class Command():
 
         #ident, command, answer = serialized.split(',', 2)
         #assert(ident == "CMD")
+        command = serialized
         success = None
         payload = None
 
         assert serialized, "cannot unserialize a null argument"
+
         if isinstance(serialized, Command):
             return serialized
         elif isinstance(serialized, dict):
@@ -64,8 +67,18 @@ class Command():
             command, success, payload = serialized
         elif len(serialized) == 2:
             command, payload = serialized
-        else:
-            command = serialized
+        elif isinstance(serialized, str):
+            #TODO: add ast.literal_eval di ('START', None, None)
+            m = re.compile("\('(\w+)\', (\w+), (.+)\)").match(serialized)
+            if m:
+                groups = m.groups()
+                assert len(groups) == 3
+                command = groups[0]
+                success = ast.literal_eval(groups[1])
+                try:
+                    payload = ast.literal_eval(groups[2])
+                except SyntaxError:
+                    payload = groups[2]
 
         className = "Command_%s" % command
         #print Command.knownCommands
@@ -81,7 +94,7 @@ class Command():
             cmd = c(command)
             #print c
 
-            if payload.startswith("*"):
+            if isinstance(payload, str) and payload.startswith("*"):
                 cmd.payload = payload[1:]
             else:
                 try:

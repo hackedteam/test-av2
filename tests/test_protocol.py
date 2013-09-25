@@ -79,15 +79,17 @@ def test_ProtocolEval():
     c = "client1"
     mq.add_client(c)
 
-    commands = [("EVAL_SERVER", "dir()"), ("EVAL_SERVER", "locals()"), 
-        ("EVAL_SERVER", "__import__('os').getcwd()"), ("EVAL_SERVER", "*'END'")]
+    commands = [("EVAL_SERVER", "dir()"),
+                ("EVAL_SERVER", "locals()"),
+                ("EVAL_SERVER", "__import__('os').getcwd()"),
+                ("EVAL_SERVER", "*'END'")]
     procedure = Procedure("PROC", commands)
 
     p = Protocol(mq, c, procedure)
-    
-    for p in p.next():
-        logging.debug("ret: %s" % p)
-            
+
+    for r in p.next():
+        logging.debug("ret: %s" % r)
+
     exit = False
     while not exit:
         rec = mq.receive_server(blocking=True, timeout=10)
@@ -95,13 +97,11 @@ def test_ProtocolEval():
             print "- SERVER RECEIVED %s %s" % (rec, type(rec))
             c, msg = rec
             answer = p.receive_answer(c, msg)
-            answered += 1
             print "- SERVER RECEIVED ANSWER: ", answer.success
             if answer.name == "END" or not answer.success:
-                ended += 1
                 "- SERVER RECEIVE END"
-            if answer.success:
-                p.send_next_command()
+            #if answer.success:
+            a="""('client1', ('EVAL_SERVER', True, {'self': <Command_EVAL_SERVER.Command_EVAL_SERVER object at 0x10931f810>, 'args': 'locals()'}))"""#   p.send_next_command()
 
         else:
             print "- SERVER RECEIVED empty"

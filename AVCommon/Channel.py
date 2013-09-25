@@ -29,10 +29,12 @@ class Channel():
             message = self.redis.lpop(self.channel)
 
         logging.debug("  CH read: %s" % str(message))
-        try:
-            parsed = ast.literal_eval(message)
-        except:
-            parsed = message
+        #try:
+            #parsed = ast.literal_eval(message)
+            #parsed = tuple(message[1:-1].split(", ", 1))
+            #b = re.compile("\('(\w+)'")
+        #except:
+        parsed = message
 
         logging.debug("      type: %s" % type(parsed))
         return parsed

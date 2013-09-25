@@ -62,7 +62,7 @@ def test_MultipleMQ():
     mq1.send_server(client, message)
     c, m = mq2.receive_server()
     assert (c == client)
-    assert (m == message)
+    assert (eval(m) == message)
 
 
 def test_MQClean():
@@ -97,8 +97,8 @@ def test_MQ():
 
     for i in range(len(clients)):
         c, m = mq.receive_server()
-        assert(c in clients)
-        assert(m == "STARTED")
+        assert c in clients
+        assert eval(m) == "STARTED", "Uncorrect value: %s" % m
         mq.send_client(c, "END %s" % i)
 
     for c in clients:

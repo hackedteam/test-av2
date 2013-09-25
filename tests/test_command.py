@@ -64,6 +64,20 @@ def test_commandUnserialize():
     assert s.side == "server"
     assert s.context == "mycontext"
 
+    s = Command.unserialize( ("STARTVM", True, ["kis", "mcafee"]) )
+    assert s.name == "STARTVM"
+    assert s.payload == ["kis", "mcafee"]
+    assert s.success is True
+    assert s.side == "server"
+    assert s.context == "mycontext"
+
+    s = Command.unserialize( """('STARTVM', True, ["kis", "mcafee"])""" )
+    assert s.name == "STARTVM"
+    assert s.payload == ["kis", "mcafee"]
+    assert s.success is True
+    assert s.side == "server"
+    assert s.context == "mycontext"
+
     s.success = True
     q = Command.unserialize( s )
     assert q.name == "STARTVM"

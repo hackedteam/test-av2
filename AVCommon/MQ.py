@@ -2,6 +2,8 @@ import string
 import random
 from Channel import Channel
 import logging
+import re
+
 
 def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for x in range(size))
@@ -50,9 +52,19 @@ class MQStar():
 
     def receive_server(self, blocking=False, timeout=60):
         payload = self.channel_to_server.read(blocking, timeout)
-        logging.debug(" MQ read: %s type: %s" % (str(payload), type(payload)))
+
+        if not payload:
+            logging.error("TIMEOUT")
+            return None
+
+        p = re.compile("\('(\w+)', (.+)\)")
+        m = p.match(payload)
+        assert m, "wrong format"
+        
+        cmd, args = m.group(1), m.group(2)
+        logging.debug(" MQ read: %s args: %s" % (str(cmd), str(args)))
         #client, message = payload
-        return payload
+        return cmd, args
 
     def send_client(self,  client, message):
         if client not in self.channels.keys():
