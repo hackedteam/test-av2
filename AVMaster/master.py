@@ -434,7 +434,7 @@ def dispatch_kind(vm_name, kind, args, r_id=None, tries=0, status=0):
         else:
 #        dispatch_status(vm, kind, args.server, test_id, r_id, status, m['data'])
             upd_record_result(result_id, result="ERROR NOT EXECUTED")
-            return "%s, %s, ERROR NOT EXECUTED" % (vm_name, kind)
+            return "%s, %s, + ERROR NOT EXECUTED" % (vm.name, kind)
 
 def dispatch_status(vm, kind, server, test_id, r_id, status, message):
 #    print "DBG dispatch status %d (start)" % status

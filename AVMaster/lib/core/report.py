@@ -60,8 +60,16 @@ class Report:
 		port = "8000"
 
 		report_file = "http://%s:%s/report/%s" % ( host, port, self.test_id )
+		res = []
 
-		res = [ x for x in self.results if len(x)>0 and len(x[0])>0 ]
+#		res = [ x for x in self.results if len(x)>0 and len(x[0])>0 ]
+		for x in self.results:
+			try:
+				print "x: %s" % x
+				if len(x)>0 and len(x[0])>0:
+					res.append(x)
+			except:
+				pass
 
 		sortedresults = sorted(res, key = lambda x: x[0][0])
 		print "DBG sorted %s" % sortedresults
