@@ -51,6 +51,7 @@ class MQStar():
         ch.write(payload)
 
     def receive_server(self, blocking=False, timeout=60):
+        logging.debug(" MQ receive_server")
         payload = self.channel_to_server.read(blocking, timeout)
 
         if not payload:

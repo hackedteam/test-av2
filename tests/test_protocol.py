@@ -87,26 +87,28 @@ def test_ProtocolEval():
 
     p = Protocol(mq, c, procedure)
 
+    print("---- START SENDING ----")
     for r in p.next():
         logging.debug("ret: %s" % r)
 
+    print("---- START RECEIVING ----")
     exit = False
     while not exit:
         rec = mq.receive_server(blocking=True, timeout=10)
-        if rec is not None:
+        if rec:
             print "- SERVER RECEIVED %s %s" % (rec, type(rec))
             c, msg = rec
             answer = p.receive_answer(c, msg)
             print "- SERVER RECEIVED ANSWER: ", answer.success
-            if answer.name == "END" or not answer.success:
+            if answer.payload == "END" or not answer.success:
                 "- SERVER RECEIVE END"
             #if answer.success:
-            a="""('client1', ('EVAL_SERVER', True, {'self': <Command_EVAL_SERVER.Command_EVAL_SERVER object at 0x10931f810>, 'args': 'locals()'}))"""#   p.send_next_command()
+            #   p.send_next_command()
 
         else:
             print "- SERVER RECEIVED empty"
             exit = True
-
+    print("---- STOP RECEIVING ----")
 
 if __name__ == '__main__':
     logging.config.fileConfig('../logging.conf')

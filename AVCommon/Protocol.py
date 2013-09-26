@@ -62,7 +62,7 @@ class Protocol(ProtocolClient):
         self.mq.send_client(self.client, cmd.serialize())
 
     def _execute(self, cmd, blocking=False):
-        logging.debug("PROTO S executing server")
+        #logging.debug("PROTO S executing server")
         t = threading.Thread(target=self._executeCommand, args=(cmd,))
         t.start()
 
@@ -70,9 +70,9 @@ class Protocol(ProtocolClient):
             t.join()
 
     def next(self):
-        logging.debug("next")
+        #logging.debug("next")
         for c in self.procedure.next():
-            logging.debug("next, got a new command")
+            #logging.debug("next, got a new command")
             yield self.send_command(c)
 
     def send_next_command(self):
