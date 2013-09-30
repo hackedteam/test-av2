@@ -82,10 +82,13 @@ class Report:
 			hres.append(name)
 
 			for ares in av:
-				r = ares.split(", ")
-				hres.append(r[-1])
-				if r[1] not in hcolumns:
-					hcolumns.append(r[1])
+				try:
+					r = ares.split(", ")
+					hres.append(r[-1])
+					if r[1] not in hcolumns:
+						hcolumns.append(r[1])
+				except:
+					pass
 
 			hresults.append(hres)
 
