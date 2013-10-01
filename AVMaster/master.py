@@ -442,7 +442,7 @@ def dispatch_status(vm, kind, server, test_id, r_id, status, message):
     global log, res
 
     if status == 0: # check for startup vm
-        res = ""
+#        res = ""
 
         if "STARTED" in message:
             upd_record_result(r_id, status, "STARTED")
