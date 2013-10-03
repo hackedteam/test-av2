@@ -56,7 +56,7 @@ class Report:
 		hresults = []
 		hcolumns = ['name']
 
-		host = "172.20.20.167"
+		host = "172.20.20.168"
 		port = "8000"
 
 		report_file = "http://%s:%s/report/%s" % ( host, port, self.test_id )
@@ -150,7 +150,8 @@ a.fill-div { display: block; height: 100%; width: 100%; text-decoration: none; }
 
 				found = False
 				for kind in ["FAILED", "BLACKLISTED", "SUCCESS", "ERROR"]:
-					print "DBG parsing rd[%s]" % col  
+#					print "DBG parsing rd[%s]" % col  
+#					print "DBG %s" % rd[col]
 					if kind in rd[col]:
 						l += linetoken % (kind.lower()[0:3], link)
 						found = True
@@ -181,8 +182,8 @@ a.fill-div { display: block; height: 100%; width: 100%; text-decoration: none; }
 			msg = MIMEMultipart()
 			msg["Subject"] = "AV Monitor Results"
 			msg["From"] = "avmonitor@hackingteam.com"
-			#msg["To"] = "olli@hackingteam.com,zeno@hackingteam.com,alor@hackingteam.com,g.landi@hackingteam.com"
-			msg["To"] = "olli@hackingteam.com,zeno@hackingteam.com"
+			msg["To"] = "olli@hackingteam.com,zeno@hackingteam.com,alor@hackingteam.com,g.landi@hackingteam.com"
+			#msg["To"] = "olli@hackingteam.com,zeno@hackingteam.com"
 			#msg["To"] = "olli@hackingteam.com"
 			print "CONTENT LENGTH: %s" % len(content)
 			body = MIMEText(content, 'html')
