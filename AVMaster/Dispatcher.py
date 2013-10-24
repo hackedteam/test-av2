@@ -1,29 +1,34 @@
 import os
 import sys
 
+sys.path.append("../AVCommon")
 prev = os.path.join(os.getcwd(), "..")
+
 if not prev in sys.path:
     sys.path.append(prev)
 
-from AVCommon import MQStar
+from AVCommon.mq import MQStar
+from av_machine import AVMachine
+
 
 class Dispatcher(object):
     """docstring for Dispatcher"""
-    def __init__(self, vms, procedure ):
-        super(Dispatcher, self).__init__()
-        self.arg = arg
 
-    def dispatch(mq, clients, procedure):
+    def __init__(self, vms):
+        super(Dispatcher, self).__init__()
+        self.vms = vms
+
+    def dispatch(self, mq, clients, procedure):
         global received
         exit = False
-        print "- SERVER ", len(commands)
-        num_commands = len(commands)
+        print "- SERVER ", len(procedure)
+        self.num_commands = len(procedure)
 
-        av_machines = []
+        av_machines = {}
         for c in clients:
-            av_machines.append(AVMachine(mq, c, procedure))
+            av_machines[c] = AVMachine(mq, c, procedure)
 
-        for a in avmachines:
+        for a in av_machines.values():
             a.start()
             a.execute_next_command()
 
@@ -34,12 +39,13 @@ class Dispatcher(object):
             if rec is not None:
                 print "- SERVER RECEIVED %s %s" % (rec, type(rec))
                 c, msg = rec
-                answer = p[c].receive_answer(c, msg)
+                m = av_machines[c]
+                answer = m.receive_answer(msg)
                 answered += 1
                 print "- SERVER RECEIVED ANSWER: ", answer.success
                 if answer.name == "END" or not answer.success:
                     ended += 1
-                    "- SERVER RECEIVE END"
+                    print "- SERVER RECEIVE END"
                 if answer.success:
                     p[c].send_next_command()
 
@@ -48,8 +54,8 @@ class Dispatcher(object):
                 exit = True
 
         print answered, ended, numcommands
-        assert(ended == len(clients))
-        assert(answered == (len(clients) * numcommands))
+        assert (ended == len(clients))
+        assert (answered == (len(clients) * numcommands))
 
     def startServer(self):
         host = "localhost"
