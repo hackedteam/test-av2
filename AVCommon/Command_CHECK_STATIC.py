@@ -18,4 +18,3 @@ class Command_CHECK_STATIC(command.ClientCommand):
         logging.debug("    CS Execute")
         return True, ""
 
-
