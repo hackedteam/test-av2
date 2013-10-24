@@ -1,11 +1,13 @@
 import sys
+
 sys.path.append("../AVCommon")
 sys.path.append("../AVMaster")
 
-from Protocol import Protocol
-from Command import Command
-from MQ import MQStar
-from Procedure import Procedure
+from AVCommon.protocol import Protocol
+from AVCommon.procedure import Procedure
+from AVCommon.command import Command
+from AVCommon.mq import MQStar
+
 import threading
 import logging
 import logging.config
@@ -34,7 +36,7 @@ def server_procedure(mq, clients, procedure):
             print "- SERVER RECEIVED ANSWER: ", answer.success
             if answer.name == "END" or not answer.success:
                 ended += 1
-                "- SERVER RECEIVE END"
+                print "- SERVER RECEIVE END"
             if answer.success:
                 p[c].send_next_command()
 
@@ -43,8 +45,9 @@ def server_procedure(mq, clients, procedure):
             exit = True
 
     print answered, ended, numcommands
-    assert(ended == len(clients))
-    assert(answered == (len(clients) * numcommands))
+    assert (ended == len(clients))
+    assert (answered == (len(clients) * numcommands))
+
 
 def test_ProtocolProcedure():
     host = "localhost"
@@ -71,6 +74,7 @@ def test_ProtocolProcedure():
         print "- CLIENT RECEIVED: ", received
         if received.name == "END":
             exit = True
+
 
 def test_ProtocolEval():
     host = "localhost"
@@ -99,9 +103,9 @@ def test_ProtocolEval():
             answer = p.receive_answer(c, msg)
             print "- SERVER RECEIVED ANSWER: ", answer.success
             if answer.name == "END" or not answer.success:
-                "- SERVER RECEIVE END"
-            #if answer.success:
-            a="""('client1', ('EVAL_SERVER', True, {'self': <Command_EVAL_SERVER.Command_EVAL_SERVER object at 0x10931f810>, 'args': 'locals()'}))"""#   p.send_next_command()
+                print "- SERVER RECEIVE END"
+                #if answer.success:
+            a = """('client1', ('EVAL_SERVER', True, {'self': <Command_EVAL_SERVER.Command_EVAL_SERVER object at 0x10931f810>, 'args': 'locals()'}))"""#   p.send_next_command()
 
         else:
             print "- SERVER RECEIVED empty"

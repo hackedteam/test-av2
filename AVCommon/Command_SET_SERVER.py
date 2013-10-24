@@ -1,9 +1,11 @@
-import Command
 import logging
 
-class Command_SET_SERVER(Command.ClientCommand):
+import command
 
+
+class Command_SET_SERVER(command.ClientCommand):
     """ server side """
+
     def on_init(self, args):
         logging.debug("    CS on_init")
 
@@ -11,6 +13,7 @@ class Command_SET_SERVER(Command.ClientCommand):
         logging.debug("    CS on_answer")
 
     """ client side, returns (bool,*) """
+
     def execute(self, args):
         logging.debug("    CS Execute")
         return True, ""

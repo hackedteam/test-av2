@@ -1,10 +1,11 @@
-import Command
 import logging
 
+import command
 
-class Command_START(Command.ClientCommand):
 
+class Command_START(command.ClientCommand):
     """ server side """
+
     def on_init(self, args):
         logging.debug("    CS on_init")
         pass
@@ -13,6 +14,7 @@ class Command_START(Command.ClientCommand):
         logging.debug("    CS on_answer")
 
     """ client side, returns (bool,*)"""
+
     def execute(self, args):
         logging.debug("    CS Execute")
         return True, "I'm doing Science and I'm alive"

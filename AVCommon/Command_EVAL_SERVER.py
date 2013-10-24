@@ -1,10 +1,11 @@
-import Command
 import logging
 
+import command
 
-class Command_EVAL_SERVER(Command.ServerCommand):
 
+class Command_EVAL_SERVER(command.ServerCommand):
     """ client side, returns (bool,*) """
+
     def execute(self, args):
         logging.debug("    CS Execute: %s" % args)
         ret = eval(args)

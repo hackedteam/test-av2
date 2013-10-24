@@ -1,22 +1,19 @@
 import sys
 import os
-sys.path.append("../AVCommon")
-sys.path.append("../AVMaster")
 
-import VMManager as vm
+sys.path.append("../AVCommon")
+sys.path.append("AVCommon")
 
 prev = os.path.join(os.getcwd(), "..")
 if not prev in sys.path:
     sys.path.append(prev)
 
-from AVCommon import Protocol
-from AVCommon import MQ
+from AVCommon import mq
 
 
 def test_instance():
-
     host = "localhost"
-    mq = MQ.MQStar(host)
+    m = mq.MQStar(host)
     c = "vm"
 
 

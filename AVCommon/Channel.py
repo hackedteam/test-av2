@@ -1,6 +1,5 @@
 import logging
 from redis import StrictRedis
-import ast
 
 
 class Channel():
@@ -30,9 +29,9 @@ class Channel():
 
         logging.debug("  CH read: %s" % str(message))
         #try:
-            #parsed = ast.literal_eval(message)
-            #parsed = tuple(message[1:-1].split(", ", 1))
-            #b = re.compile("\('(\w+)'")
+        #parsed = ast.literal_eval(message)
+        #parsed = tuple(message[1:-1].split(", ", 1))
+        #b = re.compile("\('(\w+)'")
         #except:
         parsed = message
 

@@ -1,9 +1,11 @@
-import Command
 import logging
 
-class Command_PROCEDURE(Command.ClientCommand):
+import command
 
+
+class Command_PROCEDURE(command.ClientCommand):
     """ server side """
+
     def on_init(self, args):
         logging.debug("    CS on_init")
 

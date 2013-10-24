@@ -1,8 +1,9 @@
 import string
 import random
-from Channel import Channel
 import logging
 import re
+
+from channel import Channel
 
 
 def id_generator(size=6, chars=string.ascii_uppercase + string.digits):

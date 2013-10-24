@@ -1,32 +1,30 @@
 import sys
+
 sys.path.append("../AVCommon")
 sys.path.append("../AVMaster")
 
-import Protocol
-import MQ
-
-from Procedure import Procedure
-from Command import Command
+from AVCommon.procedure import Procedure
+from AVCommon.command import Command
 
 import logging
 import logging.config
 
 
 def test_dispatcher():
-    c = Command.unserialize( ["START", True, ['whatever','end']])
+    c = Command.unserialize(["START", True, ['whatever', 'end']])
     agentFiles = ""
     params = ""
 
     update = Procedure("UPDATE", ["REVERT", "STARTVM", "UPDATE", "STOPVM"])
     dispatch = Procedure("DISPATCH", ["REVERT", "STARTVM", ("PUSH", agentFiles)])
     scout = Procedure("SCOUT", [
-                        ("PROCEDURE", "dispatch"),
-                        ("PUSH", agentFiles),
-                        ("START_AGENT", None),
-                        ("SET_PARAMS", params),
-                        ("BUILD", ["silent"]),
-                        ("EXECUTE_AGENT", ["build/agent.exe"]),
-                    ])
+        ("PROCEDURE", "dispatch"),
+        ("PUSH", agentFiles),
+        ("START_AGENT", None),
+        ("SET_PARAMS", params),
+        ("BUILD", ["silent"]),
+        ("EXECUTE_AGENT", ["build/agent.exe"]),
+    ])
 
     assert update
     assert dispatch
@@ -39,6 +37,7 @@ def test_procedure_file():
     logging.debug("procedures: %s" % procedures)
     for p in procedures.values():
         assert isinstance(p, Procedure), "not a Procedure: %s" % p
+
 
 def test_procedure_yaml():
     yaml = """UPDATE:
@@ -67,6 +66,7 @@ SCOUT:
     logging.debug("procedures: %s" % procedures)
     for p in procedures.values():
         assert isinstance(p, Procedure), "not a Procedure: %s" % p
+
 
 if __name__ == '__main__':
     logging.config.fileConfig('../logging.conf')

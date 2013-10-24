@@ -1,10 +1,11 @@
 import sys
+
 sys.path.append("../AVCommon")
 
-from MQ import MQStar
+from AVCommon.mq import MQStar
 import time
 import threading
-import logging, sys
+import logging
 import logging.config
 from redis import StrictRedis
 
@@ -104,7 +105,8 @@ def test_MQ():
     for c in clients:
         m = mq.receive_client(c)
         print m
-        assert(m.startswith("END "))
+        assert (m.startswith("END "))
+
 
 if __name__ == '__main__':
     logging.config.fileConfig('../logging.conf')

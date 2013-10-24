@@ -1,10 +1,11 @@
 import sys
+
 sys.path.append("../AVCommon")
 
-import MQ
-from Command import Command
+from command import Command
 
-from yaml import load, dump
+from yaml import load
+
 try:
     from yaml import CLoader as Loader, CDumper as Dumper
 except ImportError:
@@ -13,6 +14,7 @@ except ImportError:
 import logging
 
 import pprint
+
 pp = pprint.PrettyPrinter(indent=4)
 
 
@@ -21,6 +23,7 @@ class Procedure:
     name = ""
 
     """docstring for Procedure"""
+
     def __init__(self, name, proc=None):
         self.name = name
         if not proc:

@@ -6,20 +6,21 @@ prev = os.path.join(os.getcwd(), "..")
 if not prev in sys.path:
     sys.path.append(prev)
 
-from AVCommon import Procedure
+from AVCommon import procedure
 
 
 class Master():
     """docstring for Master"""
+
     def __init__(self, args):
         self.args = args
 
     def start():
         vm_names = self.args.vm.split(",")
 
-        vms = [ AVMachine(vm) for vm in vm_names]
+        vms = [AVMachine(vm) for vm in vm_names]
 
-        procedures = Procedure.load_from_file("procedures.yaml")
+        procedures = procedure.load_from_file("procedures.yaml")
         proc = procedures[vm.procedure]
 
         assert proc, "cannot find the specified procedure: %s" % vm.procedure
@@ -40,6 +41,7 @@ def main():
 
     master = Master(args)
     master.start()
+
 
 if __name__ == '__main__':
     main()

@@ -1,10 +1,10 @@
-import sys, os
-import inspect
+import sys
+import os
 import logging
-import abc
 import ast
 import re
-from Decorators import returns
+import abc
+
 
 def init_commands():
     logging.debug("initCommands")
@@ -12,16 +12,19 @@ def init_commands():
     if cwd not in sys.path:
         sys.path.append(cwd)
     for m in Command.commands:
-        try:
-            Command.known_commands[m] = __import__("Command_%s" % m)
-        except:  # pragma: no cover
-            import AVCommon
-            Command.known_commands[m] = __import__("AVCommon.Command_%s" % m)
+        #try:
+        #Command.known_commands[m] = __import__("Command_%s" % m)
+        Command.known_commands[m] = __import__("AVCommon.Command_%s" % m)
+        #except:  # pragma: no cover
+        #    raise
+        #    import AVCommon
+        #    Command.known_commands[m] = __import__("AVCommon.Command_%s" % m)
     #logging.debug("dir(): %s %s" % (dir(), dir("AVCommon")) )
     logging.info("Commands: %s" % Command.known_commands.keys())
     return True
 
-class Command():
+
+class Command(object):
     __metaclass__ = abc.ABCMeta
 
     commands = ["START", "STARTVM", "STOPVM", "REVERT", "UPDATE", "PULL", "PUSH",
@@ -34,8 +37,7 @@ class Command():
     payload = ""
     success = None
     context = None
-
-    init = False;
+    init = False
 
     """command"""
     def __init__(self, name):
@@ -51,7 +53,7 @@ class Command():
 
         #ident, command, answer = serialized.split(',', 2)
         #assert(ident == "CMD")
-        command = serialized
+        cmd = serialized
         success = None
         payload = None
 
@@ -61,48 +63,57 @@ class Command():
             return serialized
         elif isinstance(serialized, dict):
             assert len(serialized)==1
-            command = serialized.keys()[0]
-            payload = serialized[command]
+            cmd = serialized.keys()[0]
+            payload = serialized[cmd]
         elif len(serialized) == 3:
-            command, success, payload = serialized
+            cmd, success, payload = serialized
         elif len(serialized) == 2:
-            command, payload = serialized
+            cmd, payload = serialized
         elif isinstance(serialized, str):
             #TODO: add ast.literal_eval di ('START', None, None)
             m = re.compile("\('(\w+)\', (\w+), (.+)\)").match(serialized)
             if m:
                 groups = m.groups()
                 assert len(groups) == 3
-                command = groups[0]
+                cmd = groups[0]
                 success = ast.literal_eval(groups[1])
                 try:
                     payload = ast.literal_eval(groups[2])
                 except SyntaxError:
                     payload = groups[2]
 
-        className = "Command_%s" % command
+        class_name = "Command_%s" % cmd
         #print Command.knownCommands
         assert(isinstance(success, bool) or success is None)
-        assert isinstance(command, str), "not a string: %s" % command
-        assert command in Command.known_commands.keys(), "Unknown command: %s" % command
+        assert isinstance(cmd, str), "not a string: %s" % cmd
+        assert cmd in Command.known_commands.keys(), "Unknown command: %s" % cmd
 
-        #logging.debug("dir: ", dir(Command.knownCommands[command]))
-        if command in Command.known_commands.keys():
-            m = Command.known_commands[command]
-            c = getattr(m, className)
+        if cmd in Command.known_commands.keys():
+            m = Command.known_commands[cmd]
+
+            #logging.debug("m: %s", m)
+            #logging.debug("dir: %s", dir(Command.known_commands[cmd]))
+
+            command_package = getattr(m, class_name)
+            command_class = getattr(command_package, class_name)
+            #command_class = getattr(m, class_name)
+            #logging.debug("command_class: %s", command_class)
             #print sys.path
-            cmd = c(command)
+            c = command_class(cmd)
             #print c
 
             if isinstance(payload, str) and payload.startswith("*"):
-                cmd.payload = payload[1:]
+                c.payload = payload[1:]
             else:
                 try:
-                    cmd.payload = ast.literal_eval(payload)
+                    c.payload = ast.literal_eval(payload)
                 except:
-                    cmd.payload = payload
-            cmd.success = success
-            return cmd
+                    c.payload = payload
+            c.success = success
+            c.context = Command.context
+
+            assert isinstance(c, Command), "not an instance: %s of %s" % (c.__class__, Command)
+            return c
 
     def serialize(self):
         return (self.name, self.success, self.payload)
@@ -123,7 +134,6 @@ class Command():
 
     def __str__(self):
         return "%s,%s,%s" % (self.name, self.success, self.payload)
-
 
 class ServerCommand(Command):
     side = "server"

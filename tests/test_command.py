@@ -1,11 +1,9 @@
 import sys
 sys.path.append("../AVCommon")
 
-from Command import Command
+from AVCommon.command import Command
 
-import os
-import commands
-import logging, sys
+import logging
 import logging.config
 
 def test_commandAbstract():
@@ -24,8 +22,8 @@ def test_commandSerialize():
     logging.debug("cmd: %s %s", cmd, type(cmd))
     assert(str(cmd).startswith("START"))
 
-    logging.debug("type: %s", type(cmd))
-    assert(str(type(cmd)) == "<class 'Command_START.Command_START'>")
+    #assert str(type(cmd)) == "<class 'AVCommon.Command_START.Command_START'>", "type: %s" % str(type(cmd))
+    #assert str(type(cmd)) == "<class 'Command_START.Command_START'>", "type: %s" % str(type(cmd))
 
     Command.unserialize( ("START", None, None) )
     try:
@@ -37,11 +35,14 @@ def test_commandSerialize():
 def test_commandUnserialize():
     Command.context = "mycontext"
     s = Command.unserialize( "START" )
+    logging.debug("Command: %s" % s)
+    assert isinstance(s, Command), "type: %s not %s" % (dir(s.__class__), Command)
+
     assert s.name == "START"
     assert s.payload is None
     assert s.success is None
     assert s.side == "client"
-    assert s.context == "mycontext"
+    assert s.context == "mycontext", "wrong context: %s" % s.context
 
     s = Command.unserialize( ["STARTVM", None, ["kis", "mcafee"]] )
     assert s.name == "STARTVM"
@@ -108,7 +109,6 @@ def test_commandUnserialize():
         pass
 
 
-
 def test_commandAnswer():
     c = Command.unserialize( ["START", True, ['whatever','end']])
     s = c.serialize()
@@ -123,7 +123,8 @@ def test_commandAnswer():
 
 
 def test_commandStart():
-    import Command_START
+    from AVCommon import Command_START
+
     c = Command_START.Command_START("START")
     assert(c)
     assert(c.name == "START")
