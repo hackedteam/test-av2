@@ -62,7 +62,8 @@ class Report:
 		report_file = "http://%s:%s/report/%s" % ( host, port, self.test_id )
 		res = []
 
-#		res = [ x for x in self.results if len(x)>0 and len(x[0])>0 ]
+		res = [ x for x in self.results if len(x)>0 and len(x[0])>0 ]
+		"""
 		for x in self.results:
 			try:
 				print "x: %s" % x
@@ -70,7 +71,7 @@ class Report:
 					res.append(x)
 			except:
 				pass
-
+		"""
 		sortedresults = sorted(res, key = lambda x: x[0][0])
 		print "DBG sorted %s" % sortedresults
 
@@ -94,7 +95,9 @@ class Report:
 
 
 		print "DBG hresults %s" % hresults
-		style  = """<html><head><style type'text/css'>
+
+		style  = """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><html><head><style type'text/css'>
 #suc { background-color: green; width: 10px; height: 10px; }
 #err { background-color: black; width: 10px; height: 10px; }
 #fai { background-color: red; width: 10px; height: 10px; }
@@ -102,32 +105,13 @@ class Report:
 a.fill { display: block; height: 100%; width: 100%; text-decoration: none; }
 </style></head>"""		
 
-		'''
-		style  = """<html><style type'text/css'>
-#suc-div { background-color: green; width: 10px; height: 10px; }
-#err-div { background-color: black; width: 10px; height: 10px; }
-#fai-div { background-color: red; width: 10px; height: 10px; }
-#bla-div { background-color: grey; width: 10px; height: 10px; }
-a.fill-div { display: block; height: 100%; width: 100%; text-decoration: none; }
-</style><body>"""
-
-
-		header_st = "<table>\n  <tr>\n"
-		header_en = "  </tr>\n"
-		linestart = "  <tr><td>%s</td>"
-		linetoken = "    <td id='%s-div'><a href='%s' class='fill-div'></a></td>\n"
-		lineend   = "  </tr>\n"
-		legend    = "</table>\n<p>Legend:</p>\n<table><tr><td id=success-div></td><td>SUCCESS</td><tr><td id=failed-div></td><td>FAILED</td><tr><td id=error-div></td><td>ERROR</td><tr><td id=blacklisted-div></td><td>BLACKLISTED</td></tr></table>\n"
-		footer    = "<br><br><b>View full <a href='%s'>report</a><b></body></html>" % report_file
-		'''
-
 		header_st = "<body><table><tr>"
 		header_en = "</tr>"
 		linestart = "<tr><td>%s</td>"
 		linetoken = "<td id='%s'><a href='%s' class='fill'></a></td>"
 		lineend   = "</tr>"
 		legend    = "</table><p>Legend:</p><table><tr><td id=suc></td><td>SUCCESS</td><tr><td id=fai></td><td>FAILED</td><tr><td id=err></td><td>ERROR</td><tr><td id=bla></td><td>BLACKLISTED</td></tr></table>"
-		footer    = "<br><br><b>View full <a href='%s'>report</a><b></body></html>" % report_file
+		footer    = "<br><br><b>View full <a href='%s'>report</a></b></body></html>" % report_file
 
 		content = style 
 

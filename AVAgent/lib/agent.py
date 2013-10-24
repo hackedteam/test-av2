@@ -666,6 +666,8 @@ def execute_agent(args, level, platform):
                 action[level]()
             else:
                 print "+ ERROR SERVER ERRORS"
+                action = {"elite": vmavtest.execute_elite, "scout": vmavtest.execute_scout, "pull": vmavtest.execute_pull}
+                action[level]()
         else:
             print "+ ERROR USER CREATE"
 
