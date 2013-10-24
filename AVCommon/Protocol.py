@@ -1,8 +1,9 @@
-from Command import Command
-from MQ import MQStar
 import logging
 import copy
 import threading
+
+from command import Command
+from mq import MQStar
 
 
 class ProtocolClient:
@@ -29,7 +30,6 @@ class ProtocolClient:
         return cmd
 
     """ client side """
-
     def receive_command(self):
         assert(isinstance(self.client, str))
         #logging.debug("PROTO receiveCommand %s" % (self.client))
@@ -56,7 +56,6 @@ class Protocol(ProtocolClient):
         assert(isinstance(mq, MQStar))
 
     """server side"""
-
     def _send_command_mq(self, cmd):
         cmd.on_init(cmd.payload)
         self.mq.send_client(self.client, cmd.serialize())
