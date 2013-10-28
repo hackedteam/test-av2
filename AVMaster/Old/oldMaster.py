@@ -21,7 +21,7 @@ from lib.web.models import db, Test, Result, Sample
 from lib.web.settings import DB_PATH
 from lib.core.logger import setLogger
 
-vm_conf_file = os.path.join("conf", "vms.cfg")
+vm_conf_file = os.path.join("../conf", "vms.cfg")
 
 # get configuration for AV update process (exe, vms, etc)
 

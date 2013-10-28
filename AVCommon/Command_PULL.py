@@ -9,5 +9,3 @@ class Command_PULL(command.ServerCommand):
     def execute(self, args):
         logging.debug("    CS Execute")
         return True, ""
-
-

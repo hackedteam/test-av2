@@ -16,8 +16,6 @@ class Master():
         self.args = args
 
     def start():
-        vm_names = self.args.vm.split(",")
-
         vms = [AVMachine(vm) for vm in vm_names]
 
         procedures = procedure.load_from_file("procedures.yaml")
@@ -28,6 +26,9 @@ class Master():
 
         dispatcher.start_server()
 
+    def on_finished(self, vm):
+        pass
+
 
 def main():
     parser = argparse.ArgumentParser(description='AVMonitor master.')
@@ -36,8 +37,10 @@ def main():
                         help="Virtual Machine where execute the operation")
     parser.add_argument('-v', '--verbose', action='verbose_true', default=False,
                         help="Verbose")
-    parser.add_argument('-p', '--procedure', type=str, default=False,
+    parser.add_argument('-r', '--procedure', type=str, default=False,
                         help="Procedure to execute")
+    parser.add_argument('-p', '--pool', type=int, required=False,
+                        help="This is the number of parallel process (default 8)")
 
     master = Master(args)
     master.start()
