@@ -3,7 +3,7 @@ import logging
 import command
 
 
-class Command_STARTVM(command.ServerCommand):
+class Command_START_VM(command.ServerCommand):
     """ server side """
 
     def execute(self, args):

@@ -13,16 +13,14 @@ def test_dispatcher():
     agentFiles = ["file.exe"]
     params = "parameters.json"
 
-    update = Procedure("UPDATE", ["REVERT", "STARTVM", "UPDATE", "STOPVM"])
+    update = Procedure("UPDATE", ["REVERT", "START_VM", "UPDATE", "STOP_VM"])
 
-    dispatch = Procedure("DISPATCH", ["REVERT", "STARTVM", ("PUSH", agentFiles)])
+    dispatch = Procedure("DISPATCH", ["REVERT", "START_VM", ("PUSH", agentFiles)])
     scout = Procedure("SCOUT", [
-        ("PROCEDURE", "dispatch"),
+        ("CALL", "dispatch"),
         ("PUSH", agentFiles),
         ("START_AGENT", None),
-        ("SET_PARAMS", params),
-        ("BUILD", ["silent"]),
-        ("EXECUTE_VM", ["build/agent.exe"]),
+        ("COMMAND_CLIENT", ["BUILD_WINDOWS_SCOUT"]),
     ])
 
 

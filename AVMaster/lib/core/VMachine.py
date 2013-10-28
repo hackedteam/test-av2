@@ -29,7 +29,6 @@ class VMachine:
         return "%s" % self.name
 
     #   FUNCTIONS
-
     def refresh_snapshot(self, delete=True):
         untouchables = ["ready", "activated", "_datarecovery_"]
         date = datetime.now().strftime('%Y%m%d-%H%M')

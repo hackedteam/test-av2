@@ -56,13 +56,13 @@ def test_ProtocolProcedure():
     c = "client1"
     mq1.add_client(c)
 
-    commands = [("START", None, None), ("END", None, None)]
+    commands = [("BEGIN", None, None),("START_AGENT", None, None),("STOP_AGENT", None, None), ("END", None, None)]
     procedure = Procedure("PROC", commands)
 
     thread1 = threading.Thread(target=server_procedure, args=(mq1, [c], procedure))
     thread1.start()
 
-    cmdStart = Command.unserialize(('START', True, 'nothing else to say'))
+    cmdStart = Command.unserialize(('BEGIN', True, 'nothing else to say'))
 
     assert cmdStart
 
@@ -72,7 +72,7 @@ def test_ProtocolProcedure():
     while not exit:
         received = pc.receive_command()
         print "- CLIENT RECEIVED: ", received
-        if received.name == "END":
+        if received.name == "STOP_AGENT":
             exit = True
 
 
@@ -114,5 +114,5 @@ def test_ProtocolEval():
 
 if __name__ == '__main__':
     logging.config.fileConfig('../logging.conf')
-    #test_ProtocolProcedure()
-    test_ProtocolEval()
+    test_ProtocolProcedure()
+    #test_ProtocolEval()
