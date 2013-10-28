@@ -26,6 +26,22 @@ def test_dispatcher():
     assert dispatch
     assert scout
 
+def test_procedure_insert():
+    c = Command.unserialize(["BEGIN", True, ['whatever', 'end']])
+    agentFiles = ""
+    params = ""
+
+    p1 = Procedure("UPDATE", ["REVERT", "START_VM", "UPDATE", "STOP_VM"])
+    p2 = Procedure("DISPATCH", ["REVERT", "START_VM", ("PUSH", agentFiles)])
+
+    lp1= len(p1)
+    lp2= len(p2)
+
+    p1.insert(p2)
+
+    assert p1
+    assert p2
+    assert len(p1) == lp1 + lp2
 
 def test_procedure_file():
     procedures = Procedure.load_from_file("../AVCommon/procedures.yaml")
@@ -62,6 +78,13 @@ SCOUT:
     logging.debug("procedures: %s" % procedures)
     for p in procedures.values():
         assert isinstance(p, Procedure), "not a Procedure: %s" % p
+        assert p.name
+        assert p.command_list
+        assert len(p) == len(p.command_list)
+
+    leninstance = len(procedures.values())
+    lenstatic = len(Procedure.procedures)
+    assert leninstance == lenstatic
 
 
 if __name__ == '__main__':

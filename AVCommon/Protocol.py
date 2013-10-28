@@ -68,29 +68,41 @@ class Protocol(ProtocolClient):
         if blocking:
             t.join()
 
-    def next(self):
-        logging.debug("next")
-        for c in self.procedure.next():
-            logging.debug("next, got a new command")
-            yield self.send_command(c)
+    def _meta(self, cmd):
+        logging.debug("PROTO S executing meta")
+        ret = cmd.execute( (self, cmd.payload) )
+
+    #def next(self):
+    #    logging.debug("next")
+    #    for c in self.procedure.next():
+    #        logging.debug("next, got a new command")
+    #        yield self.send_command(c)
 
     def send_next_command(self):
         if not self.procedure:
             return False
         c = self.procedure.next_command()
         self.send_command(c)
+        return True
 
     def send_command(self, command):
         logging.debug("PROTO S sendCommand: %s" % str(command))
         cmd = Command.unserialize(command)
 
-        if cmd.side == "client":
-            self._send_command_mq(cmd)
-        else:
-            self._execute(cmd)
-        return True
+        try:
+            if cmd.side == "client":
+                self._send_command_mq(cmd)
+            elif cmd.side == "server":
+                self._execute(cmd)
+            elif cmd.side == "meta":
+                self._meta(cmd)
+            return True
+        except Exception, ex:
+            logging.error("Error sending command %s: %s" % (command, ex))
+            return False
 
     def receive_answer(self, client, msg):
+        """ returns a command with name, success and payload """
         #msg = self.mq.receiveClient(self, client)
 
         cmd = Command.unserialize(msg)

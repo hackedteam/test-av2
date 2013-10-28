@@ -145,3 +145,11 @@ class ServerCommand(Command):
 
 class ClientCommand(Command):
     side = "client"
+
+class MetaCommand(Command):
+    side = "meta"
+    def on_init(self, args):
+        pass  # pragma: no cover
+
+    def on_answer(self, success, answer):
+        pass  # pragma: no cover
