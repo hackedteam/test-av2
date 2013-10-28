@@ -3,7 +3,7 @@ import logging
 import command
 
 
-class Command_AGENT_COMMAND(command.ClientCommand):
+class Command_COMMAND_CLIENT(command.ClientCommand):
     """ server side """
     def on_init(self, args):
         logging.debug("    CS on_init")
