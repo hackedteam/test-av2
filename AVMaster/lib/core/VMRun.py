@@ -10,24 +10,24 @@ from pysphere import VIServer
 from pysphere import VIException
 
 class vSphere:
-    hostname = ""
-    username = ""
-    password = ""
-
-    def __init__(self, vm_path):
+    def __init__(self, vm_path, sdk_host, sdk_user, sdk_domain, sdk_passwd):
         self.vm_path = vm_path
+        self.sdk_host = sdk_host
+        self.sdk_user = sdk_domain + "\\" + sdk_user
+        self.sdk_passwd = sdk_passwd
 
     def __enter__(self):
+#        print "connecting to %s %s %s" % (self.sdk_host, self.sdk_user, self.sdk_passwd)
         self.server = VIServer()
-        self.server.connect(self.hostname, self.username, self.password)
-        print "DBG connect"
+        self.server.connect(self.sdk_host, self.sdk_user, self.sdk_passwd)
+        print "connected"
         vm = self.server.get_vm_by_path(self.vm_path)
         return vm
 
     def __exit__(self, type, value, traceback):
         try:
             self.server.disconnect()
-            print "DBG disconnect"
+            print "disconnect"
         except VIException as e:
             print "DBG problem in disconnection. Fault is: %s" % e.fault
             pass
@@ -198,12 +198,20 @@ class VMRun:
                              [vmx.user, vmx.passwd],
                              bg=bg, timeout=timeout)
 
+    def runTest(self, vmx, script):
+        return self.executeCmd(vmx, script, interactive=True)
+        cmds = []
+        cmds.append("-interactive")
+        cmds.append(cmd)
+        return self._run_cmd
+
     def listProcesses(self, vmx):
         sys.stdout.write("[%s] List processes\n" % vmx)
         return self._run_cmd(vmx, "listProcessesInGuest", vmx_creds=[vmx.user, vmx.passwd], popen=True)
 
     def takeScreenshot(self, vmx, out_img):
         sys.stdout.write("[%s] Taking screenshot.\n" % vmx)
+        sys.stdout.write("CALLING FUNCTIONS WITH out img %s, u: %s, p: %s.\n" % (out_img, vmx.user, vmx.passwd))
         self._run_cmd(vmx, "captureScreen", [out_img], [vmx.user, vmx.passwd])
 
     def VMisRunning(self, vmx):

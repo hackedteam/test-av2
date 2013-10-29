@@ -5,7 +5,8 @@ from ConfigParser import ConfigParser, NoSectionError
 from pysphere.resources.vi_exception import VIException
 from datetime import datetime
 
-from VMManager import vSphere
+#from VMManager import vSphere
+from VMRun import vSphere
 
 
 class VMachine:
@@ -15,11 +16,17 @@ class VMachine:
         try:
             self.config = ConfigParser()
             self.config.read(conf_file)
+
             self.path = self.config.get("vms", name)
+
             self.snapshot = self.config.get("vm_config", "snapshot")
             self.user = self.config.get("vm_config", "user")
             self.passwd = self.config.get("vm_config", "passwd")
-            #self.vi_srv   = vi_srv
+
+            self.sdkhost = self.config.get("vsphere","host")
+            self.sdkuser = self.config.get("vsphere","user")
+            self.sdkdomain = self.config.get("vsphere","domain")
+            self.sdkpasswd = self.config.get("vsphere","passwd")
 
         except NoSectionError:
             print "[!] VM or VM stuff not found on %s" % conf_file
@@ -43,7 +50,7 @@ class VMachine:
                 self.delete_snapshot(snap_list[-2].get_name())
 
     def send_files(self, src_dir, dst_dir, filestocopy):
-        with vSphere(self.path) as vm:
+        with vSphere(self.path, self.sdkhost, self.sdkuser, self.sdkdomain, self.sdkpasswd) as vm:
 
             self._run_vm(vm, "login_in_guest", self.user, self.passwd)
 
@@ -202,7 +209,7 @@ class VMachine:
 
     def _run_cmd(self, func, *params):
         try:
-            with vSphere(self.path) as vm:
+            with vSphere(self.path, self.sdkhost, self.sdkuser, self.sdkdomain, self.sdkpasswd) as vm:
                 f = getattr(vm, func)
 
                 if len(params) is None:
@@ -223,9 +230,8 @@ class VMachine:
             return True
 
         try:
-            with vSphere(self.path) as vm:
+            with vSphere(self.path, self.sdkhost, self.sdkuser, self.sdkdomain, self.sdkpasswd) as vm:
                 f = getattr(vm, func)
-
                 if len(params) is None:
                     task = f(sync_run=False)
                 else:
