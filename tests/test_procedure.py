@@ -76,6 +76,8 @@ SCOUT:
     procedures = Procedure.load_from_yaml(yaml)
     assert procedures, "empty procedures"
     logging.debug("procedures: %s" % procedures)
+    assert len(procedures) == 3, "wrong procedures number: %s" % len(procedures)
+
     for p in procedures.values():
         assert isinstance(p, Procedure), "not a Procedure: %s" % p
         assert p.name

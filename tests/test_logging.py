@@ -18,6 +18,7 @@ class TestChannel(TestCase):
         logger = logging.getLogger('')
         logger.addHandler(stdout_handler)
         logger.setLevel(logging.DEBUG)
+
         logging.debug('A debug message')
         logging.info('Some information')
         logging.warning('A shot across the bows')

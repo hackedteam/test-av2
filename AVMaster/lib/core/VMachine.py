@@ -30,7 +30,7 @@ class VMachine:
 
         except NoSectionError:
             print "[!] VM or VM stuff not found on %s" % conf_file
-            return None
+
 
     def __str__(self):
         return "%s" % self.name
