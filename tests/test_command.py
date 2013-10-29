@@ -8,72 +8,72 @@ import logging.config
 
 def test_commandAbstract():
     try:
-        c = Command("START")
+        c = Command("BEGIN")
         assert("Should not be able to instance an abstract class" is False)
     except Exception:
         pass
 
 def test_commandSerialize():
-    c = Command.unserialize( ("START", False, "nothing") )
+    c = Command.unserialize( ("BEGIN", False, "nothing") )
     s = c.serialize()
     cmd = Command.unserialize(s)
     assert(not cmd.success)
 
     logging.debug("cmd: %s %s", cmd, type(cmd))
-    assert(str(cmd).startswith("START"))
+    assert(str(cmd).startswith("BEGIN"))
 
     #assert str(type(cmd)) == "<class 'AVCommon.Command_START.Command_START'>", "type: %s" % str(type(cmd))
     #assert str(type(cmd)) == "<class 'Command_START.Command_START'>", "type: %s" % str(type(cmd))
 
-    Command.unserialize( ("START", None, None) )
+    Command.unserialize( ("BEGIN", None, None) )
     try:
-        Command.unserialize( ("START", "", None) )
+        Command.unserialize( ("BEGIN", "", None) )
         assert(False)
     except:
         pass
 
 def test_commandUnserialize():
     Command.context = "mycontext"
-    s = Command.unserialize( "START" )
+    s = Command.unserialize( "BEGIN" )
     logging.debug("Command: %s" % s)
     assert isinstance(s, Command), "type: %s not %s" % (dir(s.__class__), Command)
 
-    assert s.name == "START"
+    assert s.name == "BEGIN"
     assert s.payload is None
     assert s.success is None
-    assert s.side == "client"
+    assert s.side == "server"
     assert s.context == "mycontext", "wrong context: %s" % s.context
 
-    s = Command.unserialize( ["STARTVM", None, ["kis", "mcafee"]] )
-    assert s.name == "STARTVM"
+    s = Command.unserialize( ["START_VM", None, ["kis", "mcafee"]] )
+    assert s.name == "START_VM"
     assert s.payload == ["kis", "mcafee"]
     assert s.success is None
     assert s.side == "server"
     assert s.context == "mycontext"
 
-    s = Command.unserialize( {"STARTVM": ["kis", "mcafee"]} )
-    assert s.name == "STARTVM"
+    s = Command.unserialize( {"START_VM": ["kis", "mcafee"]} )
+    assert s.name == "START_VM"
     assert s.payload == ["kis", "mcafee"]
     assert s.success is None
     assert s.side == "server"
     assert s.context == "mycontext"
 
-    s = Command.unserialize( ["STARTVM", ["kis", "mcafee"]] )
-    assert s.name == "STARTVM"
+    s = Command.unserialize( ["START_VM", ["kis", "mcafee"]] )
+    assert s.name == "START_VM"
     assert s.payload == ["kis", "mcafee"]
     assert s.success is None
     assert s.side == "server"
     assert s.context == "mycontext"
 
-    s = Command.unserialize( ("STARTVM", True, ["kis", "mcafee"]) )
-    assert s.name == "STARTVM"
+    s = Command.unserialize( ("START_VM", True, ["kis", "mcafee"]) )
+    assert s.name == "START_VM"
     assert s.payload == ["kis", "mcafee"]
     assert s.success is True
     assert s.side == "server"
     assert s.context == "mycontext"
 
-    s = Command.unserialize( """('STARTVM', True, ["kis", "mcafee"])""" )
-    assert s.name == "STARTVM"
+    s = Command.unserialize( """('START_VM', True, ["kis", "mcafee"])""" )
+    assert s.name == "START_VM"
     assert s.payload == ["kis", "mcafee"]
     assert s.success is True
     assert s.side == "server"
@@ -81,7 +81,7 @@ def test_commandUnserialize():
 
     s.success = True
     q = Command.unserialize( s )
-    assert q.name == "STARTVM"
+    assert q.name == "START_VM"
     assert q.payload == ["kis", "mcafee"]
     assert q.success is True
     assert q.side == "server"
@@ -103,14 +103,14 @@ def test_commandUnserialize():
     except:
         pass
     try:
-        s = Command.unserialize({"STARTVM": ["kis", "mcafee"], "WHATEVER": []})
+        s = Command.unserialize({"START_VM": ["kis", "mcafee"], "WHATEVER": []})
         assert False, "should not unserialize this"
     except:
         pass
 
 
 def test_commandAnswer():
-    c = Command.unserialize( ["START", True, ['whatever','end']])
+    c = Command.unserialize( ["BEGIN", True, ['whatever','end']])
     s = c.serialize()
     assert(len(s) == 3)
     cmd = Command.unserialize(s)
@@ -119,15 +119,15 @@ def test_commandAnswer():
     assert(cmd.success)
     assert(type(cmd.payload) == list)
     assert(cmd.payload == ['whatever','end'])
-    assert(str(cmd).startswith("START"))
+    assert(str(cmd).startswith("BEGIN"))
 
 
 def test_commandStart():
-    from AVCommon import Command_START
+    from AVCommon import Command_BEGIN
 
-    c = Command_START.Command_START("START")
+    c = Command_BEGIN.Command_BEGIN("BEGIN")
     assert(c)
-    assert(c.name == "START")
+    assert(c.name == "BEGIN")
 
     c.on_init("whatever")
     ret, answer = c.execute("arguments")

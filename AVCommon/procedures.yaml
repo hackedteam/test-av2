@@ -1,20 +1,29 @@
 UPDATE:
     - REVERT
-    - STARTVM
+    - START_VM
     - UPDATE
-    - STOPVM
+    - STOP_VM
 
 DISPATCH:
     - REVERT
-    - STARTVM
+    - START_VM
     - UPDATE
     - PUSH:
         - file.sh
         - anotherfile.sh
 
 SCOUT:
-    - PROCEDURE: DISPATCH
+    - CALL: DISPATCH
     - START_AGENT
-    - SET_PARAMS:
-        - kind: scout
-        - platform: windows
+    - COMMAND_CLIENT:
+      - SCOUT_BUILD_WINDOWS_SILENT
+      - EXECUTE_SCOUT
+
+ELITE:
+    - CALL: SCOUT
+    - COMMAND_CLIENT:
+      - UPGRADE_ELITE
+
+STATIC:
+    - CALL: DISPATCH
+

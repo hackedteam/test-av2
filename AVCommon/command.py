@@ -27,11 +27,10 @@ def init_commands():
 class Command(object):
     __metaclass__ = abc.ABCMeta
 
-    commands = ["START", "STARTVM", "STOPVM", "REVERT", "UPDATE", "PULL", "PUSH",
-        "EXECUTE_VM", "SCREENSHOT", "START_AGENT", "SET_SERVER", "SET_PARAMS",
-        "SET_BLACKLIST", "BUILD", "EXECUTE_AGENT", "UPGRADE_ELITE", "CHECK_STATIC",
-        "PROCEDURE", "END", "EVAL_SERVER", "EVAL_CLIENT"]
-    # STARTVM STOPVM REVERT UPDATE PULL PUSH EXECUTE_VM SCREENSHOT START_AGENT SET_SERVER SET_PARAMS SET_BLACKLIST BUILD EXECUTE_AGENT UPGRADE_ELITE CHECK_STATIC PROCEDURE END
+    commands = ["BEGIN", "START_VM", "STOP_VM", "REVERT", "UPDATE", "PULL", "PUSH",
+        "EXECUTE_VM", "SCREENSHOT", "COMMAND_CLIENT", "START_AGENT", "STOP_AGENT",
+        "CALL", "END", "EVAL_SERVER", "EVAL_CLIENT"]
+    # START_VM STOP_VM REVERT UPDATE PULL PUSH EXECUTE_VM SCREENSHOT START_AGENT SET_SERVER SET_PARAMS SET_BLACKLIST BUILD EXECUTE_AGENT UPGRADE_ELITE CHECK_STATIC PROCEDURE END
     known_commands = dict(zip(commands,  [None] * len(commands)))
 
     payload = ""
@@ -146,3 +145,11 @@ class ServerCommand(Command):
 
 class ClientCommand(Command):
     side = "client"
+
+class MetaCommand(Command):
+    side = "meta"
+    def on_init(self, args):
+        pass  # pragma: no cover
+
+    def on_answer(self, success, answer):
+        pass  # pragma: no cover

@@ -56,13 +56,13 @@ def test_ProtocolProcedure():
     c = "client1"
     mq1.add_client(c)
 
-    commands = [("START", None, None), ("END", None, None)]
+    commands = [("BEGIN", None, None),("START_AGENT", None, None),("STOP_AGENT", None, None), ("END", None, None)]
     procedure = Procedure("PROC", commands)
 
     thread1 = threading.Thread(target=server_procedure, args=(mq1, [c], procedure))
     thread1.start()
 
-    cmdStart = Command.unserialize(('START', True, 'nothing else to say'))
+    cmdStart = Command.unserialize(('BEGIN', True, 'nothing else to say'))
 
     assert cmdStart
 
@@ -72,7 +72,7 @@ def test_ProtocolProcedure():
     while not exit:
         received = pc.receive_command()
         print "- CLIENT RECEIVED: ", received
-        if received.name == "END":
+        if received.name == "STOP_AGENT":
             exit = True
 
 
@@ -91,8 +91,8 @@ def test_ProtocolEval():
 
     p = Protocol(mq, c, procedure)
 
-    for r in p.next():
-        logging.debug("ret: %s" % r)
+    while p.send_next_command():
+        logging.debug("sent command")
 
     exit = False
     while not exit:
@@ -111,8 +111,53 @@ def test_ProtocolEval():
             print "- SERVER RECEIVED empty"
             exit = True
 
+def test_ProtocolCall():
+    host = "localhost"
+    mq = MQStar(host)
+    mq.clean()
+    c = "client1"
+    mq.add_client(c)
+
+    yaml = """BASIC:
+    - EVAL_SERVER: dir()
+
+CALLER:
+    - CALL: BASIC
+    - EVAL_SERVER: locals()
+    - EVAL_SERVER: *END
+"""
+    procedures = Procedure.load_from_yaml(yaml)
+
+    caller = Procedure.procedures["CALLER"]
+    basic = Procedure.procedures["BASIC"]
+
+    p = Protocol(mq, c, caller)
+    while p.send_next_command():
+        logging.debug("sent command")
+
+    exit = False
+    answers =0
+    while not exit:
+        rec = mq.receive_server(blocking=True, timeout=10)
+        if rec is not None:
+            print "- SERVER RECEIVED %s %s" % (rec, type(rec))
+            c, msg = rec
+            answer = p.receive_answer(c, msg)
+            print "- SERVER RECEIVED ANSWER: ", answer.success
+            if answer.success:
+                answers += 1
+            if answer.name == "END" or not answer.success:
+                print "- SERVER RECEIVE END"
+                #if answer.success:
+
+        else:
+            print "- SERVER RECEIVED empty"
+            exit = True
+
+    assert answers == 2, "wrong answers: %s" % answers
 
 if __name__ == '__main__':
     logging.config.fileConfig('../logging.conf')
     #test_ProtocolProcedure()
-    test_ProtocolEval()
+    #test_ProtocolEval()
+    test_ProtocolCall()

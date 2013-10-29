@@ -10,10 +10,8 @@ prev = os.path.join(os.getcwd(), "..")
 if not prev in sys.path:
     sys.path.append(prev)
 
-#@singleton
 class VMManager:
     def __init__(self):
-        #self.name = name
         pass
 
     def execute(self, vm_name, cmd, *args):
@@ -47,7 +45,6 @@ def test():
     from time import sleep
 
     vmm = VMManager()
-#    '''
     print "TEST CMD WITHOUT ARGS:"
     vmm.execute("avg","startup")
 
@@ -56,7 +53,6 @@ def test():
         sleep(5)
 
     sleep(180)
-#    '''
     print "TEST CMD WITH ARGS:"
     vmm.execute("avg", "runTest", 
         "C:\\Users\AVTEST\Desktop\\AVTEST\\build_exploit_web_minotauro.bat")

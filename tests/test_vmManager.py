@@ -9,13 +9,14 @@ if not prev in sys.path:
     sys.path.append(prev)
 
 from AVCommon import mq
+from AVMaster.vm_manager import VMManager
 
 
 def test_instance():
-    host = "localhost"
-    m = mq.MQStar(host)
-    c = "vm"
-
+    vm = VMManager()
+    #print vm, dir(vm)
+    vm.test_missing
+    vm.test_new_command("primo", 2)
 
 if __name__ == '__main__':
     test_instance()

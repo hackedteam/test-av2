@@ -17,30 +17,33 @@ import pprint
 
 pp = pprint.PrettyPrinter(indent=4)
 
-
 class Procedure:
-    proc = []
+    command_list = []
     name = ""
+    procedures = {}
 
     """docstring for Procedure"""
 
-    def __init__(self, name, proc=None):
+    def __init__(self, name, command_list=None):
         self.name = name
-        if not proc:
-            self.proc = []
+        if not command_list:
+            self.command_list = []
         else:
-            self.proc = [Command.unserialize(c) for c in proc]
+            self.command_list = [Command.unserialize(c) for c in command_list]
 
-    def next(self):
-        for c in self.proc:
-            yield c
+    #def next(self):
+    #    for c in self.proc:
+    #        yield c
+
+    def insert(self, new_proc):
+        self.command_list = self.command_list + new_proc.command_list
 
     def next_command(self):
-        c = self.proc.pop(0)
+        c = self.command_list.pop(0)
         return c
 
     def __len__(self):
-        return len(self.proc)
+        return len(self.command_list)
 
     @staticmethod
     def load_from_yaml(stream):
@@ -56,7 +59,8 @@ class Procedure:
                 command_list.append(c)
                 logging.debug("  command: %s" % c)
 
-            procedures[name] = Procedure(command_list)
+            procedures[name] = Procedure(name, command_list)
+        Procedure.procedures = procedures
         return procedures
 
     @staticmethod
