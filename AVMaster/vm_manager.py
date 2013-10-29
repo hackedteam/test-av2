@@ -11,22 +11,17 @@ if not prev in sys.path:
     sys.path.append(prev)
 
 #@singleton
-class VMManager(object):
+class VMManager:
     def __init__(self):
         #self.name = name
         pass
 
     def execute(self, vm_name, cmd, *args):
-
-#       print "EXECUTE:"
-#       print "CMD %s\nARGS: %s\nVM %s" % (cmd,args,vm_name)
-
         vmachine_cmds = [ 
                     "startup", "shutdown", "reboot", 
                     "get_snapshots", "revert_to_snapshot", "create_snapshot", "delete_snapshot",
                     "is_powered_on", "is_powered_off",
-                    "make_directory", "get_file", "send_file" 
-                ]
+                    "make_directory", "get_file", "send_file" ]
         vmrun_cmds = [ "executeCmd", "runTest", "takeScreenshot" ]
 
         vm = VMachine(vm_conf_file, vm_name)
@@ -34,12 +29,13 @@ class VMManager(object):
         if cmd in vmrun_cmds:
             vmrun = VMRun(vm_conf_file)
             f = getattr(vmrun, cmd)
-            #print "calling %s for vm %s with args %s" % (f, vm, "".join(args))
-            #print "ARGS ARE: %s" % "".join(args)
-            f(vm, "".join(args))
+            if not args: 
+                return f(vm)
+            else: 
+                return f(vm, "".join(args))
+
         elif cmd in vmachine_cmds:
             f = getattr(vm, cmd)
-
             if not args: 
                 return f()
             else: 
@@ -59,7 +55,7 @@ def test():
         print "sleeping 5 secs"
         sleep(5)
 
-    sleep(145)
+    sleep(180)
 #    '''
     print "TEST CMD WITH ARGS:"
     vmm.execute("avg", "runTest", 
