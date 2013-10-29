@@ -5,13 +5,13 @@ import logging.config
 from time import sleep
 
 sys.path.append("../AVCommon")
-sys.path.append("AVCommon")
+#sys.path.append("AVCommon")
 
 prev = os.path.join(os.getcwd(), "..")
 if not prev in sys.path:
     sys.path.append(prev)
 
-from AVCommon import mq
+#from AVCommon import mq
 from AVMaster.vm_manager import VMManager
 
 

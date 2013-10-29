@@ -1,6 +1,7 @@
 import subprocess
 import sys
 import os
+import logging
 
 from time import sleep
 from datetime import datetime
@@ -20,16 +21,16 @@ class vSphere:
 #        print "connecting to %s %s %s" % (self.sdk_host, self.sdk_user, self.sdk_passwd)
         self.server = VIServer()
         self.server.connect(self.sdk_host, self.sdk_user, self.sdk_passwd)
-        print "connected"
+        logging.debug("connected")
         vm = self.server.get_vm_by_path(self.vm_path)
         return vm
 
     def __exit__(self, type, value, traceback):
         try:
             self.server.disconnect()
-            print "disconnect"
+            logging.debug("disconnect")
         except VIException as e:
-            print "DBG problem in disconnection. Fault is: %s" % e.fault
+            logging.debug("DBG problem in disconnection. Fault is: %s" % e.fault)
             pass
 
 
@@ -60,7 +61,7 @@ class VMRun:
         if popen is True:
             return self._run_popen(pargs, timeout)
         elif bg is True:
-            print "DBG running in bg mode"
+            logging.debug("running in bg mode")
             return self._run_bg(pargs)
         else:
             return self._run_call(pargs)
@@ -83,13 +84,13 @@ class VMRun:
             if p.poll() is not None:  # process is executed and ret.poll() has the return code
                 executed = True
             if tick >= timeout * 3:
-                print "DBG run_popen timeout"
+                logging.debug("run_popen timeout")
                 return []
 
         if p.poll() == 0:
             return p.communicate()[0]
         else:
-            print "DBG p.poll is 0"
+            logging.debug("poll is 0")
             return []
 
     def startup(self, vmx):
@@ -138,9 +139,9 @@ class VMRun:
         self.createSnapshot(vmx, "%s" % date)
         if delete is True:
             snaps = self.listSnapshots(vmx)
-            print "DBG snapshots %s" % snaps
+            logging.debug("snapshots %s" % snaps)
             if len(snaps) > 0 and snaps[-2] not in untouchables and "manual" not in snaps[-2]:
-                print "DBG deleting %s" % snaps[-2]
+                logging.debug("deleting %s" % snaps[-2])
                 self.deleteSnapshot(vmx, snaps[-2])
 
     def revertLastSnapshot(self, vmx):
@@ -153,10 +154,10 @@ class VMRun:
                     self.revertSnapshot(vmx, snap[s])
                     return "[%s] Reverted with snapshot %s" % (vmx, snap[s])
                 else:
-                    print "DBG snapshot _datarecovery_ found!"
-            return "[%s] ERROR: no more snapshot to try" % vmx
+                    logging.debug("snapshot _datarecovery_ found!")
+            return "%s, ERROR: no more snapshot to try" % vmx
         else:
-            return "[%s] ERROR: no snapshots!" % vmx
+            return "%s, ERROR: no snapshots!" % vmx
 
     def mkdirInGuest(self, vmx, dir_path):
         sys.stdout.write("[%s] Creating directory %s.\n" % (vmx, dir_path))
@@ -191,7 +192,7 @@ class VMRun:
             cmds.append("-interactive")
         cmds.append(cmd)
         cmds.extend(args)
-        print "DBG background execution is %s" % bg
+        logging.debug("background execution is %s" % bg)
         return self._run_cmd(vmx,
                              "runProgramInGuest",
                              cmds,
@@ -200,10 +201,6 @@ class VMRun:
 
     def runTest(self, vmx, script):
         return self.executeCmd(vmx, script, interactive=True)
-        cmds = []
-        cmds.append("-interactive")
-        cmds.append(cmd)
-        return self._run_cmd
 
     def listProcesses(self, vmx):
         sys.stdout.write("[%s] List processes\n" % vmx)

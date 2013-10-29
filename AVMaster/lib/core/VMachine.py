@@ -1,4 +1,5 @@
 import os
+import logging
 
 from time import sleep
 from ConfigParser import ConfigParser, NoSectionError
@@ -29,7 +30,7 @@ class VMachine:
             self.sdkpasswd = self.config.get("vsphere","passwd")
 
         except NoSectionError:
-            print "[!] VM or VM stuff not found on %s" % conf_file
+            logging.debug("VM or VM stuff not found on %s" % conf_file)
 
 
     def __str__(self):
@@ -42,10 +43,10 @@ class VMachine:
         self.create_snapshot(date)
         if delete is True:
             snap_list = self.list_snapshots()
-            for snap in snap_list:
-                print snap.get_name()
+#            for snap in snap_list:
+#                print snap.get_name()
             if len(snap_list) > 0 and snap_list[-2].get_name() not in untouchables and "manual" not in snap_list[-2].get_name():
-                print "DBG deleting %s" % snap_list[-2].get_name()
+                logging.debug("deleting %s" % snap_list[-2].get_name() )
                 self.delete_snapshot(snap_list[-2].get_name())
 
     def send_files(self, src_dir, dst_dir, filestocopy):
@@ -65,15 +66,15 @@ class VMachine:
 
                 rdir = "%s\\%s" % (dst_dir, d)
                 if not rdir in memo:
-                    print "DBG mkdir %s " % (rdir)
+                    logging.debug("making directory %s " % (rdir))
                     self._run_vm(vm, "make_directory", rdir)
                     memo.append(rdir)
 
                 try:
-                    print "DBG copy %s -> %s" % (src, dst)
+                    logging.debug("copy %s -> %s" % (src, dst))
                     self._run_vm(vm, "send_file", src, dst)
                 except:
-                    print "DBG resending file %s -> %s" % (src, dst)
+                    logging.debug("resending file %s -> %s" % (src, dst))
                     self._run_vm(vm, "send_file", src, dst)
 
     def get_all_pid(self):
@@ -90,7 +91,7 @@ class VMachine:
 
     def execute_cmd(self, cmd, args=[], timeout=40):
         pid = self.start_process(cmd, args)
-        print "DBG created process %s with pid %s" % (cmd, pid)
+        logging.debug("created process %s with pid %s" % (cmd, pid))
 
         tick = 0
 
@@ -100,8 +101,8 @@ class VMachine:
             tick += 1
             sleep(10)
 
-        print self.get_all_pid()
-        print "exiting"
+        logging.debug(self.get_all_pid())
+        logging.debug("exiting")
 
     def shutdown_upgrade(self, timeout=120):
 
@@ -204,7 +205,7 @@ class VMachine:
             else:
                 return f(*params)
         except Exception as e:
-            print "%s, ERROR: Problem running %s. Reason: %s" % (self.name, func, e)
+            logging.debug("%s, ERROR: Problem running %s. Reason: %s" % (self.name, func, e))
 
     def _run_cmd(self, func, *params):
         try:
@@ -216,7 +217,7 @@ class VMachine:
                 else:
                     return f(*params)
         except Exception as e:
-            print "%s, ERROR: Problem running %s. Reason: %s" % (self.name, func, e)
+            logging.debug("%s, ERROR: Problem running %s. Reason: %s" % (self.name, func, e))
 
     def _run_task(self, func, *params):
 
@@ -224,7 +225,7 @@ class VMachine:
             s = task.wait_for_state(['success', 'error'])
 
             if s == 'error':
-                print "DBG ERROR: problem with task %s: %s" % (func, task.get_error_message())
+                logging.debug("ERROR: problem with task %s: %s" % (func, task.get_error_message()))
                 return False
             return True
 
@@ -237,4 +238,4 @@ class VMachine:
                     task = f(sync_run=False, *params)
                 return wait_for(task)
         except Exception as e:
-            print "%s, ERROR: Problem running %s. Reason: %s" % (self.name, func, e)
+            logging.debug("%s, ERROR: Problem running %s. Reason: %s" % (self.name, func, e))
