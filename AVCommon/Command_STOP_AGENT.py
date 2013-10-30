@@ -1,8 +1,10 @@
-import Command
+__author__ = 'zeno'
 import logging
 
-class Command_SET_BLACKLIST(Command.ClientCommand):
+import command
 
+
+class Command_STOP_AGENT(command.ClientCommand):
     """ server side """
     def on_init(self, args):
         logging.debug("    CS on_init")
@@ -14,5 +16,3 @@ class Command_SET_BLACKLIST(Command.ClientCommand):
     def execute(self, args):
         logging.debug("    CS Execute")
         return True, ""
-
-

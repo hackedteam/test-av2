@@ -1,7 +1,8 @@
 import sys
+
 sys.path.append("../AVCommon")
 
-from Decorators import *
+from AVCommon.decorators import *
 
 
 class testingDecorators():
@@ -32,6 +33,7 @@ def test_decorators():
         assert not "Should not be here"
     except:
         pass
+
 
 if __name__ == '__main__':
     test_decorators()

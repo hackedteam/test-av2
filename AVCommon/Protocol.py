@@ -1,8 +1,9 @@
-from Command import Command
-from MQ import MQStar
 import logging
 import copy
 import threading
+
+from command import Command
+from mq import MQStar
 
 
 class ProtocolClient:
@@ -15,6 +16,7 @@ class ProtocolClient:
         assert(isinstance(mq, MQStar))
 
     def _execute_command(self, cmd):
+    def _executeCommand(self, cmd):
         try:
             ret = cmd.execute(cmd.payload)
             logging.debug("cmd.execute: %s" % str(ret))
@@ -29,7 +31,6 @@ class ProtocolClient:
         return cmd
 
     """ client side """
-
     def receive_command(self):
         assert(isinstance(self.client, str))
         #logging.debug("PROTO receiveCommand %s" % (self.client))
@@ -56,7 +57,6 @@ class Protocol(ProtocolClient):
         assert(isinstance(mq, MQStar))
 
     """server side"""
-
     def _send_command_mq(self, cmd):
         cmd.on_init(cmd.payload)
         self.mq.send_client(self.client, cmd.serialize())
@@ -69,29 +69,41 @@ class Protocol(ProtocolClient):
         if blocking:
             t.join()
 
-    def next(self):
-        #logging.debug("next")
-        for c in self.procedure.next():
-            #logging.debug("next, got a new command")
-            yield self.send_command(c)
+    def _meta(self, cmd):
+        logging.debug("PROTO S executing meta")
+        ret = cmd.execute( (self, cmd.payload) )
+
+    #def next(self):
+    #    logging.debug("next")
+    #    for c in self.procedure.next():
+    #        logging.debug("next, got a new command")
+    #        yield self.send_command(c)
 
     def send_next_command(self):
         if not self.procedure:
             return False
         c = self.procedure.next_command()
         self.send_command(c)
+        return True
 
     def send_command(self, command):
         logging.debug("PROTO S send_command: %s" % str(command))
         cmd = Command.unserialize(command)
 
-        if cmd.side == "client":
-            self._send_command_mq(cmd)
-        else:
-            self._execute(cmd)
-        return True
+        try:
+            if cmd.side == "client":
+                self._send_command_mq(cmd)
+            elif cmd.side == "server":
+                self._execute(cmd)
+            elif cmd.side == "meta":
+                self._meta(cmd)
+            return True
+        except Exception, ex:
+            logging.error("Error sending command %s: %s" % (command, ex))
+            return False
 
-    def manage_answer(self, client, msg):
+    def receive_answer(self, client, msg):
+        """ returns a command with name, success and payload """
         #msg = self.mq.receiveClient(self, client)
 
         cmd = Command.unserialize(msg)

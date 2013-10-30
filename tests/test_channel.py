@@ -1,7 +1,10 @@
+from unittest import TestCase
+import os
 import sys
 sys.path.append("../AVCommon")
 
-from Channel import Channel
+from AVCommon.channel import Channel
+
 import time
 import thread
 from redis import StrictRedis
@@ -11,13 +14,10 @@ import random
 import logging, sys
 import logging.config
 
+__author__ = 'zeno'
 
-"""
-execute via nose or py.test
-"""
-
-count = 0
-
+def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
+    return ''.join(random.choice(chars) for x in range(size))
 
 def server(s):
     global count
@@ -25,79 +25,75 @@ def server(s):
         print "RECEIVED: %s | %s" % (c, m)
         count += 1
 
+#
+class TestChannel(TestCase):
+    def __init__(self):
+        super(self);
+        logging.config.fileConfig('../logging.conf')
 
-def test_Redis():
-    host = "localhost"
-    r = StrictRedis(host, socket_timeout=60)
-    msg = "Hello world"
+    def test_Redis(self):
+        host = "localhost"
+        r = StrictRedis(host, socket_timeout=60)
+        msg = "Hello world"
 
-    r.delete("channel")
-    r.rpush("channel", msg)
-    m = r.lpop("channel")
-    print m
-    assert(m == msg)
+        r.delete("channel")
+        r.rpush("channel", msg)
+        m = r.lpop("channel")
+        print m
+        assert(m == msg)
 
-    r.rpush("channel", [1, 2, 3])
-    m = ast.literal_eval(r.lpop("channel"))
-    print m, type(m)
+        r.rpush("channel", [1, 2, 3])
+        m = ast.literal_eval(r.lpop("channel"))
+        print m, type(m)
 
-def test_ChannelTimeout():
-    channel = "test"
-    host = "localhost"
-    s = Channel(host, channel)
-    r = s.read(blocking=True, timout=1)
-    assert r is None
+    def test_ChannelTimeout(self):
+        channel = "test"
+        host = "localhost"
+        s = Channel(host, channel)
+        r = s.read(blocking=True, timout=1)
+        assert r is None
 
-def test_ChannelList():
-    global count
-    channel = "response"
-    host = "localhost"
+    def test_ChannelList(self):
+        global count
+        channel = "response"
+        host = "localhost"
 
-    s = Channel(host, channel)
-    c1 = Channel(host, channel + ".c1")
-    c2 = Channel(host, channel + ".c2")
+        s = Channel(host, channel)
+        c1 = Channel(host, channel + ".c1")
+        c2 = Channel(host, channel + ".c2")
 
-    c1.write("START")
-    c2.write("START")
+        c1.write("START")
+        c2.write("START")
 
-    rc1 = c1.read()
-    rc2 = c2.read()
+        rc1 = c1.read()
+        rc2 = c2.read()
 
-    s.write("+STARTED C1")
-    s.write("+STARTED C2")
+        s.write("+STARTED C1")
+        s.write("+STARTED C2")
 
-    r3 = s.read()
-    r4 = s.read()
+        r3 = s.read()
+        r4 = s.read()
 
-    assert rc1 == "START", "not a START: %s" % rc1
-    assert(rc2 == "START")
-    assert(r3 == "+STARTED C1")
-    assert(r4 == "+STARTED C2")
+        assert rc1 == "START", "not a START: %s" % rc1
+        assert(rc2 == "START")
+        assert(r3 == "+STARTED C1")
+        assert(r4 == "+STARTED C2")
 
-def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
-    return ''.join(random.choice(chars) for x in range(size))
 
-def test_ChannelRandom():
-    global count
-    channel = id_generator()
-    host = "localhost"
 
-    s = Channel(host, channel)
-    c1 = Channel(host, channel + ".c1")
+    def test_ChannelRandom(self):
+        global count
+        channel = id_generator()
+        host = "localhost"
 
-    messages = [ id_generator(size=1000) for i in range(100)]
+        s = Channel(host, channel)
+        c1 = Channel(host, channel + ".c1")
 
-    for m in messages:
-        c1.write(m)
+        messages = [ id_generator(size=1000) for i in range(100)]
 
-    for m in messages:
-        r = c1.read()
-        assert(m == r)
+        for m in messages:
+            c1.write(m)
 
-if __name__ == '__main__':
-    logging.config.fileConfig('../logging.conf')
-    test_ChannelTimeout()
-    test_Redis()
-    test_ChannelList()
-    test_ChannelRandom()
-    #test ChannelRedis()
+        for m in messages:
+            r = c1.read()
+            assert(m == r)

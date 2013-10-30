@@ -1,37 +1,47 @@
 import sys
+
 sys.path.append("../AVCommon")
 sys.path.append("../AVMaster")
 
-import Protocol
-import MQ
-
-from Procedure import Procedure
-from Command import Command
+from AVCommon.procedure import Procedure
+from AVCommon.command import Command
 
 import logging
 import logging.config
 
 
 def test_dispatcher():
-    c = Command.unserialize( ["START", True, ['whatever','end']])
+    c = Command.unserialize(["BEGIN", True, ['whatever', 'end']])
     agentFiles = ""
     params = ""
 
-    update = Procedure("UPDATE", ["REVERT", "STARTVM", "UPDATE", "STOPVM"])
-    dispatch = Procedure("DISPATCH", ["REVERT", "STARTVM", ("PUSH", agentFiles)])
+    update = Procedure("UPDATE", ["REVERT", "START_VM", "UPDATE", "STOP_VM"])
+    dispatch = Procedure("DISPATCH", ["REVERT", "START_VM", ("PUSH", agentFiles)])
     scout = Procedure("SCOUT", [
-                        ("PROCEDURE", "dispatch"),
-                        ("PUSH", agentFiles),
-                        ("START_AGENT", None),
-                        ("SET_PARAMS", params),
-                        ("BUILD", ["silent"]),
-                        ("EXECUTE_AGENT", ["build/agent.exe"]),
-                    ])
+        ("CALL", "dispatch"),
+        ("PUSH", agentFiles),
+    ])
 
     assert update
     assert dispatch
     assert scout
 
+def test_procedure_insert():
+    c = Command.unserialize(["BEGIN", True, ['whatever', 'end']])
+    agentFiles = ""
+    params = ""
+
+    p1 = Procedure("UPDATE", ["REVERT", "START_VM", "UPDATE", "STOP_VM"])
+    p2 = Procedure("DISPATCH", ["REVERT", "START_VM", ("PUSH", agentFiles)])
+
+    lp1= len(p1)
+    lp2= len(p2)
+
+    p1.insert(p2)
+
+    assert p1
+    assert p2
+    assert len(p1) == lp1 + lp2
 
 def test_procedure_file():
     procedures = Procedure.load_from_file("../AVCommon/procedures.yaml")
@@ -40,33 +50,44 @@ def test_procedure_file():
     for p in procedures.values():
         assert isinstance(p, Procedure), "not a Procedure: %s" % p
 
+
 def test_procedure_yaml():
     yaml = """UPDATE:
     - REVERT
-    - STARTVM
+    - START_VM
     - UPDATE
-    - STOPVM
+    - STOP_VM
 
 DISPATCH:
     - REVERT
-    - STARTVM
+    - START_VM
     - UPDATE
     - PUSH:
         - file.sh
         - anotherfile.sh
 
 SCOUT:
-    - PROCEDURE: DISPATCH
+    - CALL: DISPATCH
     - START_AGENT
-    - SET_PARAMS:
-        - kind: scout
-        - platform: windows
+    - COMMAND_CLIENT:
+      - SCOUT_BUILD_WINDOWS_SILENT
+      - EXECUTE_SCOUT
 """
     procedures = Procedure.load_from_yaml(yaml)
     assert procedures, "empty procedures"
     logging.debug("procedures: %s" % procedures)
+    assert len(procedures) == 3, "wrong procedures number: %s" % len(procedures)
+
     for p in procedures.values():
         assert isinstance(p, Procedure), "not a Procedure: %s" % p
+        assert p.name
+        assert p.command_list
+        assert len(p) == len(p.command_list)
+
+    leninstance = len(procedures.values())
+    lenstatic = len(Procedure.procedures)
+    assert leninstance == lenstatic
+
 
 if __name__ == '__main__':
     logging.config.fileConfig('../logging.conf')
