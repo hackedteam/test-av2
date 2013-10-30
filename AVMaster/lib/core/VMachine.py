@@ -12,13 +12,19 @@ from VMRun import vSphere
 
 class VMachine:
 
-    def __init__(self, conf_file, name):
+    def __init__(self, name):
         self.name = name
+        self.config = None
+
+    def __str__(self):
+        return "%s" % self.name
+
+    def get_params(self, conf_file):
         try:
             self.config = ConfigParser()
             self.config.read(conf_file)
 
-            self.path = self.config.get("vms", name)
+            self.path = self.config.get("vms", self.name)
 
             self.snapshot = self.config.get("vm_config", "snapshot")
             self.user = self.config.get("vm_config", "user")
@@ -31,10 +37,6 @@ class VMachine:
 
         except NoSectionError:
             logging.debug("VM or VM stuff not found on %s" % conf_file)
-
-
-    def __str__(self):
-        return "%s" % self.name
 
     #   FUNCTIONS
     def refresh_snapshot(self, delete=True):
