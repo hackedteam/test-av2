@@ -29,7 +29,7 @@ def server_procedure(mq, clients, procedure):
         if rec is not None:
             print "- SERVER RECEIVED %s %s" % (rec, type(rec))
             c, msg = rec
-            answer = p[c].receive_answer(c, msg)
+            answer = p[c].manage_answer(c, msg)
             answered += 1
             print "- SERVER RECEIVED ANSWER: ", answer.success
             if answer.name == "END" or not answer.success:
@@ -98,7 +98,7 @@ def test_ProtocolEval():
         if rec:
             print "- SERVER RECEIVED %s %s" % (rec, type(rec))
             c, msg = rec
-            answer = p.receive_answer(c, msg)
+            answer = p.manage_answer(c, msg)
             print "- SERVER RECEIVED ANSWER: ", answer.success
             if answer.payload == "END" or not answer.success:
                 "- SERVER RECEIVE END"

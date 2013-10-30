@@ -7,11 +7,13 @@ if not prev in sys.path:
 
 from AVCommon import MQStar
 
+
 class Dispatcher(object):
     """docstring for Dispatcher"""
-    def __init__(self, vms, procedure ):
+    def __init__(self, vms, procedure):
         super(Dispatcher, self).__init__()
-        self.arg = arg
+        self.vms = vms
+        self.procedure = procedure
 
     def dispatch(mq, clients, procedure):
         global received
@@ -34,7 +36,7 @@ class Dispatcher(object):
             if rec is not None:
                 print "- SERVER RECEIVED %s %s" % (rec, type(rec))
                 c, msg = rec
-                answer = p[c].receive_answer(c, msg)
+                answer = p[c].manage_answer(c, msg)
                 answered += 1
                 print "- SERVER RECEIVED ANSWER: ", answer.success
                 if answer.name == "END" or not answer.success:

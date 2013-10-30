@@ -14,7 +14,7 @@ class ProtocolClient:
         assert(isinstance(client, str))
         assert(isinstance(mq, MQStar))
 
-    def _executeCommand(self, cmd):
+    def _execute_command(self, cmd):
         try:
             ret = cmd.execute(cmd.payload)
             logging.debug("cmd.execute: %s" % str(ret))
@@ -34,13 +34,13 @@ class ProtocolClient:
         assert(isinstance(self.client, str))
         #logging.debug("PROTO receiveCommand %s" % (self.client))
         msg = self.mq.receive_client(self.client, blocking=True, timeout=5)
-        logging.debug("PROTO C receiveCommand %s, %s" % (self.client, msg))
+        logging.debug("PROTO C receive_command %s, %s" % (self.client, msg))
         cmd = Command.unserialize(msg)
 
-        return self._executeCommand(cmd)
+        return self._execute_command(cmd)
 
     def send_answer(self, reply):
-        logging.debug("PROTO C sendAnswer %s" % reply)
+        logging.debug("PROTO C send_answer %s" % reply)
         self.mq.send_server(self.client, reply.serialize())
 
 
@@ -63,7 +63,7 @@ class Protocol(ProtocolClient):
 
     def _execute(self, cmd, blocking=False):
         #logging.debug("PROTO S executing server")
-        t = threading.Thread(target=self._executeCommand, args=(cmd,))
+        t = threading.Thread(target=self._execute_command, args=(cmd,))
         t.start()
 
         if blocking:
@@ -82,7 +82,7 @@ class Protocol(ProtocolClient):
         self.send_command(c)
 
     def send_command(self, command):
-        logging.debug("PROTO S sendCommand: %s" % str(command))
+        logging.debug("PROTO S send_command: %s" % str(command))
         cmd = Command.unserialize(command)
 
         if cmd.side == "client":
@@ -91,11 +91,11 @@ class Protocol(ProtocolClient):
             self._execute(cmd)
         return True
 
-    def receive_answer(self, client, msg):
+    def manage_answer(self, client, msg):
         #msg = self.mq.receiveClient(self, client)
 
         cmd = Command.unserialize(msg)
-        logging.debug("PROTO S receiveAnswer %s: %s" % (client, cmd))
+        logging.debug("PROTO S manage_answer %s: %s" % (client, cmd))
 
         assert(cmd.success is not None)
         cmd.on_answer(cmd.success, cmd.payload)
