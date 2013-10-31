@@ -4,7 +4,7 @@ class ignore(object):
     def __init__(self, f):
         logging.debug("inside myDecorator.__init__()")
         self.f = f
-        #print dir(f)
+        #logging.debug(dir(f))
 
     def __call__(self):
         logging.debug("inside myDecorator.__call__()")  # pragma: no cover
@@ -27,11 +27,11 @@ def report(fn):
         indent = ' ' * __report_indent[0]
         fc = "%s" % (fn.__name__)
 
-        print "%s%s called [#%s]" % (indent, fc, call)
+        logging.debug("%s%s called [#%s]" % (indent, fc, call))
         __report_indent[0] += 1
         ret = fn(*params, **kwargs)
         __report_indent[0] -= 1
-        print "%s%s returned %s [#%s]" % (indent, fc, repr(ret), call)
+        logging.debug("%s%s returned %s [#%s]" % (indent, fc, repr(ret), call))
 
         return ret
     wrap.callcount = 0

@@ -36,7 +36,9 @@ class VMachine:
             self.sdkpasswd = self.config.get("vsphere","passwd")
 
         except NoSectionError:
-            logging.debug("VM or VM stuff not found on %s" % conf_file)
+            logging.debug("cwd: %s" % os.getcwd())
+            logging.error("VM or VM stuff not found on %s" % conf_file)
+            raise
 
     #   FUNCTIONS
     def refresh_snapshot(self, delete=True):
@@ -207,7 +209,8 @@ class VMachine:
             else:
                 return f(*params)
         except Exception as e:
-            logging.debug("%s, ERROR: Problem running %s. Reason: %s" % (self.name, func, e))
+            logging.error("%s, ERROR: Problem running %s. Reason: %s" % (self.name, func, e))
+            raise
 
     def _run_cmd(self, func, *params):
         try:
@@ -219,7 +222,8 @@ class VMachine:
                 else:
                     return f(*params)
         except Exception as e:
-            logging.debug("%s, ERROR: Problem running %s. Reason: %s" % (self.name, func, e))
+            logging.error("%s, ERROR: Problem running %s. Reason: %s" % (self.name, func, e))
+            raise
 
     def _run_task(self, func, *params):
 
@@ -227,7 +231,7 @@ class VMachine:
             s = task.wait_for_state(['success', 'error'])
 
             if s == 'error':
-                logging.debug("ERROR: problem with task %s: %s" % (func, task.get_error_message()))
+                logging.error("ERROR: problem with task %s: %s" % (func, task.get_error_message()))
                 return False
             return True
 
@@ -240,4 +244,5 @@ class VMachine:
                     task = f(sync_run=False, *params)
                 return wait_for(task)
         except Exception as e:
-            logging.debug("%s, ERROR: Problem running %s. Reason: %s" % (self.name, func, e))
+            logging.error("%s, ERROR: Problem running %s. Reason: %s" % (self.name, func, e))
+            raise

@@ -54,7 +54,6 @@ class Command(object):
     context = None
     init = False
 
-
     def __init__(self, name):
         """ A command is constructed with a name, that identifies the derived class """
         self.name = name
@@ -72,7 +71,7 @@ class Command(object):
         - str: "(cmd, success, payload)"
 
         payload is evaluated via ast, so that it can contain a type like tuple, array, number, dict and so on
-        if payload starts with a "*", it's considered a plain string and it's not evaluated
+        if payload begins with a "|", it's considered a plain string and it's not evaluated
         """
         if not Command.init:
             Command.init = init_commands()
@@ -114,9 +113,9 @@ class Command(object):
                     payload = groups[2]
 
         class_name = "Command_%s" % cmd
-        #print Command.knownCommands
+        #logging.debug(1)Command.knownCommands
 
-        logging.debug("identified: %s" % identified)
+        #logging.debug("identified: %s" % identified)
         assert isinstance(success, bool) or success is None, "success: %s" % success
         assert isinstance(cmd, str), "not a string: %s" % cmd
         assert cmd in Command.known_commands.keys(), "Unknown command: %s" % cmd
@@ -128,8 +127,8 @@ class Command(object):
             command_class = getattr(command_package, class_name)
             c = command_class(cmd)
 
-            if isinstance(payload, str) and payload.startswith("|") and payload.endsswith("|"):
-                c.payload = payload[1:-1]
+            if isinstance(payload, str) and payload.startswith("|"):
+                c.payload = payload[1:]
             else:
                 try:
                     c.payload = ast.literal_eval(payload)

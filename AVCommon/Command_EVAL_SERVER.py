@@ -4,9 +4,10 @@ import command
 
 
 class Command_EVAL_SERVER(command.ServerCommand):
-    """ client side, returns (bool,*) """
+    """ eval called server side. Use with care. """
 
     def execute(self, args):
+        """ client side, returns (bool,*) """
         logging.debug("    CS Execute: %s" % args)
         ret = eval(args)
         logging.debug("    CS Execute ret: %s" % ret)

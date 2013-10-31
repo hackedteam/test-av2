@@ -7,6 +7,7 @@ from mq import MQStar
 
 
 class ProtocolClient:
+    """ Protocol, client side. When the command is received, it's executed and the result resent to the server. """
 
     def __init__(self, mq, client):
         self.mq = mq
@@ -45,6 +46,7 @@ class ProtocolClient:
 
 
 class Protocol(ProtocolClient):
+    """ A protocol implements the server behavior."""
     procedure = None
 
     def __init__(self, mq, client, procedure=None):

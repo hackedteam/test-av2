@@ -6,7 +6,7 @@ from protocol import Protocol
 
 
 class Command_CALL(command.MetaCommand):
-    """ server side """
+    """ calls another procedure """
     def execute(self, args):
         logging.debug("    CS Execute")
         protocol, proc_name = args

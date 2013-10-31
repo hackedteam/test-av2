@@ -4,9 +4,10 @@ import command
 
 
 class Command_STOP_VM(command.ServerCommand):
-    """ server side """
+    """ stops a vm """
 
     def execute(self, args):
+        """ server side """
         logging.debug("    CS Execute")
         return True, ""
 

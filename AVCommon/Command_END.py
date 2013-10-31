@@ -4,8 +4,9 @@ import command
 
 
 class Command_END(command.ServerCommand):
-    """ server side """
+    """ ends a protocol communication """
     def execute(self, args):
+        """ server side """
         logging.debug("    CS Execute")
         return True, "It's time to die"
 
