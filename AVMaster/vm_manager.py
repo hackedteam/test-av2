@@ -21,29 +21,41 @@ class VMManager:
                     "get_snapshots", "revert_to_snapshot", "create_snapshot", "delete_snapshot",
                     "is_powered_on", "is_powered_off",
                     "make_directory", "get_file", "send_file" ]
-        vmrun_cmds = [ "executeCmd", "runTest", "takeScreenshot" ]
+        vmrun_cmds = [ "runTest", "takeScreenshot" ]
 
         logging.debug("command: %s" % cmd )
-        vm = VMachine(self.vm_conf_file, vm_name)
-        assert vm.config
 
-        if cmd in vmrun_cmds:
-            vmrun = VMRun(self.vm_conf_file)
-            f = getattr(vmrun, cmd)
-            if not args: 
-                return f(vm)
-            else: 
-                return f(vm, "".join(args))
+        try:
+            vm = VMachine(vm_name)
+            vm.get_params(self.vm_conf_file)
 
-        elif cmd in vmachine_cmds:
-            f = getattr(vm, cmd)
-            if not args: 
-                return f()
-            else: 
-                return f(args)
-        else:
-            logging.debug( "COMMAND NOT FOUND")
+            assert vm.config
 
+            if cmd in vmrun_cmds:
+                vmrun = VMRun(self.vm_conf_file)
+                f = getattr(vmrun, cmd)
+                if not args: 
+                    return f(vm)
+                else: 
+                    return f(vm, "".join(args))
+
+            elif cmd in vmachine_cmds:
+                f = getattr(vm, cmd)
+                if not args: 
+                    return f()
+                else: 
+                    return f(args)
+            else:
+                logging.debug("command %s not found." % cmd)
+                return False
+        except AssertionError as ae:
+            logging.info("Assertion found: %s" % ae)
+            return False
+        except Exception as e:
+            logging.info("Exception found. %s" % e)
+            return False
+
+"""
 def test():
     from time import sleep
 
@@ -74,9 +86,10 @@ def test():
         logging.debug( "TESTING NOT CMD")
         vmm.execute("avg","killah")
 
-        logging.debug ("end %s" % vm)
+        logging.debug("end %s" % vm)
 
 if __name__ == "__main__":
     logging.config.fileConfig('../../logging.conf')
     logging.info("test")
     test()
+"""
