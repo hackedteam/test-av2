@@ -82,10 +82,10 @@ def test_ProtocolEval():
     c = "client1"
     mq.add_client(c)
 
-    commands = [("EVAL_SERVER", "dir()"),
+    commands = ["BEGIN", ("EVAL_SERVER", "dir()"),
                 ("EVAL_SERVER", "locals()"),
                 ("EVAL_SERVER", "__import__('os').getcwd()"),
-                ("EVAL_SERVER", "*'END'")]
+                ("END", None, None)]
     procedure = Procedure("PROC", commands)
 
     p = Protocol(mq, c, procedure)
@@ -118,12 +118,13 @@ def test_ProtocolCall():
     mq.add_client(c)
 
     yaml = """BASIC:
+    - BEGIN
     - EVAL_SERVER: dir()
 
 CALLER:
     - CALL: BASIC
     - EVAL_SERVER: locals()
-    - EVAL_SERVER: *END
+    - END
 """
     procedures = Procedure.load_from_yaml(yaml)
 
@@ -153,7 +154,7 @@ CALLER:
             print "- SERVER RECEIVED empty"
             exit = True
 
-    assert answers == 2, "wrong answers: %s" % answers
+    assert answers == 4, "wrong answers: %s" % answers
 
 if __name__ == '__main__':
     logging.config.fileConfig('../logging.conf')
