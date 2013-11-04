@@ -15,7 +15,8 @@ def test_instance():
     assert vm
 
 def test_up_and_down():
-    vmm = VMManager("../AVMaster/conf/vms.cfg")
+#    vmm = VMManager("../AVMaster/conf/vms.cfg")
+    vmm = VMManager()
     logging.info( "TEST VMManager")
     #vms=["zenovm", "noav"]
     vms = ["noav"]

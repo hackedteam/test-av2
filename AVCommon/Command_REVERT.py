@@ -5,7 +5,7 @@ import logging
 sys.path.append(os.path.split(os.getcwd())[0])
 sys.path.append(os.getcwd())
 
-from AVCommon import command
+import command
 from AVMaster.vm_manager import VMManager
 
 class Command_REVERT(command.ServerCommand):
@@ -17,7 +17,7 @@ class Command_REVERT(command.ServerCommand):
         assert self.vm, "null self.vm"
 
         # TODO: check
-        VMManager.execute(self.vm, "REVERT")
+        VMManager.execute(self.vm, "revert_to_snapshot")
         return True, ""
 
 
