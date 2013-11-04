@@ -65,12 +65,12 @@ def test_ProtocolProcedure():
 
     assert cmdStart
 
-    logging.debug("- CLIENT: ", c)
+    logging.debug("- CLIENT: %s" % c)
     pc = Protocol(mq1, c)
     exit = False
     while not exit:
         received = pc.receive_command()
-        logging.debug("- CLIENT RECEIVED: ", received)
+        logging.debug("- CLIENT RECEIVED: %s" % received)
         if received.name == "STOP_AGENT":
             exit = True
 
@@ -102,7 +102,7 @@ def test_ProtocolEval():
             logging.debug("- SERVER RECEIVED %s %s" % (rec, type(rec)))
             c, msg = rec
             answer = p.receive_answer(c, msg)
-            logging.debug("- SERVER RECEIVED ANSWER: ", answer.success)
+            logging.debug("- SERVER RECEIVED ANSWER: %s" % answer.success)
             if answer.name == "END" or not answer.success:
                 logging.debug("- SERVER RECEIVE END")
                 #if answer.success:
@@ -146,7 +146,7 @@ CALLER:
             logging.debug("- SERVER RECEIVED %s %s" % (rec, type(rec)))
             c, msg = rec
             answer = p.receive_answer(c, msg)
-            logging.debug("- SERVER RECEIVED ANSWER: ", answer.success)
+            logging.debug("- SERVER RECEIVED ANSWER: %s" % answer.success)
             if answer.success:
                 answers += 1
             if answer.name == "END" or not answer.success:
