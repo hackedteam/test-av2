@@ -16,7 +16,7 @@ import logging.config
 def server_procedure(mq, clients, procedure):
     global received
     exit = False
-    logging.debug("- SERVER ", len(procedure))
+    logging.debug("- SERVER PROCEDURE, len: %s" % len(procedure))
     numcommands = len(procedure)
 
     p = {}
@@ -31,9 +31,9 @@ def server_procedure(mq, clients, procedure):
         if rec is not None:
             logging.debug("- SERVER RECEIVED %s %s" % (rec, type(rec)))
             c, msg = rec
-            answer = p[c].manage_answer(c, msg)
+            answer = p[c].receive_answer(c, msg)
             answered += 1
-            logging.debug("- SERVER RECEIVED ANSWER: ", answer.success)
+            logging.debug("- SERVER RECEIVED ANSWER: %s" % answer.success)
             if answer.name == "END" or not answer.success:
                 ended += 1
                 logging.debug("- SERVER RECEIVE END")
@@ -163,6 +163,6 @@ CALLER:
 
 if __name__ == '__main__':
     logging.config.fileConfig('../logging.conf')
-    #test_ProtocolProcedure()
-    #test_ProtocolEval()
+    test_ProtocolProcedure()
+    test_ProtocolEval()
     test_ProtocolCall()

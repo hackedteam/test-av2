@@ -112,6 +112,8 @@ class Command(object):
                     payload = ast.literal_eval(groups[2])
                 except SyntaxError:
                     payload = groups[2]
+                except ValueError:
+                    payload = groups[2]
 
         class_name = "Command_%s" % cmd
         #logging.debug(1)Command.knownCommands
@@ -126,6 +128,7 @@ class Command(object):
 
             command_package = getattr(m, class_name)
             command_class = getattr(command_package, class_name)
+            command_class.name = class_name
             c = command_class(cmd)
 
             if isinstance(payload, str) and payload.startswith("|"):
