@@ -25,15 +25,15 @@ class AVMaster():
         proc = procedures[self.procedure]
         assert proc, "cannot find the specified procedure: %s" % self.procedure
 
-        mq = MQStar(self.args.redis)
+        mq = MQStar(self.args.redis, self.args.session)
         if self.args.clean:
             mq.clean()
 
         logging.info("mq session: %s" % mq.session)
 
-        dispatcher = Dispatcher(self.vm_names, proc)
+        dispatcher = Dispatcher(mq, self.vm_names)
 
-        dispatcher.dispatch()
+        dispatcher.dispatch(proc)
 
     def on_finished(self, vm):
         pass
@@ -54,6 +54,8 @@ def main():
                         help="redis host")
     parser.add_argument('-c', '--clean', default=False,
                         help="clean redis mq")
+    parser.add_argument('-s', '--session', default=False,
+                        help="session redis mq ")
 
     args = parser.parse_args()
 

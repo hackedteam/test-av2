@@ -12,6 +12,6 @@ class Command_STOP_VM(command.ServerCommand):
         assert self.vm, "null self.vm"
 
         #TODO: shutsdown self.vm
-        return True, ""
+        return True, "Stopped VM"
 
 

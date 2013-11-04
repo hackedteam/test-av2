@@ -13,4 +13,4 @@ class Command_START_VM(command.ServerCommand):
 
         #TODO: start a VM: self.vm
 
-        return True, "I'm doing Science and I'm alive"
+        return True, "Started VM"

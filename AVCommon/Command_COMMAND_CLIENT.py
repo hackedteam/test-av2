@@ -20,4 +20,3 @@ class Command_COMMAND_CLIENT(command.ClientCommand):
         #TODO execute args on self.vm
         return True, ""
 
-

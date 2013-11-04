@@ -36,7 +36,7 @@ class Procedure:
     #        yield c
 
     def insert(self, new_proc):
-        self.command_list = self.command_list + new_proc.command_list
+        self.command_list = new_proc.command_list + self.command_list
 
     def next_command(self):
         c = self.command_list.pop(0)
@@ -57,7 +57,7 @@ class Procedure:
             for c in command_data:
                 c = Command.unserialize(c)
                 command_list.append(c)
-                logging.debug("  command: %s" % c)
+                #logging.debug("  command: %s" % c)
 
             procedures[name] = Procedure(name, command_list)
         Procedure.procedures = procedures

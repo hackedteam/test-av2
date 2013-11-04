@@ -24,6 +24,7 @@ class AVAgent(object):
         mq.add_client(self.vm)
         pc = Protocol(mq, self.vm)
 
+        logging.info("start receiving commands")
         exit = False
         while not exit:
             received = pc.receive_command()
