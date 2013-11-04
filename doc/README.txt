@@ -1,6 +1,6 @@
 Prerequisiti:
 brew install libyaml
-sudo easy_install redis pyyaml pysphere mck
+sudo easy_install redis pyyaml pysphere mock 
 
 AVMaster
   - istanziare il demone db
