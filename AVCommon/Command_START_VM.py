@@ -1,7 +1,12 @@
+import os
+import sys
 import logging
 
-import command
+sys.path.append(os.path.split(os.getcwd())[0])
+sys.path.append(os.getcwd())
 
+import command
+from AVMaster.vm_manager import VMManager
 
 class Command_START_VM(command.ServerCommand):
     """ starts a vm """
@@ -12,5 +17,6 @@ class Command_START_VM(command.ServerCommand):
         assert self.vm, "null self.vm"
 
         #TODO: start a VM: self.vm
+        VMManager.execute(self.vm, "startup")
 
         return True, "Started VM"
