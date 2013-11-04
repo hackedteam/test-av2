@@ -1,3 +1,7 @@
+TEST:
+    - START_AGENT
+    - STOP_AGENT
+
 UPDATE:
     - REVERT
     - START_VM
