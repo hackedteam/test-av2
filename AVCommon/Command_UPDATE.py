@@ -4,7 +4,7 @@ import command
 
 
 class Command_UPDATE(command.ServerCommand):
-    """ server side """
+    """ updates a vm """
 
     def execute(self, args):
         logging.debug("    CS Execute")

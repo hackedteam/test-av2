@@ -4,8 +4,9 @@ import command
 
 
 class Command_PULL(command.ServerCommand):
-    """ server side """
+    """ Pulls a set of files from a vm """
 
     def execute(self, args):
+        """ server side """
         logging.debug("    CS Execute")
         return True, ""

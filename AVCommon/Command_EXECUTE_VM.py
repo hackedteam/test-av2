@@ -4,9 +4,10 @@ import command
 
 
 class Command_EXECUTE_VM(command.ServerCommand):
-    """ server side """
+    """ Executes a program on a vm """
 
     def execute(self, args):
+        """ server side """
         logging.debug("    CS Execute")
         return True, ""
 

@@ -1,23 +1,21 @@
 import os
 import sys
+import threading
+import logging
 
-prev = os.path.join(os.getcwd(), "..")
-if not prev in sys.path:
-    sys.path.append(prev)
+sys.path.append(os.path.split(os.getcwd())[0])
+sys.path.append(os.getcwd())
 
-from AVCommon import protocol
-
-from lib.core.VMManager import vSphere, VMRun
-
-vmman = VMRun(vm_conf_file)
+from AVCommon.protocol import Protocol
+from AVMaster.vm_manager import VMManager
 
 
 class AVMachine(threading.Thread):
+    """docstring for AVMachine"""
     name = ""
 
-    """docstring for AVMachine"""
-
     def __init__(self, mq, name, procedure):
+        super(AVMachine, self).__init__()
         self.name = name
         self.procedure = procedure
         self.mq = mq
@@ -25,33 +23,35 @@ class AVMachine(threading.Thread):
         mq.add_client(name)
         mq.add_client("avmanager_%s" % name)
 
-        self.p = protocol(mq, name)
-        self.vmman = VMManager(name)
+        self.p = Protocol(mq, name)
+        #self.vmman = VMManager(name, "../AVMaster/conf/vms.cfg")
 
-    """ gives the answer to the current command """
+        logging.debug("added avMachine: %s" % name)
+
 
     def manage_answer(self, msg):
+        """ gives the answer to the current command """
         self.cmd.on_answer(msg)
 
     def run(self):
         while not exit:
-            rec = receive_command.receive_client(blocking=True, timeout=0)
+            rec = self.mq.receive_command.receive_client(blocking=True, timeout=0)
+            logging.debug("received command: %s" % self.name)
             if rec is not None:
-                print "- CLIENT RECEIVED %s %s" % (rec, type(rec))
+                logging.debug("- CLIENT RECEIVED %s %s" % (rec, type(rec)))
 
-
-    """ extract and send or execute the next command in the procedure"""
 
     def execute_next_command(self):
+        """ extract and send or execute the next command in the procedure"""
         if not self.procedure:
             return None
 
         self.cmd = self.procedure.next_command()
         if self.cmd.side == "client":
-            p = protocol(mq, name)
-            p.send_next_command(cmd)
+            p = Protocol(self.mq, self.name)
+            p.send_next_command(self.cmd)
         else:
-            VMManager.execute(name, cmd)
+
 
 
 

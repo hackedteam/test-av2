@@ -11,6 +11,11 @@ def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
 
 
 class MQStar():
+    """ MQStar is a Message Queue with a star topology. There's a server and multiple clients.
+    Each mqstar is identified by a session, which is the name of the underlining redis channels.
+    A server can send messages to clients on different channels, but receives answers on one channel: channel_to_server
+
+    """
     session = ""
     channels = {}
     """MQStar is a MessageQueue with a star topology based on Redis"""
@@ -30,6 +35,8 @@ class MQStar():
         return channel
 
     def clean(self):
+        """ Cleans all the redis keys related to the used channels
+        """
         for k in self.channel_to_server.redis.keys("MQ_*"):
             logging.debug(" MQ clean %s" % k)
             self.channel_to_server.redis.delete(k)

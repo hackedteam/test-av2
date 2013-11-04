@@ -12,13 +12,19 @@ from VMRun import vSphere
 
 class VMachine:
 
-    def __init__(self, conf_file, name):
+    def __init__(self, name):
         self.name = name
+        self.config = None
+
+    def __str__(self):
+        return "%s" % self.name
+
+    def get_params(self, conf_file):
         try:
             self.config = ConfigParser()
             self.config.read(conf_file)
 
-            self.path = self.config.get("vms", name)
+            self.path = self.config.get("vms", self.name)
 
             self.snapshot = self.config.get("vm_config", "snapshot")
             self.user = self.config.get("vm_config", "user")
@@ -30,11 +36,9 @@ class VMachine:
             self.sdkpasswd = self.config.get("vsphere","passwd")
 
         except NoSectionError:
-            logging.debug("VM or VM stuff not found on %s" % conf_file)
-
-
-    def __str__(self):
-        return "%s" % self.name
+            logging.debug("cwd: %s" % os.getcwd())
+            logging.error("VM or VM stuff not found on %s" % conf_file)
+            raise
 
     #   FUNCTIONS
     def refresh_snapshot(self, delete=True):
@@ -205,7 +209,8 @@ class VMachine:
             else:
                 return f(*params)
         except Exception as e:
-            logging.debug("%s, ERROR: Problem running %s. Reason: %s" % (self.name, func, e))
+            logging.error("%s, ERROR: Problem running %s. Reason: %s" % (self.name, func, e))
+            raise
 
     def _run_cmd(self, func, *params):
         try:
@@ -217,7 +222,8 @@ class VMachine:
                 else:
                     return f(*params)
         except Exception as e:
-            logging.debug("%s, ERROR: Problem running %s. Reason: %s" % (self.name, func, e))
+            logging.error("%s, ERROR: Problem running %s. Reason: %s" % (self.name, func, e))
+            raise
 
     def _run_task(self, func, *params):
 
@@ -225,7 +231,7 @@ class VMachine:
             s = task.wait_for_state(['success', 'error'])
 
             if s == 'error':
-                logging.debug("ERROR: problem with task %s: %s" % (func, task.get_error_message()))
+                logging.error("ERROR: problem with task %s: %s" % (func, task.get_error_message()))
                 return False
             return True
 
@@ -238,4 +244,5 @@ class VMachine:
                     task = f(sync_run=False, *params)
                 return wait_for(task)
         except Exception as e:
-            logging.debug("%s, ERROR: Problem running %s. Reason: %s" % (self.name, func, e))
+            logging.error("%s, ERROR: Problem running %s. Reason: %s" % (self.name, func, e))
+            raise

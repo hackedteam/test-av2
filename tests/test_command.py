@@ -1,5 +1,6 @@
-import sys
-sys.path.append("../AVCommon")
+import sys, os
+sys.path.append(os.path.split(os.getcwd())[0])
+sys.path.append(os.getcwd())
 
 from AVCommon.command import Command
 
@@ -140,3 +141,7 @@ if __name__ == '__main__':
     test_commandAnswer()
     test_commandAbstract()
     test_commandUnserialize()
+
+if __name__ == '__main__' and __package__ is None:
+    from os import sys, path
+    sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))

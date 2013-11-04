@@ -1,9 +1,8 @@
 from unittest import TestCase
 import os
 import sys
-sys.path.append("../AVCommon")
-
-from AVCommon.channel import Channel
+sys.path.append(os.path.split(os.getcwd())[0])
+sys.path.append(os.getcwd())
 
 import time
 import thread

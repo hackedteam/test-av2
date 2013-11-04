@@ -1,7 +1,6 @@
-import sys
-
-sys.path.append("../AVCommon")
-sys.path.append("../AVMaster")
+import sys, os
+sys.path.append(os.path.split(os.getcwd())[0])
+sys.path.append(os.getcwd())
 
 from AVCommon.procedure import Procedure
 from AVCommon.command import Command

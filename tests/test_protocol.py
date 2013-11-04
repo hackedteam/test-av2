@@ -1,7 +1,6 @@
-import sys
-
-sys.path.append("../AVCommon")
-sys.path.append("../AVMaster")
+import sys, os
+sys.path.append(os.path.split(os.getcwd())[0])
+sys.path.append(os.getcwd())
 
 from AVCommon.protocol import Protocol
 from AVCommon.procedure import Procedure
@@ -16,7 +15,7 @@ import logging.config
 def server_procedure(mq, clients, procedure):
     global received
     exit = False
-    print "- SERVER ", len(procedure)
+    logging.debug("- SERVER ", len(procedure))
     numcommands = len(procedure)
 
     p = {}
@@ -29,22 +28,22 @@ def server_procedure(mq, clients, procedure):
     while not exit and ended < len(clients):
         rec = mq.receive_server(blocking=True, timeout=10)
         if rec is not None:
-            print "- SERVER RECEIVED %s %s" % (rec, type(rec))
+            logging.debug("- SERVER RECEIVED %s %s" % (rec, type(rec)))
             c, msg = rec
             answer = p[c].manage_answer(c, msg)
             answered += 1
-            print "- SERVER RECEIVED ANSWER: ", answer.success
+            logging.debug("- SERVER RECEIVED ANSWER: ", answer.success)
             if answer.name == "END" or not answer.success:
                 ended += 1
-                print "- SERVER RECEIVE END"
+                logging.debug("- SERVER RECEIVE END")
             if answer.success:
                 p[c].send_next_command()
 
         else:
-            print "- SERVER RECEIVED empty"
+            logging.debug("- SERVER RECEIVED empty")
             exit = True
 
-    print answered, ended, numcommands
+    logging.debug(answered, ended, numcommands)
     assert (ended == len(clients))
     assert (answered == (len(clients) * numcommands))
 
@@ -66,12 +65,12 @@ def test_ProtocolProcedure():
 
     assert cmdStart
 
-    print "- CLIENT: ", c
+    logging.debug("- CLIENT: ", c)
     pc = Protocol(mq1, c)
     exit = False
     while not exit:
         received = pc.receive_command()
-        print "- CLIENT RECEIVED: ", received
+        logging.debug("- CLIENT RECEIVED: ", received)
         if received.name == "STOP_AGENT":
             exit = True
 
@@ -83,10 +82,10 @@ def test_ProtocolEval():
     c = "client1"
     mq.add_client(c)
 
-    commands = [("EVAL_SERVER", "dir()"),
+    commands = ["BEGIN", ("EVAL_SERVER", "dir()"),
                 ("EVAL_SERVER", "locals()"),
                 ("EVAL_SERVER", "__import__('os').getcwd()"),
-                ("EVAL_SERVER", "*'END'")]
+                ("END", None, None)]
     procedure = Procedure("PROC", commands)
 
     p = Protocol(mq, c, procedure)
@@ -98,18 +97,26 @@ def test_ProtocolEval():
     exit = False
     while not exit:
         rec = mq.receive_server(blocking=True, timeout=10)
+<<<<<<< HEAD
         if rec:
             print "- SERVER RECEIVED %s %s" % (rec, type(rec))
             c, msg = rec
             answer = p.manage_answer(c, msg)
             print "- SERVER RECEIVED ANSWER: ", answer.success
+=======
+        if rec is not None:
+            logging.debug("- SERVER RECEIVED %s %s" % (rec, type(rec)))
+            c, msg = rec
+            answer = p.receive_answer(c, msg)
+            logging.debug("- SERVER RECEIVED ANSWER: ", answer.success)
+>>>>>>> 4ec4fc7261196ee02f081437685658a762360a1f
             if answer.name == "END" or not answer.success:
-                print "- SERVER RECEIVE END"
+                logging.debug("- SERVER RECEIVE END")
                 #if answer.success:
             a = """('client1', ('EVAL_SERVER', True, {'self': <Command_EVAL_SERVER.Command_EVAL_SERVER object at 0x10931f810>, 'args': 'locals()'}))"""#   p.send_next_command()
 
         else:
-            print "- SERVER RECEIVED empty"
+            logging.debug("- SERVER RECEIVED empty")
             exit = True
     print("---- STOP RECEIVING ----")
 
@@ -121,12 +128,13 @@ def test_ProtocolCall():
     mq.add_client(c)
 
     yaml = """BASIC:
+    - BEGIN
     - EVAL_SERVER: dir()
 
 CALLER:
     - CALL: BASIC
     - EVAL_SERVER: locals()
-    - EVAL_SERVER: *END
+    - END
 """
     procedures = Procedure.load_from_yaml(yaml)
 
@@ -142,21 +150,21 @@ CALLER:
     while not exit:
         rec = mq.receive_server(blocking=True, timeout=10)
         if rec is not None:
-            print "- SERVER RECEIVED %s %s" % (rec, type(rec))
+            logging.debug("- SERVER RECEIVED %s %s" % (rec, type(rec)))
             c, msg = rec
             answer = p.receive_answer(c, msg)
-            print "- SERVER RECEIVED ANSWER: ", answer.success
+            logging.debug("- SERVER RECEIVED ANSWER: ", answer.success)
             if answer.success:
                 answers += 1
             if answer.name == "END" or not answer.success:
-                print "- SERVER RECEIVE END"
+                logging.debug("- SERVER RECEIVE END")
                 #if answer.success:
 
         else:
-            print "- SERVER RECEIVED empty"
+            logging.debug("- SERVER RECEIVED empty")
             exit = True
 
-    assert answers == 2, "wrong answers: %s" % answers
+    assert answers == 4, "wrong answers: %s" % answers
 
 if __name__ == '__main__':
     logging.config.fileConfig('../logging.conf')

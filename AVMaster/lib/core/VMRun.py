@@ -18,19 +18,18 @@ class vSphere:
         self.sdk_passwd = sdk_passwd
 
     def __enter__(self):
-#        print "connecting to %s %s %s" % (self.sdk_host, self.sdk_user, self.sdk_passwd)
         self.server = VIServer()
         self.server.connect(self.sdk_host, self.sdk_user, self.sdk_passwd)
-        logging.debug("connected")
+        logging.debug("connected to vSphere")
         vm = self.server.get_vm_by_path(self.vm_path)
         return vm
 
     def __exit__(self, type, value, traceback):
         try:
             self.server.disconnect()
-            logging.debug("disconnect")
+            logging.debug("disconnected from vSphere")
         except VIException as e:
-            logging.debug("DBG problem in disconnection. Fault is: %s" % e.fault)
+            logging.debug("Problem in disconnection. Fault is: %s" % e.fault)
             pass
 
 

@@ -4,14 +4,9 @@ import logging
 import logging.config
 from time import sleep
 
-sys.path.append("../AVCommon")
-#sys.path.append("AVCommon")
+sys.path.append(os.path.split(os.getcwd())[0])
+sys.path.append(os.getcwd())
 
-prev = os.path.join(os.getcwd(), "..")
-if not prev in sys.path:
-    sys.path.append(prev)
-
-#from AVCommon import mq
 from AVMaster.vm_manager import VMManager
 
 
@@ -21,10 +16,11 @@ def test_instance():
 
 def test_up_and_down():
     vmm = VMManager("../AVMaster/conf/vms.cfg")
-    logging.debug( "TEST CMD WITHOUT ARGS:")
+    logging.info( "TEST VMManager")
     #vms=["zenovm", "noav"]
     vms = ["noav"]
 
+    logging.info( "Testing existent methods")
     for vm in vms:
         if not vmm.execute(vm, "is_powered_on"):
             logging.debug("powering on %s" % vm)
@@ -48,6 +44,10 @@ def test_up_and_down():
 
     for vm in vms:
         assert vmm.execute(vm, "is_powered_off")
+
+    logging.info( "Testing non existent methods")
+    for vm in vms:
+        assert vmm.execute(vm, "this_method_doesnt_exists") is False
 
 if __name__ == '__main__':
     logging.config.fileConfig('../logging.conf')
