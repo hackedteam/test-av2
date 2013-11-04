@@ -1,6 +1,6 @@
 import logging
 from redis import StrictRedis
-
+import conf
 
 class Channel():
     """ Communication Channel, via Redis
@@ -13,13 +13,15 @@ class Channel():
         self.host = host
         self.channel = channel
         self.redis = StrictRedis(host, socket_timeout=60)
-        logging.debug("  CH init %s %s" % (host, channel))
+        #logging.debug("  CH init %s %s" % (host, channel))
         if not self.redis.exists(self.channel):
-            logging.debug("  CH write, new channel %s" % self.channel)
+            if conf.verbose:
+                logging.debug("  CH write, new channel %s" % self.channel)
 
     def write(self, message):
         """ writes a message to the channel. The channel is created automatically """
-        logging.debug("  CH write: %s\n    type: %s" % (str(message), type(message)))
+        if conf.verbose:
+            logging.debug("  CH write: channel: %s  message: %s" % (str(self.channel), str(message)))
         self.redis.rpush(self.channel, message)
 
     def read(self, blocking=False, timout=0):
@@ -34,9 +36,9 @@ class Channel():
         else:
             message = self.redis.lpop(self.channel)
 
-        logging.debug("  CH read: %s" % str(message))
+        #logging.debug("  CH read: %s" % str(message))
         parsed = message
 
-        logging.debug("      type: %s" % type(parsed))
+        #logging.debug("      type: %s" % type(parsed))
         return parsed
 

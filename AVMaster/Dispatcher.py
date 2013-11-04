@@ -35,25 +35,25 @@ class Dispatcher(object):
         ended = 0
         answered = 0
         while not exit and ended < len(self.vms):
-            rec = self.mq.receive_server(blocking=True, timeout=10)
+            rec = self.mq.receive_server(blocking=True, timeout=0)
             if rec is not None:
                 logging.debug("- SERVER RECEIVED %s %s" % (rec, type(rec)))
                 c, msg = rec
                 m = av_machines[c]
-                answer = m.receive_answer(msg)
+                answer = m.manage_answer(msg)
                 answered += 1
                 logging.debug("- SERVER RECEIVED ANSWER: %s" % answer.success)
                 if answer.name == "END" or not answer.success:
                     ended += 1
                     logging.debug("- SERVER RECEIVE END")
                 if answer.success:
-                    av_machines[c].send_next_command()
+                    av_machines[c].execute_next_command()
             else:
                 logging.debug("- SERVER RECEIVED empty")
                 exit = True
 
-        logging.debug(answered, ended, self.num_commands)
+        logging.debug("answered: %s, ended: %s, num_commands: %s" %( answered, ended, self.num_commands))
         assert (ended == len(self.vms))
-        assert (answered == (len(self.vms) * self.num_commands))
+        assert answered >= (len(self.vms) * self.num_commands), "answered: %s, len(vms): %s, num_commands: %s" % (answered , len(self.vms), self.num_commands)
 
 

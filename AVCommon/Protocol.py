@@ -4,7 +4,7 @@ import threading
 
 from command import Command
 from mq import MQStar
-
+import conf
 
 class ProtocolClient:
     """ Protocol, client side. When the command is received, it's executed and the result resent to the server. """
@@ -35,13 +35,15 @@ class ProtocolClient:
         assert(isinstance(self.client, str))
         #logging.debug("PROTO receiveCommand %s" % (self.client))
         msg = self.mq.receive_client(self.client, blocking=True, timeout=5)
-        logging.debug("PROTO C receive_command %s, %s" % (self.client, msg))
+        if conf.verbose:
+            logging.debug("PROTO C receive_command %s, %s" % (self.client, msg))
         cmd = Command.unserialize(msg)
 
         return self._execute_command(cmd)
 
     def send_answer(self, reply):
-        logging.debug("PROTO C send_answer %s" % reply)
+        if conf.verbose:
+            logging.debug("PROTO C send_answer %s" % reply)
         self.mq.send_server(self.client, reply.serialize())
 
 
@@ -71,7 +73,8 @@ class Protocol(ProtocolClient):
             t.join()
 
     def _meta(self, cmd):
-        logging.debug("PROTO S executing meta")
+        if conf.verbose:
+            logging.debug("PROTO S executing meta")
         ret = cmd.execute( (self, cmd.payload) )
 
     #def next(self):
@@ -88,7 +91,8 @@ class Protocol(ProtocolClient):
         return True
 
     def send_command(self, command):
-        logging.debug("PROTO S send_command: %s" % str(command))
+        if conf.verbose:
+            logging.debug("PROTO S send_command: %s" % str(command))
         cmd = Command.unserialize(command)
         cmd.vm = self.client
         try:

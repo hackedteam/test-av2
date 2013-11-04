@@ -17,13 +17,12 @@ class AVMachine(threading.Thread):
     def __init__(self, mq, name, procedure):
         super(AVMachine, self).__init__()
         self.name = name
-        self.procedure = procedure
         self.mq = mq
 
         mq.add_client(name)
-        mq.add_client("avmanager_%s" % name)
+        #mq.add_client("avmanager_%s" % name)
 
-        self.p = Protocol(mq, name)
+        self.protocol = Protocol(mq, name, procedure)
         #self.vmman = VMManager(name, "../AVMaster/conf/vms.cfg")
 
         logging.debug("added avMachine: %s" % name)
@@ -31,9 +30,10 @@ class AVMachine(threading.Thread):
 
     def manage_answer(self, msg):
         """ gives the answer to the current command """
-        self.cmd.on_answer(msg)
+        return self.protocol.receive_answer(self.name, msg)
 
     def run(self):
+        logging.debug("running")
         while not exit:
             rec = self.mq.receive_command.receive_client(blocking=True, timeout=0)
             logging.debug("received command: %s" % self.name)
@@ -43,12 +43,6 @@ class AVMachine(threading.Thread):
 
     def execute_next_command(self):
         """ extract and send or execute the next command in the procedure"""
-        if not self.procedure:
-            return None
-
-        self.cmd = self.procedure.next_command()
-        if self.cmd.side == "client":
-            p = Protocol(self.mq, self.name)
-            p.send_next_command(self.cmd)
-        else:
-            pass
+        while self.protocol.send_next_command():
+            logging.debug("sent command")
+        logging.debug("sent all commands: %s" % self.name)
