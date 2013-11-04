@@ -19,7 +19,7 @@ class ProtocolClient:
     def _execute_command(self, cmd):
         try:
             ret = cmd.execute(cmd.payload)
-            logging.debug("cmd.execute: %s" % str(ret))
+            logging.debug("cmd.execute ret: %s" % str(ret))
             cmd.success, cmd.payload = ret
         except Exception, e:
             logging.error(e)
