@@ -12,13 +12,14 @@ from AVMaster.vm_manager import VMManager
 class Command_SCREENSHOT(command.ServerCommand):
     """ gets a screenshot from a vm """
 
-    def execute(self, vm):
+    def execute(self, img_path):
         """ server side """
         logging.debug("    CS Execute")
         assert self.vm, "null self.vm"
+        #img_path = "/tmp/img_path.png"
 
         #TODO get screenshot from self.vm
-        VMManager.execute(self.vm, "takeScreenshot")
-        return True, ""
+        VMManager.execute(self.vm, "takeScreenshot", img_path)
+        return True, "Screenshot saved on file %s" % img_path
 
 

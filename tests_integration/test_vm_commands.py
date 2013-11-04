@@ -50,7 +50,7 @@ TEST2:
  
 TEST3:
     - CALL: PSTART
-    - SCREENSHOT
+    - SCREENSHOT: /tmp/magic_img_path.png
     - CALL: PSTOP
 """
     procedures = Procedure.load_from_yaml(yaml)

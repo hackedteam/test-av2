@@ -18,6 +18,6 @@ class Command_REVERT(command.ServerCommand):
 
         # TODO: check
         VMManager.execute(self.vm, "revert_to_snapshot")
-        return True, ""
+        return True, "Reverted VM"
 
 
