@@ -44,7 +44,7 @@ def server_procedure(mq, clients, procedure):
             logging.debug("- SERVER RECEIVED empty")
             exit = True
 
-    logging.debug(answered, ended, numcommands)
+    logging.debug("answered: %s, ended: %s, numcommands: %s" % (answered, ended, numcommands))
     assert (ended == len(clients))
     assert (answered == (len(clients) * numcommands))
 
@@ -56,7 +56,7 @@ def test_ProtocolProcedure():
     c = "client1"
     mq1.add_client(c)
 
-    commands = [("BEGIN", None, None),("START_AGENT", None, None),("STOP_AGENT", None, None), ("END", None, None)]
+    commands = [("BEGIN", None, None), ("END", None, None)]
     procedure = Procedure("PROC", commands)
 
     thread1 = threading.Thread(target=server_procedure, args=(mq1, [c], procedure))
