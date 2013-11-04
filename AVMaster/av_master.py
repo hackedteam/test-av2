@@ -6,6 +6,8 @@ sys.path.append(os.path.split(os.getcwd())[0])
 sys.path.append(os.getcwd())
 
 from AVCommon import procedure
+from av_machine import AVMachine
+from AVMaster.dispatcher import Dispatcher
 
 
 class Master():
@@ -13,9 +15,11 @@ class Master():
 
     def __init__(self, args):
         self.args = args
+        self.vm_names = args.vm.split(',')
 
-    def start():
-        vms = [AVMachine(vm) for vm in vm_names]
+    def start(self):
+
+        vms = [AVMachine(vm) for vm in self.vm_names]
 
         procedures = procedure.load_from_file("procedures.yaml")
         proc = procedures[vm.procedure]
@@ -33,7 +37,7 @@ def main():
     parser = argparse.ArgumentParser(description='AVMonitor master.')
     args = parser.parse_args()
     parser.add_argument('-m', '--vm', required=False,
-                        help="Virtual Machine where execute the operation")
+                        help="Virtual Machines comma separated on which executing the operation")
     parser.add_argument('-v', '--verbose', action='verbose_true', default=False,
                         help="Verbose")
     parser.add_argument('-r', '--procedure', type=str, default=False,
@@ -46,4 +50,5 @@ def main():
 
 
 if __name__ == '__main__':
+    logging.config.fileConfig('../logging.conf')
     main()

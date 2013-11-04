@@ -43,7 +43,7 @@ def test_procedure_insert():
     assert len(p1) == lp1 + lp2
 
 def test_procedure_file():
-    procedures = Procedure.load_from_file("../AVCommon/procedures.yaml")
+    procedures = Procedure.load_from_file("../AVMaster/conf/procedures.yaml")
     assert procedures, "empty procedures"
     logging.debug("procedures: %s" % procedures)
     for p in procedures.values():

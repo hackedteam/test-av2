@@ -5,6 +5,7 @@ sys.path.append(os.getcwd())
 from AVCommon.protocol import Protocol
 from AVCommon.procedure import Procedure
 from AVCommon.command import Command
+from AVCommon.Command_STOP_AGENT import Command_STOP_AGENT
 from AVCommon.mq import MQStar
 
 import threading
@@ -71,8 +72,9 @@ def test_ProtocolProcedure():
     while not exit:
         received = pc.receive_command()
         logging.debug("- CLIENT RECEIVED: %s" % received)
-        if received.name == "STOP_AGENT":
+        if received.name == Command_STOP_AGENT.name:
             exit = True
+    assert exit, "no stop agent received"
 
 
 def test_ProtocolEval():
