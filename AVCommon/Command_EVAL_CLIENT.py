@@ -17,6 +17,8 @@ class Command_EVAL_CLIENT(command.ClientCommand):
     def execute(self, args):
         """ client side, returns (bool,*) """
         logging.debug("    CS Execute")
+        assert self.vm, "null self.vm"
+
         ret = eval(args)
         return True, ret
 

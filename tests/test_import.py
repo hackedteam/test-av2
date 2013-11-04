@@ -1,22 +1,3 @@
-<<<<<<< HEAD
-__author__ = 'fabrizio'
-import os, sys
-import logging
-import logging.config
-
-def test_import():
-    prev = os.path.join(os.getcwd(), "..")
-    if not prev in sys.path:
-        sys.path.append(prev)
-
-
-    sys.path.append("../AVCommon")
-    import AVCommon
-    from AVCommon import MQ
-
-if __name__ == '__main__':
-    logging.config.fileConfig('logging.conf')
-=======
 __author__ = 'zeno'
 
 import sys, os
@@ -38,4 +19,3 @@ if __name__ == "__main__":
     except:
         logging.config.fileConfig('../logging.conf')
     test_import_avcommon()
->>>>>>> 4ec4fc7261196ee02f081437685658a762360a1f

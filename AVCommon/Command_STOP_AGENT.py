@@ -18,4 +18,7 @@ class Command_STOP_AGENT(command.ClientCommand):
     def execute(self, args):
         """ client side, returns (bool,*) """
         logging.debug("    CS Execute")
+        assert self.vm, "null self.vm"
+
+        #TODO: stops a AVAgent on self.vm
         return True, ""

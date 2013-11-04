@@ -51,7 +51,4 @@ class AVMachine(threading.Thread):
             p = Protocol(self.mq, self.name)
             p.send_next_command(self.cmd)
         else:
-
-
-
-
+            pass

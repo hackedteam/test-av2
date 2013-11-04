@@ -17,7 +17,6 @@ class ProtocolClient:
         assert(isinstance(mq, MQStar))
 
     def _execute_command(self, cmd):
-    def _executeCommand(self, cmd):
         try:
             ret = cmd.execute(cmd.payload)
             logging.debug("cmd.execute: %s" % str(ret))
@@ -91,7 +90,7 @@ class Protocol(ProtocolClient):
     def send_command(self, command):
         logging.debug("PROTO S send_command: %s" % str(command))
         cmd = Command.unserialize(command)
-
+        cmd.vm = self.client
         try:
             if cmd.side == "client":
                 self._send_command_mq(cmd)
@@ -109,6 +108,7 @@ class Protocol(ProtocolClient):
         #msg = self.mq.receiveClient(self, client)
 
         cmd = Command.unserialize(msg)
+        cmd.client=client
         logging.debug("PROTO S manage_answer %s: %s" % (client, cmd))
 
         assert(cmd.success is not None)

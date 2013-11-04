@@ -8,6 +8,9 @@ class Command_UPDATE(command.ServerCommand):
 
     def execute(self, args):
         logging.debug("    CS Execute")
+        assert self.vm, "null self.vm"
+
+        #TODO: updates a self.vm, possibly just a sleep
         return True, ""
 
 

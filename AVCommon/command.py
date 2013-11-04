@@ -52,6 +52,7 @@ class Command(object):
     payload = ""
     success = None
     context = None
+    vm = None
     init = False
 
     def __init__(self, name):
@@ -163,7 +164,7 @@ class Command(object):
 
     """ client side """
     @abc.abstractmethod
-    def execute(self, args):
+    def execute(self, vm, args):
         """ The computation itself
         """
         pass  # pragma: no cover

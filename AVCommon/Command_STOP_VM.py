@@ -9,6 +9,9 @@ class Command_STOP_VM(command.ServerCommand):
     def execute(self, args):
         """ server side """
         logging.debug("    CS Execute")
+        assert self.vm, "null self.vm"
+
+        #TODO: shutsdown self.vm
         return True, ""
 
 

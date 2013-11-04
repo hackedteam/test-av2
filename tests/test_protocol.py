@@ -97,19 +97,12 @@ def test_ProtocolEval():
     exit = False
     while not exit:
         rec = mq.receive_server(blocking=True, timeout=10)
-<<<<<<< HEAD
-        if rec:
-            print "- SERVER RECEIVED %s %s" % (rec, type(rec))
-            c, msg = rec
-            answer = p.manage_answer(c, msg)
-            print "- SERVER RECEIVED ANSWER: ", answer.success
-=======
+
         if rec is not None:
             logging.debug("- SERVER RECEIVED %s %s" % (rec, type(rec)))
             c, msg = rec
             answer = p.receive_answer(c, msg)
             logging.debug("- SERVER RECEIVED ANSWER: ", answer.success)
->>>>>>> 4ec4fc7261196ee02f081437685658a762360a1f
             if answer.name == "END" or not answer.success:
                 logging.debug("- SERVER RECEIVE END")
                 #if answer.success:

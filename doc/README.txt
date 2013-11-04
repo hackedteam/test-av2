@@ -1,3 +1,7 @@
+Prerequisiti:
+brew install libyaml
+sudo easy_install redis pyyaml pysphere mck
+
 AVMaster
   - istanziare il demone db
   - gestire redis
