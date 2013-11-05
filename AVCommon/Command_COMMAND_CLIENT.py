@@ -18,17 +18,20 @@ class Command_COMMAND_CLIENT(command.ClientCommand):
 
     def execute(self, args):
         """ client side, returns (bool,*) """
-        logging.debug("    CS Execute")
+
         assert self.vm, "null self.vm"
 
         procedure = Procedure(args)
+        logging.debug("    CS Execute procedure %s" % procedure)
         ret = []
         while True:
             if not procedure:
                 break
             c = procedure.next_command()
+            logging.debug("        next command: %s" % c)
             ret.append(c.execute())
 
+        logging.debug("    CS res: %s" % ret)
         return True, ret
 
 

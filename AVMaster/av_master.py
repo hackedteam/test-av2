@@ -29,6 +29,7 @@ class AVMaster():
 
         mq = MQStar(self.args.redis, self.args.session)
         if self.args.clean:
+            logging.warn("cleaning mq")
             mq.clean()
 
         logging.info("mq session: %s" % mq.session)
@@ -54,7 +55,7 @@ def main():
                         help="This is the number of parallel process (default 8)")
     parser.add_argument('-d', '--redis', default="localhost",
                         help="redis host")
-    parser.add_argument('-c', '--clean', default=False,
+    parser.add_argument('-c', '--clean', default=False, action='store_true',
                         help="clean redis mq")
     parser.add_argument('-s', '--session', default=False,
                         help="session redis mq ")

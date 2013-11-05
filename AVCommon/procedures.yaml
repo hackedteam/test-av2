@@ -1,6 +1,10 @@
 TEST:
+    - BEGIN
     - START_AGENT
+    - COMMAND_CLIENT:
+        - BUILD: windows
     - STOP_AGENT
+    - END
 
 UPDATE:
     - REVERT

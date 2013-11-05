@@ -26,7 +26,7 @@ class MQStar():
         else:
             self.session = session
 
-        channel_server = " MQ_%s_to_server" % self.session
+        channel_server = "MQ_%s_to_server" % self.session
         self.channel_to_server = Channel(self.host, channel_server)
 
     def _make_channel(self, frm="server", to="server"):
@@ -40,6 +40,8 @@ class MQStar():
         for k in self.channel_to_server.redis.keys("MQ_*"):
             logging.debug(" MQ clean %s" % k)
             self.channel_to_server.redis.delete(k)
+
+        assert not self.channel_to_server.redis.keys("MQ_*")
 
     def add_client(self, client):
         if client not in self.channels.keys():

@@ -23,7 +23,7 @@ class ProtocolClient:
             logging.debug("cmd.execute ret: %s" % str(ret))
             cmd.success, cmd.payload = ret
         except Exception, e:
-            logging.error(e)
+            logging.error("ERROR: %s %s " % (type(e), e))
             cmd.success = False
             cmd.payload = e
 
@@ -35,10 +35,11 @@ class ProtocolClient:
     def receive_command(self):
         assert(isinstance(self.client, str))
         #logging.debug("PROTO receiveCommand %s" % (self.client))
-        msg = self.mq.receive_client(self.client, blocking=True, timeout=5)
+        msg = self.mq.receive_client(self.client, blocking=True, timeout=0)
         if conf.verbose:
             logging.debug("PROTO C receive_command %s, %s" % (self.client, msg))
         cmd = Command.unserialize(msg)
+        cmd.vm = self.client
 
         return self._execute_command(cmd)
 
