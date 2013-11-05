@@ -7,6 +7,9 @@ basedir = False
 
 commonname = 'AVCommon'
 basedir = None
+avcommon = None
+avagent = None
+avmaster = None
 
 if not basedir:
     localdir = os.getcwd()
@@ -16,8 +19,9 @@ if not basedir:
         if commonname in os.listdir(d):
             basedir = d
             sys.path.append(d)
-            m = __import__("%s.command" % commonname)
-            assert(m)
+            avcommon = __import__("%s" % commonname)
+            assert(avcommon)
             break
 
 assert basedir
+dir()
