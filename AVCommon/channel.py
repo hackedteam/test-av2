@@ -29,11 +29,12 @@ class Channel():
         """ reads a message from the underlining channel. This method can be blocking or it could timeout in a while
         """
         if blocking:
-            try:
-                ch, message = self.redis.blpop(self.channel, timout)
-            except:
-                logging.debug("  CH timeout: %s" % str(self.channel))
-                message = None
+
+                ret = self.redis.blpop(self.channel, timout)
+                if not ret:
+                    #logging.debug("  CH TIMEOUT")
+                    return None
+                ch, message = ret
         else:
             message = self.redis.lpop(self.channel)
 

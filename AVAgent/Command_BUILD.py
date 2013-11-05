@@ -2,7 +2,7 @@ __author__ = 'fabrizio'
 
 
 import logging
-import thread
+import time
 
 import command
 
@@ -11,10 +11,10 @@ class Command_BUILD(command.ClientCommand):
 
     def execute(self, args):
         """ client side, returns (bool,*) """
-        logging.debug("    CS Execute")
+        logging.debug("    BUILD %s" % args)
         assert self.vm, "null self.vm"
 
-        ret = "BUILD"
-        thread.sleep(30)
+        ret = "BUILT in 10 sec"
+        time.sleep(10)
         logging.debug("stop sleeping")
         return True, ret

@@ -32,10 +32,13 @@ class AVAgent(object):
         logging.info("start receiving commands")
         exit = False
         while not exit:
+            logging.debug("- CLIENT LISTENING")
             received = pc.receive_command()
-            logging.debug("- CLIENT RECEIVED: %s" % received)
+            logging.debug("- CLIENT EXECUTED: %s" % received)
             if received.name == 'STOP_AGENT':
                 exit = True
+
+        logging.info("stop receiving commands")
 
 
 if __name__ == "__main__":

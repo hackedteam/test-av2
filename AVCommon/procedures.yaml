@@ -2,7 +2,7 @@ TEST:
     - BEGIN
     - START_AGENT
     - COMMAND_CLIENT:
-        - BUILD: windows
+        - BUILD: [ windows, scout ]
     - STOP_AGENT
     - END
 
@@ -16,18 +16,16 @@ DISPATCH:
     - REVERT
     - START_VM
     - UPDATE
-    - PUSH:
-        - file.sh
-        - anotherfile.sh
+    - PUSH: [ file.sh, anotherfile.sh ]
 
 SCOUT:
-    - CALL: DISPATCH
     - START_AGENT
     - COMMAND_CLIENT:
-      - SCOUT_BUILD_WINDOWS_SILENT
-      - EXECUTE_SCOUT
+        - BUILD: [ windows, silent ]
+        - EXECUTE_SCOUT
 
 ELITE:
+    - CALL: DISPATCH
     - CALL: SCOUT
     - COMMAND_CLIENT:
       - UPGRADE_ELITE

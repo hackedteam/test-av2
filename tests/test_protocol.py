@@ -64,7 +64,7 @@ def test_ProtocolEval():
     p = Protocol(mq, c, procedure)
 
     while p.send_next_command():
-        logging.debug("sent command")
+        logging.debug("sent command: %s" % p.last_command)
 
     print("---- START RECEIVING ----")
     exit = False

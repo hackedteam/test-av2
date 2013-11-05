@@ -42,8 +42,10 @@ def test_ChannelTimeout():
     channel = "test"
     host = "localhost"
     s = Channel(host, channel)
+
     r = s.read(blocking=True, timout=1)
-    assert r is None
+
+    assert not r, "should go timeout"
 
 
 def test_ChannelList():

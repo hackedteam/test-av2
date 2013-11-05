@@ -35,7 +35,6 @@ class AVMaster():
         logging.info("mq session: %s" % mq.session)
 
         dispatcher = Dispatcher(mq, self.vm_names)
-
         dispatcher.dispatch(proc)
 
     def on_finished(self, vm):

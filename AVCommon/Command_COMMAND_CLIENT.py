@@ -21,15 +21,16 @@ class Command_COMMAND_CLIENT(command.ClientCommand):
 
         assert self.vm, "null self.vm"
 
-        procedure = Procedure(args)
+        procedure = Procedure("client", args)
         logging.debug("    CS Execute procedure %s" % procedure)
         ret = []
         while True:
             if not procedure:
                 break
             c = procedure.next_command()
+            c.vm = self.vm
             logging.debug("        next command: %s" % c)
-            ret.append(c.execute())
+            ret.append(c.execute(c.payload))
 
         logging.debug("    CS res: %s" % ret)
         return True, ret

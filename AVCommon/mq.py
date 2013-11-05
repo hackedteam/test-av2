@@ -61,7 +61,7 @@ class MQStar():
         ch.write(payload)
 
     def receive_server(self, blocking=False, timeout=60):
-        logging.debug(" MQ receive_server")
+        #logging.debug(" MQ receive_server")
         payload = self.channel_to_server.read(blocking, timeout)
 
         if not payload:
@@ -73,7 +73,7 @@ class MQStar():
         assert m, "wrong format"
         
         cmd, args = m.group(1), m.group(2)
-        logging.debug(" MQ read: %s args: %s" % (str(cmd), str(args)))
+        #logging.debug(" MQ read: %s args: %s" % (str(cmd), str(args)))
         #client, message = payload
         return cmd, args
 
@@ -90,5 +90,7 @@ class MQStar():
             logging.debug(" MQ error, receiveClient, client (%s) not found: %s" % (client, self.channels))
         ch = self.channels[client]
         message = ch.read(blocking, timeout)
+        if not message:
+            logging.error("TIMEOUT")
         return message
 

@@ -30,6 +30,7 @@ class Procedure:
             self.command_list = []
         else:
             self.command_list = [Command.unserialize(c) for c in command_list]
+            assert self.command_list, "empty command_list"
 
     #def next(self):
     #    for c in self.proc:

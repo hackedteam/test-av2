@@ -73,8 +73,8 @@ class Command(object):
     def __init__(self, name):
         """ A command is constructed with a name, that identifies the derived class """
         self.name = name
-        assert len(known_commands) > 0
-        assert name in command_names
+        #assert len(known_commands) > 0, "empty known commands"
+        #assert name in command_names, "name not in command_names: %s" % name
 
     @staticmethod
     def unserialize(serialized):
@@ -158,7 +158,7 @@ class Command(object):
             c.success = success
             c.context = Command.context
 
-            assert isinstance(c, Command), "not an instance: %s of %s" % (c.__class__, Command)
+            #assert isinstance(c, Command), "not an instance: %s of %s" % (c.__class__, Command)
             return c
 
     def serialize(self):
@@ -170,13 +170,11 @@ class Command(object):
         return (self.name, self.success, self.payload)
 
     """ server side """
-    @abc.abstractmethod
     def on_init(self, args):
         """ server side abstract method, is executed server side before the command is sent
         """
         pass  # pragma: no cover
 
-    @abc.abstractmethod
     def on_answer(self, success, answer):
         """ server side abstract method, is executed server side when the result of the computation returns.
         """
