@@ -1,10 +1,11 @@
 import logging
 import copy
 import threading
+from AVAgent import conf
 
 from command import Command
 from mq import MQStar
-import conf
+
 
 class ProtocolClient:
     """ Protocol, client side. When the command is received, it's executed and the result resent to the server. """

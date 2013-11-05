@@ -1,6 +1,7 @@
 import logging
 from redis import StrictRedis
-import conf
+from AVAgent import conf
+
 
 class Channel():
     """ Communication Channel, via Redis

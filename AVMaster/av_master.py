@@ -10,6 +10,7 @@ import logging
 from AVCommon.procedure import Procedure
 from AVMaster.dispatcher import Dispatcher
 from AVCommon.mq import MQStar
+from AVCommon import command
 
 class AVMaster():
     """docstring for Master"""
@@ -18,10 +19,11 @@ class AVMaster():
         self.args = args
         self.vm_names = args.vm.split(',')
         self.procedure = args.procedure.upper()
+        command.init("AVCommon")
 
     def start(self):
 
-        procedures = Procedure.load_from_file("conf/procedures.yaml")
+        procedures = Procedure.load_from_file("../AVCommon/procedures.yaml")
         proc = procedures[self.procedure]
         assert proc, "cannot find the specified procedure: %s" % self.procedure
 

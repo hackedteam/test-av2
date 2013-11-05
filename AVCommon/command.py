@@ -4,34 +4,9 @@ import logging
 import ast
 import re
 import abc
+from types import ModuleType, ClassType
 
-
-def init_commands():
-    logging.debug("initCommands")
-    cwd = os.getcwd()
-    if cwd not in sys.path:
-        sys.path.append(cwd)
-    for m in Command.commands:
-        #try:
-        #Command.known_commands[m] = __import__("Command_%s" % m)
-        Command.known_commands[m] = __import__("AVCommon.Command_%s" % m)
-        #except:  # pragma: no cover
-        #    raise
-        #    import AVCommon
-        #    Command.known_commands[m] = __import__("AVCommon.Command_%s" % m)
-    #logging.debug("dir(): %s %s" % (dir(), dir("AVCommon")) )
-    logging.info("Commands: %s" % Command.known_commands.keys())
-    return True
-
-
-class Command(object):
-    """ A Command is a base class for any instruction to give on a channel.
-    A command is defined by a name and an implementation class. Each class can be Server, Client or Meta.
-
-    """
-    __metaclass__ = abc.ABCMeta
-
-    commands = ['BEGIN',
+server_commands = ['BEGIN',
  'CALL',
  'COMMAND_CLIENT',
  'END',
@@ -48,20 +23,58 @@ class Command(object):
  'STOP_VM',
  'UPDATE']
 
-    known_commands = dict(zip(commands,  [None] * len(commands)))
+command_names = []
+known_commands = {}
+
+def init(namespace = "AVCommon", commands = server_commands, append = False):
+    global command_names
+    global known_commands
+    logging.debug("initCommands")
+
+    #cwd = os.getcwd()
+    #if cwd not in sys.path:
+    #    sys.path.append(cwd)
+    if not append:
+        command_names = []
+        #Command.known_commands = dict(zip(commands,  [None] * len(commands)))
+
+    command_names = command_names + commands
+    for m in commands:
+        try:
+            if not namespace:
+                known_commands[m] = __import__("Command_%s" % m)
+            else:
+                known_commands[m] = __import__("%s.Command_%s" % (namespace, m))
+        except:
+            raise
+        #    import AVCommon
+        #    Command.known_commands[m] = __import__("AVCommon.Command_%s" % m)
+    #logging.debug("dir(): %s %s" % (dir(), dir("AVCommon")) )
+    logging.info("Commands: %s" % known_commands.keys())
+
+
+class Command(object):
+    """ A Command is a base class for any instruction to give on a channel.
+    A command is defined by a name and an implementation class. Each class can be Server, Client or Meta.
+
+    """
+
+    global command_names
+    global known_commands
+
+    __metaclass__ = abc.ABCMeta
+
+
     payload = ""
     success = None
     context = None
     vm = None
-    init = False
 
     def __init__(self, name):
         """ A command is constructed with a name, that identifies the derived class """
         self.name = name
-        if not Command.init:
-            Command.init = init_commands()
-        assert len(Command.known_commands) > 0
-        assert name in Command.commands
+        assert len(known_commands) > 0
+        assert name in command_names
 
     @staticmethod
     def unserialize(serialized):
@@ -74,8 +87,8 @@ class Command(object):
         payload is evaluated via ast, so that it can contain a type like tuple, array, number, dict and so on
         if payload begins with a "|", it's considered a plain string and it's not evaluated
         """
-        if not Command.init:
-            Command.init = init_commands()
+        if not command_names:
+            init()
 
         #ident, command, answer = serialized.split(',', 2)
         #assert(ident == "CMD")
@@ -121,13 +134,17 @@ class Command(object):
         #logging.debug("identified: %s" % identified)
         assert isinstance(success, bool) or success is None, "success: %s" % success
         assert isinstance(cmd, str), "not a string: %s" % cmd
-        assert cmd in Command.known_commands.keys(), "Unknown command: %s" % cmd
+        assert cmd in known_commands.keys(), "Unknown command: %s" % cmd
 
-        if cmd in Command.known_commands.keys():
-            m = Command.known_commands[cmd]
+        if cmd in known_commands.keys():
+            m = known_commands[cmd]
 
-            command_package = getattr(m, class_name)
-            command_class = getattr(command_package, class_name)
+            command_module = getattr(m, class_name)
+            if  isinstance(command_module, ModuleType):
+                #assert isinstance(command_module, ModuleType), "strange type: %s" % command_module
+                command_class = getattr(command_module, class_name)
+            else:
+                command_class = command_module
             command_class.name = class_name
             c = command_class(cmd)
 
