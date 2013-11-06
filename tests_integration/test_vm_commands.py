@@ -47,8 +47,13 @@ TEST2:
         - file_test1.out
     - STOP_VM
     - END
- 
+
 TEST3:
+    - BEGIN
+    - SCREENSHOT: /tmp/maggic_path.png
+    - END
+ 
+TEST4:
     - CALL: PSTART
     - SCREENSHOT: /tmp/magic_img_path.png
     - CALL: PSTOP

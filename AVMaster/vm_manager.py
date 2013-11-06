@@ -16,7 +16,7 @@ class VMManager:
     #def __init__(self, vm_conf_file = os.path.join("conf", "vms.cfg")):
     #    self.vm_conf_file = vm_conf_file
 
-    vm_conf_file = os.path.join("conf", "vms.cfg")
+    vm_conf_file = "../AVMaster/conf/vms.cfg" #os.path.join("conf", "vms.cfg")
 
     @staticmethod
     def execute(vm_name, cmd, *args):
@@ -58,4 +58,5 @@ class VMManager:
         except Exception as e:
             logging.error("Exception found. %s" % e)
             raise
+            #return False
 

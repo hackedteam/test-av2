@@ -17,6 +17,8 @@ class Command_START_VM(command.ServerCommand):
         assert self.vm, "null self.vm"
 
         #TODO: start a VM: self.vm
-        VMManager.execute(self.vm, "startup")
-
-        return True, "Started VM"
+        try:
+            VMManager.execute(self.vm, "startup")
+            return True, "Started VM"
+        except Exception:
+	    	return False, "Error Occurred"
