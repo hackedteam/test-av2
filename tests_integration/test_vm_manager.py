@@ -47,8 +47,14 @@ def test_up_and_down():
         assert vmm.execute(vm, "is_powered_off")
 
     logging.info( "Testing non existent methods")
-    for vm in vms:
-        assert vmm.execute(vm, "this_method_doesnt_exists") is False
+    exp = False
+    try:
+        for vm in vms:
+            vmm.execute(vm, "this_method_doesnt_exists")
+    except:
+        exp = True
+    finally:
+        assert exp is True
 
 if __name__ == '__main__':
     logging.config.fileConfig('../logging.conf')

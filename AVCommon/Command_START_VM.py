@@ -1,6 +1,7 @@
 import os
 import sys
 import logging
+from time import sleep
 
 sys.path.append(os.path.split(os.getcwd())[0])
 sys.path.append(os.getcwd())
@@ -19,6 +20,9 @@ class Command_START_VM(command.ServerCommand):
         #TODO: start a VM: self.vm
         try:
             VMManager.execute(self.vm, "startup")
+            while VMManager.execute(self.vm, "is_powered_on") is False:
+#                logging.debug("sleeping 5 secs waiting for startup")
+                sleep(3)            
             return True, "Started VM"
-        except Exception:
-	    	return False, "Error Occurred"
+        except Exception as e:
+            return False, "Error Occurred: %s" % e

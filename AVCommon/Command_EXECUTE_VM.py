@@ -1,6 +1,12 @@
+import os
+import sys
 import logging
 
+sys.path.append(os.path.split(os.getcwd())[0])
+sys.path.append(os.getcwd())
+
 import command
+from AVMaster.vm_manager import VMManager
 
 #TODO
 class Command_EXECUTE_VM(command.ServerCommand):
@@ -12,6 +18,10 @@ class Command_EXECUTE_VM(command.ServerCommand):
         assert self.vm, "null self.vm"
 
         #TODO execute program on self.vm
-        return True, ""
+        try:
+        	ret = VMManager.execute(self.vm, "runTest", args)
+        	return True, ret
+        except Exception as e:
+        	return False, "Error Occurred: %s" % e
 
 

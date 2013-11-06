@@ -60,7 +60,10 @@ TEST4:
 """
     procedures = Procedure.load_from_yaml(yaml)
  
-    test1 = Procedure.procedures["TEST3"]
+    test1 = Procedure.procedures["TEST1"]
+    test2 = Procedure.procedures["TEST2"]
+    test3 = Procedure.procedures["TEST3"]
+    test4 = Procedure.procedures["TEST4"]
  
     #vms = ["noav", "zenovm"]
     vms = ["noav"]
@@ -70,7 +73,16 @@ TEST4:
  
     VMManager.vm_conf_file = "../AVMaster/conf/vms.cfg"
     dispatcher = Dispatcher(mq, vms)
-    dispatcher.dispatch(test1)
+#    logging.info("STARTING TEST 1")
+#    dispatcher.dispatch(test1)
+
+#    logging.info("STARTING TEST 2")
+#    dispatcher.dispatch(test2)
+
+    logging.info("STARTING TEST 3")
+    dispatcher.dispatch(test3)
+
+#    dispatcher.dispatch(test4)
  
 if __name__ == '__main__':
     logging.config.fileConfig('../logging.conf')

@@ -58,5 +58,3 @@ class VMManager:
         except Exception as e:
             logging.error("Exception found. %s" % e)
             raise
-            #return False
-
