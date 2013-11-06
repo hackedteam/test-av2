@@ -19,7 +19,7 @@ class AVMaster():
         self.args = args
         self.vm_names = args.vm.split(',')
         self.procedure = args.procedure.upper()
-        command.init("AVCommon")
+        command.init()
 
     def start(self):
 
