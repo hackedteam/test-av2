@@ -3,30 +3,65 @@ sys.path.append(os.path.split(os.getcwd())[0])
 sys.path.append(os.getcwd())
 
 import logging, logging.config
+from multiprocessing import Pool, Process
 
 from AVCommon.procedure import Procedure
 from AVCommon.mq import MQStar
 from AVMaster.dispatcher import Dispatcher
 from AVMaster.vm_manager import VMManager
 
-def test_dispatcher():
+from AVAgent import av_agent
+
+def test_dispatcher_server():
     host = "localhost"
 
     vms = ["noav", "zenovm"]
-    agentFiles = ["file.exe"]
-    params = "parameters.json"
 
-    test = Procedure("TEST", ["BEGIN", ("EVAL_SERVER",'dir()'), "END"])
+    test = Procedure("TEST", ["BEGIN", ("EVAL_SERVER",'self.vm'), "END"])
 
     host = "localhost"
     mq = MQStar(host)
     mq.clean()
 
+    #istanzia n client e manda delle procedure.
+
     VMManager.vm_conf_file = "../AVMaster/conf/vms.cfg"
     dispatcher = Dispatcher(mq, vms)
     dispatcher.dispatch(test)
 
+def test_dispatcher_client():
+    host = "localhost"
+
+    vms = [ "testvm_%d" % i for i in range(10) ]
+
+    test = Procedure("TEST", ["BEGIN", "START_AGENT", ("EVAL_CLIENT",'self.vm'), "STOP_AGENT", "END"])
+
+    host = "localhost"
+    mq = MQStar(host)
+    mq.clean()
+
+    logging.debug("MQ session: %s" % mq.session)
+
+    #istanzia n client e manda delle procedure.
+
+
+    VMManager.vm_conf_file = "../AVMaster/conf/vms.cfg"
+    dispatcher = Dispatcher(mq, vms)
+
+    p = Process(target=dispatcher.dispatch, args=(test,))
+    p.start()
+
+    #av_agent.start_agent(vms[0], host, mq.session)
+
+    pool = Pool(len(vms))
+    r = pool.map_async(av_agent.start_agent, ( (v, host, mq.session) for v in vms) )
+    results = r.get()
+    logging.debug ( "CLIENT result: %s" % results)
+
+    p.join()
+
 
 if __name__ == '__main__':
     logging.config.fileConfig('../logging.conf')
-    test_dispatcher()
+    #test_dispatcher_server()
+    test_dispatcher_client()

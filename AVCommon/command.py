@@ -29,7 +29,7 @@ known_commands = {}
 def init(namespace = "AVCommon", commands = server_commands, append = False):
     global command_names
     global known_commands
-    logging.debug("initCommands")
+    #logging.debug("initCommands")
 
     #cwd = os.getcwd()
     #if cwd not in sys.path:
@@ -41,16 +41,15 @@ def init(namespace = "AVCommon", commands = server_commands, append = False):
     command_names = command_names + commands
     for m in commands:
         try:
-            if not namespace:
-                known_commands[m] = __import__("Command_%s" % m)
-            else:
-                known_commands[m] = __import__("%s.Command_%s" % (namespace, m))
+            known_commands[m] = __import__("%s.Command_%s" % (namespace, m))
         except:
-            raise
+            known_commands[m] = __import__("Command_%s" % m)
+
         #    import AVCommon
         #    Command.known_commands[m] = __import__("AVCommon.Command_%s" % m)
     #logging.debug("dir(): %s %s" % (dir(), dir("AVCommon")) )
-    logging.info("Commands: %s" % known_commands.keys())
+
+    #logging.info("Commands: %s" % known_commands.keys())
 
 
 class Command(object):
