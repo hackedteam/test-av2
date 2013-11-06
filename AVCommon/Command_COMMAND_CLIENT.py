@@ -1,8 +1,12 @@
 import logging
 
 import command
+from procedure import Procedure
 
 class Command_COMMAND_CLIENT(command.ClientCommand):
+
+    client_commands = None
+
     """ executes a command on a client. The command can be implemented only client side. """
     def on_init(self, args):
         """ server side """
@@ -14,9 +18,21 @@ class Command_COMMAND_CLIENT(command.ClientCommand):
 
     def execute(self, args):
         """ client side, returns (bool,*) """
-        logging.debug("    CS Execute")
+
         assert self.vm, "null self.vm"
 
-        #TODO execute args on self.vm
-        return True, ""
+        procedure = Procedure("client", args)
+        logging.debug("    CS Execute procedure %s" % procedure)
+        ret = []
+        while True:
+            if not procedure:
+                break
+            c = procedure.next_command()
+            c.vm = self.vm
+            logging.debug("        next command: %s" % c)
+            ret.append(c.execute(c.payload))
+
+        logging.debug("    CS res: %s" % ret)
+        return True, ret
+
 

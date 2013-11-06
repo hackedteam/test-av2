@@ -26,7 +26,7 @@ class MQStar():
         else:
             self.session = session
 
-        channel_server = " MQ_%s_to_server" % self.session
+        channel_server = "MQ_%s_to_server" % self.session
         self.channel_to_server = Channel(self.host, channel_server)
 
     def _make_channel(self, frm="server", to="server"):
@@ -40,6 +40,8 @@ class MQStar():
         for k in self.channel_to_server.redis.keys("MQ_*"):
             logging.debug(" MQ clean %s" % k)
             self.channel_to_server.redis.delete(k)
+
+        assert not self.channel_to_server.redis.keys("MQ_*")
 
     def add_client(self, client):
         if client not in self.channels.keys():
@@ -59,7 +61,7 @@ class MQStar():
         ch.write(payload)
 
     def receive_server(self, blocking=False, timeout=60):
-        logging.debug(" MQ receive_server")
+        #logging.debug(" MQ receive_server")
         payload = self.channel_to_server.read(blocking, timeout)
 
         if not payload:
@@ -71,7 +73,7 @@ class MQStar():
         assert m, "wrong format"
         
         cmd, args = m.group(1), m.group(2)
-        logging.debug(" MQ read: %s args: %s" % (str(cmd), str(args)))
+        #logging.debug(" MQ read: %s args: %s" % (str(cmd), str(args)))
         #client, message = payload
         return cmd, args
 
@@ -88,5 +90,7 @@ class MQStar():
             logging.debug(" MQ error, receiveClient, client (%s) not found: %s" % (client, self.channels))
         ch = self.channels[client]
         message = ch.read(blocking, timeout)
+        if not message:
+            logging.error("TIMEOUT")
         return message
 

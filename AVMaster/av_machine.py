@@ -43,6 +43,9 @@ class AVMachine(threading.Thread):
 
     def execute_next_command(self):
         """ extract and send or execute the next command in the procedure"""
-        while self.protocol.send_next_command():
-            logging.debug("sent command")
-        logging.debug("sent all commands: %s" % self.name)
+        ret = self.protocol.send_next_command()
+        last =  self.protocol.last_command
+
+        return ret, last
+        #    logging.debug("sent command")
+        #logging.debug("sent all commands: %s" % self.name)

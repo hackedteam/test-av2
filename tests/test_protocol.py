@@ -5,7 +5,7 @@ sys.path.append(os.getcwd())
 from AVCommon.protocol import Protocol
 from AVCommon.procedure import Procedure
 from AVCommon.command import Command
-from AVCommon.Command_STOP_AGENT import Command_STOP_AGENT
+from AVCommon.Command_END import Command_END
 from AVCommon.mq import MQStar
 
 import threading
@@ -48,35 +48,6 @@ def server_procedure(mq, clients, procedure):
     assert (ended == len(clients))
     assert (answered == (len(clients) * numcommands))
 
-
-def test_ProtocolProcedure():
-    host = "localhost"
-    mq1 = MQStar(host)
-    mq1.clean()
-    c = "client1"
-    mq1.add_client(c)
-
-    commands = [("BEGIN", None, None), ("END", None, None)]
-    procedure = Procedure("PROC", commands)
-
-    thread1 = threading.Thread(target=server_procedure, args=(mq1, [c], procedure))
-    thread1.start()
-
-    cmdStart = Command.unserialize(('BEGIN', True, 'nothing else to say'))
-
-    assert cmdStart
-
-    logging.debug("- CLIENT: %s" % c)
-    pc = Protocol(mq1, c)
-    exit = False
-    while not exit:
-        received = pc.receive_command()
-        logging.debug("- CLIENT RECEIVED: %s" % received)
-        if received.name == Command_STOP_AGENT.name:
-            exit = True
-    assert exit, "no stop agent received"
-
-
 def test_ProtocolEval():
     host = "localhost"
     mq = MQStar(host)
@@ -93,7 +64,7 @@ def test_ProtocolEval():
     p = Protocol(mq, c, procedure)
 
     while p.send_next_command():
-        logging.debug("sent command")
+        logging.debug("sent command: %s" % p.last_command)
 
     print("---- START RECEIVING ----")
     exit = False
@@ -163,6 +134,5 @@ CALLER:
 
 if __name__ == '__main__':
     logging.config.fileConfig('../logging.conf')
-    test_ProtocolProcedure()
     test_ProtocolEval()
     test_ProtocolCall()

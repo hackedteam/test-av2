@@ -19,7 +19,7 @@ class Command_START_AGENT(command.ClientCommand):
 
     def execute(self, args):
         """ client side, returns (bool,*) """
-        logging.debug("    CS Execute")
+        logging.debug("    START AGENT")
         assert self.vm, "null self.vm"
 
         #TODO: start a AVAgent on a vm, possibly all files are already pushed

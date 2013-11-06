@@ -10,6 +10,7 @@ import logging
 from AVCommon.procedure import Procedure
 from AVMaster.dispatcher import Dispatcher
 from AVCommon.mq import MQStar
+from AVCommon import command
 
 class AVMaster():
     """docstring for Master"""
@@ -18,21 +19,22 @@ class AVMaster():
         self.args = args
         self.vm_names = args.vm.split(',')
         self.procedure = args.procedure.upper()
+        command.init("AVCommon")
 
     def start(self):
 
-        procedures = Procedure.load_from_file("conf/procedures.yaml")
+        procedures = Procedure.load_from_file("../AVCommon/procedures.yaml")
         proc = procedures[self.procedure]
         assert proc, "cannot find the specified procedure: %s" % self.procedure
 
         mq = MQStar(self.args.redis, self.args.session)
         if self.args.clean:
+            logging.warn("cleaning mq")
             mq.clean()
 
         logging.info("mq session: %s" % mq.session)
 
         dispatcher = Dispatcher(mq, self.vm_names)
-
         dispatcher.dispatch(proc)
 
     def on_finished(self, vm):
@@ -52,7 +54,7 @@ def main():
                         help="This is the number of parallel process (default 8)")
     parser.add_argument('-d', '--redis', default="localhost",
                         help="redis host")
-    parser.add_argument('-c', '--clean', default=False,
+    parser.add_argument('-c', '--clean', default=False, action='store_true',
                         help="clean redis mq")
     parser.add_argument('-s', '--session', default=False,
                         help="session redis mq ")

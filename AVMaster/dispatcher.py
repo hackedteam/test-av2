@@ -29,8 +29,9 @@ class Dispatcher(object):
             av_machines[c] = AVMachine(self.mq, c, procedure)
  
         for a in av_machines.values():
-            a.start()
-            a.execute_next_command()
+            #a.start()
+            r,c = a.execute_next_command()
+            logging.debug("- SERVER SENT: %s" % c)
  
         ended = 0
         answered = 0
@@ -42,12 +43,13 @@ class Dispatcher(object):
                 m = av_machines[c]
                 answer = m.manage_answer(msg)
                 answered += 1
-                logging.debug("- SERVER RECEIVED ANSWER: %s" % answer.success)
+                #logging.debug("- SERVER RECEIVED ANSWER: %s" % answer.success)
                 if answer.name == "END":
                     ended += 1
                     logging.debug("- SERVER RECEIVE END")
                 elif answer.success:
-                    av_machines[c].execute_next_command()
+                    r, c = av_machines[c].execute_next_command()
+                    logging.debug("- SERVER SENT: %s" % c)
                 else:
                     ended += 1
                     logging.debug("- SERVER RECEIVE ERROR, ENDING")
