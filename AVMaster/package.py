@@ -1,9 +1,7 @@
 __author__ = 'fabrizio'
 
 import os, sys
-
-verbose = False
-basedir = False
+from AVCommon import config
 
 commonname = 'AVCommon'
 basedir = None
