@@ -1,8 +1,7 @@
 import sys
-from time import sleep
+from AVAgent.old.puppet import VMachine
 
-from VMManager import VMManagerVS, VMManagerFus
-from VMachine import VMachine
+from AVAgent.old.puppet.VMManager import VMManagerFus
 #from ConsoleAPI import API
 
 if len(sys.argv) < 3:

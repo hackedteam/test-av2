@@ -2,9 +2,9 @@ import os
 import sys
 import argparse
 
-sys.path.append(os.path.split(os.getcwd())[0])
-sys.path.append(os.getcwd())
-
+#sys.path.append(os.path.split(os.getcwd())[0])
+#sys.path.append(os.getcwd())
+import package
 import logging
 
 from AVCommon.procedure import Procedure
@@ -23,7 +23,7 @@ class AVMaster():
 
     def start(self):
 
-        procedures = Procedure.load_from_file("../AVCommon/procedures.yaml")
+        procedures = Procedure.load_from_file("conf/procedures.yaml")
         proc = procedures[self.procedure]
         assert proc, "cannot find the specified procedure: %s" % self.procedure
 

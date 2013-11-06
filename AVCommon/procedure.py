@@ -3,6 +3,7 @@ import sys
 sys.path.append("../AVCommon")
 
 from command import Command
+from AVCommon import config
 
 from yaml import load
 

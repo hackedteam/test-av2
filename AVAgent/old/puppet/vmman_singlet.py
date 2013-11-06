@@ -1,7 +1,6 @@
 import sys
-from time import sleep
 
-from VMManager import VMManagerFus
+from AVAgent.old.puppet.VMManager import VMManagerFus
 from VMMachine import VMMachine
 from ConsoleAPI import API
 

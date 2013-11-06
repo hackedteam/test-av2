@@ -3,26 +3,24 @@ import shutil
 from time import sleep
 import time
 import socket
-
 import urllib2
 import zipfile
 import os.path
 import re
 import traceback
-
 import subprocess
 import Queue
 import threading
 import argparse
 import random
 from ConfigParser import ConfigParser
-from rcs_client import Rcs_client
+from urllib2 import HTTPError
+import ctypes
+
+from AVAgent.old.rcs_client import Rcs_client
 import logger
 import redis
 
-from urllib2 import HTTPError
-
-import ctypes
 MOUSEEVENTF_MOVE = 0x0001  # mouse move
 MOUSEEVENTF_ABSOLUTE = 0x8000  # absolute move
 MOUSEEVENTF_MOVEABS = MOUSEEVENTF_MOVE + MOUSEEVENTF_ABSOLUTE

@@ -1,8 +1,7 @@
 import sys
 from threading import Thread
 
-from VMachine import VMachine
-from VMManager import VMManagerFus
+from AVAgent.old.puppet.VMManager import VMManagerFus
 
 class Task(Thread):
     

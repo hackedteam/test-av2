@@ -6,6 +6,7 @@ import logging.config
 from lib.core.VMRun import VMRun
 from lib.core.VMachine import VMachine
 
+from AVCommon import config
 
 prev = os.path.join(os.getcwd(), "..")
 if not prev in sys.path:
