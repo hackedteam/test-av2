@@ -34,7 +34,8 @@ def test_dispatcher_client():
 
     vms = [ "testvm_%d" % i for i in range(10) ]
 
-    test = Procedure("TEST", ["BEGIN", "START_AGENT", ("EVAL_CLIENT",'self.vm'), "STOP_AGENT", "END"])
+    test = Procedure("TEST", ["BEGIN", "START_AGENT", ("EVAL_CLIENT",'self.vm'), {   'COMMAND_CLIENT': [{   'BUILD': [   'windows',
+                                                           'whatever']}]}, "STOP_AGENT", "END"])
 
     host = "localhost"
     mq = MQStar(host)

@@ -1,6 +1,6 @@
 import logging
 from redis import StrictRedis
-from AVAgent import conf
+from AVCommon import config
 
 
 class Channel():
@@ -16,12 +16,12 @@ class Channel():
         self.redis = StrictRedis(host, socket_timeout=60)
         #logging.debug("  CH init %s %s" % (host, channel))
         if not self.redis.exists(self.channel):
-            if conf.verbose:
+            if config.verbose:
                 logging.debug("  CH write, new channel %s" % self.channel)
 
     def write(self, message):
         """ writes a message to the channel. The channel is created automatically """
-        if conf.verbose:
+        if config.verbose:
             logging.debug("  CH write: channel: %s  message: %s" % (str(self.channel), str(message)))
         self.redis.rpush(self.channel, message)
 

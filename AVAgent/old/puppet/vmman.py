@@ -1,7 +1,5 @@
-import sys
-from time import sleep
+from AVAgent.old.puppet import Analysis
 
-from Analysis import Analysis
 from ConsoleAPI import API
 
 vms_conf_file = "vms.cfg"

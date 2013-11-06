@@ -1,11 +1,7 @@
-import sys
 import string
-from time import sleep
 from threading import Thread
 from ConfigParser import ConfigParser
-
-from Task import Task
-from VMachine import VMachine
+from AVAgent.old.puppet import VMachine, Task
 
 conf_file = "vms.cfg"
 

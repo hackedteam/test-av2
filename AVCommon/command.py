@@ -5,6 +5,7 @@ import ast
 import re
 import abc
 from types import ModuleType, ClassType
+from AVCommon import config
 
 server_commands = ['BEGIN',
  'CALL',
