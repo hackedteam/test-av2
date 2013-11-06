@@ -44,20 +44,19 @@ def test_dispatcher_client():
 
     #istanzia n client e manda delle procedure.
 
-
     VMManager.vm_conf_file = "../AVMaster/conf/vms.cfg"
-    dispatcher = Dispatcher(mq, vms)
 
+    # dispatcher, inoltra e riceve i comandi della procedura test sulle vm
+    dispatcher = Dispatcher(mq, vms)
     p = Process(target=dispatcher.dispatch, args=(test,))
     p.start()
 
-    #av_agent.start_agent(vms[0], host, mq.session)
-
+    # i client vengono eseguiti asincronicamente e comunicano tramite redis al server
     pool = Pool(len(vms))
     r = pool.map_async(av_agent.start_agent, ( (v, host, mq.session) for v in vms) )
-    results = r.get()
-    logging.debug ( "CLIENT result: %s" % results)
+    r.get() #notare che i results dei client non ci interessano, viaggia tutto su channel/command.
 
+    # chiusura del server
     p.join()
 
 
