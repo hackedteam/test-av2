@@ -17,8 +17,8 @@ from ConfigParser import ConfigParser
 from urllib2 import HTTPError
 import ctypes
 
-from AVAgent.old.rcs_client import Rcs_client
-import logger
+from rcs_client import Rcs_client
+import logging
 import redis
 
 MOUSEEVENTF_MOVE = 0x0001  # mouse move
@@ -35,7 +35,7 @@ def unzip(filename, fdir):
     names = []
     for name in zfile.namelist():
         (dirname, filename) = os.path.split(name)
-        print "- Decompress: %s / %s" % (fdir, filename)
+        logging.debug("- Decompress: %s / %s" % (fdir, filename))
         zfile.extract(name, fdir)
         names.append('%s/%s' % (fdir, name))
     return names
@@ -43,14 +43,14 @@ def unzip(filename, fdir):
 
 def check_internet(address, queue):
     """ True if dns or http are reachable """
-    print "- Check connection: %s" % address
+    logging.debug("- Check connection: %s" % address)
 
     ret = False
     # try:
     # if hasattr(socket, 'setdefaulttimeout'):
     # socket.setdefaulttimeout(5)
     #     response = socket.gethostbyaddr( address )
-    # print "i resolve dns: ", address
+    # logging.debug("i resolve dns: ", address)
     #     ret |= True
     # except:
     #     ret |= False
@@ -58,7 +58,7 @@ def check_internet(address, queue):
     try:
         if(ret is False):
             response = urllib2.urlopen('http://' + address, timeout=10)
-            # print "i reach url: ", address
+            # logging.debug("i reach url: ", address)
             ret |= True
     except:
         ret |= False
@@ -85,14 +85,14 @@ def wait_timeout(proc, seconds):
     end = start + seconds
     interval = min(seconds / 1000.0, .25)
 
-    print "DBG wait for: %s sec" % seconds
+    logging.debug("DBG wait for: %s sec" % seconds)
     while True:
         result = proc.poll()
         if result is not None:
             return result
         if time.time() >= end:
             proc.kill()
-            print "DBG Process timed out, killed"
+            logging.debug("DBG Process timed out, killed")
             break
         time.sleep(interval)
 
@@ -103,17 +103,17 @@ class connection:
     passwd = "avmonitorp123"
 
     def __enter__(self):
-        # print "DBG login %s@%s" % (self.user, self.host)
+        # logging.debug("DBG login %s@%s" % (self.user, self.host))
         self.conn = Rcs_client(self.host, self.user, self.passwd)
         self.conn.login()
         return self.conn
 
     def __exit__(self, type, value, traceback):
-        # print "DBG logout"
+        # logging.debug("DBG logout")
         self.conn.logout()
 
 
-class AVAgent:
+class AgentBuild:
 
     def __init__(self, backend, frontend=None, platform='windows', kind='silent',
                  ftype='desktop', blacklist=[]):
@@ -129,22 +129,22 @@ class AVAgent:
         self.blacklist = blacklist
         self.platform = platform
         self.ftype = ftype
-        print "DBG blacklist: %s" % self.blacklist
-        print "DBG hostname: %s" % self.hostname
+        logging.debug("DBG blacklist: %s" % self.blacklist)
+        logging.debug("DBG hostname: %s" % self.hostname)
 
     def _delete_targets(self, operation):
         with connection() as c:
             operation_id, group_id = c.operation(operation)
-            print "operation_id: %s" % operation_id
+            logging.debug("operation_id: %s" % operation_id)
             targets = c.targets(operation_id)
             for t_id in targets:
-                print "- Delete target: %s" % t_id
+                logging.debug("- Delete target: %s" % t_id)
                 c.target_delete(t_id)
 
     def _create_new_factory(self, operation, target, factory, config):
         with connection() as c:
             operation_id, group_id = c.operation(operation)
-            print "DBG type: ", self.ftype, " operation: ", operation, " target: ", target, " factory: ", factory
+            logging.debug("DBG type: ", self.ftype, " operation: ", operation, " target: ", target, " factory: ", factory)
 
             # gets all the target with our name in an operation
             targets = c.targets(operation_id, target)
@@ -159,12 +159,12 @@ class AVAgent:
                 agents = c.agents(target_id)
 
                 for agent_id, ident, name in agents:
-                    print "DBG   ", agent_id, ident, name
+                    logging.debug("DBG   ", agent_id, ident, name)
                     if name.startswith(factory):
-                        print "- Delete instance: %s %s" % (ident, name)
+                        logging.debug("- Delete instance: %s %s" % (ident, name))
                         c.instance_delete(agent_id)
             else:
-                print "- Create target: %s" % target
+                logging.debug("- Create target: %s" % target)
                 target_id = c.target_create(
                     operation_id, target, 'made by vmavtest at %s' % time.ctime())
             factory_id, ident = c.factory_create(
@@ -257,7 +257,7 @@ class AVAgent:
                     os.remove(filename)
 
                 if melt:
-                    print "- Melt build with: ", melt
+                    logging.debug("- Melt build with: ", melt)
                     appname = "exp_%s" % self.hostname
                     param['melt']['appname'] = appname
                     param['melt']['url'] = "http://%s/%s/" % (c.host, appname)
@@ -265,7 +265,7 @@ class AVAgent:
                         param['deliver']['user'] = c.myid
                     r = c.build_melt(factory, param, melt, filename)
                 else:
-                    print "- Silent build"
+                    logging.debug("- Silent build")
                     r = c.build(factory, param, filename)
 
                 contentnames = unzip(filename, "build/%s" % self.platform)
@@ -291,32 +291,32 @@ class AVAgent:
                     else:
                         dst_exe = "%s\\%s" % (dst_dir, dst[-1])
 
-                    print "Copying %s to %s" % (src_exe, dst_exe)
+                    logging.debug("Copying %s to %s" % (src_exe, dst_exe))
                     try:
                         shutil.copy(src_exe, dst_exe)
 
                         if os.path.exists(dst_exe) and os.path.exists(src_exe):
-                            print "+ SUCCESS SCOUT BUILD"
+                            logging.debug("+ SUCCESS SCOUT BUILD")
                             return [n for n in contentnames if n.endswith('.exe')]
                         else:
-                            print "+ FAILED SCOUT BUILD. SIGNATURE DETECTION: %s" % src_exe
+                            logging.debug("+ FAILED SCOUT BUILD. SIGNATURE DETECTION: %s" % src_exe)
                             send_results("ENDED")
                     except:
-                        print "+ FAILED SCOUT BUILD. SIGNATURE DETECTION: %s" % src_exe
+                        logging.debug("+ FAILED SCOUT BUILD. SIGNATURE DETECTION: %s" % src_exe)
                         send_results("ENDED")
                         return
             except HTTPError as err:
-                print "DBG trace %s" % traceback.format_exc()
+                logging.debug("DBG trace %s" % traceback.format_exc())
                 if tries <= 3:
                     tries += 1
-                    print "DBG problem building scout. tries number %s" % tries
+                    logging.debug("DBG problem building scout. tries number %s" % tries)
                     return self._build_agent(factory, melt, demo, tries)
                 else:
-                    print "+ ERROR SCOUT BUILD AFTER %s BUILDS" % tries
+                    logging.debug("+ ERROR SCOUT BUILD AFTER %s BUILDS" % tries)
                     raise err
             except Exception, e:
-                print "DBG trace %s" % traceback.format_exc()
-                print "+ ERROR SCOUT BUILD EXCEPTION RETRIEVED"
+                logging.debug("DBG trace %s" % traceback.format_exc())
+                logging.debug("+ ERROR SCOUT BUILD EXCEPTION RETRIEVED")
                 send_results("ENDED")
                 raise e
 
@@ -328,12 +328,12 @@ class AVAgent:
                 os.rename(exe, new_exe)
                 exe = new_exe
 
-            print "- Execute: " + exe
+            logging.debug("- Execute: " + exe)
             subp = subprocess.Popen([exe])
-            print "+ SUCCESS SCOUT EXECUTE"
+            logging.debug("+ SUCCESS SCOUT EXECUTE")
         except Exception, e:
-            print "DBG trace %s" % traceback.format_exc()
-            print "+ FAILED SCOUT EXECUTE"
+            logging.debug("DBG trace %s" % traceback.format_exc())
+            logging.debug("+ FAILED SCOUT EXECUTE")
             send_results("ENDED")
             raise e
 
@@ -352,28 +352,28 @@ class AVAgent:
     def _check_instance(self, ident):
         with connection() as c:
             instances = c.instances(ident)
-            print "DBG instances: %s" % instances
+            logging.debug("DBG instances: %s" % instances)
 
             assert len(instances) <= 1, "too many instances"
 
             if len(instances) > 0:
-                print "+ SUCCESS SCOUT SYNC"
+                logging.debug("+ SUCCESS SCOUT SYNC")
                 return instances[0]
 
-            print "+ NO SCOUT SYNC"
+            logging.debug("+ NO SCOUT SYNC")
             # self._send_results("ENDED")
             return None
 
     def _check_elite(self, instance_id):
         with connection() as c:
             info = c.instance_info(instance_id)
-            print 'DBG _check_elite %s' % info
+            logging.debug('DBG _check_elite %s' % info)
             ret = info['upgradable'] is False and info['scout'] is False
 
             if ret:
-                print "+ SUCCESS ELITE SYNC"
+                logging.debug("+ SUCCESS ELITE SYNC")
             else:
-                print "+ FAILED ELITE SYNC"
+                logging.debug("+ FAILED ELITE SYNC")
                 send_results("ENDED")
             return ret
 
@@ -384,7 +384,7 @@ class AVAgent:
     def _upgrade_elite(self, instance_id):
         with connection() as c:
             ret = c.instance_upgrade(instance_id)
-            print "DBG _upgrade_elite: %s" % ret
+            logging.debug("DBG _upgrade_elite: %s" % ret)
             info = c.instance_info(instance_id)
             if ret:
                 #assert info['upgradable'] == True
@@ -402,7 +402,7 @@ class AVAgent:
             return c.server_status()['error']
 
     def create_user_machine(self):
-        print "create_user_machine"
+        logging.debug("create_user_machine")
         privs = [
             'ADMIN', 'ADMIN_USERS', 'ADMIN_OPERATIONS', 'ADMIN_TARGETS', 'ADMIN_AUDIT',
             'ADMIN_LICENSE', 'SYS', 'SYS_FRONTEND', 'SYS_BACKEND', 'SYS_BACKUP',
@@ -416,7 +416,7 @@ class AVAgent:
         user_exists = False
         try:
             with connection() as c:
-                print "LOGIN SUCCESS"
+                logging.debug("LOGIN SUCCESS")
                 user_exists = True
         except:
             pass
@@ -434,51 +434,51 @@ class AVAgent:
         instance = self.execute_scout()
 
         if not instance:
-            print "- exiting execute_elite because did't sync"
+            logging.debug("- exiting execute_elite because did't sync")
             send_results("ENDED")
             return
 
-        print "- Try upgrade to elite"
+        logging.debug("- Try upgrade to elite")
         upgradable = self._upgrade_elite(instance)
 
-        print "DBG %s in %s" % (self.hostname, self.blacklist)
+        logging.debug("DBG %s in %s" % (self.hostname, self.blacklist))
         if not upgradable:
             if self.hostname in self.blacklist:
                 result = "+ SUCCESS ELITE BLACKLISTED"
-                print result
+                logging.debug(result)
             else:
                 result = "+ FAILED ELITE UPGRADE"
-                print result
+                logging.debug(result)
             send_results("ENDED")
             return
         else:
             if self.hostname in self.blacklist:
                 result = "+ FAILED ELITE BLACKLISTED"
-                print result
+                logging.debug(result)
                 send_results("ENDED")
                 return
 
-        print "- Elite, Wait for 25 minutes: %s" % time.ctime()
+        logging.debug("- Elite, Wait for 25 minutes: %s" % time.ctime())
         sleep(25 * 60)
 
         elite = self._check_elite(instance)
         if elite:
             result = "+ SUCCESS ELITE INSTALL"
-            print result
-            print "- Elite, wait for 4 minute then uninstall: %s" % time.ctime()
+            logging.debug(result)
+            logging.debug("- Elite, wait for 4 minute then uninstall: %s" % time.ctime())
             sleep(60 * 2)
             self._uninstall(instance)
             sleep(60 * 2)
             result = "+ SUCCESS ELITE UNINSTALLED"
-            print result
+            logging.debug(result)
         else:
             output = self._list_processes()
-            print output
+            logging.debug(output)
             result = "+ FAILED ELITE INSTALL"
-            print result
+            logging.debug(result)
 
-        print "- Result: %s" % elite
-        print "- sending Results to Master"
+        logging.debug("- Result: %s" % elite)
+        logging.debug("- sending Results to Master")
         send_results("ENDED")
 
     def execute_scout(self):
@@ -487,14 +487,14 @@ class AVAgent:
 
         self._execute_build(exe)
 
-        print "- Scout, Wait for 6 minutes: %s" % time.ctime()
+        logging.debug("- Scout, Wait for 6 minutes: %s" % time.ctime())
         sleep(random.randint(300, 400))
 
         for tries in range(1, 10):
-            print "- Scout, Trigger sync for 30 seconds, try %s" % tries
+            logging.debug("- Scout, Trigger sync for 30 seconds, try %s" % tries)
             self._trigger_sync(timeout=30)
 
-            print "- Scout, wait for 1 minute: %s" % time.ctime()
+            logging.debug("- Scout, wait for 1 minute: %s" % time.ctime())
             sleep(60 * 1)
 
             instance = self._check_instance(ident)
@@ -505,17 +505,17 @@ class AVAgent:
                 self._click_mouse(100 + i, 0)
 
         if not instance:
-            print "+ FAILED SCOUT SYNC"
+            logging.debug("+ FAILED SCOUT SYNC")
             output = self._list_processes()
-            print output
+            logging.debug(output)
             send_results("ENDED")
-        print "- Result: %s" % instance
+        logging.debug("- Result: %s" % instance)
         return instance
 
     def execute_pull(self):
         """ build and execute the  """
 
-        print "- Host: %s %s\n" % (self.hostname, time.ctime())
+        logging.debug("- Host: %s %s\n" % (self.hostname, time.ctime()))
         operation = 'AVMonitor'
         target = 'VM_%s' % self.hostname
         # desktop_exploit_melt, desktop_scout_
@@ -530,10 +530,10 @@ class AVAgent:
         target_id, factory_id, ident = self._create_new_factory(
             operation, target, factory, config)
 
-        print "- Built"
+        logging.debug("- Built")
 
-#        print "+ platfoooorm %s" % self.platform
-#        print "+ kiiiiiiiind %s" % self.kind
+#        logging.debug("+ platfoooorm %s" % self.platform)
+#        logging.debug("+ kiiiiiiiind %s" % self.kind)
 
         meltfile = None
         if self.kind == 'melt':
@@ -550,14 +550,14 @@ class AVAgent:
 
         if self.kind == "silent" and self.platform == "windows":
             try:
-                print "Check for codec/sqlite files detection"
+                logging.debug("Check for codec/sqlite files detection")
                 src_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
                 dst_dir = "C:\\Users\\avtest\\Desktop\\AVTEST\\copy"
 
                 if not os.path.exists(dst_dir):
                     os.makedirs(dst_dir)
 
-                print "DBG copying assets codec and sqlite"
+                logging.debug("DBG copying assets codec and sqlite")
 
                 shutil.copy("%s\\assets\\sqlite" %
                             src_dir, "%s\\sqlite.exe" % dst_dir)
@@ -569,9 +569,9 @@ class AVAgent:
                 shutil.copy("%s\\assets\\codec_mod" %
                             src_dir, "%s\\codec_mod.exe" % dst_dir)
 
-                print "+ SUCCESS CODEC/SQLITE SAVE"
+                logging.debug("+ SUCCESS CODEC/SQLITE SAVE")
             except IOError:
-                print "+ FAILED CODEC/SQLITE SAVE"
+                logging.debug("+ FAILED CODEC/SQLITE SAVE")
                 send_results("ENDED")
                 return
 #                pass
@@ -586,7 +586,7 @@ class AVAgent:
                 docname = "exp_%s/owned.docm" % self.hostname
 
             url = "http://%s/%s" % (self.host[1], appname)
-            print "DBG getting: %s" % url
+            logging.debug("DBG getting: %s" % url)
             done = False
             try:
                 u = urllib2.urlopen(url)
@@ -614,12 +614,12 @@ class AVAgent:
                     with open('build/PMIEFuck-WinWord.dll'):
                         done = True
                 if done == True:
-                    print "+ SUCCESS EXPLOIT SAVE"
+                    logging.debug("+ SUCCESS EXPLOIT SAVE")
             except urllib2.HTTPError:
-                print "+ ERROR EXPLOIT DOWNLOAD"
+                logging.debug("+ ERROR EXPLOIT DOWNLOAD")
                 pass
             except IOError:
-                print "+ FAILED EXPLOIT SAVE"
+                logging.debug("+ FAILED EXPLOIT SAVE")
                 pass
 
         return factory_id, ident, exe
@@ -629,10 +629,10 @@ class AVAgent:
         def check_file(filename):
             try:
                 with open(filename):
-                    print "DBG %s saved"
+                    logging.debug("DBG %s saved")
                     return True
             except IOError:
-                print "DBG failed saving %s" % appname
+                logging.debug("DBG failed saving %s" % appname)
                 return False
 
         appname = ""
@@ -645,9 +645,9 @@ class AVAgent:
                 done = False
                 break
         if done is True:
-                print "+ SUCCESS EXPLOIT SAVE"
+                logging.debug("+ SUCCESS EXPLOIT SAVE")
         else:
-            print "+ FAILED EXPLOIT SAVE"
+            logging.debug("+ FAILED EXPLOIT SAVE")
 
 
 def send_results(results):
@@ -657,7 +657,7 @@ def send_results(results):
         r = redis.Redis("10.0.20.1")
         r.publish(channel, results)
     except Exception as e:
-        print "DBG problem saving results. fault: %s" % e
+        logging.debug("DBG problem saving results. fault: %s" % e)
 
 internet_checked = False
 
@@ -667,7 +667,7 @@ def execute_agent(args, level, platform):
     global internet_checked
 
     ftype = args.platform_type[platform]
-    print "DBG ftype: %s" % ftype
+    logging.debug("DBG ftype: %s" % ftype)
 
     vmavtest = AVAgent(args.backend, args.frontend,
                        platform, args.kind, ftype, args.blacklist)
@@ -675,28 +675,28 @@ def execute_agent(args, level, platform):
     """ starts a scout """
     if socket.gethostname() != 'zenovm':
         if not internet_checked and internet_on():
-            print "+ ERROR: I reach Internet"
+            logging.debug("+ ERROR: I reach Internet")
             send_results("ENDED")
             exit(0)
 
     internet_checked = True
-    print "- Network unreachable"
-    print "- Server: %s/%s %s" % (args.backend, args.frontend, args.kind)
+    logging.debug("- Network unreachable")
+    logging.debug("- Server: %s/%s %s" % (args.backend, args.frontend, args.kind))
 
     if platform == "exploit_web":
         vmavtest.execute_web_expl(args.frontend)
     else:
         if vmavtest.create_user_machine():
-            print "+ SUCCESS USER CONNECT"
+            logging.debug("+ SUCCESS USER CONNECT")
             if not vmavtest.server_errors():
-                print "+ SUCCESS SERVER CONNECT"
+                logging.debug("+ SUCCESS SERVER CONNECT")
                 action = {"elite": vmavtest.execute_elite, "scout":
                           vmavtest.execute_scout, "pull": vmavtest.execute_pull}
                 action[level]()
             else:
-                print "+ ERROR SERVER ERRORS"
+                logging.debug("+ ERROR SERVER ERRORS")
         else:
-            print "+ ERROR USER CREATE"
+            logging.debug("+ ERROR USER CREATE")
 
 
 def elite(args):
@@ -718,12 +718,12 @@ def pull(args):
         for platform in args.platform_type.keys():
             if platform.startswith("exploit"):
                 continue
-            print "pulling platform ", platform
+            logging.debug("pulling platform ", platform)
             try:
                 execute_agent(args, "pull", platform)
-                print "+ SUCCESS PULL %s" % platform
+                logging.debug("+ SUCCESS PULL %s" % platform)
             except Exception, ex:
-                print "ERROR %s" % ex
+                logging.debug("ERROR %s" % ex)
                 pass
     else:
         execute_agent(args, "pull", args.platform)
@@ -733,22 +733,22 @@ def pull(args):
 def test(args):
     connection.host = "rcs-minotauro"
     #ret = unzip('build/agent.zip')
-    # print ret
+    # logging.debug(ret)
     output = subprocess.Popen(
         ["tasklist"], stdout=subprocess.PIPE).communicate()[0]
-    print output
+    logging.debug(output)
 
 
 def internet(args):
-    print time.ctime()
-    print "internet on: ", internet_on()
-    print time.ctime()
+    logging.debug(time.ctime())
+    logging.debug("internet on: ", internet_on())
+    logging.debug(time.ctime())
 
 
 def clean(args):
     operation = 'AVMonitor'
-    print "- Server: %s/%s %s" % (args.backend, args.frontend, args.kind)
-    vmavtest = AVAgent(args.backend, args.frontend, args.kind)
+    logging.debug("- Server: %s/%s %s" % (args.backend, args.frontend, args.kind))
+    vmavtest = AgentBuild(args.backend, args.frontend, args.kind)
     vmavtest._delete_targets(operation)
 
 
@@ -756,17 +756,13 @@ def main():
     platform_desktop = ['windows', 'linux', 'osx', 'exploit',
                         'exploit_docx', 'exploit_ppsx', 'exploit_web']
     platform_mobile = ['android', 'blackberry', 'ios']
+    blacklist = "bitdef,comodo,gdata,drweb,emsisoft,sophos,360cn,kis32,avg,avg32".split(',')
 
     platform_type = {}
     for v in platform_desktop:
         platform_type[v] = 'desktop'
     for v in platform_mobile:
         platform_type[v] = 'mobile'
-
-    op_conf_file = os.path.join("conf", "vmavtest.cfg")
-    c = ConfigParser()
-    c.read(op_conf_file)
-    blacklist = c.get("cfg", "blacklist").split(",")
 
     parser = argparse.ArgumentParser(description='AVMonitor avtest.')
 
@@ -791,7 +787,7 @@ def main():
     else:
         avname = socket.gethostname().replace("win8", "").lower()
 
-    logger.setLogger(debug=args.verbose, avname=avname)
+
     connection.host = args.backend
 
     actions = {'scout': scout, 'elite': elite, 'internet':

