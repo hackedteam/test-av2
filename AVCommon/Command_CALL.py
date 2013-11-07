@@ -5,6 +5,7 @@ from procedure import Procedure
 from protocol import Protocol
 
 
+#noinspection PyPep8Naming
 class Command_CALL(command.MetaCommand):
     """ calls another procedure """
     def execute(self, args):

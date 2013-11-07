@@ -4,6 +4,7 @@ import command
 
 
 #TODO
+#noinspection PyPep8Naming
 class Command_PULL(command.ServerCommand):
     """ Pulls a set of files from a vm """
 

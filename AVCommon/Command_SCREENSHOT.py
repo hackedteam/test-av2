@@ -9,6 +9,7 @@ import command
 from AVMaster.vm_manager import VMManager
 
 #TODO
+#noinspection PyPep8Naming
 class Command_SCREENSHOT(command.ServerCommand):
     """ gets a screenshot from a vm """
 

@@ -9,6 +9,7 @@ sys.path.append(os.getcwd())
 import command
 from AVMaster.vm_manager import VMManager
 
+#noinspection PyPep8Naming
 class Command_START_VM(command.ServerCommand):
     """ starts a vm """
 

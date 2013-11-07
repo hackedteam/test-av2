@@ -4,7 +4,7 @@ import logging
 import ast
 import re
 import abc
-from types import ModuleType, ClassType
+from types import ModuleType
 from AVCommon import config
 
 server_commands = ['BEGIN',
@@ -131,7 +131,8 @@ class Command(object):
         class_name = "Command_%s" % cmd
         #logging.debug(1)Command.knownCommands
 
-        #logging.debug("identified: %s" % identified)
+        if config.verbose:
+            logging.debug("identified: %s" % identified)
         assert isinstance(success, bool) or success is None, "success: %s" % success
         assert isinstance(cmd, str), "not a string: %s" % cmd
         assert cmd in known_commands.keys(), "Unknown command: %s" % cmd
@@ -167,9 +168,9 @@ class Command(object):
         success: the success of the computation
         payload: the arguments or the result of the computation
         """
-        return (self.name, self.success, self.payload)
+        return self.name, self.success, self.payload
 
-    """ server side """
+    # server side
     def on_init(self, args):
         """ server side abstract method, is executed server side before the command is sent
         """
@@ -180,9 +181,9 @@ class Command(object):
         """
         pass  # pragma: no cover
 
-    """ client side """
+    # client side
     @abc.abstractmethod
-    def execute(self, vm, args):
+    def execute(self, args):
         """ The computation itself
         """
         pass  # pragma: no cover

@@ -3,6 +3,7 @@ import logging
 import command
 
 
+#noinspection PyPep8Naming
 class Command_EVAL_SERVER(command.ServerCommand):
     """ eval called server side. Use with care. """
 

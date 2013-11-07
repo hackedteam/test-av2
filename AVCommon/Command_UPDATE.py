@@ -3,6 +3,7 @@ import logging
 import command
 
 
+#noinspection PyPep8Naming
 class Command_UPDATE(command.ServerCommand):
     """ updates a vm """
 

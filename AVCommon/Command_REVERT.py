@@ -8,6 +8,7 @@ sys.path.append(os.getcwd())
 import command
 from AVMaster.vm_manager import VMManager
 
+#noinspection PyPep8Naming
 class Command_REVERT(command.ServerCommand):
     """ reverts a vm """
 

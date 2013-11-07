@@ -3,6 +3,7 @@ import logging
 import command
 
 
+#noinspection PyPep8Naming
 class Command_START_AGENT(command.ClientCommand):
     """ starts a vmAgent on a vm and connects it to the mqstar """
 

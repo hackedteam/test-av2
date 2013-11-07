@@ -4,6 +4,7 @@ import logging
 import command
 
 
+#noinspection PyPep8Naming
 class Command_STOP_AGENT(command.ClientCommand):
     """ stops a vmAgent on a vm """
 

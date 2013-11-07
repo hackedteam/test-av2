@@ -3,6 +3,7 @@ import logging
 import command
 from procedure import Procedure
 
+#noinspection PyPep8Naming
 class Command_COMMAND_CLIENT(command.ClientCommand):
 
     client_commands = None

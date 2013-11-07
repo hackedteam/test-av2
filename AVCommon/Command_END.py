@@ -3,6 +3,7 @@ import logging
 import command
 
 
+#noinspection PyPep8Naming
 class Command_END(command.ServerCommand):
     """ ends a protocol communication """
     def execute(self, args):

@@ -3,6 +3,7 @@ import logging
 import command
 
 
+#noinspection PyPep8Naming
 class Command_EVAL_CLIENT(command.ClientCommand):
     """ eval called client side. Use with care. """
 

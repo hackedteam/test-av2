@@ -31,7 +31,7 @@ class ProtocolClient:
         self.send_answer(cmd)
         return cmd
 
-    """ client side """
+    # client side
     def receive_command(self):
         assert(isinstance(self.client, str))
         #logging.debug("PROTO receiveCommand %s" % (self.client))
@@ -52,16 +52,17 @@ class ProtocolClient:
 class Protocol(ProtocolClient):
     """ A protocol implements the server behavior."""
     procedure = None
+    last_command = None
 
     def __init__(self, mq, client, procedure=None):
+        ProtocolClient.__init__(self, mq, client)
         self.mq = mq
         self.client = client
         self.procedure = copy.deepcopy(procedure)
+        assert (isinstance(client, str))
+        assert (isinstance(mq, MQStar))
 
-        assert(isinstance(client, str))
-        assert(isinstance(mq, MQStar))
-
-    """server side"""
+    # server side
     def _send_command_mq(self, cmd):
         cmd.on_init(cmd.payload)
         self.mq.send_client(self.client, cmd.serialize())

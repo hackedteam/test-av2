@@ -1,9 +1,11 @@
 __author__ = 'fabrizio'
 
-class box:
+class Box:
+    def __init__(self):
+        pass
     pass
 
-__box = box()
+__box = Box()
 
 
 verbose = False
