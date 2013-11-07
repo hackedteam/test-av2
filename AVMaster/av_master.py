@@ -2,13 +2,13 @@ import os
 import sys
 import argparse
 
-#sys.path.append(os.path.split(os.getcwd())[0])
-#sys.path.append(os.getcwd())
+sys.path.append(os.path.split(os.getcwd())[0])
+sys.path.append(os.getcwd())
 import package
 import logging
 
 from AVCommon.procedure import Procedure
-from AVMaster.dispatcher import Dispatcher
+from dispatcher import Dispatcher
 from AVCommon.mq import MQStar
 from AVCommon import command
 

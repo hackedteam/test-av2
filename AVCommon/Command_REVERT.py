@@ -6,7 +6,7 @@ sys.path.append(os.path.split(os.getcwd())[0])
 sys.path.append(os.getcwd())
 
 import command
-from AVMaster.vm_manager import VMManager
+from AVMaster import vm_manager
 
 #noinspection PyPep8Naming
 class Command_REVERT(command.ServerCommand):
@@ -18,7 +18,7 @@ class Command_REVERT(command.ServerCommand):
         assert self.vm, "null self.vm"
 
         # TODO: check
-        VMManager.execute(self.vm, "revert_to_snapshot")
+        vm_manager.execute(self.vm, "revert_to_snapshot")
         return True, "Reverted VM"
 
 

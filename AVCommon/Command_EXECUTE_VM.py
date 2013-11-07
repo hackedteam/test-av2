@@ -6,7 +6,7 @@ sys.path.append(os.path.split(os.getcwd())[0])
 sys.path.append(os.getcwd())
 
 import command
-from AVMaster.vm_manager import VMManager
+from AVMaster import vm_manager
 
 #TODO
 class Command_EXECUTE_VM(command.ServerCommand):
@@ -19,7 +19,7 @@ class Command_EXECUTE_VM(command.ServerCommand):
 
         #TODO execute program on self.vm
         try:
-        	ret = VMManager.execute(self.vm, "runTest", args)
+        	ret = vm_manager.execute(self.vm, "runTest", args)
         	return True, ret
         except Exception as e:
         	return False, "Error Occurred: %s" % e

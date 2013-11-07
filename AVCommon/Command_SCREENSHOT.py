@@ -6,7 +6,7 @@ sys.path.append(os.path.split(os.getcwd())[0])
 sys.path.append(os.getcwd())
 
 import command
-from AVMaster.vm_manager import VMManager
+from AVMaster import vm_manager
 
 #TODO
 #noinspection PyPep8Naming
@@ -21,7 +21,7 @@ class Command_SCREENSHOT(command.ServerCommand):
 
         #TODO get screenshot from self.vm
         try:
-            VMManager.execute(self.vm, "takeScreenshot", img_path)
+            vm_manager.execute(self.vm, "takeScreenshot", img_path)
             return True, "Screenshot saved on file %s" % img_path
         except Exception as e:
         	return False, "Screenshot not saved. Error Occurred: %s" % e
