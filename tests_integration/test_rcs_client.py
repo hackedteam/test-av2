@@ -90,10 +90,11 @@ class TestRcsClient(unittest.TestCase):
 
         hostname = socket.gethostname()
         logging.debug("%s %s\n" % (hostname, time.ctime()))
-        target = 'VM_%s' % hostname
+        target = 'TEST_VM_%s' % hostname
 
         operation_id, group_id = conn.operation('AVMonitor')
-        logging.debug(group_id)
+        logging.debug("operation_id AVMonitor: %s" % operation_id)
+        logging.debug("group_id AVMonitor: %s" % group_id)
         self.assertIsInstance(group_id, basestring)
         self.assertEqual(len(group_id), 24)
 
@@ -110,24 +111,29 @@ class TestRcsClient(unittest.TestCase):
         # login with new user
         conn = rcs_client.Rcs_client(host, user, passwd)
         login = conn.login()
-        logging.debug(login)
+        logging.debug("login: %s" % login)
         self.assertIsNotNone(login)
         t_id = conn.target_create(operation_id, target, "Dammy")
         logging.debug("t_id:  %s" % t_id)
         self.assertIsInstance(t_id, basestring)
         self.assertEqual(len(t_id), 24)
 
-        targets = conn.targets(operation_id, target)
+        targets = conn.targets(operation_id)
         self.assertGreater(len(targets), 1)
 
-        for target_id in targets:
-            logging.debug("targets:  %s" % targets)
+        logging.debug("targets:  %s" % targets)
+        all_factories = conn.all_factories()
 
-            factories = conn.factories(target_id)
+        for target_id in targets:
+            logging.debug("target:  %s" % target_id)
+
+            factories = conn.factories(target_id, all_factories)
             logging.debug("factories:  %s" % factories)
 
+            #self.assertEqual(factories, [])
+
             for factory_id, ident in factories:
-                logging.debug("factory_id  %s" % factory_id, ident)
+                logging.debug("factory_id  %s" % factory_id)
                 instances = conn.instances(ident)
                 logging.debug("instances:  %s" % instances)
 
@@ -145,6 +151,53 @@ class TestRcsClient(unittest.TestCase):
                     logging.debug(info)
                     if res:
                         assert info['upgradable'] is True
+
+    def testCreateFactory(self):
+        logging.debug('test')
+        host = "rcs-minotauro"
+        user = "avmonitor"
+        passwd = "avmonitorp123"
+
+        conn = rcs_client.Rcs_client(host, user, passwd)
+        logging.debug("login: %s" % conn.login())
+
+        operation_id, group_id = conn.operation('AVMonitor')
+
+        logging.debug("operation_id AVMonitor: %s" % operation_id)
+        logging.debug("group_id AVMonitor: %s" % group_id)
+
+        targets = conn.targets(operation_id, "Mazurca")
+
+
+        for t in targets:
+            logging.debug("delete target: %s" % t)
+            conn.target_delete(t)
+
+        targets = conn.targets(operation_id, "Mazurca")
+        logging.debug("remained targets: %s" % targets)
+        self.assertEqual(len(targets), 0)
+
+        target = conn.target_create(operation_id, 'Mazurca', 'la mia musica')
+        factory_id, factory_ident = conn.factory_create(
+            operation_id, target, 'desktop', 'Bella fattoria', 'degli animali')
+        logging.debug("factory: %s" % factory_id)
+        # sleep(10)
+        self.assertIsNotNone(factory_id)
+        config = open('../AVAgent/assets/config_desktop.json').read()
+        conn.factory_add_config(factory_id, config)
+
+        targets = conn.targets(operation_id, "Mazurca")
+        self.assertEqual(len(targets), 1)
+        self.assertEqual(targets[0], target)
+
+        ret = conn.factories(targets[0])
+        logging.debug("factory: %s" % ret)
+
+        self.assertEqual(len(ret), 1)
+        self.assertEqual(ret[0][0], factory_id)
+        self.assertEqual(ret[0][1], factory_ident)
+        #
+
 
 if __name__ == "__main__":
     import logging.config

@@ -136,13 +136,23 @@ class Rcs_client:
                    for op in targets if op['path'][0] == operation_id]
         return ret
 
-    def factories(self, target_id):
+    def all_factories(self):
         """ gets the factories of an operation, matching the target id """
         factories = self._call_get('factory')
 
         # pp.pprint(factories)
-        ret = [(op['_id'], op['ident'])
-               for op in factories if target_id in op['path']]
+        ret = [(op['_id'], op['ident'], op['path'])
+               for op in factories]
+        return ret
+
+    def factories(self, target_id, all_factories = None):
+        """ gets the factories of an operation, matching the target id """
+        if not all_factories:
+            all_factories = self.all_factories()
+
+        # pp.pprint(factories)
+        ret = [(op[0], op[1])
+               for op in all_factories if target_id in op[2]]
         return ret
 
     def instances(self, ident):
