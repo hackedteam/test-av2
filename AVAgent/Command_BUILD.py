@@ -14,6 +14,11 @@ class Command_BUILD(command.ClientCommand):
         logging.debug("    BUILD %s" % args)
         assert self.vm, "null self.vm"
 
+        # parametri da passare:
+        # backend, frontend, redis
+        # platform, kind
+        # params (
+
         ret = "BUILT in 10 sec"
         time.sleep(10)
         logging.debug("stop sleeping")

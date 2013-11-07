@@ -6,6 +6,10 @@ sys.path.append(os.getcwd())
 
 from AVAgent import rcs_client
 import traceback
+import unittest
+
+import socket
+import time
 
 def testMelt():
     logging.debug('test')
@@ -65,70 +69,84 @@ def testMelt():
     logging.debug("'%s','%s','%s' " % (operation, target, factory))
     logging.debug(conn.logout())
 
+class TestRcsClient(unittest.TestCase):
 
-def test():
-    import socket
-    import time
+    def setUp(self):
+        pass
 
-    logging.debug('test')
-    host = "rcs-minotauro"
-    user = "avmonitor"
-    passwd = "avmonitorp123"
-    conn = rcs_client.Rcs_client(host, user, passwd)
-    logging.debug(conn.login())
+    def test_connection(self):
+        logging.debug('test')
+        host = "rcs-minotauro"
+        user = "avmonitor"
+        passwd = "avmonitorp123"
+        conn = rcs_client.Rcs_client(host, user, passwd)
+        self.assertTrue(conn.login())
 
-    logging.debug(conn.server_status())
+        status = conn.server_status()
+        logging.debug(status)
 
-    hostname = socket.gethostname()
-    logging.debug("%s %s\n" % (hostname, time.ctime()))
-    target = 'VM_%s' % hostname
+        self.assertIsInstance(status, dict)
+        self.assertEqual(len(status), 3)
 
-    operation_id, group_id = conn.operation('AVMonitor')
-    logging.debug(group_id)
-    privs = [
-        'ADMIN', 'ADMIN_USERS', 'ADMIN_OPERATIONS', 'ADMIN_TARGETS', 'ADMIN_AUDIT', 'ADMIN_LICENSE', 'SYS', 'SYS_FRONTEND', 'SYS_BACKEND', 'SYS_BACKUP', 'SYS_INJECTORS', 'SYS_CONNECTORS', 'TECH',
-        'TECH_FACTORIES', 'TECH_BUILD', 'TECH_CONFIG', 'TECH_EXEC', 'TECH_UPLOAD', 'TECH_IMPORT', 'TECH_NI_RULES', 'VIEW', 'VIEW_ALERTS', 'VIEW_FILESYSTEM', 'VIEW_EDIT', 'VIEW_DELETE', 'VIEW_EXPORT', 'VIEW_PROFILES']
+        hostname = socket.gethostname()
+        logging.debug("%s %s\n" % (hostname, time.ctime()))
+        target = 'VM_%s' % hostname
 
-    user_id = conn.user_create("avmonitor_zeno", passwd, privs, group_id)
-    user = "avmonitor_zeno"
-    logging.debug("user_id:  %s" % user_id)
-    conn.logout()
+        operation_id, group_id = conn.operation('AVMonitor')
+        logging.debug(group_id)
+        self.assertIsInstance(group_id, basestring)
+        self.assertEqual(len(group_id), 24)
 
-    # login with new user
-    conn = rcs_client.Rcs_client(host, user, passwd)
-    logging.debug(conn.login())
+        privs = [
+            'ADMIN', 'ADMIN_USERS', 'ADMIN_OPERATIONS', 'ADMIN_TARGETS', 'ADMIN_AUDIT', 'ADMIN_LICENSE', 'SYS', 'SYS_FRONTEND', 'SYS_BACKEND', 'SYS_BACKUP', 'SYS_INJECTORS', 'SYS_CONNECTORS', 'TECH',
+            'TECH_FACTORIES', 'TECH_BUILD', 'TECH_CONFIG', 'TECH_EXEC', 'TECH_UPLOAD', 'TECH_IMPORT', 'TECH_NI_RULES', 'VIEW', 'VIEW_ALERTS', 'VIEW_FILESYSTEM', 'VIEW_EDIT', 'VIEW_DELETE', 'VIEW_EXPORT', 'VIEW_PROFILES']
 
-    t_id = conn.target_create(operation_id, target, "Dammy")
-    logging.debug("t_id:  %s" % t_id)
+        user_id = conn.user_create("avmonitor_zeno", passwd, privs, group_id)
+        self.assertTrue(user_id)
+        user = "avmonitor_zeno"
+        logging.debug("user_id:  %s" % user_id)
+        conn.logout()
 
-    targets = conn.targets(operation_id, target)
-    for target_id in targets:
-        logging.debug("targets:  %s" % targets)
+        # login with new user
+        conn = rcs_client.Rcs_client(host, user, passwd)
+        login = conn.login()
+        logging.debug(login)
+        self.assertIsNotNone(login)
+        t_id = conn.target_create(operation_id, target, "Dammy")
+        logging.debug("t_id:  %s" % t_id)
+        self.assertIsInstance(t_id, basestring)
+        self.assertEqual(len(t_id), 24)
 
-        factories = conn.factories(target_id)
-        logging.debug("factories:  %s" % factories)
+        targets = conn.targets(operation_id, target)
+        self.assertGreater(len(targets), 1)
 
-        for factory_id, ident in factories:
-            logging.debug("factory_id  %s" % factory_id, ident)
-            instances = conn.instances(ident)
-            logging.debug("instances:  %s" % instances)
+        for target_id in targets:
+            logging.debug("targets:  %s" % targets)
 
-            for instance_id in instances:
-                logging.debug("info %s" % instance_id)
-                info = conn.instance_info(instance_id)
-                logging.debug(info)
-                assert info['scout'] is True
+            factories = conn.factories(target_id)
+            logging.debug("factories:  %s" % factories)
 
-                logging.debug("upgrade elite")
-                res = conn.instance_upgrade(instance_id)
-                logging.debug("res: %s" % res)
+            for factory_id, ident in factories:
+                logging.debug("factory_id  %s" % factory_id, ident)
+                instances = conn.instances(ident)
+                logging.debug("instances:  %s" % instances)
 
-                info = conn.instance_info(instance_id)
-                logging.debug(info)
-                if res:
-                    assert info['upgradable'] is True
+                for instance_id in instances:
+                    logging.debug("info %s" % instance_id)
+                    info = conn.instance_info(instance_id)
+                    logging.debug(info)
+                    assert info['scout'] is True
+
+                    logging.debug("upgrade elite")
+                    res = conn.instance_upgrade(instance_id)
+                    logging.debug("res: %s" % res)
+
+                    info = conn.instance_info(instance_id)
+                    logging.debug(info)
+                    if res:
+                        assert info['upgradable'] is True
 
 if __name__ == "__main__":
     import logging.config
     logging.config.fileConfig('../logging.conf')
-    test()
+    unittest.main()

@@ -651,6 +651,7 @@ class AgentBuild:
 
 
 def send_results(results):
+    # questo non serve, i risultato vengono restituiti dal command
     try:
         channel = socket.gethostname().replace(
             "win7", "").replace("winxp", "").replace("win8", "")
@@ -661,7 +662,7 @@ def send_results(results):
 
 internet_checked = False
 
-
+# args: platform_type, backend, frontend, kind, blacklist
 def execute_agent(args, level, platform):
     """ starts the vm and execute elite,scout or pull, depending on the level """
     global internet_checked
@@ -669,11 +670,11 @@ def execute_agent(args, level, platform):
     ftype = args.platform_type[platform]
     logging.debug("DBG ftype: %s" % ftype)
 
-    vmavtest = AVAgent(args.backend, args.frontend,
+    vmavtest = AgentBuild(args.backend, args.frontend,
                        platform, args.kind, ftype, args.blacklist)
 
     """ starts a scout """
-    if socket.gethostname() != 'zenovm':
+    if socket.gethostname() not in ['Zanzara.local', 'win7zenoav']:
         if not internet_checked and internet_on():
             logging.debug("+ ERROR: I reach Internet")
             send_results("ENDED")
@@ -795,4 +796,6 @@ def main():
     actions[args.action](args)
 
 if __name__ == "__main__":
+    import logging.config
+    logging.config.fileConfig('../logging.conf')
     main()

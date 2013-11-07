@@ -332,7 +332,7 @@ def dispatch_kind(vm_name, kind, args, r_id=None, tries=0):
     buildbat = "build_%s_%s.bat" % (kind, args.server)
 
     filestocopy = ["./%s" % buildbat,
-                   "lib/agent.py",
+                   "lib/build.py",
                    "lib/logger.py",
                    "lib/rcs_client.py",
                    "conf/vmavtest.cfg",
@@ -553,7 +553,7 @@ def push(flargs):
 
     filestocopy = ["./%s" % buildbat,
                    "./push_all_minotauro.bat",
-                   "lib/agent.py",
+                   "lib/build.py",
                    "lib/logger.py",
                    "lib/rcs_client.py",
                    "conf/vmavtest.cfg",
@@ -603,7 +603,7 @@ def test_internet(flargs):
         vm.startup()
         test_dir = "C:\\Users\\avtest\\Desktop\\TEST_INTERNET"
         filestocopy = ["./test_internet.bat",
-                       "lib/agent.py",
+                       "lib/build.py",
                        "lib/logger.py",
                        "lib/rcs_client.py"]
         if wait_for_startup(vm) is False:

@@ -119,7 +119,7 @@ class Rcs_client:
         """ gets the operation id of an operation """
         operations = self._call_get('operation')
         logging.debug("DBG operation: %s" % operations)
-        ret = [(op['_id'], op['group_ids'])
+        ret = [(op['_id'], op['group_ids'][0])
                for op in operations if op['name'] == operation]
         return ret[0] if ret else None
 

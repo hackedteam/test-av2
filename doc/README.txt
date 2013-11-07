@@ -1,5 +1,9 @@
 Prerequisiti:
-brew install libyaml
+MAC:
+    brew install libyaml
+WINDOWS:
+    ez_setup
+    c:\python27\scripts\easy_install redis pyyaml pysphere mock
 sudo easy_install redis pyyaml pysphere mock
 
 AVMaster
