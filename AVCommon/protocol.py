@@ -93,7 +93,7 @@ class Protocol(ProtocolClient):
             self.last_command = None
             return False
         self.last_command = self.procedure.next_command()
-        self.send_command(self.last_command)
+        self.send_command(copy.deepcopy(self.last_command))
         return True
 
     def send_command(self, command):

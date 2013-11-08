@@ -34,9 +34,9 @@ class Procedure:
             assert self.command_list, "empty command_list"
 
     def add_begin_end(self):
-        if self.command_list[0].name is not "BEGIN":
+        if self.command_list[0].name != "BEGIN":
             self.command_list.insert(0, Command.unserialize("BEGIN"))
-        if self.command_list[-1].name is not "END":
+        if self.command_list[-1].name != "END":
             self.command_list.append(Command.unserialize("END"))
 
     def insert(self, new_proc):

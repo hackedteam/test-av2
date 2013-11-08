@@ -22,39 +22,11 @@ from AVMaster import vm_manager
  
 def test_vm_commands():
     yaml = """
- 
-PSTART:
-    - BEGIN
-    - START_VM
- 
-PSTOP:
-    - STOP_VM
-    - END
- 
+
 TEST1:
     - START_VM
-    - STOP_VM
  
 TEST2:
-    - BEGIN
-    - START_VM
-    - PUSH:
-        - file_test1.sh
-        - file_test2.dat
-    - EXECUTE_VM: file_test1.sh hello world
-    - PULL:
-        - file_test1.out
-    - STOP_VM
-    - END
-
-TEST30:
-    - BEGIN
-    - START_VM
-    - END
- 
-TEST31:
-    - BEGIN
-    - PUSH
     - EXECUTE_VM: c:\\users\\avtest\\desktop\\pubsub\\started.bat
     - PUSH:
         - /tmp/gggg
@@ -63,23 +35,16 @@ TEST31:
     - PULL:
         - c:\\users\\avtest\\desktop\\ggggg.txt
         - /tmp/jojojo
-    - END
  
-TEST32:
-    - BEGIN
+TEST3:
     - STOP_VM
-    - END
  
 TEST4:
-    - CALL: PSTART
+    - START_VM
     - SCREENSHOT: /tmp/magic_img_path.png
-    - CALL: PSTOP
+    - STOP_VM
 """
     procedures = Procedure.load_from_yaml(yaml)
- 
-    test1 = Procedure.procedures["TEST30"]
-    test2 = Procedure.procedures["TEST31"]
-    test3 = Procedure.procedures["TEST32"]
  
     #vms = ["noav", "zenovm"]
     vms = ["noav"]
@@ -90,20 +55,21 @@ TEST4:
     vm_manager.vm_conf_file = "../AVMaster/conf/vms.cfg"
     dispatcher = Dispatcher(mq, vms)
     logging.info("STARTING TEST 1")
-    dispatcher.dispatch(test1)
+    dispatcher.dispatch(procedures["TEST1"])
 
     import time
     time.sleep(200)
 
     logging.info("STARTING TEST 2")
-    dispatcher.dispatch(test2)
+    dispatcher.dispatch(procedures["TEST2"])
 
     time.sleep(30)
 
     logging.info("STARTING TEST 3")
-    dispatcher.dispatch(test3)
+    dispatcher.dispatch(procedures["TEST3"])
 
-#    dispatcher.dispatch(test4)
+    time.sleep(30)
+    dispatcher.dispatch(procedures["TEST4"])
  
 if __name__ == '__main__':
     logging.config.fileConfig('../logging.conf')
