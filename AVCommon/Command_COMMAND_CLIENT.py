@@ -31,7 +31,8 @@ class Command_COMMAND_CLIENT(command.ClientCommand):
             c = procedure.next_command()
             c.vm = self.vm
             logging.debug("        next command: %s" % c)
-            ret.append(c.execute(c.payload))
+            success, res = c.execute(c.payload)
+            ret.append( (c.name, success, res ) )
 
         logging.debug("    CS res: %s" % ret)
         return True, ret

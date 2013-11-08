@@ -26,6 +26,7 @@ class Dispatcher(object):
         procedure.add_begin_end()
 
         logging.debug("- SERVER len(procedure): %s"% len(procedure))
+        logging.debug("report: %s" % self.report)
         self.num_commands = len(procedure)
  
         av_machines = {}
@@ -36,7 +37,7 @@ class Dispatcher(object):
             #a.start()
             r, c = a.execute_next_command()
             if self.report:
-                self.report.sent(a.name, c)
+                self.report.sent(a.name, str(c))
             logging.debug("- SERVER SENT: %s" % c)
  
         ended = 0
@@ -58,7 +59,7 @@ class Dispatcher(object):
                 elif answer.success:
                     r, cmd = av_machines[c].execute_next_command()
                     if self.report:
-                        self.report.sent(a.name, c)
+                        self.report.sent(a.name, str(cmd))
                     logging.debug("- SERVER SENT: %s, %s" % (c, cmd))
                 else:
                     ended += 1
@@ -71,4 +72,4 @@ class Dispatcher(object):
         logging.debug("answered: %s, ended: %s, num_commands: %s" %( answered, ended, self.num_commands))
         assert (ended == len(self.vms))
         #assert answered >= (len(self.vms) * (self.num_commands)), "answered: %s, len(vms): %s, num_commands: %s" % (answered , len(self.vms), self.num_commands)
- 
+        return answered

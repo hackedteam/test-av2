@@ -3,7 +3,8 @@ sys.path.append(os.path.split(os.getcwd())[0])
 sys.path.append(os.getcwd())
 
 import logging, logging.config
-from multiprocessing import Pool, Process
+from multiprocessing import Pool
+import threading
 
 from AVCommon.procedure import Procedure
 from AVCommon.mq import MQStar
@@ -50,8 +51,8 @@ def test_dispatcher_client():
 
     # dispatcher, inoltra e riceve i comandi della procedura test sulle vm
     dispatcher = Dispatcher(mq, vms)
-    p = Process(target=dispatcher.dispatch, args=(test,))
-    p.start()
+    thread = threading.Thread(target=dispatcher.dispatch, args=(test["TEST"],))
+    thread.start()
 
     # i client vengono eseguiti asincronicamente e comunicano tramite redis al server
     pool = Pool(len(vms))
@@ -59,7 +60,7 @@ def test_dispatcher_client():
     r.get() #notare che i results dei client non ci interessano, viaggia tutto su channel/command.
 
     # chiusura del server
-    p.join()
+    thread.join()
 
 
 if __name__ == '__main__':

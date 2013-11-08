@@ -6,6 +6,7 @@ sys.path.append(os.getcwd())
 
 import logging, logging.config
 from multiprocessing import Pool, Process
+import threading
 
 from AVCommon.procedure import Procedure
 from AVCommon.mq import MQStar
@@ -18,13 +19,15 @@ class Report:
     c_sent = {}
     c_received = {}
     def sent(self, av, command):
-        if av not in self.c_sent:
-            self.c_sent[av] = []
-        self.c_sent[av].append(command)
+        logging.debug("sent: %s, %s" % (av, command))
+        if av not in Report.c_sent:
+            Report.c_sent[av] = []
+        Report.c_sent[av].append(command)
     def received(self, av, command):
-        if av not in self.c_received:
-            self.c_received[av] = []
-        self.c_received[av].append(command)
+        logging.debug("received: %s, %s" % (av, command))
+        if av not in Report.c_received:
+            Report.c_received[av] = []
+        Report.c_received[av].append(command)
 
 def test_avagent_create():
     host = "localhost"
@@ -75,8 +78,10 @@ TEST:
 
     # dispatcher, inoltra e riceve i comandi della procedura test sulle vm
     dispatcher = Dispatcher(mq, vms, report)
-    p = Process(target=dispatcher.dispatch, args=(test["TEST"],))
-    p.start()
+    thread = threading.Thread(target=dispatcher.dispatch, args=(test["TEST"],))
+    thread.start()
+    #p = Process(target=dispatcher.dispatch, args=(test["TEST"],))
+    #p.start()
 
     # i client vengono eseguiti asincronicamente e comunicano tramite redis al server
     pool = Pool(len(vms))
@@ -84,11 +89,12 @@ TEST:
     r.get() #notare che i results dei client non ci interessano, viaggia tutto su channel/command.
 
     # chiusura del server
-    p.join()
+    #p.join()
+    thread.join()
 
-    logging.debug(report)
-    logging.debug("sent: %s" % report.c_sent)
-    logging.debug("received: %s" % report.c_received)
+    logging.debug(dispatcher.report)
+    logging.debug("sent: %s" % dispatcher.report.c_sent)
+    logging.debug("received: %s" % Report.c_received)
 
 if __name__ == '__main__':
     logging.config.fileConfig('../logging.conf')
