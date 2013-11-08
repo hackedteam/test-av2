@@ -15,7 +15,7 @@ class Command_SET(command.ClientCommand):
         assert self.vm, "null self.vm"
         assert command.context is not None
 
-        key, value = args.split("=")
+        key, value = args.split("=", 1)
         command.context[key] = value
 
         logging.debug("key: %s value: %s" % (key, value))
