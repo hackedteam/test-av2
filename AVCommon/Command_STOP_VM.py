@@ -28,6 +28,9 @@ class Command_STOP_VM(command.ServerCommand):
                     raise Exception("Timeout while powering off VM")
                 tick+=1
                 sleep(10)
-            return True, "Stopped VM"
+            if ret:
+                return True, "Stopped VM"
+            else:
+                raise Exception("can't stop VM or VM already stopped")
         except Exception as e:
             return False, "Error Occurred: %s" % e
