@@ -8,7 +8,7 @@ from multiprocessing import Pool, Process
 from AVCommon.procedure import Procedure
 from AVCommon.mq import MQStar
 from AVMaster.dispatcher import Dispatcher
-from AVMaster.vm_manager import VMManager
+from AVMaster import vm_manager
 
 from AVAgent import av_agent
 
@@ -25,7 +25,7 @@ def test_dispatcher_server():
 
     #istanzia n client e manda delle procedure.
 
-    VMManager.vm_conf_file = "../AVMaster/conf/vms.cfg"
+    vm_manager.vm_conf_file = "../AVMaster/conf/vms.cfg"
     dispatcher = Dispatcher(mq, vms)
     dispatcher.dispatch(test)
 
@@ -45,7 +45,7 @@ def test_dispatcher_client():
 
     #istanzia n client e manda delle procedure.
 
-    VMManager.vm_conf_file = "../AVMaster/conf/vms.cfg"
+    vm_manager.vm_conf_file = "../AVMaster/conf/vms.cfg"
 
     # dispatcher, inoltra e riceve i comandi della procedura test sulle vm
     dispatcher = Dispatcher(mq, vms)

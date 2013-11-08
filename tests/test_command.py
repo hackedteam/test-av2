@@ -3,6 +3,7 @@ sys.path.append(os.path.split(os.getcwd())[0])
 sys.path.append(os.getcwd())
 
 from AVCommon.command import Command
+import command
 
 import logging
 import logging.config
@@ -34,7 +35,7 @@ def test_commandSerialize():
         pass
 
 def test_commandUnserialize():
-    Command.context = "mycontext"
+    command.context = "mycontext"
     s = Command.unserialize( "BEGIN" )
     logging.debug("Command: %s" % s)
     assert isinstance(s, Command), "type: %s not %s" % (dir(s.__class__), Command)
@@ -43,42 +44,42 @@ def test_commandUnserialize():
     assert s.payload is None
     assert s.success is None
     assert s.side == "server"
-    assert s.context == "mycontext", "wrong context: %s" % s.context
+    assert command.context == "mycontext", "wrong context: %s" % s.context
 
     s = Command.unserialize( ["START_VM", None, ["kis", "mcafee"]] )
     assert s.name == "START_VM"
     assert s.payload == ["kis", "mcafee"]
     assert s.success is None
     assert s.side == "server"
-    assert s.context == "mycontext"
+    assert command.context == "mycontext"
 
     s = Command.unserialize( {"START_VM": ["kis", "mcafee"]} )
     assert s.name == "START_VM"
     assert s.payload == ["kis", "mcafee"]
     assert s.success is None
     assert s.side == "server"
-    assert s.context == "mycontext"
+    assert command.context == "mycontext"
 
     s = Command.unserialize( ["START_VM", ["kis", "mcafee"]] )
     assert s.name == "START_VM"
     assert s.payload == ["kis", "mcafee"]
     assert s.success is None
     assert s.side == "server"
-    assert s.context == "mycontext"
+    assert command.context == "mycontext"
 
     s = Command.unserialize( ("START_VM", True, ["kis", "mcafee"]) )
     assert s.name == "START_VM"
     assert s.payload == ["kis", "mcafee"]
     assert s.success is True
     assert s.side == "server"
-    assert s.context == "mycontext"
+    assert command.context == "mycontext"
 
     s = Command.unserialize( """('START_VM', True, ["kis", "mcafee"])""" )
     assert s.name == "START_VM"
     assert s.payload == ["kis", "mcafee"]
     assert s.success is True
     assert s.side == "server"
-    assert s.context == "mycontext"
+    assert command.context == "mycontext"
 
     s.success = True
     q = Command.unserialize( s )
@@ -86,7 +87,7 @@ def test_commandUnserialize():
     assert q.payload == ["kis", "mcafee"]
     assert q.success is True
     assert q.side == "server"
-    assert q.context == "mycontext"
+    assert command.context == "mycontext"
 
     try:
         s = Command.unserialize( )

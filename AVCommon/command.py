@@ -26,6 +26,7 @@ server_commands = ['BEGIN',
 
 command_names = []
 known_commands = {}
+context = {}
 
 def init(namespace = "AVCommon", commands = server_commands, append = False):
     global command_names
@@ -61,13 +62,14 @@ class Command(object):
 
     global command_names
     global known_commands
+    global context
 
     __metaclass__ = abc.ABCMeta
 
 
     payload = ""
     success = None
-    context = None
+
     vm = None
 
     def __init__(self, name):
@@ -157,7 +159,7 @@ class Command(object):
                 except:
                     c.payload = payload
             c.success = success
-            c.context = Command.context
+            #c.context = Command.context
 
             #assert isinstance(c, Command), "not an instance: %s of %s" % (c.__class__, Command)
             return c

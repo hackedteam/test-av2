@@ -10,7 +10,7 @@ from multiprocessing import Pool, Process
 from AVCommon.procedure import Procedure
 from AVCommon.mq import MQStar
 from AVMaster.dispatcher import Dispatcher
-from AVMaster.vm_manager import VMManager
+from AVMaster import vm_manager
 
 from AVAgent import av_agent
 

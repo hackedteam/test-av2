@@ -7,7 +7,7 @@ sys.path.append(os.path.split(os.getcwd())[0])
 sys.path.append(os.getcwd())
 
 from AVCommon.protocol import Protocol
-from AVMaster.vm_manager import VMManager
+import AVMaster.vm_manager
 
 
 class AVMachine(threading.Thread):

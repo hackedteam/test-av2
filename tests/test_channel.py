@@ -13,10 +13,17 @@ import random
 import logging, sys
 import logging.config
 
+import unittest
+
+from AVCommon.channel import Channel
+
 __author__ = 'zeno'
 
 def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for x in range(size))
+
+def binary_generator(size=6, chars=range(256)):
+    return ''.join(chr(random.choice(chars)) for x in range(size))
 
 def server(s):
     global count
@@ -25,10 +32,8 @@ def server(s):
         count += 1
 
 #
-class TestChannel(TestCase):
-    def __init__(self):
-        super(self);
-        logging.config.fileConfig('../logging.conf')
+class TestChannel(unittest.TestCase):
+
 
     def test_Redis(self):
         host = "localhost"
@@ -88,7 +93,7 @@ class TestChannel(TestCase):
         s = Channel(host, channel)
         c1 = Channel(host, channel + ".c1")
 
-        messages = [ id_generator(size=1000) for i in range(100)]
+        messages = [ id_generator(size=1000) for i in range(10)]
 
         for m in messages:
             c1.write(m)
@@ -96,3 +101,26 @@ class TestChannel(TestCase):
         for m in messages:
             r = c1.read()
             assert(m == r)
+
+    def test_ChannelBinary(self):
+        global count
+        channel = id_generator()
+        host = "localhost"
+
+        s = Channel(host, channel)
+        c1 = Channel(host, channel + ".c1")
+
+        messages = [ binary_generator(size=100) for i in range(10)]
+
+        for m in messages:
+            c1.write(m)
+
+        for m in messages:
+            r = c1.read()
+            assert(m == r)
+
+if __name__ == '__main__':
+    logging.config.fileConfig('../logging.conf')
+
+    #test_dispatcher_server()
+    unittest.main()
