@@ -19,10 +19,9 @@ class Command_SCREENSHOT(command.ServerCommand):
         assert self.vm, "null self.vm"
         #img_path = "/tmp/img_path.png"
 
-        #TODO get screenshot from self.vm
-        try:
-            vm_manager.execute(self.vm, "takeScreenshot", img_path)
-            return True, "Screenshot saved on file %s" % img_path
-        except Exception as e:
-        	return False, "Screenshot not saved. Error Occurred: %s" % e
+        ret = vm_manager.execute(self.vm, "takeScreenshot", img_path)
+        if ret is True:
+            return ret, "Screenshot saved on file %s" % img_path
+        else:
+            return ret, "Screenshot not saved"
 

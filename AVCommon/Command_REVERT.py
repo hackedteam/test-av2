@@ -18,7 +18,7 @@ class Command_REVERT(command.ServerCommand):
         assert self.vm, "null self.vm"
 
         # TODO: check
-        vm_manager.execute(self.vm, "revert_to_snapshot")
+        vm_manager.execute(self.vm, "revert_last_snapshot")
         return True, "Reverted VM"
 
 

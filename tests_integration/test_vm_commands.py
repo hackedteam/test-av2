@@ -18,8 +18,7 @@ import logging.config
 from AVCommon.procedure import Procedure
 from AVCommon.mq import MQStar
 from AVMaster.dispatcher import Dispatcher
-from AVMaster.vm_manager import VMManager
- 
+from AVMaster import vm_manager
  
 def test_vm_commands():
     yaml = """
@@ -48,9 +47,20 @@ TEST2:
     - STOP_VM
     - END
 
-TEST3:
+TEST30:
     - BEGIN
+    - START_VM
+    - END
+ 
+TEST31:
+    - BEGIN
+    - EXECUTE_VM: c:\\users\\avtest\\desktop\\pubsub\\started.bat
     - SCREENSHOT: /tmp/maggic_path.png
+    - END
+ 
+TEST32:
+    - BEGIN
+    - STOP_VM
     - END
  
 TEST4:
@@ -60,10 +70,9 @@ TEST4:
 """
     procedures = Procedure.load_from_yaml(yaml)
  
-    test1 = Procedure.procedures["TEST1"]
-    test2 = Procedure.procedures["TEST2"]
-    test3 = Procedure.procedures["TEST3"]
-    test4 = Procedure.procedures["TEST4"]
+    test1 = Procedure.procedures["TEST30"]
+    test2 = Procedure.procedures["TEST31"]
+    test3 = Procedure.procedures["TEST32"]
  
     #vms = ["noav", "zenovm"]
     vms = ["noav"]
@@ -71,13 +80,18 @@ TEST4:
     mq = MQStar(redis_host)
     mq.clean()
  
-    VMManager.vm_conf_file = "../AVMaster/conf/vms.cfg"
+    vm_manager.vm_conf_file = "../AVMaster/conf/vms.cfg"
     dispatcher = Dispatcher(mq, vms)
-#    logging.info("STARTING TEST 1")
-#    dispatcher.dispatch(test1)
+    logging.info("STARTING TEST 1")
+    dispatcher.dispatch(test1)
 
-#    logging.info("STARTING TEST 2")
-#    dispatcher.dispatch(test2)
+    import time
+    time.sleep(200)
+
+    logging.info("STARTING TEST 2")
+    dispatcher.dispatch(test2)
+
+    time.sleep(30)
 
     logging.info("STARTING TEST 3")
     dispatcher.dispatch(test3)
