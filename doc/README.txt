@@ -1,10 +1,11 @@
 Prerequisiti:
 MAC:
     brew install libyaml
+    sudo easy_install redis pyyaml pysphere mock
 WINDOWS:
     ez_setup
     c:\python27\scripts\easy_install redis pyyaml pysphere mock
-sudo easy_install redis pyyaml pysphere mock
+
 
 AVMaster
   - istanziare il demone db
