@@ -1,7 +1,6 @@
 import os
 import sys
 import logging
-<<<<<<< HEAD
 
 sys.path.append(os.path.split(os.getcwd())[0])
 sys.path.append(os.getcwd())
@@ -18,5 +17,6 @@ class Command_PUSH(command.ServerCommand):
         assert self.vm, "null self.vm"
 
         #TODO: push files to self.vm
-        vm_manager.execute(self.vm, "copyFileToGuest", args)
+        src,dst = args
+        vm_manager.execute(self.vm, "copyFileToGuest", src, dst)
         return True, ""

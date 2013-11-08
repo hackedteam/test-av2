@@ -56,11 +56,11 @@ TEST31:
     - BEGIN
     - PUSH
     - EXECUTE_VM: c:\\users\\avtest\\desktop\\pubsub\\started.bat
-    - PULL:
+    - PUSH:
         - /tmp/gggg
         - c:\\users\\avtest\\desktop\\ddd.txt
     - SCREENSHOT: /tmp/maggic_path.png
-    - PUSH:
+    - PULL:
         - c:\\users\\avtest\\desktop\\ggggg.txt
         - /tmp/jojojo
     - END

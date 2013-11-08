@@ -21,5 +21,6 @@ class Command_PULL(command.ServerCommand):
         assert len(args) > 1
 
         #TODO pull files from self.vm
-        vm_manager.execute(self.vm, "copyFileFromGuest", args)
+        src, dst = args
+        vm_manager.execute(self.vm, "copyFileFromGuest", src, dst)
         return True, "PULLED %s" % args[0]
