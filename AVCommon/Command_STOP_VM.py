@@ -19,11 +19,15 @@ class Command_STOP_VM(command.ServerCommand):
         assert self.vm, "null self.vm"
 
         #TODO: shutsdown self.vm
+        tick = 0
         try:
-            vm_manager.execute(self.vm, "shutdown")
-            while vm_manager.execute(self.vm, "is_powered_off") is False:
+            ret = vm_manager.execute(self.vm, "shutdown")
+            while not vm_manager.execute(self.vm, "is_powered_off"):
 #                logging.debug("sleeping 5 secs waiting for startup")
-                sleep(3)
+                if tick > 6:
+                    raise Exception("Timeout while powering off VM")
+                tick+=1
+                sleep(10)
             return True, "Stopped VM"
         except Exception as e:
             return False, "Error Occurred: %s" % e

@@ -17,11 +17,11 @@ class Command_EXECUTE_VM(command.ServerCommand):
         logging.debug("    CS Execute")
         assert self.vm, "null self.vm"
 
-        #TODO execute program on self.vm
-        try:
-        	ret = vm_manager.execute(self.vm, "runTest", args)
-        	return True, ret
-        except Exception as e:
-        	return False, "Error Occurred: %s" % e
+       	ret = vm_manager.execute(self.vm, "runTest", args)
+
+        if ret == 0:
+            return True, "Command %s executed" % args
+        else:
+            return False, "Command %s not executed" % args
 
 

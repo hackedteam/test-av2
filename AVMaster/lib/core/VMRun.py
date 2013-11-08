@@ -209,6 +209,7 @@ class VMRun:
         sys.stdout.write("[%s] Taking screenshot.\n" % vmx)
         sys.stdout.write("CALLING FUNCTIONS WITH out img %s, u: %s, p: %s.\n" % (out_img, vmx.user, vmx.passwd))
         self._run_cmd(vmx, "captureScreen", [out_img], [vmx.user, vmx.passwd])
+        return os.path.exists(out_img)
 
     def VMisRunning(self, vmx):
         res = self._run_cmd(vmx, "list", popen=True)
