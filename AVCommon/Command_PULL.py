@@ -1,6 +1,12 @@
+import os
+import sys
 import logging
 
+sys.path.append(os.path.split(os.getcwd())[0])
+sys.path.append(os.getcwd())
+
 import command
+from AVMaster import vm_manager
 
 
 #TODO
@@ -12,6 +18,8 @@ class Command_PULL(command.ServerCommand):
         """ server side """
         logging.debug("    CS Execute")
         assert self.vm, "null self.vm"
+        assert len(args) > 1
 
         #TODO pull files from self.vm
-        return True, ""
+        vm_manager.execute(self.vm, "copyFileFromGuest", args)
+        return True, "PULLED %s" % args[0]

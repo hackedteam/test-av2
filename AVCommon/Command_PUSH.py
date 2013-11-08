@@ -1,7 +1,12 @@
+import os
+import sys
 import logging
 
-import command
+sys.path.append(os.path.split(os.getcwd())[0])
+sys.path.append(os.getcwd())
 
+import command
+from AVMaster import vm_manager
 
 #TODO
 class Command_PUSH(command.ServerCommand):
@@ -12,6 +17,5 @@ class Command_PUSH(command.ServerCommand):
         assert self.vm, "null self.vm"
 
         #TODO: push files to self.vm
+        vm_manager.execute(self.vm, "copyFileToGuest", args)
         return True, ""
-
-

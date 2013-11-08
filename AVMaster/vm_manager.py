@@ -25,7 +25,7 @@ def execute(vm_name, cmd, *args):
                 "is_powered_on", "is_powered_off", "get_status",
                 "make_directory", "get_file", "send_file" ]
     # vmware tools
-    vmrun_cmds = [ "runTest", "takeScreenshot" ]
+    vmrun_cmds = [ "runTest", "takeScreenshot", "mkdirInGuest", "copyFileToGuest", "copyFileFromGuest" ]
 
     logging.debug("command: %s" % cmd )
 
@@ -41,8 +41,7 @@ def execute(vm_name, cmd, *args):
             if not args:
                 return f(vm)
             else:
-                return f(vm, "".join(args))
-
+                return f(vm, *args)
         elif cmd in vmachine_cmds:
             f = getattr(vm, cmd)
             if not args:

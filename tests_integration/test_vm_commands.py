@@ -54,8 +54,15 @@ TEST30:
  
 TEST31:
     - BEGIN
+    - PUSH
     - EXECUTE_VM: c:\\users\\avtest\\desktop\\pubsub\\started.bat
+    - PULL:
+        - /tmp/gggg
+        - c:\\users\\avtest\\desktop\\ddd.txt
     - SCREENSHOT: /tmp/maggic_path.png
+    - PUSH:
+        - c:\\users\\avtest\\desktop\\ggggg.txt
+        - /tmp/jojojo
     - END
  
 TEST32:
