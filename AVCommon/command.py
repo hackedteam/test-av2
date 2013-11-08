@@ -197,6 +197,7 @@ class ServerCommand(Command):
     """ A ServerCommand is evaluated only server side, it's not sent to any client
     """
     side = "server"
+
     def on_init(self, args):
         pass  # pragma: no cover
 

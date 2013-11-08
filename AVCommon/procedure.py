@@ -2,7 +2,7 @@ import sys
 
 sys.path.append("../AVCommon")
 
-from command import Command
+from command import Command, ServerCommand
 from AVCommon import config
 
 from yaml import load
@@ -33,9 +33,11 @@ class Procedure:
             self.command_list = [Command.unserialize(c) for c in command_list]
             assert self.command_list, "empty command_list"
 
-    #def next(self):
-    #    for c in self.proc:
-    #        yield c
+    def add_begin_end(self):
+        if self.command_list[0].name is not "BEGIN":
+            self.command_list.insert(0, Command.unserialize("BEGIN"))
+        if self.command_list[-1].name is not "END":
+            self.command_list.append(Command.unserialize("END"))
 
     def insert(self, new_proc):
         self.command_list = new_proc.command_list + self.command_list
