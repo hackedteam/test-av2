@@ -4,7 +4,8 @@ __author__ = 'fabrizio'
 import logging
 import time
 
-import command
+from AVCommon import command
+import build
 
 class Command_BUILD(command.ClientCommand):
     """ eval called client side. Use with care. """
@@ -13,13 +14,16 @@ class Command_BUILD(command.ClientCommand):
         """ client side, returns (bool,*) """
         logging.debug("    BUILD %s" % args)
         assert self.vm, "null self.vm"
+        assert command.context, "Null context"
 
-        # parametri da passare:
-        # backend, frontend, redis
-        # platform, kind
-        # params (
+        backend = command.context["backend"]
+        frontend = command.context["frontend"]
+        redis = command.context["redis"]
 
-        ret = "BUILT in 10 sec"
+        action, platform, kind = args
+
+        ret = build.build(action, platform, kind, backend, frontend)
+
         time.sleep(10)
         logging.debug("stop sleeping")
         return True, ret

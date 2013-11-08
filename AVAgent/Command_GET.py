@@ -3,7 +3,7 @@ __author__ = 'fabrizio'
 import logging
 import time
 
-import command
+from AVCommon import command
 
 class Command_GET(command.ClientCommand):
     """ eval called client side. Use with care. """

@@ -6,6 +6,8 @@ from AVCommon import config
 from command import Command
 from mq import MQStar
 
+import traceback
+
 class ProtocolClient:
     """ Protocol, client side. When the command is received, it's executed and the result resent to the server. """
 
@@ -23,7 +25,7 @@ class ProtocolClient:
                 logging.debug("cmd.execute ret: %s" % str(ret))
             cmd.success, cmd.payload = ret
         except Exception, e:
-            logging.error("ERROR: %s %s " % (type(e), e))
+            logging.error("ERROR: %s %s %s" % (type(e), e, traceback.format_exc(e)))
             cmd.success = False
             cmd.payload = e
 
