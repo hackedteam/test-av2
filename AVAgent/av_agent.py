@@ -10,7 +10,7 @@ from AVCommon.mq import MQStar
 from AVCommon.protocol import Protocol
 from AVCommon import command
 
-commands = ['BUILD']
+commands = ['BUILD', 'GET', 'SET']
 
 class AVAgent(object):
 

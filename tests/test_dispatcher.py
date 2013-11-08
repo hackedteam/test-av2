@@ -17,7 +17,8 @@ def test_dispatcher_server():
 
     vms = ["noav", "zenovm"]
 
-    test = Procedure("TEST", ["BEGIN", ("EVAL_SERVER",'self.vm'), "END"])
+    #test = Procedure("TEST", ["BEGIN", ("EVAL_SERVER",'self.vm'), "END"])
+    test = Procedure("TEST", [("EVAL_SERVER",'self.vm')])
 
     host = "localhost"
     mq = MQStar(host)
@@ -34,8 +35,8 @@ def test_dispatcher_client():
 
     vms = [ "testvm_%d" % i for i in range(10) ]
 
-    test = Procedure("TEST", ["BEGIN", "START_AGENT", ("EVAL_CLIENT",'self.vm'), {   'COMMAND_CLIENT': [{   'BUILD': [   'windows',
-                                                           'whatever']}]}, "STOP_AGENT", "END"])
+    test = Procedure("TEST", [ "START_AGENT", ("EVAL_CLIENT",'self.vm'), {   'COMMAND_CLIENT': [{   'BUILD': [   'windows',
+                                                           'whatever']}]}, "STOP_AGENT"])
 
     host = "localhost"
     mq = MQStar(host)
