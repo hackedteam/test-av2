@@ -18,19 +18,12 @@ class Command_START_VM(command.ServerCommand):
         logging.debug("    CS Execute")
         assert self.vm, "null self.vm"
 
-        #TODO: start a VM: self.vm
-        tick = 0
-        try:
-            ret = vm_manager.execute(self.vm, "startup")
-            while not vm_manager.execute(self.vm, "is_powered_on"):
-#                logging.debug("sleeping 5 secs waiting for startup")
-                if tick > 6:
-                    raise Exception("Timeout while starting VM")
-                tick+=1
+        ret = vm_manager.execute(self.vm, "startup")
+        if ret:
+            for i in range(0,6):
+                if vm_manager.execute(self.vm, "is_powered_on"):
+                    return True, "Started VM"
                 sleep(10)
-            if ret:
-                return True, "Started VM"
-            else:
-                raise Exception("Not Started or Already Started")
-        except Exception as e:
-            return False, "Error Occurred: %s" % e
+            return False, "Error Occurred: Timeout while starting VM"
+        else:
+            return False, "Not Started VM"
