@@ -14,28 +14,9 @@ from AVMaster.dispatcher import Dispatcher
 from AVMaster import vm_manager
 
 from AVAgent import av_agent
-
 from AVMaster.report import Report
 
-def test_avagent_create():
-    host = "localhost"
-
-    vms = [ "testvm_%d" % i for i in range(10) ]
-
-    test = Procedure("TEST", ["BEGIN", "START_AGENT", ("EVAL_CLIENT",'self.vm'), "STOP_AGENT", "END"])
-
-    host = "localhost"
-    mq = MQStar(host)
-    mq.clean()
-
-    logging.debug("MQ session: %s" % mq.session)
-
-    agent = av_agent.AVAgent("test_1", session=mq.session)
-    assert agent
-
-    #agent.start_agent()
-
-def test_avagent_get_set():
+def test_avagent_pull():
     host = "localhost"
 
     vms = [ "testvm_%d" % i for i in range(1) ]
@@ -46,12 +27,12 @@ def test_avagent_get_set():
 TEST:
     - START_AGENT
     - COMMAND_CLIENT:
-        - SET: [pippo=franco]
         - SET:
             - backend=192.168.100.201
             - frontend=172.20.100.204
             - redis=10.0.20.1
-        - GET: pippo
+        - BUILD: [ pull, windows, silent]
+
     - STOP_AGENT
 """
 
@@ -91,4 +72,4 @@ TEST:
 if __name__ == '__main__':
     logging.config.fileConfig('../logging.conf')
     #test_dispatcher_server()
-    test_avagent_get_set()
+    test_avagent_pull()

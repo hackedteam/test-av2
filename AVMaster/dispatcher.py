@@ -26,7 +26,6 @@ class Dispatcher(object):
         procedure.add_begin_end()
 
         logging.debug("- SERVER len(procedure): %s"% len(procedure))
-        logging.debug("report: %s" % self.report)
         self.num_commands = len(procedure)
  
         av_machines = {}

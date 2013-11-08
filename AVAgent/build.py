@@ -752,8 +752,8 @@ def clean(args):
     vmavtest = AgentBuild(args.backend, args.frontend, args.kind)
     vmavtest._delete_targets(operation)
 
+def build(action, platform, kind, backend, frontend):
 
-def main():
     platform_desktop = ['windows', 'linux', 'osx', 'exploit',
                         'exploit_docx', 'exploit_ppsx', 'exploit_web']
     platform_mobile = ['android', 'blackberry', 'ios']
@@ -764,6 +764,30 @@ def main():
         platform_type[v] = 'desktop'
     for v in platform_mobile:
         platform_type[v] = 'mobile'
+
+
+    actions = {'scout': scout, 'elite': elite, 'internet':
+               internet, 'test': test, 'clean': clean, 'pull': pull}
+
+    class Args:
+        pass
+
+    args = Args()
+
+    args.action = action
+    args.platform = platform
+    args.kind = kind
+    args.backend = backend
+    args.frontend = frontend
+
+    args.blacklist=blacklist
+    args.platform_type=platform_type
+
+    connection.host = args.backend
+
+    actions[action](args)
+
+def main():
 
     parser = argparse.ArgumentParser(description='AVMonitor avtest.')
 
@@ -777,8 +801,8 @@ def main():
     parser.add_argument(
         '-v', '--verbose', action='store_true', default=False, help="Verbose")
 
-    parser.set_defaults(blacklist=blacklist)
-    parser.set_defaults(platform_type=platform_type)
+    #parser.set_defaults(blacklist=blacklist)
+    #parser.set_defaults(platform_type=platform_type)
 
     args = parser.parse_args()
     if "winxp" in socket.gethostname():
@@ -788,12 +812,7 @@ def main():
     else:
         avname = socket.gethostname().replace("win8", "").lower()
 
-
-    connection.host = args.backend
-
-    actions = {'scout': scout, 'elite': elite, 'internet':
-               internet, 'test': test, 'clean': clean, 'pull': pull}
-    actions[args.action](args)
+    build(args.action, args.platform, args.kind, args.backend, args.frontend)
 
 if __name__ == "__main__":
     import logging.config
