@@ -29,15 +29,19 @@ TEST1:
 TEST2:
     - EXECUTE_VM: c:\\users\\avtest\\desktop\\pubsub\\started.bat
     - PUSH:
-        - /tmp/gggg
-        - c:\\users\\avtest\\desktop\\ddd.txt
+        - [/tmp/gggg]
+        - c:\\users\\avtest\\desktop
     - SCREENSHOT: /tmp/maggic_path.png
-    - PULL:
-        - c:\\users\\avtest\\desktop\\ggggg.txt
-        - /tmp/jojojo
- 
+
 TEST3:
-    - STOP_VM
+    - PUSH:
+        - [gggg, jojojo]
+        - /tmp
+        - c:\\users\\avtest\\desktop
+    - PULL:
+        - [gggg, jojojo]
+        - c:\\users\\avtest\\desktop
+        - /tmp/cpl
  
 TEST4:
     - START_VM
@@ -54,6 +58,7 @@ TEST4:
  
     vm_manager.vm_conf_file = "../AVMaster/conf/vms.cfg"
     dispatcher = Dispatcher(mq, vms)
+    '''
     logging.info("STARTING TEST 1")
     dispatcher.dispatch(procedures["TEST1"])
 
@@ -64,13 +69,13 @@ TEST4:
     dispatcher.dispatch(procedures["TEST2"])
 
     time.sleep(30)
-
+    '''
     logging.info("STARTING TEST 3")
     dispatcher.dispatch(procedures["TEST3"])
-
+    '''
     time.sleep(30)
     dispatcher.dispatch(procedures["TEST4"])
- 
+    '''
 if __name__ == '__main__':
     logging.config.fileConfig('../logging.conf')
     test_vm_commands()
