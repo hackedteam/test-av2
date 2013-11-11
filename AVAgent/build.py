@@ -102,14 +102,16 @@ class connection:
     user = "avmonitor"
     passwd = "avmonitorp123"
 
+
     def __enter__(self):
-        # logging.debug("DBG login %s@%s" % (self.user, self.host))
-        self.conn = Rcs_client(self.host, self.user, self.passwd)
+        logging.debug("DBG login %s@%s" % (self.user, self.host))
+        assert connection.host
+        self.conn = Rcs_client(connection.host, connection.user, connection.passwd)
         self.conn.login()
         return self.conn
 
     def __exit__(self, type, value, traceback):
-        # logging.debug("DBG logout")
+        logging.debug("DBG logout")
         self.conn.logout()
 
 
@@ -143,8 +145,14 @@ class AgentBuild:
 
     def _create_new_factory(self, operation, target, factory, config):
         with connection() as c:
+            assert c
+            if not c.logged_in():
+                logging.warn("Not logged in")
+            logging.debug("DBG type: " + self.ftype + ", operation: " + operation + ", target: " + target + ", factory: " + factory)
+
             operation_id, group_id = c.operation(operation)
-            logging.debug("DBG type: ", self.ftype, " operation: ", operation, " target: ", target, " factory: ", factory)
+            if not operation_id:
+                raise RuntimeError("Cannot get operations")
 
             # gets all the target with our name in an operation
             targets = c.targets(operation_id, target)
@@ -424,7 +432,8 @@ class AgentBuild:
         if not user_exists:
             connection.user = "avmonitor"
             with connection() as c:
-                op, group_id = c.operation('AVMonitor')
+                ret = c.operation('AVMonitor')
+                op_id, group_id = ret
                 c.user_create(user_name, connection.passwd, privs, group_id)
         connection.user = user_name
         return True
@@ -674,7 +683,7 @@ def execute_agent(args, level, platform):
                        platform, args.kind, ftype, args.blacklist)
 
     """ starts a scout """
-    if socket.gethostname() not in ['Zanzara.local', 'win7zenoav']:
+    if socket.gethostname() not in ['Zanzara.local', 'win7zenoav', "paradox"]:
         if not internet_checked and internet_on():
             logging.debug("+ ERROR: I reach Internet")
             send_results("ENDED")
@@ -693,6 +702,7 @@ def execute_agent(args, level, platform):
                 logging.debug("+ SUCCESS SERVER CONNECT")
                 action = {"elite": vmavtest.execute_elite, "scout":
                           vmavtest.execute_scout, "pull": vmavtest.execute_pull}
+                sleep(5)
                 action[level]()
             else:
                 logging.debug("+ ERROR SERVER ERRORS")

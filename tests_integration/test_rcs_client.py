@@ -92,6 +92,8 @@ class TestRcsClient(unittest.TestCase):
         logging.debug("%s %s\n" % (hostname, time.ctime()))
         target = 'TEST_VM_%s' % hostname
 
+        #operation_id, group_id = conn.operation()
+
         operation_id, group_id = conn.operation('AVMonitor')
         logging.debug("operation_id AVMonitor: %s" % operation_id)
         logging.debug("group_id AVMonitor: %s" % group_id)

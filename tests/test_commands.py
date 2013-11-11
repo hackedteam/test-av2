@@ -21,7 +21,7 @@ def test_commands():
     s = Command_SET("SET")
     s.vm = "vm"
 
-    s.execute(["ciao=mondo"])
+    s.execute([("ciao","mondo")])
     logging.debug(command.context)
 
     assert "ciao" in command.context
@@ -29,7 +29,7 @@ def test_commands():
 
     s = Command_SET("SET")
     s.vm = "vm"
-    s.execute(["pippo=franco", "hello=world", "number=123"])
+    s.execute([["pippo","franco"], ["hello","world"], ("number","123")])
     assert "ciao" in command.context
     assert command.context["ciao"] == "mondo"
 

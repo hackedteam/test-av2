@@ -28,9 +28,9 @@ TEST:
     - START_AGENT
     - COMMAND_CLIENT:
         - SET:
-            - backend=192.168.100.201
-            - frontend=172.20.100.204
-            - redis=10.0.20.1
+            - [backend, 192.168.100.201]
+            - [frontend, 172.20.100.204]
+            - [redis, 10.0.20.1]
         - BUILD: [ pull, windows, silent]
 
     - STOP_AGENT

@@ -27,6 +27,8 @@ class Dispatcher(object):
 
         logging.debug("- SERVER len(procedure): %s"% len(procedure))
         self.num_commands = len(procedure)
+
+
  
         av_machines = {}
         for c in self.vms:
@@ -34,6 +36,7 @@ class Dispatcher(object):
  
         for a in av_machines.values():
             #a.start()
+            self.mq.clean(a)
             r, c = a.execute_next_command()
             if self.report:
                 self.report.sent(a.name, str(c))

@@ -1,10 +1,11 @@
 __author__ = 'fabrizio'
 
-import sys
-print sys.path
+import sys, os
 
 import logging, logging.config
 import argparse
+
+sys.path.append(os.path.split(os.getcwd())[0])
 
 from AVCommon.mq import MQStar
 from AVCommon.protocol import Protocol

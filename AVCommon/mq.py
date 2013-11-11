@@ -34,10 +34,15 @@ class MQStar():
         channel = Channel(self.host, name)
         return channel
 
-    def clean(self):
+    def clean(self, av=None):
         """ Cleans all the redis keys related to the used channels
         """
-        for k in self.channel_to_server.redis.keys("MQ_*"):
+        if av:
+            key = "MQ_*_server_%s" % av
+        else:
+            key = "MQ_*"
+
+        for k in self.channel_to_server.redis.keys(key):
             logging.debug(" MQ clean %s" % k)
             self.channel_to_server.redis.delete(k)
 

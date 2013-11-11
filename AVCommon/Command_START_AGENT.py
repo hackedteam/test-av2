@@ -1,7 +1,7 @@
 import logging
 
 import command
-
+from AVMaster import vm_manager
 
 #noinspection PyPep8Naming
 class Command_START_AGENT(command.ClientCommand):
@@ -10,6 +10,8 @@ class Command_START_AGENT(command.ClientCommand):
     def on_init(self, args):
         """ server side """
         logging.debug("    CS on_init")
+
+        #TODO: push files on client
         assert self.vm, "null self.vm"
 
     def on_answer(self, success, answer):
@@ -23,7 +25,6 @@ class Command_START_AGENT(command.ClientCommand):
         logging.debug("    START AGENT")
         assert self.vm, "null self.vm"
 
-        #TODO: start a AVAgent on a vm, possibly all files are already pushed
-        return True, ""
+        return True, "AGENT STARTED"
 
 

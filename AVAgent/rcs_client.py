@@ -57,7 +57,8 @@ class Rcs_client:
 
     def _call(self, api_name, data={}, binary=False, argjson=True):
         link = 'https://%s/%s' % (self.host, api_name)
-        # logging.debug("binary %s, argjson %s" % (binary, argjson))
+        logging.debug("_call: %s" % link)
+        #logging.debug("binary %s, argjson %s" % (binary, argjson))
         arg = data
         if argjson:
             arg = json.dumps(data)
@@ -77,6 +78,7 @@ class Rcs_client:
 
     def _call_get(self, api_name):
         link = 'https://%s/%s' % (self.host, api_name)
+        logging.debug("_call_get: %s" % link)
         resp = self._get_response(link, self.cookie)
         result = json.loads(resp)
         return result
@@ -103,6 +105,10 @@ class Rcs_client:
         self.cookie = cj
         return cj
 
+
+    def logged_in(self):
+        return self.cookie is not None
+
     def logout(self):
         """ Logout for session
         @param session cookie
@@ -121,7 +127,7 @@ class Rcs_client:
         logging.debug("DBG operation: %s" % operations)
         ret = [(op['_id'], op['group_ids'][0])
                for op in operations if op['name'] == operation]
-        return ret[0] if ret else None
+        return ret[0] if ret else (None, None)
 
     def targets(self, operation_id, target=None):
         """ gets the targets id of an operation, matching the target name """
@@ -175,6 +181,7 @@ class Rcs_client:
     # add group to user
     def user_create(self, name, password, privs, group_id):
         """ Create a user """
+        logging.debug("user_create: %s, %s, %s" % (name, password, group_id))
         try:
             data = {'name': name, 'pass': password, 'group_ids':
                     [group_id], 'privs': privs, 'enabled': True}

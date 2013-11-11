@@ -8,7 +8,6 @@ sys.path.append(os.getcwd())
 import command
 from AVMaster import vm_manager
 
-#TODO
 #noinspection PyPep8Naming
 class Command_SCREENSHOT(command.ServerCommand):
     """ gets a screenshot from a vm """
