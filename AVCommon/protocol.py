@@ -81,6 +81,10 @@ class Protocol(ProtocolClient):
         if config.verbose:
             logging.debug("PROTO S executing meta")
         ret = cmd.execute( (self, cmd.payload) )
+        cmd.success, cmd.payload = ret
+        assert isinstance(cmd.success, bool)
+        self.send_answer(cmd)
+        return cmd
 
     #def next(self):
     #    logging.debug("next")
