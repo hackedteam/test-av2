@@ -36,12 +36,12 @@ class Command_PUSH(command.ServerCommand):
             try:
                 d, f = src_file.split("/")
             except ValueError:
-                d = "."
+                d = ""
                 f = src_file
 
             src = "%s/%s/%s" % (src_dir, d, f)
 
-            if d == ".":
+            if d == "":
                 dst = "%s\\%s" % (dst_dir, f)
             else:
                 dst = "%s\\%s\\%s" % (dst_dir, d, f)

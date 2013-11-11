@@ -35,7 +35,7 @@ class Command_PULL(command.ServerCommand):
 
             src = "%s\\%s\\%s" % (src_dir, d, f)
 
-            if d == ".":
+            if d == "":
                 dst = "%s/%s" % (dst_dir, f)
             else:
                 dst = "%s/%s/%s" % (dst_dir, d, f)
