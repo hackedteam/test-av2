@@ -17,12 +17,13 @@ server_commands = ['BEGIN',
  'PULL',
  'PUSH',
  'REVERT',
+ 'REFRESH_SNAPSHOT',
  'SCREENSHOT',
  'START_AGENT',
  'START_VM',
  'STOP_AGENT',
  'STOP_VM',
- 'UPDATE']
+ 'SLEEP']
 
 command_names = []
 known_commands = {}

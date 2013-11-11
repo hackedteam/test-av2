@@ -5,7 +5,8 @@ import os
 import logging
 import logging.config
 from time import sleep
- 
+import time
+
 sys.path.append(os.path.split(os.getcwd())[0])
 sys.path.append(os.getcwd())
  
@@ -47,6 +48,22 @@ TEST4:
     - START_VM
     - SCREENSHOT: /tmp/magic_img_path.png
     - STOP_VM
+
+SYNCRONIZE:
+    - SLEEP: 180
+    - PUSH:
+        - [av_agent.py, build.py, Command_BUILD.py, Command_GET.py, Command_SET.py, package.py, rcs_cient.py]
+        - /home/avmonitor/AVTest/AVAgent
+        - c:\\AVTest\\AVAgent
+
+UPDATE:
+    - CALL: SYNCRONIZE
+    - SLEEP: 3600
+    - STOP_VM
+    - START_VM
+    - SLEEP: 180
+    - STOP_VM
+    - REFRESH_SNAPSHOT
 """
     procedures = Procedure.load_from_yaml(yaml)
  
@@ -69,13 +86,15 @@ TEST4:
     dispatcher.dispatch(procedures["TEST2"])
 
     time.sleep(30)
-    '''
+
     logging.info("STARTING TEST 3")
     dispatcher.dispatch(procedures["TEST3"])
-    '''
+
     time.sleep(30)
     dispatcher.dispatch(procedures["TEST4"])
     '''
+    logging.info("STARTING TEST UPDATE PROCEDURE")
+    dispatcher.dispatch(procedures["UPDATE"])
 if __name__ == '__main__':
     logging.config.fileConfig('../logging.conf')
     test_vm_commands()
