@@ -9,6 +9,8 @@ from AVCommon import config
 
 server_commands = ['BEGIN',
  'CALL',
+ 'INTERNET_ON',
+ 'INTERNET_OFF',
  'COMMAND_CLIENT',
  'END',
  'EVAL_CLIENT',

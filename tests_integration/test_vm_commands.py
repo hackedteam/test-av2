@@ -52,18 +52,25 @@ TEST4:
 SYNCRONIZE:
     - SLEEP: 180
     - PUSH:
-        - [av_agent.py, build.py, Command_BUILD.py, Command_GET.py, Command_SET.py, package.py, rcs_cient.py]
-        - /home/avmonitor/AVTest/AVAgent
-        - c:\\AVTest\\AVAgent
+        - [AVAgent/av_agent.py, AVAgent/build.py, AVAgent/Command_BUILD.py, AVAgent/Command_GET.py,
+        AVAgent/Command_SET.py, AVAgent/package.py, AVAgent/rcs_cient.py]
+        - /home/avmonitor/AVTest
+        - c:
 
 UPDATE:
+    - START_VM
+    - INTERNET_OFF
     - CALL: SYNCRONIZE
-    - SLEEP: 3600
+    - INTERNET_ON
+    - SLEEP: 360
     - STOP_VM
     - START_VM
     - SLEEP: 180
     - STOP_VM
     - REFRESH_SNAPSHOT
+
+ZLEEP:
+    - SLEEP: 120
 """
     procedures = Procedure.load_from_yaml(yaml)
  
