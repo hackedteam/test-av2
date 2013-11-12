@@ -15,5 +15,3 @@ class Command_EVAL_SERVER(command.ServerCommand):
         ret = eval(args)
         #logging.debug("    CS Execute ret: %s" % ret)
         return True, ret
-
-

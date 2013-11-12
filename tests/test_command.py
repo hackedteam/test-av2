@@ -60,7 +60,7 @@ def test_commandUnserialize():
     assert s.side == "server"
     assert command.context == "mycontext"
 
-    s = Command.unserialize( ["START_VM", ["kis", "mcafee"]] )
+    s = Command.unserialize( ["START_VM", None, ["kis", "mcafee"]] )
     assert s.name == "START_VM"
     assert s.payload == ["kis", "mcafee"]
     assert s.success is None

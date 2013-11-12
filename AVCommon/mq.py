@@ -46,7 +46,7 @@ class MQStar():
             logging.debug(" MQ clean %s" % k)
             self.channel_to_server.redis.delete(k)
 
-            assert not self.channel_to_server.redis.keys("MQ_*")
+        #assert not self.channel_to_server.redis.keys("MQ_*")
 
     def add_client(self, client):
         if client not in self.channels.keys():

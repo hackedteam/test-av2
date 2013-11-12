@@ -22,7 +22,7 @@ def test_avagent_create():
 
     vms = [ "testvm_%d" % i for i in range(10) ]
 
-    test = Procedure("TEST", ["BEGIN", "START_AGENT", ("EVAL_CLIENT",'self.vm'), "STOP_AGENT", "END"])
+    test = Procedure("TEST", ["BEGIN", "START_AGENT", ("EVAL_CLIENT", None, 'self.vm'), "STOP_AGENT", "END"])
 
     host = "localhost"
     mq = MQStar(host)
@@ -46,11 +46,11 @@ def test_avagent_get_set():
 TEST:
     - START_AGENT
     - COMMAND_CLIENT:
-        - SET: [pippo=franco]
+        - SET: [ [pippo, franco] ]
         - SET:
-            - backend=192.168.100.201
-            - frontend=172.20.100.204
-            - redis=10.0.20.1
+            - [backend, 192.168.100.201]
+            - [frontend, 172.20.100.204]
+            - [redis, 10.0.20.1]
         - GET: pippo
     - STOP_AGENT
 """

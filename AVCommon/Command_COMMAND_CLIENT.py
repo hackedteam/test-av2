@@ -29,6 +29,7 @@ class Command_COMMAND_CLIENT(command.ClientCommand):
             if not procedure:
                 break
             c = procedure.next_command()
+            c = command.Command.unserialize(c)
             c.vm = self.vm
             logging.debug("        next command: %s" % c)
             success, res = c.execute(c.payload)

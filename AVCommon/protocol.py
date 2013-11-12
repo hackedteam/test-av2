@@ -100,10 +100,10 @@ class Protocol(ProtocolClient):
         self.send_command(copy.deepcopy(self.last_command))
         return True
 
-    def send_command(self, command):
+    def send_command(self, cmd):
         if config.verbose:
-            logging.debug("PROTO S send_command: %s" % str(command))
-        cmd = Command.unserialize(command)
+            logging.debug("PROTO S send_command: %s" % str(cmd))
+        cmd = Command.unserialize(cmd)
         cmd.vm = self.client
         try:
             if cmd.side == "client":
@@ -114,7 +114,7 @@ class Protocol(ProtocolClient):
                 self._meta(cmd)
             return True
         except Exception, ex:
-            logging.error("Error sending command %s: %s" % (command, ex))
+            logging.error("Error sending command %s: %s" % (cmd, ex))
             return False
 
     def receive_answer(self, client, msg):

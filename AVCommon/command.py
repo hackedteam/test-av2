@@ -14,7 +14,6 @@ server_commands = ['BEGIN',
  'COMMAND_CLIENT',
  'END',
  'EVAL_CLIENT',
- 'EVAL_SERVER',
  'EXECUTE_VM',
  'PULL',
  'PUSH',
@@ -31,7 +30,7 @@ command_names = []
 known_commands = {}
 context = {}
 
-def init(namespace = "AVCommon", commands = server_commands, append = False):
+def init(namespace = "AVCommon", commands = server_commands, append = True):
     global command_names
     global known_commands
     #logging.debug("initCommands")
@@ -43,7 +42,7 @@ def init(namespace = "AVCommon", commands = server_commands, append = False):
         command_names = []
         #Command.known_commands = dict(zip(commands,  [None] * len(commands)))
 
-    command_names = command_names + commands
+    command_names = list(set(command_names + commands))
     for m in commands:
         try:
             known_commands[m] = __import__("%s.Command_%s" % (namespace, m))
@@ -114,9 +113,6 @@ class Command(object):
         elif not isinstance(serialized, str) and len(serialized) == 3:
             identified = "len 3"
             cmd, success, payload = serialized
-        elif not isinstance(serialized, str) and len(serialized) == 2:
-            identified = "len 2"
-            cmd, payload = serialized
         elif isinstance(serialized, str):
             identified = "str"
             m = re.compile("\('(\w+)\', (\w+), (.+)\)").match(serialized)

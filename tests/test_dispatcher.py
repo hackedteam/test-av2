@@ -18,7 +18,6 @@ def test_dispatcher_server():
 
     vms = ["noav", "zenovm"]
 
-    test = Procedure("TEST", [("EVAL_SERVER",'self.vm'), ("SLEEP", 30)])
 
     host = "localhost"
     mq = MQStar(host)
@@ -28,6 +27,8 @@ def test_dispatcher_server():
 
     vm_manager.vm_conf_file = "../AVMaster/conf/vms.cfg"
     dispatcher = Dispatcher(mq, vms)
+
+    test = Procedure("TEST", [("EVAL_SERVER", None, 'self.vm'), ("SLEEP", None, 30)])
     dispatcher.dispatch(test)
 
 def test_dispatcher_client():
@@ -35,8 +36,6 @@ def test_dispatcher_client():
 
     vms = [ "testvm_%d" % i for i in range(10) ]
 
-    test = Procedure("TEST", [ "START_AGENT", ("EVAL_CLIENT",'self.vm'), {   'COMMAND_CLIENT': [{   'SET': [   ['windows',
-                                                           'whatever']]}]}, "STOP_AGENT"])
 
     host = "localhost"
     mq = MQStar(host)
@@ -50,6 +49,10 @@ def test_dispatcher_client():
 
     # dispatcher, inoltra e riceve i comandi della procedura test sulle vm
     dispatcher = Dispatcher(mq, vms)
+
+    test = Procedure("TEST", [ "START_AGENT", ("EVAL_CLIENT", None, 'self.vm'), {   'COMMAND_CLIENT': [{   'SET': [   ['windows',
+                                                           'whatever']]}]}, "STOP_AGENT"])
+
     thread = threading.Thread(target=dispatcher.dispatch, args=(test,))
     thread.start()
 

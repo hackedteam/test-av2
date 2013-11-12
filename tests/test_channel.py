@@ -54,7 +54,7 @@ class TestChannel(unittest.TestCase):
         channel = "test"
         host = "localhost"
         s = Channel(host, channel)
-        r = s.read(blocking=True, timout=1)
+        r = s.read(blocking=True, timeout=1)
         assert r is None
 
     def test_ChannelList(self):

@@ -43,7 +43,7 @@ def test_ChannelTimeout():
     host = "localhost"
     s = Channel(host, channel)
 
-    r = s.read(blocking=True, timout=1)
+    r = s.read(blocking=True, timeout=1)
 
     assert not r, "should go timeout"
 

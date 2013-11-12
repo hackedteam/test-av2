@@ -5,6 +5,8 @@ sys.path.append(os.getcwd())
 from AVCommon.procedure import Procedure
 from AVCommon.command import Command
 
+from AVCommon import command
+
 import logging
 import logging.config
 

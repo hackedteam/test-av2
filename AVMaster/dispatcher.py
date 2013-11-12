@@ -8,7 +8,9 @@ sys.path.append(os.getcwd())
  
 from AVCommon.mq import MQStar
 from av_machine import AVMachine
- 
+from AVCommon import command
+
+commands = ["EVAL_SERVER"]
  
 class Dispatcher(object):
     """docstring for Dispatcher"""
@@ -18,6 +20,9 @@ class Dispatcher(object):
         self.vms = vms
         self.mq = mq
         self.report = report
+
+        command.init(append=True)
+        command.init("AVMaster", commands, True)
  
     def dispatch(self, procedure, ):
         global received
@@ -28,8 +33,6 @@ class Dispatcher(object):
         logging.debug("- SERVER len(procedure): %s"% len(procedure))
         self.num_commands = len(procedure)
 
-
- 
         av_machines = {}
         for c in self.vms:
             av_machines[c] = AVMachine(self.mq, c, procedure)

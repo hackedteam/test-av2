@@ -30,14 +30,14 @@ class Procedure:
         if not command_list:
             self.command_list = []
         else:
-            self.command_list = [Command.unserialize(c) for c in command_list]
+            self.command_list = command_list
             assert self.command_list, "empty command_list"
 
     def add_begin_end(self):
-        if self.command_list[0].name != "BEGIN":
-            self.command_list.insert(0, Command.unserialize("BEGIN"))
-        if self.command_list[-1].name != "END":
-            self.command_list.append(Command.unserialize("END"))
+        if self.command_list[0] != "BEGIN":
+            self.command_list.insert(0, "BEGIN")
+        if self.command_list[-1] != "END":
+            self.command_list.append("END")
 
     def insert(self, new_proc):
         self.command_list = new_proc.command_list + self.command_list
@@ -59,7 +59,7 @@ class Procedure:
             command_data = data[name]
             logging.debug("new procedure: %s\nargs: %s" % (name, data[name]))
             for c in command_data:
-                c = Command.unserialize(c)
+                #c = Command.unserialize(c)
                 command_list.append(c)
                 #logging.debug("  command: %s" % c)
 
