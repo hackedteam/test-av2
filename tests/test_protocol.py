@@ -1,14 +1,13 @@
-import sys, os
+import sys
+import os
+
 sys.path.append(os.path.split(os.getcwd())[0])
 sys.path.append(os.getcwd())
 
 from AVCommon.protocol import Protocol
 from AVCommon.procedure import Procedure
-from AVCommon.command import Command
-from AVCommon.Command_END import Command_END
 from AVCommon.mq import MQStar
 
-import threading
 import logging
 import logging.config
 
@@ -55,9 +54,9 @@ def test_ProtocolEval():
     c = "client1"
     mq.add_client(c)
 
-    commands = ["BEGIN", ("EVAL_SERVER", "dir()"),
-                ("EVAL_SERVER", "locals()"),
-                ("EVAL_SERVER", "__import__('os').getcwd()"),
+    commands = ["BEGIN", ("EVAL_SERVER", None, "dir()"),
+                ("EVAL_SERVER", None, "locals()"),
+                ("EVAL_SERVER", None, "__import__('os').getcwd()"),
                 ("END", None, None)]
     procedure = Procedure("PROC", commands)
 
@@ -130,7 +129,7 @@ CALLER:
             logging.debug("- SERVER RECEIVED empty")
             exit = True
 
-    assert answers == 4, "wrong answers: %s" % answers
+    assert answers == 5, "wrong answers: %s" % answers
 
 if __name__ == '__main__':
     logging.config.fileConfig('../logging.conf')

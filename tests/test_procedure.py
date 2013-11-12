@@ -12,15 +12,15 @@ import logging.config
 
 
 def test_dispatcher():
-    c = Command.unserialize(["BEGIN", True, ['whatever', 'end']])
+    c = command.factory(["BEGIN", True, ['whatever', 'end']])
     agentFiles = ""
     params = ""
 
     update = Procedure("UPDATE", ["REVERT", "START_VM", "UPDATE", "STOP_VM"])
-    dispatch = Procedure("DISPATCH", ["REVERT", "START_VM", ("PUSH", agentFiles)])
+    dispatch = Procedure("DISPATCH", ["REVERT", "START_VM", ("PUSH", None, agentFiles)])
     scout = Procedure("SCOUT", [
-        ("CALL", "dispatch"),
-        ("PUSH", agentFiles),
+        ("CALL", None, "dispatch"),
+        ("PUSH", None, agentFiles),
     ])
 
     assert update
@@ -28,12 +28,12 @@ def test_dispatcher():
     assert scout
 
 def test_procedure_insert():
-    c = Command.unserialize(["BEGIN", True, ['whatever', 'end']])
+    c = command.factory(["BEGIN", True, ['whatever', 'end']])
     agentFiles = ""
     params = ""
 
     p1 = Procedure("UPDATE", ["REVERT", "START_VM", "UPDATE", "STOP_VM"])
-    p2 = Procedure("DISPATCH", ["REVERT", "START_VM", ("PUSH", agentFiles)])
+    p2 = Procedure("DISPATCH", ["REVERT", "START_VM", ("PUSH", None, agentFiles)])
 
     lp1= len(p1)
     lp2= len(p2)
@@ -70,9 +70,7 @@ DISPATCH:
 SCOUT:
     - CALL: DISPATCH
     - START_AGENT
-    - COMMAND_CLIENT:
-      - SCOUT_BUILD_WINDOWS_SILENT
-      - EXECUTE_SCOUT
+    - BUILD
 """
     procedures = Procedure.load_from_yaml(yaml)
     assert procedures, "empty procedures"

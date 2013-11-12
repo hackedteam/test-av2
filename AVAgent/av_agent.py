@@ -20,8 +20,6 @@ class AVAgent(object):
         self.host = redis
         self.session = session
         logging.debug("vm: %s host: %s session: %s" % (self.vm, self.host, session))
-        command.init()
-        command.init("AVAgent", commands, True)
 
     def start_agent(self):
 

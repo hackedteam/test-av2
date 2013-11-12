@@ -28,44 +28,10 @@ def test_dispatcher_server():
     vm_manager.vm_conf_file = "../AVMaster/conf/vms.cfg"
     dispatcher = Dispatcher(mq, vms)
 
-    test = Procedure("TEST", [("EVAL_SERVER", None, 'self.vm'), ("SLEEP", None, 30)])
+    test = Procedure("TEST", [("EVAL_SERVER", None, 'vm'), ("SLEEP", None, 10)])
     dispatcher.dispatch(test)
-
-def test_dispatcher_client():
-    host = "localhost"
-
-    vms = [ "testvm_%d" % i for i in range(10) ]
-
-
-    host = "localhost"
-    mq = MQStar(host)
-    mq.clean()
-
-    logging.debug("MQ session: %s" % mq.session)
-
-    #istanzia n client e manda delle procedure.
-
-    vm_manager.vm_conf_file = "../AVMaster/conf/vms.cfg"
-
-    # dispatcher, inoltra e riceve i comandi della procedura test sulle vm
-    dispatcher = Dispatcher(mq, vms)
-
-    test = Procedure("TEST", [ "START_AGENT", ("EVAL_CLIENT", None, 'self.vm'), {   'COMMAND_CLIENT': [{   'SET': [   ['windows',
-                                                           'whatever']]}]}, "STOP_AGENT"])
-
-    thread = threading.Thread(target=dispatcher.dispatch, args=(test,))
-    thread.start()
-
-    # i client vengono eseguiti asincronicamente e comunicano tramite redis al server
-    pool = Pool(len(vms))
-    r = pool.map_async(av_agent.start_agent, ( (v, host, mq.session) for v in vms) )
-    r.get() #notare che i results dei client non ci interessano, viaggia tutto su channel/command.
-
-    # chiusura del server
-    thread.join()
-
 
 if __name__ == '__main__':
     logging.config.fileConfig('../logging.conf')
     test_dispatcher_server()
-    #test_dispatcher_client()
+

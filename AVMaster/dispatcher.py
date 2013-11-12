@@ -16,13 +16,11 @@ class Dispatcher(object):
     """docstring for Dispatcher"""
  
     vms = []
-    def __init__(self, mq, vms, report=None):
+    def __init__(self, mq, vms, report=None, timeout=0):
         self.vms = vms
         self.mq = mq
         self.report = report
-
-        command.init(append=True)
-        command.init("AVMaster", commands, True)
+        self.timeout = timeout
  
     def dispatch(self, procedure, ):
         global received
@@ -48,7 +46,7 @@ class Dispatcher(object):
         ended = 0
         answered = 0
         while not exit and ended < len(self.vms):
-            rec = self.mq.receive_server(blocking=True, timeout=0)
+            rec = self.mq.receive_server(blocking=True, timeout=self.timeout)
             if rec is not None:
                 logging.debug("- SERVER RECEIVED %s %s" % (rec, type(rec)))
                 c, msg = rec
