@@ -18,8 +18,7 @@ def test_dispatcher_server():
 
     vms = ["noav", "zenovm"]
 
-    #test = Procedure("TEST", ["BEGIN", ("EVAL_SERVER",'self.vm'), "END"])
-    test = Procedure("TEST", [("EVAL_SERVER",'self.vm')])
+    test = Procedure("TEST", [("EVAL_SERVER",'self.vm'), ("SLEEP", 30)])
 
     host = "localhost"
     mq = MQStar(host)
@@ -36,8 +35,8 @@ def test_dispatcher_client():
 
     vms = [ "testvm_%d" % i for i in range(10) ]
 
-    test = Procedure("TEST", [ "START_AGENT", ("EVAL_CLIENT",'self.vm'), {   'COMMAND_CLIENT': [{   'BUILD': [   'windows',
-                                                           'whatever']}]}, "STOP_AGENT"])
+    test = Procedure("TEST", [ "START_AGENT", ("EVAL_CLIENT",'self.vm'), {   'COMMAND_CLIENT': [{   'SET': [   ['windows',
+                                                           'whatever']]}]}, "STOP_AGENT"])
 
     host = "localhost"
     mq = MQStar(host)
@@ -51,7 +50,7 @@ def test_dispatcher_client():
 
     # dispatcher, inoltra e riceve i comandi della procedura test sulle vm
     dispatcher = Dispatcher(mq, vms)
-    thread = threading.Thread(target=dispatcher.dispatch, args=(test["TEST"],))
+    thread = threading.Thread(target=dispatcher.dispatch, args=(test,))
     thread.start()
 
     # i client vengono eseguiti asincronicamente e comunicano tramite redis al server
@@ -65,5 +64,5 @@ def test_dispatcher_client():
 
 if __name__ == '__main__':
     logging.config.fileConfig('../logging.conf')
-    #test_dispatcher_server()
-    test_dispatcher_client()
+    test_dispatcher_server()
+    #test_dispatcher_client()

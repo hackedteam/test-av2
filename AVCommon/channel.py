@@ -1,7 +1,7 @@
 import logging
 from redis import StrictRedis
 from AVCommon import config
-
+from redis.exceptions import ConnectionError
 
 class Channel():
     """ Communication Channel, via Redis
@@ -13,7 +13,7 @@ class Channel():
         """
         self.host = host
         self.channel = channel
-        self.redis = StrictRedis(host, socket_timeout=60)
+        self.redis = StrictRedis(host, socket_timeout=None)
         #logging.debug("  CH init %s %s" % (host, channel))
         if not self.redis.exists(self.channel):
             if config.verbose:
@@ -25,16 +25,25 @@ class Channel():
             logging.debug("  CH write: channel: %s  message: %s" % (str(self.channel), str(message)))
         self.redis.rpush(self.channel, message)
 
-    def read(self, blocking=False, timout=0):
+    def read(self, blocking=False, timeout=0):
         """ reads a message from the underlining channel. This method can be blocking or it could timeout in a while
         """
+        ret = None
         if blocking:
+            while True:
+                try:
+                    ret = self.redis.blpop(self.channel, timeout)
+                    break;
+                except ConnectionError, e:
+                    logging.debug("  CH TIMEOUT server: %s" % e)
+                    ret = None
 
-                ret = self.redis.blpop(self.channel, timout)
-                if not ret:
-                    #logging.debug("  CH TIMEOUT")
-                    return None
-                ch, message = ret
+            if not ret and timeout:
+                logging.debug("  CH TIMEOUT read")
+                return None
+
+            ch, message = ret
+
         else:
             message = self.redis.lpop(self.channel)
 
