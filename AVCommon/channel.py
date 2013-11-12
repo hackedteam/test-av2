@@ -13,7 +13,8 @@ class Channel():
         """
         self.host = host
         self.channel = channel
-        self.redis = StrictRedis(host, socket_timeout=60)
+#        self.redis = StrictRedis(host, socket_timeout=60) #--> timeout 60 sec not enough for tests
+        self.redis = StrictRedis(host, socket_timeout=None)
         #logging.debug("  CH init %s %s" % (host, channel))
         if not self.redis.exists(self.channel):
             if config.verbose:
