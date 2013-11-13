@@ -58,12 +58,12 @@ TEST4:
 TEST5:
     - PUSH:
         - [AVCommon/commands/client/*.py]
-        - /home/olli/AVTest/AVCommon/commands/client
-        - C:\\AVTest\\AVCommon\\commands\\client
+        - /home/olli/AVTest
+        - C:\\AVTest
     - PUSH:
         - [AVAgent/*.py]
-        - /home/olli/AVTest/AVAgent
-        - C:\\AVTest\\AVAgent
+        - /home/olli/AVTest
+        - C:\\AVTest
 
 
 UPLOAD_AGENT:
