@@ -57,10 +57,10 @@ TEST4:
 SYNCRONIZE:
     - SLEEP: 180
     - PUSH:
-        - [AVAgent/av_agent.py, AVAgent/build.py, AVAgent/Command_BUILD.py, AVAgent/Command_GET.py,
-        AVAgent/Command_SET.py, AVAgent/package.py, AVAgent/rcs_cient.py]
-        - /home/olli/AVTest
-        - c:\\AVTest
+        - [AVAgent/av_agent.py, AVAgent/build.py, AVAgent/BUILD.py, AVAgent/GET.py,
+        AVAgent/SET.py, AVAgent/package.py, AVAgent/rcs_cient.py]
+        - /home/avmonitor/AVTest
+        - c:
 
 UPDATE:
     - START_VM

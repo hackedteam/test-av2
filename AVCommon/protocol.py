@@ -3,7 +3,7 @@ import copy
 import threading
 from AVCommon import config
 
-from command import Command
+import command
 from mq import MQStar
 
 import traceback
@@ -11,16 +11,17 @@ import traceback
 class ProtocolClient:
     """ Protocol, client side. When the command is received, it's executed and the result resent to the server. """
 
-    def __init__(self, mq, client):
+    def __init__(self, mq, vm, timeout = 0):
         self.mq = mq
-        self.client = client
+        self.vm = vm
+        self.timeout = 0
 
-        assert(isinstance(client, str))
+        assert(isinstance(vm, str))
         assert(isinstance(mq, MQStar))
 
     def _execute_command(self, cmd):
         try:
-            ret = cmd.execute(cmd.payload)
+            ret = cmd.execute(self.vm, cmd.payload)
             if config.verbose:
                 logging.debug("cmd.execute ret: %s" % str(ret))
             cmd.success, cmd.payload = ret
@@ -35,20 +36,20 @@ class ProtocolClient:
 
     # client side
     def receive_command(self):
-        assert(isinstance(self.client, str))
+        assert(isinstance(self.vm, str))
         #logging.debug("PROTO receiveCommand %s" % (self.client))
-        msg = self.mq.receive_client(self.client, blocking=True, timeout=0)
+        msg = self.mq.receive_client(self.vm, blocking=True, timeout=self.timeout)
         if config.verbose:
-            logging.debug("PROTO C receive_command %s, %s" % (self.client, msg))
-        cmd = Command.unserialize(msg)
-        cmd.vm = self.client
+            logging.debug("PROTO C receive_command %s, %s" % (self.vm, msg))
+        cmd = command.unserialize(msg)
+        cmd.vm = self.vm
 
         return self._execute_command(cmd)
 
     def send_answer(self, reply):
         if config.verbose:
             logging.debug("PROTO C send_answer %s" % reply)
-        self.mq.send_server(self.client, reply.serialize())
+        self.mq.send_server(self.vm, reply.serialize())
 
 
 class Protocol(ProtocolClient):
@@ -56,18 +57,18 @@ class Protocol(ProtocolClient):
     procedure = None
     last_command = None
 
-    def __init__(self, mq, client, procedure=None):
-        ProtocolClient.__init__(self, mq, client)
+    def __init__(self, mq, vm, procedure=None, timeout = 0):
+        ProtocolClient.__init__(self, mq, vm, timeout)
         self.mq = mq
-        self.client = client
+        self.vm = vm
         self.procedure = copy.deepcopy(procedure)
-        assert (isinstance(client, str))
+        assert (isinstance(vm, str))
         assert (isinstance(mq, MQStar))
 
     # server side
     def _send_command_mq(self, cmd):
-        cmd.on_init(cmd.payload)
-        self.mq.send_client(self.client, cmd.serialize())
+        cmd.on_init(self.vm, cmd.payload)
+        self.mq.send_client(self.vm, cmd.serialize())
 
     def _execute(self, cmd, blocking=False):
         #logging.debug("PROTO S executing server")
@@ -80,7 +81,7 @@ class Protocol(ProtocolClient):
     def _meta(self, cmd):
         if config.verbose:
             logging.debug("PROTO S executing meta")
-        ret = cmd.execute( (self, cmd.payload) )
+        ret = cmd.execute( self.vm, (self, cmd.payload) )
         cmd.success, cmd.payload = ret
         assert isinstance(cmd.success, bool)
         self.send_answer(cmd)
@@ -100,11 +101,11 @@ class Protocol(ProtocolClient):
         self.send_command(copy.deepcopy(self.last_command))
         return True
 
-    def send_command(self, command):
+    def send_command(self, cmd):
         if config.verbose:
-            logging.debug("PROTO S send_command: %s" % str(command))
-        cmd = Command.unserialize(command)
-        cmd.vm = self.client
+            logging.debug("PROTO S send_command: %s" % str(cmd))
+        #cmd = command.unserialize(cmd)
+        cmd.vm = self.vm
         try:
             if cmd.side == "client":
                 self._send_command_mq(cmd)
@@ -114,19 +115,19 @@ class Protocol(ProtocolClient):
                 self._meta(cmd)
             return True
         except Exception, ex:
-            logging.error("Error sending command %s: %s" % (command, ex))
+            logging.error("Error sending command %s: %s" % (cmd, ex))
             return False
 
-    def receive_answer(self, client, msg):
+    def receive_answer(self, vm, msg):
         """ returns a command with name, success and payload """
         #msg = self.mq.receiveClient(self, client)
 
-        cmd = Command.unserialize(msg)
-        cmd.vm = client
+        cmd = command.unserialize(msg)
+        cmd.vm = vm
         if config.verbose:
-            logging.debug("PROTO S manage_answer %s: %s" % (client, cmd))
+            logging.debug("PROTO S manage_answer %s: %s" % (vm, cmd))
 
         assert(cmd.success is not None)
-        cmd.on_answer(cmd.success, cmd.payload)
+        cmd.on_answer(vm, cmd.success, cmd.payload)
 
         return cmd

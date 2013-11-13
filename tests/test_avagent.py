@@ -22,7 +22,7 @@ def test_avagent_create():
 
     vms = [ "testvm_%d" % i for i in range(10) ]
 
-    test = Procedure("TEST", ["BEGIN", "START_AGENT", ("EVAL_CLIENT",'self.vm'), "STOP_AGENT", "END"])
+    test = Procedure("TEST", ["BEGIN", "START_AGENT", ("EVAL_CLIENT", None, 'self.vm'), "STOP_AGENT", "END"])
 
     host = "localhost"
     mq = MQStar(host)
@@ -38,20 +38,19 @@ def test_avagent_create():
 def test_avagent_get_set():
     host = "localhost"
 
-    vms = [ "testvm_%d" % i for i in range(1) ]
+    vms = [ "testvm_%d" % i for i in range(10) ]
 
     #command_client={   'COMMAND_CLIENT': [{   'SET': [   'windows'                                 'whatever']}]}
 
     procedure = """
 TEST:
     - START_AGENT
-    - COMMAND_CLIENT:
-        - SET: [pippo=franco]
-        - SET:
-            - backend=192.168.100.201
-            - frontend=172.20.100.204
-            - redis=10.0.20.1
-        - GET: pippo
+    - SET: [ [pippo, franco] ]
+    - SET:
+        - [backend, 192.168.100.201]
+        - [frontend, 172.20.100.204]
+        - [redis, 10.0.20.1]
+    - GET: pippo
     - STOP_AGENT
 """
 
@@ -69,7 +68,7 @@ TEST:
     report= Report()
 
     # dispatcher, inoltra e riceve i comandi della procedura test sulle vm
-    dispatcher = Dispatcher(mq, vms, report)
+    dispatcher = Dispatcher(mq, vms, report, timeout = 10)
     thread = threading.Thread(target=dispatcher.dispatch, args=(test["TEST"],))
     thread.start()
     #p = Process(target=dispatcher.dispatch, args=(test["TEST"],))

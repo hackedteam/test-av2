@@ -1,24 +1,19 @@
-import sys, os
+import os, sys
+from AVCommon.commands.server import BEGIN
+
 sys.path.append(os.path.split(os.getcwd())[0])
 sys.path.append(os.getcwd())
 
-from AVCommon.command import Command
 import command
 
 import logging
 import logging.config
 
-def test_commandAbstract():
-    try:
-        c = Command("BEGIN")
-        assert("Should not be able to instance an abstract class" is False)
-    except Exception:
-        pass
 
 def test_commandSerialize():
-    c = Command.unserialize( ("BEGIN", False, "nothing") )
+    c = command.factory( ("BEGIN", False, "nothing") )
     s = c.serialize()
-    cmd = Command.unserialize(s)
+    cmd = command.unserialize(s)
     assert(not cmd.success)
 
     logging.debug("cmd: %s %s", cmd, type(cmd))
@@ -27,54 +22,54 @@ def test_commandSerialize():
     #assert str(type(cmd)) == "<class 'AVCommon.Command_START.Command_START'>", "type: %s" % str(type(cmd))
     #assert str(type(cmd)) == "<class 'Command_START.Command_START'>", "type: %s" % str(type(cmd))
 
-    Command.unserialize( ("BEGIN", None, None) )
+    command.factory( ("BEGIN", None, None) )
     try:
-        Command.unserialize( ("BEGIN", "", None) )
+        command.factory( ("BEGIN", "", None) )
         assert(False)
     except:
         pass
 
 def test_commandUnserialize():
     command.context = "mycontext"
-    s = Command.unserialize( "BEGIN" )
+    s = command.factory( "BEGIN" )
     logging.debug("Command: %s" % s)
-    assert isinstance(s, Command), "type: %s not %s" % (dir(s.__class__), Command)
+    assert isinstance(s, command.Command), "type: %s not %s" % (type(s), command.Command)
 
     assert s.name == "BEGIN"
     assert s.payload is None
     assert s.success is None
-    assert s.side == "server"
+    assert s.side == "server", "side: %s" % s.side
     assert command.context == "mycontext", "wrong context: %s" % s.context
 
-    s = Command.unserialize( ["START_VM", None, ["kis", "mcafee"]] )
+    s = command.factory( ["START_VM", None, ["kis", "mcafee"]] )
     assert s.name == "START_VM"
     assert s.payload == ["kis", "mcafee"]
     assert s.success is None
     assert s.side == "server"
     assert command.context == "mycontext"
 
-    s = Command.unserialize( {"START_VM": ["kis", "mcafee"]} )
+    s = command.factory( {"START_VM": ["kis", "mcafee"]} )
     assert s.name == "START_VM"
     assert s.payload == ["kis", "mcafee"]
     assert s.success is None
     assert s.side == "server"
     assert command.context == "mycontext"
 
-    s = Command.unserialize( ["START_VM", ["kis", "mcafee"]] )
+    s = command.factory( ["START_VM", None, ["kis", "mcafee"]] )
     assert s.name == "START_VM"
     assert s.payload == ["kis", "mcafee"]
     assert s.success is None
     assert s.side == "server"
     assert command.context == "mycontext"
 
-    s = Command.unserialize( ("START_VM", True, ["kis", "mcafee"]) )
+    s = command.factory( ("START_VM", True, ["kis", "mcafee"]) )
     assert s.name == "START_VM"
     assert s.payload == ["kis", "mcafee"]
     assert s.success is True
     assert s.side == "server"
     assert command.context == "mycontext"
 
-    s = Command.unserialize( """('START_VM', True, ["kis", "mcafee"])""" )
+    s = command.factory( """('START_VM', True, ["kis", "mcafee"])""" )
     assert s.name == "START_VM"
     assert s.payload == ["kis", "mcafee"]
     assert s.success is True
@@ -82,7 +77,7 @@ def test_commandUnserialize():
     assert command.context == "mycontext"
 
     s.success = True
-    q = Command.unserialize( s )
+    q = command.factory( s )
     assert q.name == "START_VM"
     assert q.payload == ["kis", "mcafee"]
     assert q.success is True
@@ -90,32 +85,32 @@ def test_commandUnserialize():
     assert command.context == "mycontext"
 
     try:
-        s = Command.unserialize( )
+        s = command.factory( )
         assert False, "should not unserialize this"
     except:
         pass
     try:
-        s = Command.unserialize( "A", 1, 2 )
+        s = command.factory( "A", 1, 2 )
         assert False, "should not unserialize this"
     except:
         pass
     try:
-        s = Command.unserialize( "B", True, 2 , 3 )
+        s = command.factory( "B", True, 2 , 3 )
         assert False, "should not unserialize this"
     except:
         pass
     try:
-        s = Command.unserialize({"START_VM": ["kis", "mcafee"], "WHATEVER": []})
+        s = command.factory({"START_VM": ["kis", "mcafee"], "WHATEVER": []})
         assert False, "should not unserialize this"
     except:
         pass
 
 
-def test_commandAnswer():
-    c = Command.unserialize( ["BEGIN", True, ['whatever','end']])
+def test_commandSerialization():
+    c = command.factory( ["BEGIN", True, ['whatever','end']])
     s = c.serialize()
-    assert(len(s) == 3)
-    cmd = Command.unserialize(s)
+
+    cmd=command.unserialize(s)
     logging.debug("unserisalized: %s" % type(cmd.payload))
 
     assert(cmd.success)
@@ -125,22 +120,19 @@ def test_commandAnswer():
 
 
 def test_commandStart():
-    from AVCommon import Command_BEGIN
-
-    c = Command_BEGIN.Command_BEGIN("BEGIN")
+    c = command.factory("BEGIN")
     assert(c)
     assert(c.name == "BEGIN")
 
-    c.on_init("whatever")
-    ret, answer = c.execute("arguments")
-    c.on_answer(ret, answer)
+    #c.on_init("whatever")
+    ret, answer = c.execute("vm", "arguments")
+    #c.on_answer("vm", ret, answer)
 
 if __name__ == '__main__':
     logging.config.fileConfig('../logging.conf')
     test_commandSerialize()
     test_commandStart()
-    test_commandAnswer()
-    test_commandAbstract()
+    test_commandSerialization()
     test_commandUnserialize()
 
 if __name__ == '__main__' and __package__ is None:
