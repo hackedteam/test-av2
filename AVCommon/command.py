@@ -15,7 +15,8 @@ import importlib
 
 import base64
 
-cmd_folder = os.path.split(os.path.realpath(os.path.abspath(inspect.getfile(inspect.currentframe()))))[0]
+inspect_getfile = inspect.getfile(inspect.currentframe())
+cmd_folder = os.path.split(os.path.realpath(os.path.abspath(inspect_getfile)))[0]
 if cmd_folder not in sys.path:
      sys.path.insert(0, cmd_folder)
 parent = os.path.split(cmd_folder)[0]

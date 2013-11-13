@@ -14,6 +14,7 @@ def on_init(vm, args):
     #TODO: push files on client
     assert vm, "null vm"
 
+
 def on_answer(vm, success, answer):
     """ server side """
     logging.debug("    CS on_answer")
