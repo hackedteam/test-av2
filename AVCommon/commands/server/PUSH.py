@@ -7,25 +7,23 @@ from AVMaster import vm_manager
 def execute(vm, args):
     """ server side """
     logging.debug("    CS PUSH")
-    assert vm, "null vm"
+    assert vm, "null self.vm"
     assert len(args) == 3 and isinstance(args, list), "PUSH expects a list of 3 elements"
 
     src_files,src_dir,dst_dir = args
     assert isinstance(src_files, list), "PUSH expects a list of src files"
 
-    #TODO: push files to vm
+    #TODO: push files to self.vm
 #        files = {}
 
 #        src,dst = args
-#        vm_manager.execute(vm, "copyFileToGuest", src, dst)
+#        vm_manager.execute(self.vm, "copyFileToGuest", src, dst)
 #        print files
 #        print "########"
 #        print src_files,src_dir,dst_dir
 #        print "########"
     memo = []
     for src_file in src_files:
-        print src_file
-
         try:
             d, f = src_file.split("/")
         except ValueError:
@@ -46,6 +44,10 @@ def execute(vm, args):
             memo.append(rdir)
 
         logging.debug("%s copy %s -> %s" % (vm, src, dst))
-        vm_manager.execute(vm, "copyFileToGuest", src, dst)
+        r = vm_manager.execute(vm, "copyFileToGuest", src, dst)
+#            print "#######\n%s\n#####" % r
+        if r > 0:
+            return False, "Cant Copy %s on VM" % src_file
 
     return True, "Files copied on VM"
+

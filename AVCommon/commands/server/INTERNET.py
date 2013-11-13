@@ -9,13 +9,22 @@ def execute(vm, args):
     """ server side """
 
     logging.debug("    CS Execute")
-    assert vm, "null vm"
+    assert vm, "null self.vm"
+    assert isinstance(args, bool), "INTERNET argument must be boolean"
+    #        assert ["on","off"] in args and len(args) == 1, "INTERNET accepts on/off as parameter"
 
-    ret = os.system("sudo ../AVMaster/net_enable.sh")
+    if args == True:
+        cmd = "sudo ../AVMaster/net_enable.sh"
+    elif args == False:
+        cmd = "sudo ../AVMaster/net_disable.sh"
+    else:
+        return False, "Failed Internet ON (wrong parameter)"
+
+    ret = os.system(cmd)
 
     if ret == 0:
-        return True, "Internet ON"
+        return True, "Internet %s" % args
     else:
-        return False, "Failed Internet ON"
+        return False, "Failed Internet %s" % args
 
 
