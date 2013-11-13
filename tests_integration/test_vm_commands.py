@@ -40,8 +40,9 @@ TEST3:
         - /tmp
         - c:\\users\\avtest\\desktop
     - PUSH:
-        - [AVAgent/av_agent.py, AVAgent/build.py, AVAgent/Command_BUILD.py, AVAgent/Command_GET.py,
-        AVAgent/Command_SET.py, AVAgent/package.py, AVAgent/rcs_cient.py]
+        - [AVAgent/av_agent.py, AVAgent/build.py, AVAgent/package.py, AVAgent/rcs_client.py,
+            AVCommon/commands/START_AGENT.py, AVCommon/commands/STOP_AGENT.py,
+            AVCommon/commands/BUILD.py, AVCommon/commands/GET.py, AVCommon/commands/SET.py]
         - /home/olli/AVTest
         - c:\\AVTest
     - PULL:
@@ -54,22 +55,32 @@ TEST4:
     - SCREENSHOT: /tmp/magic_img_path.png
     - STOP_VM
 
-SYNCRONIZE:
-    - SLEEP: 180
+TEST5:
     - PUSH:
-        - [AVAgent/av_agent.py, AVAgent/build.py, AVAgent/BUILD.py, AVAgent/GET.py,
-        AVAgent/SET.py, AVAgent/package.py, AVAgent/rcs_cient.py]
-        - /home/avmonitor/AVTest
-        - c:
+        - [AVCommon/commands/client/*.py]
+        - /home/olli/AVTest/AVCommon/commands/client
+        - C:\\AVTest\\AVCommon\\commands\\client
+    - PUSH:
+        - [AVAgent/*.py]
+        - /home/olli/AVTest/AVAgent
+        - C:\\AVTest\\AVAgent
+
+
+UPLOAD_AGENT:
+    - PUSH:
+        - [AVAgent/av_agent.py, AVAgent/build.py, AVAgent/package.py, AVAgent/rcs_client.py, AVCommon/commands/*.py]
+        - /home/olli/AVTest
+        - c:\\AVTest
 
 UPDATE:
+    - REVERT
     - START_VM
-    - INTERNET: False
-    - CALL: SYNCRONIZE
+    - SLEEP: 180
+    - CALL: UPLOAD_AGENT
     - INTERNET: True
-    - SLEEP: 360
-    - STOP_VM
+    - SLEEP: 120
     - INTERNET: False
+    - STOP_VM
     - START_VM
     - SLEEP: 180
     - STOP_VM
@@ -102,13 +113,13 @@ ZLEEP:
 
     dispatcher.dispatch(procedures["TEST3"])
     time.sleep(30)
-    '''
-    logging.info("STARTING TEST 3")
-    dispatcher.dispatch(procedures["TEST3"])
-    '''
+
     logging.info("STARTING TEST UPDATE PROCEDURE")
     dispatcher.dispatch(procedures["UPDATE"])
     '''
+    logging.info("STARTING TEST 5")
+    dispatcher.dispatch(procedures["TEST5"])
+#    '''
 if __name__ == '__main__':
     logging.config.fileConfig('../logging.conf')
     test_vm_commands()

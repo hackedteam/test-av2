@@ -5,11 +5,27 @@ TEST:
     - STOP_AGENT
     - END
 
+UPLOAD_AGENT:
+    - PUSH:
+        - [AVAgent/av_agent.py, AVAgent/build.py, AVAgent/package.py, AVAgent/rcs_cient.py,
+            AVCommon/commands/START_AGENT.py, AVCommon/commands/STOP_AGENT.py,
+            AVCommon/commands/BUILD.py, AVCommon/commands/GET.py, AVCommon/commands/SET.py]
+        - /home/avmonitor/AVTest
+        - c:\\
+
 UPDATE:
     - REVERT
     - START_VM
-    - UPDATE
+    - SLEEP:180
+    - CALL: UPLOAD_AGENT
+    - INTERNET:True
+    - SLEEP:3600
+    - INTERNET:False
     - STOP_VM
+    - START_VM
+    - SLEEP:180
+    - STOP_VM
+    - REFRESH_SNAPSHOT
 
 DISPATCH:
     - REVERT
