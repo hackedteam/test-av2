@@ -175,13 +175,13 @@ class VMRun:
     def copyFileToGuest(self, vmx, src_file, dst_file):
         sys.stdout.write("[%s] Copying file from %s to %s.\n" %
                          (vmx, src_file, dst_file))
-        self._run_cmd(vmx, "CopyFileFromHostToGuest",
+        return self._run_cmd(vmx, "CopyFileFromHostToGuest",
                       [src_file, dst_file], [vmx.user, vmx.passwd])
 
     def copyFileFromGuest(self, vmx, src_file, dst_file):
         sys.stdout.write("[%s] Copying file from %s to %s.\n" %
                          (vmx, src_file, dst_file))
-        self._run_cmd(vmx, "CopyFileFromGuestToHost",
+        return self._run_cmd(vmx, "CopyFileFromGuestToHost",
                       [src_file, dst_file], [vmx.user, vmx.passwd])
 
     def executeCmd(self, vmx, cmd, args=[], timeout=40, interactive=False, bg=False):

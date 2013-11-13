@@ -31,8 +31,6 @@ class Command_PUSH(command.ServerCommand):
 #        print "########"
         memo = []
         for src_file in src_files:
-            print src_file
-
             try:
                 d, f = src_file.split("/")
             except ValueError:
@@ -53,6 +51,9 @@ class Command_PUSH(command.ServerCommand):
                 memo.append(rdir)
 
             logging.debug("%s copy %s -> %s" % (self.vm, src, dst))
-            vm_manager.execute(self.vm, "copyFileToGuest", src, dst)
+            r = vm_manager.execute(self.vm, "copyFileToGuest", src, dst)
+#            print "#######\n%s\n#####" % r
+            if r > 0:
+                return False, "Cant Copy %s on VM" % src_file
 
         return True, "Files copied on VM"

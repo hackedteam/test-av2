@@ -39,6 +39,11 @@ TEST3:
         - [gggg, jojojo]
         - /tmp
         - c:\\users\\avtest\\desktop
+    - PUSH:
+        - [AVAgent/av_agent.py, AVAgent/build.py, AVAgent/Command_BUILD.py, AVAgent/Command_GET.py,
+        AVAgent/Command_SET.py, AVAgent/package.py, AVAgent/rcs_cient.py]
+        - /home/olli/AVTest
+        - c:\\AVTest
     - PULL:
         - [gggg, jojojo]
         - c:\\users\\avtest\\desktop
@@ -54,16 +59,17 @@ SYNCRONIZE:
     - PUSH:
         - [AVAgent/av_agent.py, AVAgent/build.py, AVAgent/Command_BUILD.py, AVAgent/Command_GET.py,
         AVAgent/Command_SET.py, AVAgent/package.py, AVAgent/rcs_cient.py]
-        - /home/avmonitor/AVTest
-        - c:
+        - /home/olli/AVTest
+        - c:\\AVTest
 
 UPDATE:
     - START_VM
-    - INTERNET_OFF
+    - INTERNET: False
     - CALL: SYNCRONIZE
-    - INTERNET_ON
+    - INTERNET: True
     - SLEEP: 360
     - STOP_VM
+    - INTERNET: False
     - START_VM
     - SLEEP: 180
     - STOP_VM
@@ -94,14 +100,15 @@ ZLEEP:
 
     time.sleep(30)
 
+    dispatcher.dispatch(procedures["TEST3"])
+    time.sleep(30)
+    '''
     logging.info("STARTING TEST 3")
     dispatcher.dispatch(procedures["TEST3"])
-
-    time.sleep(30)
-    dispatcher.dispatch(procedures["TEST4"])
     '''
     logging.info("STARTING TEST UPDATE PROCEDURE")
     dispatcher.dispatch(procedures["UPDATE"])
+    '''
 if __name__ == '__main__':
     logging.config.fileConfig('../logging.conf')
     test_vm_commands()
