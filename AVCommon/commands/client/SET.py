@@ -25,12 +25,11 @@ def execute(vm, args):
     assert vm, "null vm"
     assert command.context is not None
 
-    assert isinstance(args, list), "SET expects a list"
+    assert isinstance(args, dict), "SET expects a dict"
 
-    for arg in args:
-        key, value = arg #.split("=", 1)
-        command.context[key.strip()] = value.strip()
+    for k,v in args.items():
+        command.context[k]=v
 
     logging.debug("items: %s" % (command.context))
-    return True, key
+    return True, k
 

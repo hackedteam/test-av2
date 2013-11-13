@@ -21,7 +21,7 @@ def test_commands():
     s = command.factory("SET")
     s.vm = "vm"
 
-    s.execute("vm", [("ciao","mondo")])
+    s.execute("vm", {"ciao":"mondo"})
     logging.debug(command.context)
 
     assert "ciao" in command.context
@@ -29,7 +29,7 @@ def test_commands():
 
     s = command.factory("SET")
     s.vm = "vm"
-    s.execute( s.vm, [["pippo","franco"], ["hello","world"], ("number","123")])
+    s.execute( s.vm, {"pippo":"franco", "hello":"world", "number":"123"})
     assert "ciao" in command.context
     assert command.context["ciao"] == "mondo"
 

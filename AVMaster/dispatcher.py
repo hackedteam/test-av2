@@ -10,8 +10,7 @@ from AVCommon.mq import MQStar
 from av_machine import AVMachine
 from AVCommon import command
 
-commands = ["EVAL_SERVER"]
- 
+
 class Dispatcher(object):
     """docstring for Dispatcher"""
  
