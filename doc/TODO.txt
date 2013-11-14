@@ -24,3 +24,5 @@
 - unit test, integration
 	- TDD, integrare test case nel sistema
 
+
+- test static deve fare download dei cores dal server
