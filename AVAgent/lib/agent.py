@@ -4,6 +4,7 @@ import shutil
 from time import sleep
 import time
 import socket
+import glob
 
 import urllib2
 import zipfile
@@ -191,49 +192,49 @@ class AVAgent:
             params['windows'] = { 'platform': 'windows',
                 'binary': { 'demo' : demo, 'admin' : False},
                 'melt' : {'scout' : True, 'admin' : False, 'bit64' : True, 'codec' : True },
-                'sign' : {}
+                'sign' : {}, 'package': {}
             }
             params['android'] = { 'platform': 'android',
                 'binary': { 'demo' : demo, 'admin' : False},
                 'sign' : {},
-                'melt' : {}
+                'melt' : {}, 'package': {}
             }
             params['linux'] = { 'platform': 'linux',
                 'binary': { 'demo' : demo, 'admin' : False},
-                'melt' : {}
+                'melt' : {}, 'package': {}
             }
             params['osx'] = {'platform': 'osx',
                 'binary': {'demo': demo, 'admin': True},
-                'melt' : {}
+                'melt' : {}, 'package': {}
             }
             params['ios'] = {'platform': 'ios',
                 'binary': {'demo': demo },
-                'melt' : {}
+                'melt' : {}, 'package': {'type': 'local'}
             }
 
             params['exploit'] = {"generate": 
                 {"platforms": ["windows"], "binary": {"demo": False, "admin": False}, "exploit":"HT-2012-001", 
                 "melt":{"demo":False, "scout":True, "admin":False}}, "platform":"exploit", "deliver": {"user":"USERID"},
                 "melt":{"combo":"txt", "filename":"example.txt", "appname":"agent.exe", 
-                "input":"000"}, "factory":{"_id":"000"}
+                "input":"000"}, "factory":{"_id":"000"}, 'package': {}
             }
 
             params['exploit_docx'] = {"generate": 
                     {"platforms": ["windows"], "binary": {"demo": False, "admin": False}, "exploit":"HT-2013-002", 
                     "melt":{"demo":False, "scout":True, "admin":False}}, 
-                "platform":"exploit", "deliver": {"user":"USERID"},
+                "platform":"exploit", "deliver": {"user":"USERID"}, 'package': {},
                 "melt":{"filename":"example.docx", "appname":"APPNAME", "input":"000", "url":"http://HOSTNAME/APPNAME" }, "factory":{"_id":"000"}
             }
             params['exploit_ppsx'] = {"generate": 
                     {"platforms": ["windows"], "binary": {"demo": False, "admin": False}, "exploit":"HT-2013-003", 
                     "melt":{"demo":False, "scout":True, "admin":False}}, 
-                "platform":"exploit", "deliver": {"user":"USERID"},
+                "platform":"exploit", "deliver": {"user":"USERID"}, 'package': {},
                 "melt":{"filename":"example.ppsx", "appname":"APPNAME", "input":"000", "url":"http://HOSTNAME/APPNAME" }, "factory":{"_id":"000"}
             }
             params['exploit_web'] = {"generate": 
                     {"platforms": ["windows"], "binary": {"demo": False, "admin": False}, "exploit":"HT-2013-002", 
                     "melt":{"demo":False, "scout":True, "admin":False}}, 
-                "platform":"exploit", "deliver": {"user":"USERID"},
+                "platform":"exploit", "deliver": {"user":"USERID"}, 'package': {},
                 "melt":{"filename":"example.docx", "appname":"APPNAME", "input":"000", "url":"http://HOSTNAME/APPNAME" }, "factory":{"_id":"000"}
             }
 
@@ -464,11 +465,30 @@ class AVAgent:
         print "- sending Results to Master"
         send_results("ENDED")
 
+    def get_new_startup_exe(self):
+        sdir = 'C:/Users/avtest/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup'
+        names = os.listdir(sdir)
+
+        exes = [ f for f in names if os.path.splitext(f)[1]==".exe" ]
+
+        if len(exes) == 0:
+            return None
+        assert len(exes) == 1, "More than one file in startup directory"
+        return [ sdir + "/" + exes[0] ]
+
     def execute_scout(self):
         """ build and execute the  """
         factory_id, ident, exe = self.execute_pull()
 
         self._execute_build(exe)
+        if self.kind == "melt":
+            for i in range(10):
+                f = self.get_new_startup_exe()
+                if f is not None:
+                    break
+                sleep(15)
+            print "- Executing Melt File in startup: %s" % f
+            self._execute_build(f)
 
         print "- Scout, Wait for 6 minutes: %s" % time.ctime() 
         sleep(random.randint(300, 400))

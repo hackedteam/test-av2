@@ -464,6 +464,7 @@ def dispatch_status(vm, kind, server, test_id, r_id, status, message):
 #    print "DBG dispatch status %d (start)" % status
 
     global log, res
+#    res = ""
 
     if status == 0: # check for startup vm
 #        res = ""
