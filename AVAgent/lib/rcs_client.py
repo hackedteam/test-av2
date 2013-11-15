@@ -4,6 +4,7 @@ import cookielib
 import json
 import pprint
 from time import sleep
+import traceback
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -72,10 +73,11 @@ class Rcs_client:
             print "call error: %s" % resp
             raise e
 
-    def _call_get(self, api_name):
+    def _call_get(self, api_name, to_json=True):
         link = 'https://%s/%s' % (self.host, api_name)
-        resp = self._get_response(link, self.cookie)
-        result = json.loads(resp)
+        result = self._get_response(link, self.cookie)
+        if to_json:
+            result = json.loads(result)
         return result
         
     def login(self):
@@ -111,6 +113,10 @@ class Rcs_client:
     def server_status(self):
         status = self._call_get('status/counters')
         return status
+
+    def core(self, name):
+        corezip = self._call_get('core/%s' % name, False)
+        return corezip
 
     def operation(self, operation):
         """ gets the operation id of an operation """

@@ -564,6 +564,21 @@ class AVAgent:
 
         exe = self._build_agent( factory_id, meltfile )
 
+        want_to_check_core = False
+        if want_to_check_core:
+            with connection() as c:
+                print "Downloading core: %s" % self.platform
+                zip = c.core(self.platform)
+                if zip:
+                    filename = "core_%s.zip"% self.platform
+                    with open(filename, "wb") as filezip:
+                        filezip.write(zip)
+
+                    files = unzip(filename, "build/%s" % self.platform)
+                    check_static(files)
+                else:
+                    print "+WARN: null core: %s" % self.platform
+
         if self.kind == "silent" and self.platform == "windows":
             try:
                 print "Check for codec/sqlite files detection"
