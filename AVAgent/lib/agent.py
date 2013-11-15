@@ -69,6 +69,45 @@ def check_internet(address, queue):
 
     queue.put(ret)
 
+def check_static(files):
+    success = []
+    failed = []
+    for content in files:
+        print "DBG: check_static: %s" % content
+        dst = content.split("/")
+
+        src_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
+        dst_dir = "C:\\Users\\avtest\\Desktop\\AVTEST\\copy"
+
+        for i in range(0,(len(dst)-1)):
+            src_dir += "\\%s" % dst[i]
+            dst_dir += "\\%s" % dst[i]
+
+        if not os.path.exists(dst_dir):
+            os.makedirs(dst_dir)
+
+        src_exe = "%s\\%s" % (src_dir,dst[-1])
+        if "exe" not in src_exe or "bat" not in src_exe or "dll" not in src_exe:
+            dst_exe = "%s\\%s.exe" % (dst_dir,dst[-1])
+        else:
+            dst_exe = "%s\\%s" % (dst_dir,dst[-1])
+
+        print "Copying %s to %s" % (src_exe, dst_exe)
+        try:
+            shutil.copy(src_exe, dst_exe)
+
+            if os.path.exists(dst_exe) and os.path.exists(src_exe):
+                success.append(src_exe)
+            else:
+                failed.append(src_exe)
+        except:
+            failed.append(src_exe)
+
+    if not failed:
+        print "+ SUCCESS CHECK_STATIC: %s" % success
+    else:
+        print "+ FAILED CHECK_STATIC. SIGNATURE DETECTION: %s" % failed
+    return failed
 
 def internet_on():
     ips = [ '87.248.112.181', '173.194.35.176', '176.32.98.166', 'www.reddit.com', 'www.bing.com', 'www.facebook.com','stackoverflow.com']
@@ -260,40 +299,15 @@ class AVAgent:
                 contentnames = unzip(filename, "build/%s" % self.platform)
 
                 # CHECK FOR DELETED FILES
+                failed = check_static(contentnames)
 
-                for content in contentnames:
-                    dst = content.split("/")
+                if not failed:
+                    print "+ SUCCESS SCOUT BUILD"
+                    return [n for n in contentnames if n.endswith('.exe')]
+                else:
+                    print "+ FAILED SCOUT BUILD. SIGNATURE DETECTION: %s" % failed
+                    send_results("ENDED")
 
-                    src_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
-                    dst_dir = "C:\\Users\\avtest\\Desktop\\AVTEST\\copy"
-
-                    for i in range(0,(len(dst)-1)):
-                        src_dir += "\\%s" % dst[i]
-                        dst_dir += "\\%s" % dst[i]
-
-                    if not os.path.exists(dst_dir): 
-                        os.makedirs(dst_dir)
-
-                    src_exe = "%s\\%s" % (src_dir,dst[-1])
-                    if "exe" not in src_exe or "bat" not in src_exe or "dll" not in src_exe:
-                        dst_exe = "%s\\%s.exe" % (dst_dir,dst[-1])
-                    else:
-                        dst_exe = "%s\\%s" % (dst_dir,dst[-1])
-
-                    print "Copying %s to %s" % (src_exe, dst_exe)
-                    try:
-                        shutil.copy(src_exe, dst_exe)
-
-                        if os.path.exists(dst_exe) and os.path.exists(src_exe):
-                            print "+ SUCCESS SCOUT BUILD"
-                            return [n for n in contentnames if n.endswith('.exe')]
-                        else:
-                            print "+ FAILED SCOUT BUILD. SIGNATURE DETECTION: %s" % src_exe
-                            send_results("ENDED")
-                    except:
-                        print "+ FAILED SCOUT BUILD. SIGNATURE DETECTION: %s" % src_exe
-                        send_results("ENDED")
-                        return 
             except HTTPError as err:
                 print "DBG trace %s" % traceback.format_exc()
                 if tries <= 3:
@@ -665,7 +679,7 @@ def execute_agent(args, level, platform):
     vmavtest = AVAgent( args.backend, args.frontend , platform, args.kind, ftype, args.blacklist )
 
     """ starts a scout """
-    if socket.gethostname() != 'zenovm':
+    if socket.gethostname() not in ['zenovm', 'Win7-NoAV'] and not args.ignore_internet:
         if not internet_checked and internet_on():
             print "+ ERROR: I reach Internet"
             send_results("ENDED")
@@ -760,6 +774,7 @@ def main():
     parser.add_argument('-f', '--frontend')
     parser.add_argument('-k', '--kind', choices=['silent', 'melt'])
     parser.add_argument('-v', '--verbose', action='store_true', default=False, help="Verbose")
+    parser.add_argument('-i', '--ignore_internet', action='store_true', default=False, help="Ignore internet test")
 
     parser.set_defaults(blacklist =  blacklist)
     parser.set_defaults(platform_type =  platform_type)
