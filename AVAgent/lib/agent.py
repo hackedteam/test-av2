@@ -466,15 +466,16 @@ class AVAgent:
         send_results("ENDED")
 
     def get_new_startup_exe(self):
-        sdir = 'C:/Users/avtest/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup'
-        names = os.listdir(sdir)
-
-        exes = [ f for f in names if os.path.splitext(f)[1]==".exe" ]
-
-        if len(exes) == 0:
-            return None
-        assert len(exes) == 1, "More than one file in startup directory"
-        return [ sdir + "/" + exes[0] ]
+        sdirs = ['C:/Users/avtest/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup',
+                 'C:/Documents and Settings/avtest/Start Menu/Programs/Startup']
+        for sdir in sdirs:
+            if os.path.exists(sdir):
+                names = os.listdir(sdir)
+                exes = [ f for f in names if os.path.splitext(f)[1]==".exe" ]
+                if len(exes) > 0:
+                    assert len(exes) == 1 or "Buddy" not in exes, "More than one file in startup directory"
+                    return [ sdir + "/" + exes[0] ]
+        return None
 
     def execute_scout(self):
         """ build and execute the  """
