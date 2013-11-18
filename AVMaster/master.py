@@ -29,7 +29,7 @@ logdir = ""
 test_id = -1
 status = 0
 log = ""
-res = ""
+#res = ""
 
 vmman = VMRun(vm_conf_file)
 
@@ -234,7 +234,8 @@ def save_screenshot(vm, result_id):
 def save_logs(result_id, log):
     try:
         result = Result.query.filter_by(id=result_id).first_or_404()
-        result.log = log
+#        result.log = "%s".join(log) % result.log
+        result.log = "%s, %s" % (result.log, log)
         db.session.commit()
     except Exception as e:
         print "DBG failed saving results log. Exception: %s" % e
@@ -333,10 +334,11 @@ def dispatch(flargs):
         print "DBG trace %s" % traceback.format_exc()
         return {'ERROR': e}
 
-def dispatch_kind(vm_name, kind, args, r_id=None, tries=0, status=0):
-
+def dispatch_kind(vm_name, kind, args, r_id=None, res=None, tries=0, status=0):
     #global status, test_id
-    global test_id, res
+    global test_id #, res
+    if res is None or status == 0:
+        res = "%s, %s, ERROR GENERAL" % (vm_name, kind)
 
     #   PREPARE FILES
 
@@ -379,8 +381,6 @@ def dispatch_kind(vm_name, kind, args, r_id=None, tries=0, status=0):
     elif kind == "mobile" or "exploit_" in kind:
         max_minute = 5  
 
-    res = "%s, %s, ERROR GENERAL" % (vm_name, kind)
-
     vm = VMachine(vm_conf_file, vm_name)
     job_log(vm.name, "DISPATCH %s" % kind)
 
@@ -413,7 +413,7 @@ def dispatch_kind(vm_name, kind, args, r_id=None, tries=0, status=0):
             try:
                 print "DBG message on chan %s: %s"  % (m['channel'], m['data'])
                 print "DBG status: %d, vm: %s, kind: %s, passing msg '%s'" % (status,vm.name,kind,m['data'])
-                status = dispatch_status(vm, kind, args.server, test_id, result_id, status, m['data'])
+                status, res = dispatch_status(vm, kind, args.server, test_id, result_id, res, status, m['data'])
                 
                 if status == 4:
                     print "DBG STATUS 4"
@@ -430,9 +430,7 @@ def dispatch_kind(vm_name, kind, args, r_id=None, tries=0, status=0):
                     # suspend & refresh snapshot
                     vm.shutdown()
                     job_log(vm.name, "SUSPENDED %s" % kind)
-
-                    return "%s, %s, %s" % (vm.name, kind, res)
-
+                    return res
             except TypeError:
                 pass
     except ConnectionError:
@@ -442,29 +440,21 @@ def dispatch_kind(vm_name, kind, args, r_id=None, tries=0, status=0):
             status = 0
             tries += 1
             if tries < 2:
-                return dispatch_kind(vm_name, kind, args, result_id, tries, status)
+                return dispatch_kind(vm_name, kind, args, result_id, res, tries, status)
             else:
-    #        dispatch_status(vm, kind, args.server, test_id, r_id, status, m['data'])
-    #            return "%s, %s, ERROR NOT EXECUTED" % (vm.name, kind)
                 upd_record_result(result_id, result="ERROR NOT EXECUTED")
-                res = "+ ERROR NOT STARTED"
-                return "%s, %s, %s" % (vm.name, kind, res)
+                res = "%s, %s, ERROR NOT EXECUTED" % (vm.name, kind)
+                return res
         else:
             print "DBG ERROR: ConnectionError test %s %s not started" % (vm_name, kind)
             upd_record_result(result_id, result="ERROR NOT EXECUTED")
-            res = "+ ERROR NOT STARTED"
-            return "%s, %s, %s" % (vm.name, kind, res)
-        """
-        print "DBG ERROR: ConnectionError test %s %s not started" % (vm_name, kind)
-        upd_record_result(result_id, result="ERROR NOT EXECUTED")
-        res = "+ ERROR NOT STARTED"
-        return "%s, %s, %s" % (vm.name, kind, res)
-        """
-def dispatch_status(vm, kind, server, test_id, r_id, status, message):
-#    print "DBG dispatch status %d (start)" % status
+            res = "%s, %s, ERROR NOT EXECUTED" % (vm.name, kind)
+            return res
 
-    global log, res
-#    res = ""
+def dispatch_status(vm, kind, server, test_id, r_id, res, status, message):
+#    print "DBG dispatch status %d (start)" % status
+    test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
+    global log
 
     if status == 0: # check for startup vm
 #        res = ""
@@ -505,7 +495,6 @@ def dispatch_status(vm, kind, server, test_id, r_id, status, message):
             filestocopy.append("assets/sqlite_mod")
 
         #test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST\\build"
-        test_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
         copy_to_guest(vm, test_dir, filestocopy)
 
         job_log(vm.name, "ENVIRONMENT")
@@ -565,12 +554,15 @@ def dispatch_status(vm, kind, server, test_id, r_id, status, message):
         else:
             #   SAVING LOGS
 
-            if log is "":
-                log = str(message)
-                save_logs(r_id, log)
-            else:
-                log += ", %s" % str(message)
-                save_logs(r_id, log)
+#            if log is "":
+#                log = str(message)
+#                save_logs(r_id, log)
+#            else:
+#                log += ", %s" % str(message)
+#                save_logs(r_id, log)
+
+            log = str(message)
+            save_logs(r_id, log)
 
             # SAVING CURRENT RESULT
 
@@ -594,7 +586,7 @@ def dispatch_status(vm, kind, server, test_id, r_id, status, message):
                     #os.system('sudo rm -fr %s') % build_zip_dst
                 else:
                     print "sample NOT SAVED on db"
-    return status
+    return status, res
 
 def push(flargs):
     vm_name, args = flargs
