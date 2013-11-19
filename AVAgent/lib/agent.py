@@ -497,10 +497,11 @@ class AVAgent:
 
         self._execute_build(exe)
         if self.kind == "melt":
-            for i in range(10):
+            for i in range(0,10):
                 f = self.get_new_startup_exe()
                 if f is not None:
                     break
+                print "DBG file not found, sleeping.."
                 sleep(15)
             print "- Executing Melt File in startup: %s" % f
             self._execute_build(f)
