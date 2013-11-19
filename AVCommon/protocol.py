@@ -17,7 +17,7 @@ class ProtocolClient:
         self.timeout = 0
 
         assert(isinstance(vm, str))
-        assert(isinstance(mq, MQStar))
+        assert mq
 
     def _execute_command(self, cmd):
         try:
@@ -34,6 +34,16 @@ class ProtocolClient:
         self.send_answer(cmd)
         return cmd
 
+
+    def _meta(self, cmd):
+        if config.verbose:
+            logging.debug("PROTO S executing meta")
+        ret = cmd.execute( self.vm, (self, cmd.payload) )
+        cmd.success, cmd.payload = ret
+        assert isinstance(cmd.success, bool)
+        self.send_answer(cmd)
+        return cmd
+
     # client side
     def receive_command(self):
         assert(isinstance(self.vm, str))
@@ -44,7 +54,11 @@ class ProtocolClient:
         cmd = command.unserialize(msg)
         cmd.vm = self.vm
 
-        return self._execute_command(cmd)
+
+        if cmd.side == "meta":
+            return self._meta(cmd)
+        else:
+            return self._execute_command(cmd)
 
     def send_answer(self, reply):
         if config.verbose:
@@ -63,7 +77,7 @@ class Protocol(ProtocolClient):
         self.vm = vm
         self.procedure = copy.deepcopy(procedure)
         assert (isinstance(vm, str))
-        assert (isinstance(mq, MQStar))
+        assert mq
 
     # server side
     def _send_command_mq(self, cmd):
@@ -78,14 +92,6 @@ class Protocol(ProtocolClient):
         if blocking:
             t.join()
 
-    def _meta(self, cmd):
-        if config.verbose:
-            logging.debug("PROTO S executing meta")
-        ret = cmd.execute( self.vm, (self, cmd.payload) )
-        cmd.success, cmd.payload = ret
-        assert isinstance(cmd.success, bool)
-        self.send_answer(cmd)
-        return cmd
 
     #def next(self):
     #    logging.debug("next")
