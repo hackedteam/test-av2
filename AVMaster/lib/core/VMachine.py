@@ -3,12 +3,11 @@ import logging
 
 from time import sleep
 from ConfigParser import ConfigParser, NoSectionError
-from pysphere.resources.vi_exception import VIException
+from pysphere.resources.vi_exception import VIException, VIApiException
 from datetime import datetime
 
 #from VMManager import vSphere
 from VMRun import vSphere
-
 
 class VMachine:
 
@@ -183,6 +182,9 @@ class VMachine:
             try:
                 self._run_vm(vm, "login_in_guest", self.user, self.passwd)
                 return self._run_vm(vm, "list_files", dir_path)
+#            except VIApiException:
+#                logging.error("path %s is not found on vm %s") % (dir_path, vm)
+#                raise Exception("path %s is not found on vm %s" % (dir_path, vm))
             except Exception as e:
                 print "EXCEPTION %s" % e
                 return None

@@ -7,7 +7,7 @@ from AVMaster import vm_manager
 
 def execute(vm, args):
     """ server side """
-    infected = True # VM IS NOT INFECTED!! TEST CAN CONTINUE!!!
+    clean = True # VM IS NOT INFECTED!! TEST CAN CONTINUE!!!
 
     logging.debug("    CS Execute")
     assert vm, "null vm"
@@ -19,9 +19,9 @@ def execute(vm, args):
         out = vm_manager.execute(vm, "list_directory", d)
         print out
         if out is not None:
-            infected = False
+            clean = False
 
-    if infected is True:
+    if clean is True:
         return True, "VM is not infected"
     else:
         return False, "VM is INFECTED!!!!"

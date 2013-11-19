@@ -90,8 +90,12 @@ ZLEEP:
     - SLEEP: 120
 
 T_IS:
-#    - CHECK_INFECTION
+    - CHECK_INFECTION
+    - SLEEP:
+        - 10
+        - 20
     - CHECK_SHUTDOWN
+    - SLEEP: 5
 """
     procedures = Procedure.load_from_yaml(yaml)
  
