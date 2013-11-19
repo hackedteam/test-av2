@@ -636,14 +636,15 @@ def execute_agent(args, level, platform):
     else:
         if vmavtest.create_user_machine():
             logging.debug("+ SUCCESS USER CONNECT")
-            if not vmavtest.server_errors():
-                logging.debug("+ SUCCESS SERVER CONNECT")
-                action = {"elite": vmavtest.execute_elite, "scout":
-                          vmavtest.execute_scout, "pull": vmavtest.execute_pull}
-                sleep(5)
-                action[level]()
-            else:
-                logging.debug("+ ERROR SERVER ERRORS")
+            if vmavtest.server_errors():
+                logging.debug("+ WARN SERVER ERRORS")
+
+            logging.debug("+ SUCCESS SERVER CONNECT")
+            action = {"elite": vmavtest.execute_elite, "scout":
+                      vmavtest.execute_scout, "pull": vmavtest.execute_pull}
+            sleep(5)
+            action[level]()
+
         else:
             logging.debug("+ ERROR USER CREATE")
 
