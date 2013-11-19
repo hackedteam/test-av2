@@ -1,5 +1,5 @@
 SET_BUILD_PARAMS:
-    SET:
+    - SET:
         android:
           binary: {admin: false, demo: true}
           melt: {}
@@ -70,18 +70,17 @@ SET_BUILD_PARAMS:
           sign: {}
 
 SET_DEFAULTS:
-    - CALL: SET_BUILD_PARAMS
     - SET:
         backend: 192.168.100.201
         frontend: 172.20.100.204
         redis: 10.0.20.1
+    - CALL: SET_BUILD_PARAMS
 
 TEST:
-    - BEGIN
     - START_AGENT
-    - BUILD: [ windows, scout ]
+    - CALL: SET_DEFAULTS
+    - BUILD: [ silent, windows, scout ]
     - STOP_AGENT
-    - END
 
 UPLOAD_AGENT:
     - PUSH:
@@ -94,14 +93,14 @@ UPLOAD_AGENT:
 UPDATE:
     - REVERT
     - START_VM
-    - SLEEP:180
+    - SLEEP: 180
     - CALL: UPLOAD_AGENT
-    - INTERNET:True
-    - SLEEP:3600
-    - INTERNET:False
+    - INTERNET: True
+    - SLEEP: 3600
+    - INTERNET: False
     - STOP_VM
     - START_VM
-    - SLEEP:180
+    - SLEEP: 180
     - STOP_VM
     - REFRESH_SNAPSHOT
 
