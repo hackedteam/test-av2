@@ -24,11 +24,20 @@ def execute(vm, args):
 
     backend = command.context["backend"]
     frontend = command.context["frontend"]
-    redis = command.context["redis"]
+    params = command.context["build_parameters"]
+    blacklist = command.context["blacklist"]
 
+    logging.debug("args: %s", args)
     action, platform, kind = args
 
-    ret = build.build(action, platform, kind, backend, frontend)
+    param = params[platform]
+    platform_type = param['platform_type']
+
+    assert kind in ['silent', 'melt'], "kind: %s" % kind
+    assert action in ['scout', 'elite', 'internet', 'test', 'clean', 'pull'], "action: %s" % action
+    assert platform_type in ['desktop', 'mobile'], "platform_type: %s" % platform_type
+
+    ret = build.build(action, platform, platform_type, kind, param, backend, frontend, blacklist)
 
     time.sleep(10)
     logging.debug("stop sleeping")

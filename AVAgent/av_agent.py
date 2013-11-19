@@ -15,10 +15,9 @@ from AVCommon.procedure import Procedure
 commands = ['BUILD', 'GET', 'SET']
 
 class MQFeedProcedure(object):
-    def __init__(self, proc):
-        self.proc = proc
+    protocol=None
     def receive_client(self, client, blocking=False, timeout=60):
-        cmd = self.proc.next_command()
+        cmd = self.protocol.procedure.next_command()
         logging.debug("receive_client: %s, %s" % (client, cmd))
         return cmd.serialize()
     def send_client(self,  client, message):
@@ -40,11 +39,17 @@ class AVAgent(object):
         command.init()
         logging.debug("vm: %s host: %s session: %s" % (self.vm, self.host, session))
 
-    def start_agent(self, mq=None):
+    def start_agent(self, mq=None, procedure=None):
         if not mq:
             mq = MQStar(self.host, self.session)
+            pc = Protocol(mq, self.vm)
+        else:
+            assert procedure
+            pc = Protocol(mq, self.vm, procedure=procedure)
+            mq.protocol = pc
         mq.add_client(self.vm)
-        pc = Protocol(mq, self.vm)
+
+        logging.debug("mq: %s pc:%s" % (mq.protocol.procedure, pc.procedure))
 
         logging.info("start receiving commands")
         exit = False
@@ -82,12 +87,15 @@ if __name__ == "__main__":
     args = parser.parse_args()
     logging.debug(args)
 
+    mq = None
+    procedure = None
     if args.procedure and args.procedure_file:
         logging.info("Procedure %s" % args.procedure)
         path = os.getcwd()
-        proc = Procedure.load_from_file(args.procedure_file)
-        logging.debug("%s" % proc)
-        mq = MQFeedProcedure(proc[args.procedure])
+        procs = Procedure.load_from_file(args.procedure_file)
+        logging.debug("%s" % procs)
+        procedure = procs[args.procedure]
+        mq = MQFeedProcedure()
 
     avagent = AVAgent(args.vm, args.redis, args.session)
-    avagent.start_agent(mq)
+    avagent.start_agent(mq, procedure)
