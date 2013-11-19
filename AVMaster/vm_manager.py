@@ -22,7 +22,7 @@ def execute(vm_name, cmd, *args):
     vmachine_cmds = [ "startup", "shutdown", "reboot",
                       "get_snapshots", "revert_last_snapshot", "revert_to_snapshot", "create_snapshot", "delete_snapshot",
                       "is_powered_on", "is_powered_off", "get_status",
-                      "make_directory", "get_file", "send_file" ]
+                      "list_directory", "make_directory", "get_file", "send_file" ]
     # vmware tools
     vmrun_cmds = [ "runTest", "takeScreenshot",
                    "mkdirInGuest", "copyFileToGuest", "copyFileFromGuest",

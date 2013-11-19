@@ -179,22 +179,26 @@ class VMachine:
     #   VM
 
     def list_directory(self, dir_path):
-        with vSphere(self.path) as vm:
-            self._run_vm(vm, "login_in_guest", self.user, self.passwd)
-            return self._run_vm(vm, "list_files", dir_path)
+        with vSphere(self.path, self.sdkhost, self.sdkuser, self.sdkdomain, self.sdkpasswd) as vm:
+            try:
+                self._run_vm(vm, "login_in_guest", self.user, self.passwd)
+                return self._run_vm(vm, "list_files", dir_path)
+            except Exception as e:
+                print "EXCEPTION %s" % e
+                return None
 
     def make_directory(self, dst_dir):
-        with vSphere(self.path) as vm:
+        with vSphere(self.path, self.sdkhost, self.sdkuser, self.sdkdomain, self.sdkpasswd) as vm:
             self._run_vm(vm, "login_in_guest", self.user, self.passwd)
             return self._run_vm(vm, "make_directory", dst_dir)
 
     def send_file(self, src_file, dst_file):
-        with vSphere(self.path) as vm:
+        with vSphere(self.path, self.sdkhost, self.sdkuser, self.sdkdomain, self.sdkpasswd) as vm:
             self._run_vm(vm, "login_in_guest", self.user, self.passwd)
             return self._run_vm(vm, "send_file", src_file, dst_file)
 
     def get_file(self, src_file, dst_file):
-        with vSphere(self.path) as vm:
+        with vSphere(self.path, self.sdkhost, self.sdkuser, self.sdkdomain, self.sdkpasswd) as vm:
             self._run_vm(vm, "login_in_guest", self.user, self.passwd)
             return self._run_vm(vm, "get_file", src_file, dst_file)
 

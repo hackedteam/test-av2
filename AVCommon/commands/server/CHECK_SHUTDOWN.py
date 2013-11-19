@@ -10,8 +10,6 @@ def execute(vm, args):
     logging.debug("    CS Execute")
     assert vm, "null vm"
 
-    ret = vm_manager.execute(vm, "shutdown")
-    if ret == 0:
-        return True, "Stopped VM"
-    else:
-        return False, "Not Stopped VM"
+    if vm_manager.execute(vm, "is_powered_off"):
+        return True, "%s VM is stopped" % vm
+    return False, "%s VM isn't stopped" % vm

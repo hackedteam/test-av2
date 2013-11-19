@@ -88,6 +88,10 @@ UPDATE:
 
 ZLEEP:
     - SLEEP: 120
+
+T_IS:
+#    - CHECK_INFECTION
+    - CHECK_SHUTDOWN
 """
     procedures = Procedure.load_from_yaml(yaml)
  
@@ -118,7 +122,7 @@ ZLEEP:
     dispatcher.dispatch(procedures["UPDATE"])
     '''
     logging.info("STARTING TEST 5")
-    dispatcher.dispatch(procedures["TEST5"])
+    dispatcher.dispatch(procedures["T_IS"])
 #    '''
 if __name__ == '__main__':
     logging.config.fileConfig('../logging.conf')
