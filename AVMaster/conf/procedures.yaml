@@ -107,14 +107,18 @@ UPLOAD_AGENT:
         - c:\\
 
 UPDATE:
+    - INTERNET: False
     - REVERT
+    - SLEEP: [10, 180]
     - START_VM
     - SLEEP: 180
-    - CALL: UPLOAD_AGENT
+    - CHECK_INFECTION
     - INTERNET: True
     - SLEEP: 3600
     - INTERNET: False
-    - STOP_VM
+    - CALL: UPLOAD_AGENT
+    - EXECUTE_VM: shutdown.bat
+    - CHECK_SHUTDOWN
     - START_VM
     - SLEEP: 180
     - STOP_VM

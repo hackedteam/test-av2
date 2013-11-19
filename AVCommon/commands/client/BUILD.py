@@ -9,16 +9,11 @@ from AVAgent import build
 
 def on_init(vm, args):
     """ server side """
-    logging.debug("    CS on_init")
-
-    #TODO: push files on client
-    assert vm, "null vm"
-
+    pass
 
 def on_answer(vm, success, answer):
     """ server side """
-    logging.debug("    CS on_answer")
-    assert vm, "null vm"
+    pass
 
 
 def execute(vm, args):
