@@ -92,9 +92,15 @@ def test_ProtocolCall():
     c = "client1"
     mq.add_client(c)
 
-    yaml = """BASIC:
+    yaml = """
+
+HELLO:
+    - EVAL_SERVER: 3+2
+
+BASIC:
     - BEGIN
     - EVAL_SERVER: dir()
+    - CALL: HELLO
 
 CALLER:
     - CALL: BASIC
@@ -129,9 +135,9 @@ CALLER:
             logging.debug("- SERVER RECEIVED empty")
             exit = True
 
-    assert answers == 5, "wrong answers: %s" % answers
+    assert answers == 7, "wrong answers: %s" % answers
 
 if __name__ == '__main__':
     logging.config.fileConfig('../logging.conf')
-    test_ProtocolEval()
+    #test_ProtocolEval()
     test_ProtocolCall()
