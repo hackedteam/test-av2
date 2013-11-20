@@ -7,8 +7,8 @@ sys.path.append(os.path.split(os.getcwd())[0])
 sys.path.append(os.getcwd())
  
 from AVCommon.mq import MQStar
-from av_machine import AVMachine
-from AVCommon import command
+#from av_machine import AVMachine
+from AVCommon.protocol import Protocol
 
 
 class Dispatcher(object):
@@ -31,15 +31,16 @@ class Dispatcher(object):
         self.num_commands = len(procedure)
 
         av_machines = {}
-        for c in self.vms:
-            av_machines[c] = AVMachine(self.mq, c, procedure)
+        for vm in self.vms:
+            av_machines[vm] = Protocol(self.mq, vm, procedure)
  
-        for a in av_machines.values():
+        for p in av_machines.values():
             #a.start()
-            self.mq.clean(a)
-            r, c = a.execute_next_command()
+            self.mq.clean(p)
+            r = p.send_next_command()
+            c = p.last_command
             if self.report:
-                self.report.sent(a.name, str(c))
+                self.report.sent(p, str(c))
             logging.debug("- SERVER SENT: %s" % c)
  
         ended = 0
@@ -49,8 +50,8 @@ class Dispatcher(object):
             if rec is not None:
                 logging.debug("- SERVER RECEIVED %s %s" % (rec, type(rec)))
                 c, msg = rec
-                m = av_machines[c]
-                answer = m.manage_answer(msg)
+                p = av_machines[c]
+                answer = p.receive_answer(c, msg)
                 if self.report:
                     self.report.received(c, msg)
                 answered += 1
@@ -59,9 +60,10 @@ class Dispatcher(object):
                     ended += 1
                     logging.debug("- SERVER RECEIVE END")
                 elif answer.success:
-                    r, cmd = av_machines[c].execute_next_command()
+                    r = p.send_next_command()
+                    cmd = p.last_command
                     if self.report:
-                        self.report.sent(a.name, str(cmd))
+                        self.report.sent(p.vm, str(cmd))
                     logging.debug("- SERVER SENT: %s, %s" % (c, cmd))
                 else:
                     ended += 1
@@ -72,6 +74,6 @@ class Dispatcher(object):
                 exit = True
  
         logging.debug("answered: %s, ended: %s, num_commands: %s" %( answered, ended, self.num_commands))
-        assert (ended == len(self.vms))
+        assert ended == len(self.vms), "answered: %s, ended: %s, num_commands: %s" %( answered, ended, len(self.vms))
         #assert answered >= (len(self.vms) * (self.num_commands)), "answered: %s, len(vms): %s, num_commands: %s" % (answered , len(self.vms), self.num_commands)
         return answered

@@ -77,6 +77,10 @@ def start_agent(args):
     avagent = AVAgent(vm, redis, session)
     avagent.start_agent()
 
+def start_agent_args(vm, redis, session):
+    avagent = AVAgent(vm, redis, session)
+    avagent.start_agent()
+
 if __name__ == "__main__":
     logging.config.fileConfig('../logging.conf')
 

@@ -79,6 +79,8 @@ class Protocol(ProtocolClient):
         assert (isinstance(vm, str))
         assert mq
 
+        mq.add_client(vm)
+
     # server side
     def _send_command_mq(self, cmd):
         cmd.on_init(self.vm, cmd.payload)
@@ -122,6 +124,7 @@ class Protocol(ProtocolClient):
             return True
         except Exception, ex:
             logging.error("Error sending command %s: %s" % (cmd, ex))
+            logging.error(traceback.format_exc(ex))
             return False
 
     def receive_answer(self, vm, msg):

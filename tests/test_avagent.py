@@ -16,11 +16,22 @@ from AVMaster import vm_manager
 from AVAgent import av_agent
 
 from AVMaster.report import Report
+from AVCommon import command
+
+import time
+
+def on_init(vm, args):
+    pass
+
+command.init()
+command.known_commands['START_AGENT'].on_init= on_init
 
 def test_avagent_create():
     host = "localhost"
 
     vms = [ "testvm_%d" % i for i in range(10) ]
+
+
 
     test = Procedure("TEST", ["BEGIN", "START_AGENT", ("EVAL_CLIENT", None, 'self.vm'), "STOP_AGENT", "END"])
 
@@ -38,7 +49,7 @@ def test_avagent_create():
 def test_avagent_get_set():
     host = "localhost"
 
-    vms = [ "testvm_%d" % i for i in range(10) ]
+    vms = [ "testvm_%d" % i for i in range(100) ]
 
     #command_client={   'COMMAND_CLIENT': [{   'SET': [   'windows'                                 'whatever']}]}
 
@@ -81,13 +92,20 @@ TEST:
     #p.start()
 
     # i client vengono eseguiti asincronicamente e comunicano tramite redis al server
-    pool = Pool(len(vms))
-    r = pool.map_async(av_agent.start_agent, ( (v, host, mq.session) for v in vms) )
-    r.get() #notare che i results dei client non ci interessano, viaggia tutto su channel/command.
+    #pool = Pool(len(vms))
+    #r = pool.map_async(av_agent.start_agent, ( (v, host, mq.session) for v in vms) )
+    #r.get() #notare che i results dei client non ci interessano, viaggia tutto su channel/command.
+
+    for v in vms:
+        t = threading.Thread(target=av_agent.start_agent_args,  args=(v, host, mq.session)  )
+        t.start()
+        #p = Process(target=av_agent.start_agent, args=( tuple([v, host, mq.session,])))
+        #p.start()
 
     # chiusura del server
     #p.join()
     thread.join()
+
 
     logging.debug(dispatcher.report)
     logging.debug("sent: %s" % dispatcher.report.c_sent)
