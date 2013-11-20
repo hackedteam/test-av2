@@ -103,7 +103,7 @@ SET_DEFAULTS:
 
 UPLOAD_AGENT:
     - PUSH:
-        - [ logging.conf, AVAgent/*.py, AVAgent/assets/*, AVCommon/*.py, AVCommon/commands/client/*.py, AVCommon/commands/meta/*.py, AVCommon/commands/*.py,]
+        - [ logging.conf, AVAgent/*.py, AVCommon/*.py, AVCommon/commands/client/*.py, AVCommon/commands/meta/*.py, AVCommon/commands/*.py,]
         - /opt/AVTest2
         - c:\\AVTest
 
@@ -126,17 +126,10 @@ UPDATE:
     - REFRESH_SNAPSHOT
 
 DISPATCH:
+    - INTERNET: False
     - REVERT
     - START_VM
-    - UPDATE
-    - PUSH: [ file.sh, anotherfile.sh ]
-
-SCOUT:
-    - CALL: DISPATCH
-    - START_AGENT
-    - CALL: SET_DEFAULTS
-    - BUILD: [ scout, windows, silent ]
-    - STOP_AGENT
+    - CALL: UPLOAD_AGENT
 
 MANUAL_BUILD:
     - START_AGENT
@@ -152,17 +145,39 @@ ELITE:
     - BUILD: [ elite, windows, silent ]
     - STOP_AGENT
 
-STATIC:
-    - CALL: DISPATCH
+CHECK_SIGNATURE:
+    # check che era in windows/silent
+    - PUSH: [ AVAgent/assets/avtest.swf ]
+    - PUSH: [ AVAgent/assets/sqlite, AVAgent/assets/sqlite_mod, AVAgent/assets/codec, AVAgent/assets/codec_mod ]
+    #- WGET : [ http://172.20.100.204/exp_$VM_NAME$/avtest.swf, assets/file.swf ]
+    - PUSH: [ AVAgent/assets/config* ]
 
-
-TEST:
-    - START_AGENT
-    - CALL: SET_DEFAULTS
+    - CHECK_STATIC: [ AVAgent/assets/* ]
     - BUILD: [ pull, windows, silent ]
     - BUILD: [ pull, linux, silent ]
     - BUILD: [ pull, osx, silent ]
     - BUILD: [ pull, android, silent ]
     - BUILD: [ pull, blackberry, silent ]
     - BUILD: [ pull, ios, silent ]
+
+TEST:
+    - START_AGENT
+    - CALL: SET_DEFAULTS
+    #- CALL: CHECK_SIGNATURE
+    - PUSH: [ AVAgent/assets/config* ]
+    - BUILD: [ pull, android, silent ]
+    - BUILD: [ scout, windows, silent ]
     - STOP_AGENT
+
+TEST_SCOUT:
+    - CALL: SET_DEFAULTS
+    - BUILD: [ scout, windows, silent ]
+
+SCOUT:
+    - CALL: DISPATCH
+    - START_AGENT
+    - CALL: SET_DEFAULTS
+    - BUILD: [ scout, windows, silent ]
+    - SCREENSHOT
+    - STOP_AGENT
+    #- STOP_VM

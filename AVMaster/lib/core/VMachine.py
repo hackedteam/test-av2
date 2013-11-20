@@ -168,8 +168,16 @@ class VMachine:
         return self._run_cmd("terminate_process", pid)
 
     def list_processes(self):
-        self.login_in_guest()
-        return self._run_cmd("list_processes")
+        with vSphere(self.path, self.sdkhost, self.sdkuser, self.sdkdomain, self.sdkpasswd) as vm:
+            try:
+                self._run_vm(vm, "login_in_guest", self.user, self.passwd)
+                return self._run_vm(vm, "list_processes")
+#            except VIApiException:
+#                logging.error("path %s is not found on vm %s") % (dir_path, vm)
+#                raise Exception("path %s is not found on vm %s" % (dir_path, vm))
+            except Exception as e:
+                print "EXCEPTION %s" % e
+                return None
 
     # def check_tools(self):
     #   self.login_in_guest()

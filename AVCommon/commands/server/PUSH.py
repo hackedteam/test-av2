@@ -3,17 +3,22 @@ import sys
 import glob
 import logging
 
-from AVMaster import vm_manager
-
 def execute(vm, args):
     """ server side """
-    logging.debug("    CS PUSH")
-    assert vm, "null self.vm"
-    assert len(args) == 3 and isinstance(args, list), "PUSH expects a list of 3 elements"
+    from AVMaster import vm_manager
 
-    src_files, src_dir, dst_dir = args
-    if not src_dir:
-        src_dir = ""
+    logging.debug("    CS PUSH: %s" % str(args))
+    assert vm, "null self.vm"
+
+    assert isinstance(args, list)
+
+    if isinstance(args[0], list):
+        src_files, src_dir, dst_dir = args
+    elif isinstance(args[0], basestring):
+        src_files, src_dir, dst_dir = args, "/opt/AVTest2", "c:\\AVTest"
+    else:
+        raise RuntimeError("wrong arguments")
+
     assert isinstance(src_files, list), "PUSH expects a list of src files"
 
     all_src = []

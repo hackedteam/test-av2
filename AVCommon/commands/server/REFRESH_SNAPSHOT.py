@@ -2,10 +2,11 @@ import os
 import sys
 import logging
 
-from AVMaster import vm_manager
-
 def execute(vm, args):
     """ server side """
+
+    from AVMaster import vm_manager
+
     logging.debug("    CS Execute REFRESH SNAPSHOT")
     assert vm, "null vm"
 

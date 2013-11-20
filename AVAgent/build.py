@@ -29,6 +29,7 @@ MOUSEEVENTF_LEFTDOWN = 0x0002  # left button down
 MOUSEEVENTF_LEFTUP = 0x0004  # left button up
 MOUSEEVENTF_CLICK = MOUSEEVENTF_LEFTDOWN + MOUSEEVENTF_LEFTUP
 
+base_path = "C:\\AVTest"
 
 def unzip(filename, fdir):
     zfile = zipfile.ZipFile(filename)
@@ -65,6 +66,49 @@ def check_internet(address, queue):
 
     queue.put(ret)
 
+def check_static(files):
+    success = []
+    failed = []
+    for content in files:
+        logging.debug( "DBG: check_static: %s" % content )
+        dst = content.split("/")
+
+        src_dir = base_path
+        dst_dir = base_path+ "\\copy"
+
+        for i in range(0,(len(dst)-1)):
+            src_dir += "\\%s" % dst[i]
+            dst_dir += "\\%s" % dst[i]
+
+        if not os.path.exists(dst_dir):
+            os.makedirs(dst_dir)
+
+        src_exe = "%s\\%s" % (src_dir,dst[-1])
+        if "exe" not in src_exe or "bat" not in src_exe or "dll" not in src_exe:
+            dst_exe = "%s\\%s.exe" % (dst_dir,dst[-1])
+        else:
+            dst_exe = "%s\\%s" % (dst_dir,dst[-1])
+
+        if not os.path.exists(src_exe):
+            failed.append(src_exe)
+            logging.error("Not existent file: %s" % src_exe)
+        else:
+            logging.debug("Copying %s to %s" % (src_exe, dst_exe))
+            try:
+                shutil.copy(src_exe, dst_exe)
+
+                if os.path.exists(dst_exe) and os.path.exists(src_exe):
+                    success.append(src_exe)
+                else:
+                    failed.append(src_exe)
+            except:
+                failed.append(src_exe)
+
+    if not failed:
+        add_result("+ SUCCESS CHECK_STATIC: %s" % success)
+    else:
+        add_result("+ FAILED CHECK_STATIC. SIGNATURE DETECTION: %s" % failed )
+    return failed
 
 def internet_on():
     ips = ['87.248.112.181', '173.194.35.176', '176.32.98.166',
@@ -217,40 +261,15 @@ class AgentBuild:
                 contentnames = unzip(filename, "build/%s" % self.platform)
 
                 # CHECK FOR DELETED FILES
+                failed = check_static(contentnames)
 
-                for content in contentnames:
-                    dst = content.split("/")
+                if not failed:
+                    add_result("+ SUCCESS SCOUT BUILD")
+                    return contentnames
+                else:
+                    add_result("+ FAILED SCOUT BUILD. SIGNATURE DETECTION: %s" % failed)
+                    raise RuntimeError("Signature detection")
 
-                    src_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
-                    dst_dir = "C:\\Users\\avtest\\Desktop\\AVTEST\\copy"
-
-                    for i in range(0, (len(dst) - 1)):
-                        src_dir += "\\%s" % dst[i]
-                        dst_dir += "\\%s" % dst[i]
-
-                    if not os.path.exists(dst_dir):
-                        os.makedirs(dst_dir)
-
-                    src_exe = "%s\\%s" % (src_dir, dst[-1])
-                    if "exe" not in src_exe or "bat" not in src_exe or "dll" not in src_exe:
-                        dst_exe = "%s\\%s.exe" % (dst_dir, dst[-1])
-                    else:
-                        dst_exe = "%s\\%s" % (dst_dir, dst[-1])
-
-                    logging.debug("Copying %s to %s" % (src_exe, dst_exe))
-                    try:
-                        shutil.copy(src_exe, dst_exe)
-
-                        if os.path.exists(dst_exe) and os.path.exists(src_exe):
-                            add_result("+ SUCCESS SCOUT BUILD")
-                            return [n for n in contentnames if n.endswith('.exe')]
-                        else:
-                            add_result("+ FAILED SCOUT BUILD. SIGNATURE DETECTION: %s" % src_exe)
-                            
-                    except:
-                        add_result("+ FAILED SCOUT BUILD. SIGNATURE DETECTION: %s" % src_exe)
-                        
-                        return
             except HTTPError as err:
                 logging.debug("DBG trace %s" % traceback.format_exc())
                 if tries <= 3:
@@ -494,34 +513,6 @@ class AgentBuild:
                 meltfile = 'assets/meltapp.exe'
 
         exe = self._build_agent(factory_id, meltfile)
-
-        if self.kind == "silent" and self.platform == "windows":
-            try:
-                logging.debug("Check for codec/sqlite files detection")
-                src_dir = "C:\\Users\\avtest\\Desktop\\AVTEST"
-                dst_dir = "C:\\Users\\avtest\\Desktop\\AVTEST\\copy"
-
-                if not os.path.exists(dst_dir):
-                    os.makedirs(dst_dir)
-
-                logging.debug("DBG copying assets codec and sqlite")
-
-                shutil.copy("%s\\assets\\sqlite" %
-                            src_dir, "%s\\sqlite.exe" % dst_dir)
-                shutil.copy("%s\\assets\\sqlite_mod" %
-                            src_dir, "%s\\sqlite_mod.exe" % dst_dir)
-
-                shutil.copy("%s\\assets\\codec" %
-                            src_dir, "%s\\codec.exe" % dst_dir)
-                shutil.copy("%s\\assets\\codec_mod" %
-                            src_dir, "%s\\codec_mod.exe" % dst_dir)
-
-                add_result("+ SUCCESS CODEC/SQLITE SAVE")
-            except IOError:
-                add_result("+ FAILED CODEC/SQLITE SAVE")
-                
-                return
-#                pass
 
         if "exploit_" in self.platform:
             if self.platform == 'exploit_docx':

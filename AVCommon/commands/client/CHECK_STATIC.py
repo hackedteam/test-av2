@@ -14,4 +14,6 @@ def on_answer(vm, success, answer):
     pass
 
 def execute(vm, args):
-    pass
+    failed = build.check_static(args)
+
+    return not failed, failed

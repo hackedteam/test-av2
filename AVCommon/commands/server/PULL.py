@@ -2,10 +2,10 @@ import os
 import sys
 import logging
 
-from AVMaster import vm_manager
-
 def execute(vm, args):
     """ server side """
+    from AVMaster import vm_manager
+
     logging.debug("    CS Execute")
     assert vm, "null vm"
     assert len(args) == 3 and isinstance(args, list), "PULL expects a list of 3 elements"

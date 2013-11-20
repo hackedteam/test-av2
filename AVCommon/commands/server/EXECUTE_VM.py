@@ -2,11 +2,9 @@ import os
 import sys
 import logging
 
-from AVCommon import command
-from AVMaster import vm_manager
-
 def execute(vm, args):
     """ server side """
+    from AVMaster import vm_manager
 
     logging.debug("    CS Execute")
     assert vm, "null vm"

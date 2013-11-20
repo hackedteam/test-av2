@@ -3,10 +3,11 @@ import sys
 import logging
 from time import sleep
 
-from AVMaster import vm_manager
 
 def execute(vm, args):
     """ server side """
+    from AVMaster import vm_manager
+
     logging.debug("    CS Execute")
     assert vm, "null vm"
 

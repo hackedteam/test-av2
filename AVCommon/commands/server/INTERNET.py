@@ -2,9 +2,6 @@ import os
 import sys
 import logging
 
-
-""" Executes a program on a vm """
-
 def execute(vm, args):
     """ server side """
 
