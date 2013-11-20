@@ -145,7 +145,7 @@ def unserialize( message ):
     data=base64.b64decode(message)
 
     name, success, payload, vm, side = pickle.loads(data)
-    logging.debug("unserialized: (%s,%s,%s,%s)" % (name, success, payload, vm))
+    logging.debug("unserialized: (%s,%s,%s,%s)" % (name, success, str(payload)[:50], vm))
     return _factory(name, success, payload, vm)
 
 class Command(object):

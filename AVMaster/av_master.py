@@ -3,13 +3,14 @@ import sys
 import argparse
 
 sys.path.append(os.path.split(os.getcwd())[0])
-import package
+
 import logging, logging.config
 
 from AVCommon.procedure import Procedure
 from dispatcher import Dispatcher
 from AVCommon.mq import MQStar
 from AVCommon import command
+from report import Report
 
 class AVMaster():
     """docstring for Master"""
@@ -18,10 +19,10 @@ class AVMaster():
         self.args = args
         self.vm_names = args.vm.split(',')
         self.procedure = args.procedure.upper()
+        self.report = Report()
         command.init()
 
     def start(self):
-
         procedures = Procedure.load_from_file("conf/procedures.yaml")
         proc = procedures[self.procedure]
         assert proc, "cannot find the specified procedure: %s" % self.procedure
@@ -33,7 +34,7 @@ class AVMaster():
 
         logging.info("mq session: %s" % mq.session)
 
-        dispatcher = Dispatcher(mq, self.vm_names)
+        dispatcher = Dispatcher(mq, self.vm_names, report=self.report)
         dispatcher.dispatch(proc)
 
     def on_finished(self, vm):

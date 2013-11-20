@@ -1,13 +1,10 @@
 import os
 import sys
-import threading
 import logging
  
 sys.path.append(os.path.split(os.getcwd())[0])
 sys.path.append(os.getcwd())
- 
-from AVCommon.mq import MQStar
-#from av_machine import AVMachine
+
 from AVCommon.protocol import Protocol
 
 
@@ -48,7 +45,7 @@ class Dispatcher(object):
         while not exit and ended < len(self.vms):
             rec = self.mq.receive_server(blocking=True, timeout=self.timeout)
             if rec is not None:
-                logging.debug("- SERVER RECEIVED %s %s" % (rec, type(rec)))
+                logging.debug("- SERVER RECEIVED %s %s" % ( str(rec)[:50], type(rec)))
                 c, msg = rec
                 p = av_machines[c]
                 answer = p.receive_answer(c, msg)

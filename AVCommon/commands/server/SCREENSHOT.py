@@ -1,7 +1,7 @@
 import os
 import sys
 import logging
-
+import time
 
 def execute(vm, img_path):
     """ server side """
@@ -9,11 +9,18 @@ def execute(vm, img_path):
 
     logging.debug("    CS Execute")
     assert vm, "null vm"
-    #img_path = "/tmp/img_path.png"
+
+    if not img_path:
+        try:
+            os.mkdir("screenshot")
+        except:
+            pass
+        img_path = "screenshot/%s.%s.png" % (vm, int(time.time()))
 
     ret = vm_manager.execute(vm, "takeScreenshot", img_path)
     if ret is True:
-        return ret, "Screenshot saved on file %s" % img_path
+        blob = open(img_path).read()
+        return ret, blob
     else:
         return ret, "Screenshot not saved"
 

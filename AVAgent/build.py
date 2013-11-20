@@ -29,8 +29,6 @@ MOUSEEVENTF_LEFTDOWN = 0x0002  # left button down
 MOUSEEVENTF_LEFTUP = 0x0004  # left button up
 MOUSEEVENTF_CLICK = MOUSEEVENTF_LEFTDOWN + MOUSEEVENTF_LEFTUP
 
-base_path = "C:\\AVTest"
-
 def unzip(filename, fdir):
     zfile = zipfile.ZipFile(filename)
     names = []
@@ -41,53 +39,31 @@ def unzip(filename, fdir):
         names.append('%s/%s' % (fdir, name))
     return names
 
-
-def check_internet(address, queue):
-    """ True if dns or http are reachable """
-    logging.debug("- Check connection: %s" % address)
-
-    ret = False
-    # try:
-    # if hasattr(socket, 'setdefaulttimeout'):
-    # socket.setdefaulttimeout(5)
-    #     response = socket.gethostbyaddr( address )
-    # logging.debug("i resolve dns: ", address)
-    #     ret |= True
-    # except:
-    #     ret |= False
-
-    try:
-        if(ret is False):
-            response = urllib2.urlopen('http://' + address, timeout=10)
-            # logging.debug("i reach url: ", address)
-            ret |= True
-    except:
-        ret |= False
-
-    queue.put(ret)
-
 def check_static(files):
+
     success = []
     failed = []
     for content in files:
         logging.debug( "DBG: check_static: %s" % content )
+        break
+        #TODO: fix
         dst = content.split("/")
 
-        src_dir = base_path
-        dst_dir = base_path+ "\\copy"
+        src_dir = "build"
+        dst_dir = src_dir+ "/__copy__"
 
         for i in range(0,(len(dst)-1)):
-            src_dir += "\\%s" % dst[i]
-            dst_dir += "\\%s" % dst[i]
+            src_dir += "/%s" % dst[i]
+            dst_dir += "/%s" % dst[i]
 
         if not os.path.exists(dst_dir):
             os.makedirs(dst_dir)
 
-        src_exe = "%s\\%s" % (src_dir,dst[-1])
+        src_exe = "%s/%s" % (src_dir,dst[-1])
         if "exe" not in src_exe or "bat" not in src_exe or "dll" not in src_exe:
-            dst_exe = "%s\\%s.exe" % (dst_dir,dst[-1])
+            dst_exe = "%s/%s.exe" % (dst_dir,dst[-1])
         else:
-            dst_exe = "%s\\%s" % (dst_dir,dst[-1])
+            dst_exe = "%s/%s" % (dst_dir,dst[-1])
 
         if not os.path.exists(src_exe):
             failed.append(src_exe)
@@ -122,6 +98,20 @@ def internet_on():
     s = [q.get() for i in ips]
     return any(s)
 
+def check_internet(address, queue):
+    """ True if dns or http are reachable """
+    logging.debug("- Check connection: %s" % address)
+
+    ret = False
+    try:
+        if(ret is False):
+            response = urllib2.urlopen('http://' + address, timeout=5)
+            # logging.debug("i reach url: ", address)
+            ret |= True
+    except:
+        ret |= False
+
+    queue.put(ret)
 
 def wait_timeout(proc, seconds):
     """Wait for a process to finish, or raise exception after timeout"""

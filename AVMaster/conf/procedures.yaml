@@ -153,6 +153,7 @@ CHECK_SIGNATURE:
     - PUSH: [ AVAgent/assets/config* ]
 
     - CHECK_STATIC: [ AVAgent/assets/* ]
+
     - BUILD: [ pull, windows, silent ]
     - BUILD: [ pull, linux, silent ]
     - BUILD: [ pull, osx, silent ]
@@ -160,23 +161,31 @@ CHECK_SIGNATURE:
     - BUILD: [ pull, blackberry, silent ]
     - BUILD: [ pull, ios, silent ]
 
+PUSH_ASSETS_BUILD:
+    - PUSH: [ AVAgent/assets/config*, AVAgent/assets/keyinject.exe, AVAgent/assets/meltapp.exe ]
+
 TEST:
     - START_AGENT
     - CALL: SET_DEFAULTS
     #- CALL: CHECK_SIGNATURE
-    - PUSH: [ AVAgent/assets/config* ]
+    - CALL: PUSH_ASSETS_BUILD
     - BUILD: [ pull, android, silent ]
     - BUILD: [ scout, windows, silent ]
     - STOP_AGENT
 
 TEST_SCOUT:
     - CALL: SET_DEFAULTS
+    - CALL: PUSH_ASSETS
     - BUILD: [ scout, windows, silent ]
+
+TEST_SCREENSHOT:
+    - SCREENSHOT
 
 SCOUT:
     - CALL: DISPATCH
     - START_AGENT
     - CALL: SET_DEFAULTS
+    - CALL: PUSH_ASSETS_BUILD
     - BUILD: [ scout, windows, silent ]
     - SCREENSHOT
     - STOP_AGENT
