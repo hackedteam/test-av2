@@ -186,6 +186,9 @@ class VMRun:
 
     def executeCmd(self, vmx, cmd, args=[], timeout=40, interactive=True, bg=False):
         sys.stdout.write("[%s] Executing %s\n" % (vmx, cmd))
+        logging.debug("Executing %s with args %s" % (cmd,args))
+        logging.debug("on %s with credentials %s %s" % (vmx, vmx.user, vmx.passwd))
+        logging.debug("Options: timeout: %s, interactive: %s, background: %s" % (timeout,interactive,bg))
         cmds = []
         if interactive is True:
             cmds.append("-interactive")
