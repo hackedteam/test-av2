@@ -65,6 +65,9 @@ class Dispatcher(object):
                     if self.report:
                         self.report.sent(p.vm, str(cmd))
                     logging.debug("- SERVER SENT: %s, %s" % (c, cmd))
+                    if not r:
+                        logging.debug("- SERVER SENDING ERROR, ENDING")
+                        ended += 1
                 else:
                     ended += 1
                     logging.debug("- SERVER RECEIVE ERROR, ENDING")

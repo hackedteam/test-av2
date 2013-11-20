@@ -86,6 +86,7 @@ class Protocol(ProtocolClient):
         cmd.on_init(self.vm, cmd.payload)
         self.mq.send_client(self.vm, cmd.serialize())
 
+
     def _execute(self, cmd, blocking=False):
         #logging.debug("PROTO S executing server")
         t = threading.Thread(target=self._execute_command, args=(cmd,))
@@ -106,8 +107,7 @@ class Protocol(ProtocolClient):
             self.last_command = None
             return False
         self.last_command = self.procedure.next_command()
-        self.send_command(copy.deepcopy(self.last_command))
-        return True
+        return self.send_command(copy.deepcopy(self.last_command))
 
     def send_command(self, cmd):
         if config.verbose:

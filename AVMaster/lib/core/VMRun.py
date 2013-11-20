@@ -66,12 +66,15 @@ class VMRun:
             return self._run_call(pargs)
 
     def _run_call(self, pargs):
+        logging.debug("_run_call")
         return subprocess.call(pargs)
 
     def _run_bg(self, pargs):
+        logging.debug("_run_bg")
         subprocess.Popen(pargs, stdout=subprocess.PIPE)
 
     def _run_popen(self, pargs, timeout=40):
+        logging.debug("_run_popen")
         p = subprocess.Popen(pargs, stdout=subprocess.PIPE)
 
         executed = False

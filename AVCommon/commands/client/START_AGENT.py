@@ -8,6 +8,10 @@ def on_init(vm, args):
     arg=["C:\\AVTest\\AVAgent\\av_agent.py", "-m", vm, "-s", "SESSION1", "-d", "10.20.0.1"]
     ret = vm_manager.execute(vm, "executeCmd", cmd, arg)
 
+    logging.debug("execution: %s" % ret)
+    if ret != 1:
+        raise RuntimeError("Error executing command, result: %s" % ret)
+
 def on_answer(vm, success, answer):
     """ server side """
     pass
