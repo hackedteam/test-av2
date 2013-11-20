@@ -43,6 +43,7 @@ def execute(vm_name, cmd, *args):
                 return f(vm)
             else:
                 return f(vm, *args)
+
         elif cmd in vmachine_cmds:
             f = getattr(vm, cmd)
             if not args:

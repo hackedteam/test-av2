@@ -7,7 +7,7 @@ from time import sleep
 sys.path.append(os.path.split(os.getcwd())[0])
 sys.path.append(os.getcwd())
 
-from AVMaster.vm_manager import VMManager
+from AVMaster import vm_manager
 
 
 def test_instance():
@@ -56,7 +56,17 @@ def test_up_and_down():
     finally:
         assert exp is True
 
+def test_execute():
+#    vmm = VMManager()
+    logging.info( "TEST VMManager")
+    #vms=["zenovm", "noav"]
+    vms = ["noav"]
+    vm = "noav"
+    vm_manager.execute(vm, "executeCmd", "c:/python27/python.exe", [], 40, True, False)
+
+
 if __name__ == '__main__':
     logging.config.fileConfig('../logging.conf')
-    test_instance()
-    test_up_and_down()
+#    test_instance()
+#    test_up_and_down()
+    test_execute()
