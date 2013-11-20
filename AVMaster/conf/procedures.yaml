@@ -103,11 +103,9 @@ SET_DEFAULTS:
 
 UPLOAD_AGENT:
     - PUSH:
-        - [AVAgent/av_agent.py, AVAgent/build.py, AVAgent/package.py, AVAgent/rcs_cient.py,
-            AVCommon/commands/START_AGENT.py, AVCommon/commands/STOP_AGENT.py,
-            AVCommon/commands/BUILD.py, AVCommon/commands/GET.py, AVCommon/commands/SET.py]
-        - /home/avmonitor/AVTest
-        - c:\\
+        - [AVAgent/*.py, AVAgent/assets/*, AVCommon/*.py, AVCommon/commands/client/*.py, AVCommon/commands/meta/*.py, AVCommon/commands/*.py,]
+        - /opt/AVTest2
+        - c:\\AVTest
 
 UPDATE:
     - INTERNET: False

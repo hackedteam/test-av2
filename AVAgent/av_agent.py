@@ -80,7 +80,7 @@ if __name__ == "__main__":
                         help="redis host")
     parser.add_argument('-s', '--session', default=False,
                         help="session redis mq ")
-    parser.add_argument('-p', '--procedure', default=False,
+    parser.add_argument('-r', '--procedure', default=False,
                         help="procedure to call ")
     parser.add_argument('-f', '--procedure_file', default=False,
                         help="procedure file to read ")

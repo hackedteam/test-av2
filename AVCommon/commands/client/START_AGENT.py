@@ -1,8 +1,12 @@
 import logging
+from AVMaster import vm_manager
 
 def on_init(vm, args):
     """ server side """
-    pass
+
+    cmd ="c:\\python27\\python.exe"
+    arg=["C:\\AVTest\\AVAgent\\av_agent.py", "-m", vm,"-s", "SESSION1"]
+    ret = vm_manager.execute(vm, "executeCmd", cmd, arg)
 
 def on_answer(vm, success, answer):
     """ server side """
