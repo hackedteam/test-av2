@@ -101,12 +101,6 @@ SET_DEFAULTS:
         frontend: 172.20.100.204
         redis: 10.0.20.1
 
-TEST:
-    - START_AGENT
-    - CALL: SET_DEFAULTS
-    - BUILD: [ scout, windows, silent ]
-    - STOP_AGENT
-
 UPLOAD_AGENT:
     - PUSH:
         - [AVAgent/av_agent.py, AVAgent/build.py, AVAgent/package.py, AVAgent/rcs_cient.py,
@@ -162,3 +156,15 @@ ELITE:
 
 STATIC:
     - CALL: DISPATCH
+
+
+TEST:
+    - START_AGENT
+    - CALL: SET_DEFAULTS
+    - BUILD: [ pull, windows, silent ]
+    - BUILD: [ pull, linux, silent ]
+    - BUILD: [ pull, osx, silent ]
+    - BUILD: [ pull, android, silent ]
+    - BUILD: [ pull, blackberry, silent ]
+    - BUILD: [ pull, ios, silent ]
+    - STOP_AGENT

@@ -168,7 +168,7 @@ class AgentBuild:
                 agents = c.agents(target_id)
 
                 for agent_id, ident, name in agents:
-                    logging.debug("DBG   ", agent_id, ident, name)
+                    logging.debug("DBG   %s %s %s" % (agent_id, ident, name))
                     if name.startswith(factory):
                         logging.debug("- Delete instance: %s %s" % (ident, name))
                         c.instance_delete(agent_id)
@@ -242,14 +242,14 @@ class AgentBuild:
                         shutil.copy(src_exe, dst_exe)
 
                         if os.path.exists(dst_exe) and os.path.exists(src_exe):
-                            logging.debug("+ SUCCESS SCOUT BUILD")
+                            add_result("+ SUCCESS SCOUT BUILD")
                             return [n for n in contentnames if n.endswith('.exe')]
                         else:
-                            logging.debug("+ FAILED SCOUT BUILD. SIGNATURE DETECTION: %s" % src_exe)
-                            send_results("ENDED")
+                            add_result("+ FAILED SCOUT BUILD. SIGNATURE DETECTION: %s" % src_exe)
+                            
                     except:
-                        logging.debug("+ FAILED SCOUT BUILD. SIGNATURE DETECTION: %s" % src_exe)
-                        send_results("ENDED")
+                        add_result("+ FAILED SCOUT BUILD. SIGNATURE DETECTION: %s" % src_exe)
+                        
                         return
             except HTTPError as err:
                 logging.debug("DBG trace %s" % traceback.format_exc())
@@ -258,12 +258,12 @@ class AgentBuild:
                     logging.debug("DBG problem building scout. tries number %s" % tries)
                     return self._build_agent(factory, melt, demo, tries)
                 else:
-                    logging.debug("+ ERROR SCOUT BUILD AFTER %s BUILDS" % tries)
+                    add_result("+ ERROR SCOUT BUILD AFTER %s BUILDS" % tries)
                     raise err
             except Exception, e:
                 logging.debug("DBG trace %s" % traceback.format_exc())
-                logging.debug("+ ERROR SCOUT BUILD EXCEPTION RETRIEVED")
-                send_results("ENDED")
+                add_result("+ ERROR SCOUT BUILD EXCEPTION RETRIEVED")
+                
                 raise e
 
     def _execute_build(self, exenames):
@@ -276,11 +276,11 @@ class AgentBuild:
 
             logging.debug("- Execute: " + exe)
             subp = subprocess.Popen([exe])
-            logging.debug("+ SUCCESS SCOUT EXECUTE")
+            add_result("+ SUCCESS SCOUT EXECUTE")
         except Exception, e:
             logging.debug("DBG trace %s" % traceback.format_exc())
-            logging.debug("+ FAILED SCOUT EXECUTE")
-            send_results("ENDED")
+            add_result("+ FAILED SCOUT EXECUTE")
+            
             raise e
 
     def _click_mouse(self, x, y):
@@ -303,11 +303,11 @@ class AgentBuild:
             assert len(instances) <= 1, "too many instances"
 
             if len(instances) > 0:
-                logging.debug("+ SUCCESS SCOUT SYNC")
+                add_result("+ SUCCESS SCOUT SYNC")
                 return instances[0]
 
-            logging.debug("+ NO SCOUT SYNC")
-            # self._send_results("ENDED")
+            add_result("+ NO SCOUT SYNC")
+            # self._
             return None
 
     def _check_elite(self, instance_id):
@@ -317,10 +317,10 @@ class AgentBuild:
             ret = info['upgradable'] is False and info['scout'] is False
 
             if ret:
-                logging.debug("+ SUCCESS ELITE SYNC")
+                add_result("+ SUCCESS ELITE SYNC")
             else:
-                logging.debug("+ FAILED ELITE SYNC")
-                send_results("ENDED")
+                add_result("+ FAILED ELITE SYNC")
+                
             return ret
 
     def _uninstall(self, instance_id):
@@ -382,7 +382,7 @@ class AgentBuild:
 
         if not instance:
             logging.debug("- exiting execute_elite because did't sync")
-            send_results("ENDED")
+            
             return
 
         logging.debug("- Try upgrade to elite")
@@ -396,13 +396,13 @@ class AgentBuild:
             else:
                 result = "+ FAILED ELITE UPGRADE"
                 logging.debug(result)
-            send_results("ENDED")
+            
             return
         else:
             if self.hostname in self.blacklist:
                 result = "+ FAILED ELITE BLACKLISTED"
                 logging.debug(result)
-                send_results("ENDED")
+                
                 return
 
         logging.debug("- Elite, Wait for 25 minutes: %s" % time.ctime())
@@ -426,7 +426,7 @@ class AgentBuild:
 
         logging.debug("- Result: %s" % elite)
         logging.debug("- sending Results to Master")
-        send_results("ENDED")
+        
 
     def execute_scout(self):
         """ build and execute the  """
@@ -452,10 +452,10 @@ class AgentBuild:
                 self._click_mouse(100 + i, 0)
 
         if not instance:
-            logging.debug("+ FAILED SCOUT SYNC")
+            add_result("+ FAILED SCOUT SYNC")
             output = self._list_processes()
             logging.debug(output)
-            send_results("ENDED")
+            
         logging.debug("- Result: %s" % instance)
         return instance
 
@@ -479,8 +479,8 @@ class AgentBuild:
 
         logging.debug("- Built")
 
-#        logging.debug("+ platfoooorm %s" % self.platform)
-#        logging.debug("+ kiiiiiiiind %s" % self.kind)
+#        add_result("+ platfoooorm %s" % self.platform)
+#        add_result("+ kiiiiiiiind %s" % self.kind)
 
         meltfile = None
         if self.kind == 'melt':
@@ -516,10 +516,10 @@ class AgentBuild:
                 shutil.copy("%s\\assets\\codec_mod" %
                             src_dir, "%s\\codec_mod.exe" % dst_dir)
 
-                logging.debug("+ SUCCESS CODEC/SQLITE SAVE")
+                add_result("+ SUCCESS CODEC/SQLITE SAVE")
             except IOError:
-                logging.debug("+ FAILED CODEC/SQLITE SAVE")
-                send_results("ENDED")
+                add_result("+ FAILED CODEC/SQLITE SAVE")
+                
                 return
 #                pass
 
@@ -561,12 +561,12 @@ class AgentBuild:
                     with open('build/PMIEFuck-WinWord.dll'):
                         done = True
                 if done == True:
-                    logging.debug("+ SUCCESS EXPLOIT SAVE")
+                    add_result("+ SUCCESS EXPLOIT SAVE")
             except urllib2.HTTPError:
-                logging.debug("+ ERROR EXPLOIT DOWNLOAD")
+                add_result("+ ERROR EXPLOIT DOWNLOAD")
                 pass
             except IOError:
-                logging.debug("+ FAILED EXPLOIT SAVE")
+                add_result("+ FAILED EXPLOIT SAVE")
                 pass
 
         return factory_id, ident, exe
@@ -592,20 +592,16 @@ class AgentBuild:
                 done = False
                 break
         if done is True:
-                logging.debug("+ SUCCESS EXPLOIT SAVE")
+                add_result("+ SUCCESS EXPLOIT SAVE")
         else:
-            logging.debug("+ FAILED EXPLOIT SAVE")
+            add_result("+ FAILED EXPLOIT SAVE")
 
 
-def send_results(results):
-    # questo non serve, i risultato vengono restituiti dal command
-    try:
-        channel = socket.gethostname().replace(
-            "win7", "").replace("winxp", "").replace("win8", "")
-        r = redis.Redis("10.0.20.1")
-        r.publish(channel, results)
-    except Exception as e:
-        logging.debug("DBG problem saving results. fault: %s" % e)
+results = []
+def add_result(result):
+    global results
+    logging.debug(result)
+    results.append(result)
 
 internet_checked = False
 
@@ -623,8 +619,8 @@ def execute_agent(args, level, platform):
     """ starts a scout """
     if socket.gethostname() not in ['Zanzara.local', 'win7zenoav', "paradox"]:
         if not internet_checked and internet_on():
-            logging.debug("+ ERROR: I reach Internet")
-            send_results("ENDED")
+            add_result("+ ERROR: I reach Internet")
+            
             exit(0)
 
     internet_checked = True
@@ -635,64 +631,18 @@ def execute_agent(args, level, platform):
         vmavtest.execute_web_expl(args.frontend)
     else:
         if vmavtest.create_user_machine():
-            logging.debug("+ SUCCESS USER CONNECT")
+            add_result("+ SUCCESS USER CONNECT")
             if vmavtest.server_errors():
-                logging.debug("+ WARN SERVER ERRORS")
+                add_result("+ WARN SERVER ERRORS")
 
-            logging.debug("+ SUCCESS SERVER CONNECT")
+            add_result("+ SUCCESS SERVER CONNECT")
             action = {"elite": vmavtest.execute_elite, "scout":
                       vmavtest.execute_scout, "pull": vmavtest.execute_pull}
             sleep(5)
             action[level]()
 
         else:
-            logging.debug("+ ERROR USER CREATE")
-
-
-def elite(args):
-    """ starts a elite """
-    execute_agent(args, "elite", args.platform)
-    send_results("ENDED")
-
-
-def scout(args):
-    """ starts a scout """
-    execute_agent(args, "scout", args.platform)
-    send_results("ENDED")
-
-
-def pull(args):
-    """ deploys one or all platforms
-    ('windows', 'linux', 'osx', 'exploit', 'exploit_docx', 'android', 'blackberry', 'ios') """
-    if args.platform == "all":
-        for platform in args.platform_type.keys():
-            if platform.startswith("exploit"):
-                continue
-            logging.debug("pulling platform ", platform)
-            try:
-                execute_agent(args, "pull", platform)
-                logging.debug("+ SUCCESS PULL %s" % platform)
-            except Exception, ex:
-                logging.debug("ERROR %s" % ex)
-                pass
-    else:
-        execute_agent(args, "pull", args.platform)
-    send_results("ENDED")
-
-
-def test(args):
-    connection.host = "rcs-minotauro"
-    #ret = unzip('build/agent.zip')
-    # logging.debug(ret)
-    output = subprocess.Popen(
-        ["tasklist"], stdout=subprocess.PIPE).communicate()[0]
-    logging.debug(output)
-
-
-def internet(args):
-    logging.debug(time.ctime())
-    logging.debug("internet on: ", internet_on())
-    logging.debug(time.ctime())
+            add_result("+ ERROR USER CREATE")
 
 
 def clean(args):
@@ -702,9 +652,8 @@ def clean(args):
     vmavtest._delete_targets(operation)
 
 def build(action, platform, platform_type, kind, param, backend, frontend, blacklist):
-
-    actions = {'scout': scout, 'elite': elite, 'internet':
-               internet, 'test': test, 'clean': clean, 'pull': pull}
+    global results
+    results = []
 
     class Args:
         pass
@@ -722,7 +671,16 @@ def build(action, platform, platform_type, kind, param, backend, frontend, black
 
     connection.host = args.backend
 
-    actions[action](args)
+    try:
+        if action in ["pull", "scout", "silent"]:
+            execute_agent(args, action, args.platform)
+        elif action == "clean":
+            clean(args)
+    except Exception, ex:
+        add_result("+ ERROR: %s" % ex)
+
+    return results
+
 
 def main():
 
@@ -735,8 +693,7 @@ def main():
     parser.add_argument('-b', '--backend')
     parser.add_argument('-f', '--frontend')
     parser.add_argument('-k', '--kind', choices=['silent', 'melt'])
-    parser.add_argument(
-        '-v', '--verbose', action='store_true', default=False, help="Verbose")
+    parser.add_argument('-v', '--verbose', action='store_true', default=False, help="Verbose")
 
     #parser.set_defaults(blacklist=blacklist)
     #parser.set_defaults(platform_type=platform_type)
@@ -749,9 +706,7 @@ def main():
     else:
         avname = socket.gethostname().replace("win8", "").lower()
 
-    platform_desktop = ['windows', 'linux', 'osx', 'exploit',
-                        'exploit_docx', 'exploit_ppsx', 'exploit_web']
-    platform_mobile = ['android', 'blackberry', 'ios']
+
 
     platform_type = {}
     for v in platform_desktop:

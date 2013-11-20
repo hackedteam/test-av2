@@ -4,6 +4,7 @@ import sys, os
 
 import logging, logging.config
 import argparse
+import shutil
 
 sys.path.append(os.path.split(os.getcwd())[0])
 
@@ -37,6 +38,7 @@ class AVAgent(object):
         self.host = redis
         self.session = session
         command.init()
+        shutil.rmtree('build')
         logging.debug("vm: %s host: %s session: %s" % (self.vm, self.host, session))
 
     def start_agent(self, mq=None, procedure=None):
@@ -47,9 +49,8 @@ class AVAgent(object):
             assert procedure
             pc = Protocol(mq, self.vm, procedure=procedure)
             mq.protocol = pc
+            logging.debug("mq: %s pc:%s" % (mq.protocol.procedure, pc.procedure))
         mq.add_client(self.vm)
-
-        logging.debug("mq: %s pc:%s" % (mq.protocol.procedure, pc.procedure))
 
         logging.info("start receiving commands")
         exit = False
