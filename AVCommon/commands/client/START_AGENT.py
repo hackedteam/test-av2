@@ -5,7 +5,7 @@ def on_init(vm, args):
     """ server side """
 
     cmd ="c:\\python27\\python.exe"
-    arg=["C:\\AVTest\\AVAgent\\av_agent.py", "-m", vm,"-s", "SESSION1"]
+    arg=["C:\\AVTest\\AVAgent\\av_agent.py", "-m", vm, "-s", "SESSION1", "-d", "10.20.0.1"]
     ret = vm_manager.execute(vm, "executeCmd", cmd, arg)
 
 def on_answer(vm, success, answer):

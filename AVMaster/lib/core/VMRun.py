@@ -184,7 +184,7 @@ class VMRun:
         return self._run_cmd(vmx, "CopyFileFromGuestToHost",
                       [src_file, dst_file], [vmx.user, vmx.passwd])
 
-    def executeCmd(self, vmx, cmd, args=[], timeout=40, interactive=False, bg=False):
+    def executeCmd(self, vmx, cmd, args=[], timeout=40, interactive=True, bg=False):
         sys.stdout.write("[%s] Executing %s\n" % (vmx, cmd))
         cmds = []
         if interactive is True:

@@ -103,7 +103,7 @@ SET_DEFAULTS:
 
 UPLOAD_AGENT:
     - PUSH:
-        - [AVAgent/*.py, AVAgent/assets/*, AVCommon/*.py, AVCommon/commands/client/*.py, AVCommon/commands/meta/*.py, AVCommon/commands/*.py,]
+        - [ logging.conf, AVAgent/*.py, AVAgent/assets/*, AVCommon/*.py, AVCommon/commands/client/*.py, AVCommon/commands/meta/*.py, AVCommon/commands/*.py,]
         - /opt/AVTest2
         - c:\\AVTest
 

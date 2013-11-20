@@ -5,8 +5,17 @@ import sys, os
 import logging, logging.config
 import argparse
 import shutil
+import inspect
 
-sys.path.append(os.path.split(os.getcwd())[0])
+inspect_getfile = inspect.getfile(inspect.currentframe())
+cmd_folder = os.path.split(os.path.realpath(os.path.abspath(inspect_getfile)))[0]
+os.chdir(cmd_folder)
+
+if cmd_folder not in sys.path:
+     sys.path.insert(0, cmd_folder)
+parent = os.path.split(cmd_folder)[0]
+if parent not in sys.path:
+     sys.path.insert(0, parent)
 
 from AVCommon.mq import MQStar
 from AVCommon.protocol import Protocol
@@ -38,7 +47,7 @@ class AVAgent(object):
         self.host = redis
         self.session = session
         command.init()
-        shutil.rmtree('build')
+        shutil.rmtree('build', ignore_errors=True)
         logging.debug("vm: %s host: %s session: %s" % (self.vm, self.host, session))
 
     def start_agent(self, mq=None, procedure=None):
