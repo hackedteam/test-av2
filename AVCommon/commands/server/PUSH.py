@@ -3,6 +3,8 @@ import sys
 import glob
 import logging
 
+report_level = 2
+
 def execute(vm, args):
     """ server side """
     from AVMaster import vm_manager
