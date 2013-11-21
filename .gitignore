@@ -2,3 +2,13 @@
 *.pyc
 results.txt
 /.idea/workspace.xml
+
+/tests/AVTest.log
+
+/AVCommon/.coverage
+
+/AVAgent/AVTest.log
+
+/.coverage
+
+/AVAgent/build/
