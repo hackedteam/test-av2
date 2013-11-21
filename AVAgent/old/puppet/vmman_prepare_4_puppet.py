@@ -23,9 +23,9 @@ addr_script_dst = "C:\\Users\\avtest\\Desktop\\change_ip_addr.bat"
 puppet_path = "C:\\Users\\avtest\\Desktop\\puppet-3.1.0-rc1.msi"
 
 # vSphere creds
-host=""
-user=""
-passwd=""
+host = ""
+user = ""
+passwd = ""
 
 #
 #   Defining VM Manager
@@ -43,7 +43,8 @@ print avg
 #   Generate scripts for that vm 
 #
 f = open(addr_script_src, 'wb')
-f.write('C:\\Windows\\system32\\netsh.exe interface ip set address "Local Area Connection" static %s 255.255.255.0' % sys.argv[2])
+f.write('C:\\Windows\\system32\\netsh.exe interface ip set address "Local Area Connection" static %s 255.255.255.0' %
+        sys.argv[2])
 f.close()
 
 g = open(host_script_src, 'wb')

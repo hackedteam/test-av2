@@ -7,6 +7,36 @@ WINDOWS:
     c:\python27\scripts\easy_install redis pyyaml pysphere mock
 
 
+    - REPORTLEVEL:
+           - CHECK_STATIC: TECH
+           - BUILD: EXECUTIVE
+
+    - ON_ERROR: continue
+
+    - REPORT: "windows silent"
+        - BUILD: [ elite, windows, silent ]
+
+    - REPORT: "static windows"
+        - CHECK_STATIC: [ AVAgent/assets/* ]
+        - BUILD: [ pull, windows, silent ]
+
+    - REPORT: "static desktop"
+        - BUILD: [ pull, linux, silent ]
+        - BUILD: [ pull, osx, silent ]
+
+    - REPORT: "static mobile"
+        - BUILD: [ pull, android, silent ]
+        - BUILD: [ pull, blackberry, silent ]
+        - BUILD: [ pull, ios, silent ]
+
+    - ON_ERROR: break
+
+    - REPORT: "windows melt"
+        - PUSH: [ melted.app ]
+        - BUILD: [ elite, windows, melt ]
+
+
+
  - aprire il canale redis
     - manda STARTAGENT
   - unzip dei file accessori (tra cui la conf?)

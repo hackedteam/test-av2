@@ -18,7 +18,7 @@ def execute(vm, args):
             if vm_manager.execute(vm, "is_powered_on"):
                 while not boot:
                     sleep(10)
-                    boot = vm_manager.execute(vm, "executeCmd", "c:\\windows\\system32\\ipconfig.exe" ) == 0
+                    boot = vm_manager.execute(vm, "executeCmd", "c:\\windows\\system32\\ipconfig.exe") == 0
                     logging.debug("executing ipconfig, ret: %s" % ret)
 
                 return True, "Started VM"

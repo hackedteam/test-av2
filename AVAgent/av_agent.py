@@ -12,10 +12,10 @@ cmd_folder = os.path.split(os.path.realpath(os.path.abspath(inspect_getfile)))[0
 os.chdir(cmd_folder)
 
 if cmd_folder not in sys.path:
-     sys.path.insert(0, cmd_folder)
+    sys.path.insert(0, cmd_folder)
 parent = os.path.split(cmd_folder)[0]
 if parent not in sys.path:
-     sys.path.insert(0, parent)
+    sys.path.insert(0, parent)
 
 from AVCommon.mq import MQStar
 from AVCommon.protocol import Protocol
@@ -25,23 +25,28 @@ from AVCommon.procedure import Procedure
 commands = ['BUILD', 'GET', 'SET']
 
 class MQFeedProcedure(object):
-    protocol=None
+    protocol = None
+
     def receive_client(self, client, blocking=False, timeout=60):
         cmd = self.protocol.procedure.next_command()
         logging.debug("receive_client: %s, %s" % (client, cmd))
         return cmd.serialize()
-    def send_client(self,  client, message):
+
+    def send_client(self, client, message):
         pass
+
     def receive_server(self, blocking=False, timeout=10):
         pass
+
     def send_server(self, client, message):
         logging.debug("send_server: %s" % message)
         pass
+
     def add_client(self, vm):
         pass
 
-class AVAgent(object):
 
+class AVAgent(object):
     def __init__(self, vm, redis='localhost', session=None):
         self.vm = vm
         self.host = redis
@@ -50,36 +55,45 @@ class AVAgent(object):
         shutil.rmtree('build', ignore_errors=True)
         logging.debug("vm: %s host: %s session: %s" % (self.vm, self.host, session))
 
+        command.context["report"] = self.report
+
+    def report(self, message):
+        logging.debug("report: %s" % message)
+        self.pc.send_answer(command._factory("BUILD", None, None, message, self.vm))
+
     def start_agent(self, mq=None, procedure=None):
         if not mq:
             mq = MQStar(self.host, self.session)
-            pc = Protocol(mq, self.vm)
+            self.pc = Protocol(mq, self.vm)
         else:
             assert procedure
-            pc = Protocol(mq, self.vm, procedure=procedure)
-            mq.protocol = pc
-            logging.debug("mq: %s pc:%s" % (mq.protocol.procedure, pc.procedure))
+            self.pc = Protocol(mq, self.vm, procedure=procedure)
+            mq.protocol = self.pc
+            logging.debug("mq: %s pc:%s" % (mq.protocol.procedure, self.pc.procedure))
         mq.add_client(self.vm)
 
         logging.info("start receiving commands")
         exit = False
         while not exit:
             logging.debug("- CLIENT %s LISTENING" % self.vm)
-            received = pc.receive_command()
+            received = self.pc.receive_command()
             logging.debug("- CLIENT %s EXECUTED: %s" % (self.vm, received))
             if received.name == 'STOP_AGENT':
                 exit = True
 
         logging.info("stop receiving commands")
 
+
 def start_agent(args):
     vm, redis, session = args
     avagent = AVAgent(vm, redis, session)
     avagent.start_agent()
 
+
 def start_agent_args(vm, redis, session):
     avagent = AVAgent(vm, redis, session)
     avagent.start_agent()
+
 
 if __name__ == "__main__":
     logging.config.fileConfig('../logging.conf')

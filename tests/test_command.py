@@ -36,42 +36,45 @@ def test_commandUnserialize():
     assert isinstance(s, command.Command), "type: %s not %s" % (type(s), command.Command)
 
     assert s.name == "BEGIN"
-    assert s.payload is None
+    assert s.args is None
     assert s.success is None
     assert s.side == "server", "side: %s" % s.side
     assert command.context == "mycontext", "wrong context: %s" % s.context
+    assert s.timestamp
 
     s = command.factory( ["START_VM", None, ["kis", "mcafee"]] )
     assert s.name == "START_VM"
-    assert s.payload == ["kis", "mcafee"]
+    assert s.args == ["kis", "mcafee"]
     assert s.success is None
     assert s.side == "server"
     assert command.context == "mycontext"
 
     s = command.factory( {"START_VM": ["kis", "mcafee"]} )
     assert s.name == "START_VM"
-    assert s.payload == ["kis", "mcafee"]
+    assert s.args == ["kis", "mcafee"]
     assert s.success is None
     assert s.side == "server"
     assert command.context == "mycontext"
 
     s = command.factory( ["START_VM", None, ["kis", "mcafee"]] )
     assert s.name == "START_VM"
-    assert s.payload == ["kis", "mcafee"]
+    assert s.args == ["kis", "mcafee"]
     assert s.success is None
     assert s.side == "server"
     assert command.context == "mycontext"
 
     s = command.factory( ("START_VM", True, ["kis", "mcafee"]) )
     assert s.name == "START_VM"
-    assert s.payload == ["kis", "mcafee"]
+    assert not s.args
+    assert s.result == ["kis", "mcafee"]
     assert s.success is True
     assert s.side == "server"
     assert command.context == "mycontext"
 
     s = command.factory( """('START_VM', True, ["kis", "mcafee"])""" )
     assert s.name == "START_VM"
-    assert s.payload == ["kis", "mcafee"]
+    assert not s.args
+    assert s.result == ["kis", "mcafee"]
     assert s.success is True
     assert s.side == "server"
     assert command.context == "mycontext"
@@ -79,7 +82,8 @@ def test_commandUnserialize():
     s.success = True
     q = command.factory( s )
     assert q.name == "START_VM"
-    assert q.payload == ["kis", "mcafee"]
+    assert not q.args
+    assert q.result == ["kis", "mcafee"]
     assert q.success is True
     assert q.side == "server"
     assert command.context == "mycontext"
@@ -111,11 +115,12 @@ def test_commandSerialization():
     s = c.serialize()
 
     cmd=command.unserialize(s)
-    logging.debug("unserisalized: %s" % type(cmd.payload))
+    logging.debug("unserisalized: %s" % type(cmd.result))
 
     assert(cmd.success)
-    assert(type(cmd.payload) == list)
-    assert(cmd.payload == ['whatever','end'])
+    assert(type(cmd.result) == list)
+    assert(cmd.args == None)
+    assert(cmd.result == ['whatever','end'])
     assert(str(cmd).startswith("BEGIN"))
 
 

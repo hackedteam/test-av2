@@ -3,6 +3,7 @@ import sys
 import logging
 from time import sleep
 
+
 def execute(vm, args):
     from AVMaster import vm_manager
 

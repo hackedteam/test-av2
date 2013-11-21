@@ -18,9 +18,9 @@ addr_script_dst = ""
 puppet_path = "C:\\Users\\avtest\\Desktop\\puppet-3.1.0-rc1.msi"
 
 # vSphere creds
-host=""
-user=""
-passwd=""
+host = ""
+user = ""
+passwd = ""
 
 #
 #   Defining VM Manager
@@ -43,14 +43,14 @@ vmman.copyFileToGuest(avg, host_script_src, host_script_dst)
 x = vmman.executeCmd(avg, host_script_dst)
 if x is not True:
     sys.stdout.write("[!] error executing %s\n" % host_script_dst)
-    #vmman.shutdown(avg)
-    #sys.exit(0)
+#vmman.shutdown(avg)
+#sys.exit(0)
 
 x = vmman.executeCmd(avg, addr_script_dst)
 if x is not True:
     sys.stdout.write("[!] error executing %s\n" % addr_script_dst)
-    #vmman.shutdown(avg)
-    #sys.exit(0)
+#vmman.shutdown(avg)
+#sys.exit(0)
 
 #
 # 4. wait for reboot

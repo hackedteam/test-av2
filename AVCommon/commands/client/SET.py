@@ -5,13 +5,16 @@ import time
 
 from AVCommon import command
 
+
 def on_init(vm, args):
     """ server side """
     pass
 
+
 def on_answer(vm, success, answer):
     """ server side """
     pass
+
 
 def execute(vm, args):
     """ client side, returns (bool,*) """
@@ -22,8 +25,8 @@ def execute(vm, args):
 
     assert isinstance(args, dict), "SET expects a dict"
 
-    for k,v in args.items():
-        command.context[k]=v
+    for k, v in args.items():
+        command.context[k] = v
 
     logging.debug("items: %s" % (command.context))
     return True, k

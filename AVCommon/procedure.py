@@ -18,6 +18,7 @@ import pprint
 
 pp = pprint.PrettyPrinter(indent=4)
 
+
 class Procedure:
     command_list = []
     name = ""
@@ -30,7 +31,7 @@ class Procedure:
         if not command_list:
             self.command_list = []
         else:
-            self.command_list = [ command.factory(c) for c in command_list ]
+            self.command_list = [command.factory(c) for c in command_list]
             assert self.command_list, "empty command_list"
 
     def add_begin_end(self):

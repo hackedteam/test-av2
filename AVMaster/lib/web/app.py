@@ -124,6 +124,7 @@ def report_view(t_id):
 
     return render_template("report.html", title=title, av_list=av_list, hcolumns=hcolumns, reports=reports)
 
+
 if __name__ == "__main__":
     port = 8000
 

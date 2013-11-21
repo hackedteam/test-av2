@@ -1,5 +1,6 @@
 import logging
 
+
 def execute(vm, args):
     logging.debug("    CS Execute")
     assert vm, "null vm"

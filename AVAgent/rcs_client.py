@@ -10,7 +10,6 @@ from time import sleep
 
 
 class Rcs_client:
-
     myid = "0"
 
     def __init__(self, host, user, passwd):
@@ -151,7 +150,7 @@ class Rcs_client:
                for op in factories]
         return ret
 
-    def factories(self, target_id, all_factories = None):
+    def factories(self, target_id, all_factories=None):
         """ gets the factories of an operation, matching the target id """
         if not all_factories:
             all_factories = self.all_factories()
@@ -184,7 +183,7 @@ class Rcs_client:
         logging.debug("user_create: %s, %s, %s" % (name, password, group_id))
         try:
             data = {'name': name, 'pass': password, 'group_ids':
-                    [group_id], 'privs': privs, 'enabled': True}
+                [group_id], 'privs': privs, 'enabled': True}
             user = self._call('user/create', data)
             return user['_id']
             # return True
@@ -207,7 +206,7 @@ class Rcs_client:
     def factory_create(self, operation_id, target_id, ftype, name, desc):
         """ Create a factory """
         data = {'name': name, 'desc': desc, 'operation':
-                operation_id, 'target': target_id, 'type': ftype}
+            operation_id, 'target': target_id, 'type': ftype}
         factory = self._call('agent/create', data)
         return factory['_id'], factory['ident']
 
@@ -234,7 +233,7 @@ class Rcs_client:
                     break
             if not fct:
                 return False
-            # logging.debug(fct)
+                # logging.debug(fct)
             addlink = '%s/agent/add_config' % base
             f = open(conf_file, 'r')
             cnf = f.read()
@@ -316,7 +315,7 @@ class Rcs_client:
 
         f = open(melt_file, "rb")
         payload = f.read()
-        logging.debug("DBG payload size: %s file:  %s" %( len(payload), melt_file))
+        logging.debug("DBG payload size: %s file:  %s" % ( len(payload), melt_file))
         melt_id = self._call('upload', payload, binary=True, argjson=False)
         logging.debug("DBG uploaded:  %s" % melt_id)
 
@@ -326,7 +325,7 @@ class Rcs_client:
         logging.debug("DBG Build melt params: \n%s" % params)
         #link  = 'https://%s/build' % self.host
         #resp = self.post_response(link, json.dumps(params))
-        resp = self._call('build', params,  binary=True)
+        resp = self._call('build', params, binary=True)
 
         out = open(out_file, 'wb')
         out.write(resp)

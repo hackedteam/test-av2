@@ -107,6 +107,9 @@ UPLOAD_AGENT:
         - /opt/AVTest2
         - c:\\AVTest
 
+PUSH_ASSETS_BUILD:
+    - PUSH: [ AVAgent/assets/config*, AVAgent/assets/keyinject.exe, AVAgent/assets/meltapp.exe ]
+
 UPDATE:
     - INTERNET: False
     - REVERT
@@ -137,12 +140,40 @@ MANUAL_BUILD:
     - BUILD: [ pull, windows, silent ]
     - STOP_AGENT
 
+SCOUT:
+    - CALL: DISPATCH
+    - START_AGENT
+    - CALL: SET_DEFAULTS
+    - CALL: PUSH_ASSETS_BUILD
+    - BUILD: [ scout, windows, silent ]
+    - SCREENSHOT
+    - STOP_AGENT
+    #- STOP_VM
+
 ELITE:
     - CALL: DISPATCH
     - START_AGENT
     - CALL: SET_DEFAULTS
-
+    - CALL: PUSH_ASSETS_BUILD
     - BUILD: [ elite, windows, silent ]
+    - STOP_AGENT
+
+MELT:
+    - CALL: DISPATCH
+    - START_AGENT
+    - CALL: SET_DEFAULTS
+    - CALL: PUSH_ASSETS_BUILD
+    - BUILD: [ scout, windows, melt ]
+    - STOP_AGENT
+
+WINDOWS:
+    - CALL: DISPATCH
+    - START_AGENT
+    - CALL: SET_DEFAULTS
+    - CALL: PUSH_ASSETS_BUILD
+    - BUILD: [ scout, windows, silent ]
+    - BUILD: [ elite, windows, silent ]
+    - BUILD: [ scout, windows, melt ]
     - STOP_AGENT
 
 CHECK_SIGNATURE:
@@ -161,35 +192,24 @@ CHECK_SIGNATURE:
     - BUILD: [ pull, blackberry, silent ]
     - BUILD: [ pull, ios, silent ]
 
-PUSH_ASSETS_BUILD:
-    - PUSH: [ AVAgent/assets/config*, AVAgent/assets/keyinject.exe, AVAgent/assets/meltapp.exe ]
 
 TEST:
     - START_AGENT
     - CALL: SET_DEFAULTS
     #- CALL: CHECK_SIGNATURE
     - CALL: PUSH_ASSETS_BUILD
-    - BUILD: [ pull, android, silent ]
-    - BUILD: [ scout, windows, silent ]
+    #- BUILD: [ pull, android, silent ]
+    - BUILD: [ scout, windows, melt ]
     - STOP_AGENT
 
 TEST_SCOUT:
     - CALL: SET_DEFAULTS
-    - CALL: PUSH_ASSETS
+    - CALL: PUSH_ASSETS_BUILD
     - BUILD: [ scout, windows, silent ]
 
 TEST_SCREENSHOT:
     - SCREENSHOT
 
-SCOUT:
-    - CALL: DISPATCH
-    - START_AGENT
-    - CALL: SET_DEFAULTS
-    - CALL: PUSH_ASSETS_BUILD
-    - BUILD: [ scout, windows, silent ]
-    - SCREENSHOT
-    - STOP_AGENT
-    #- STOP_VM
 
 UPDATE_PYTHON:
     - REVERT

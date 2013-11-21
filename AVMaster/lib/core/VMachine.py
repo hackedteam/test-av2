@@ -9,8 +9,8 @@ from datetime import datetime
 #from VMManager import vSphere
 from VMRun import vSphere
 
-class VMachine:
 
+class VMachine:
     def __init__(self, name):
         self.name = name
         self.config = None
@@ -29,10 +29,10 @@ class VMachine:
             self.user = self.config.get("vm_config", "user")
             self.passwd = self.config.get("vm_config", "passwd")
 
-            self.sdkhost = self.config.get("vsphere","host")
-            self.sdkuser = self.config.get("vsphere","user")
-            self.sdkdomain = self.config.get("vsphere","domain")
-            self.sdkpasswd = self.config.get("vsphere","passwd")
+            self.sdkhost = self.config.get("vsphere", "host")
+            self.sdkuser = self.config.get("vsphere", "user")
+            self.sdkdomain = self.config.get("vsphere", "domain")
+            self.sdkpasswd = self.config.get("vsphere", "passwd")
 
         except NoSectionError:
             logging.debug("cwd: %s" % os.getcwd())
@@ -46,10 +46,11 @@ class VMachine:
         self.create_snapshot(date)
         if delete is True:
             snap_list = self.list_snapshots()
-#            for snap in snap_list:
-#                print snap.get_name()
-            if len(snap_list) > 0 and snap_list[-2].get_name() not in untouchables and "manual" not in snap_list[-2].get_name():
-                logging.debug("deleting %s" % snap_list[-2].get_name() )
+            #            for snap in snap_list:
+            #                print snap.get_name()
+            if len(snap_list) > 0 and snap_list[-2].get_name() not in untouchables and "manual" not in snap_list[
+                -2].get_name():
+                logging.debug("deleting %s" % snap_list[-2].get_name())
                 self.delete_snapshot(snap_list[-2].get_name())
 
     def send_files(self, src_dir, dst_dir, filestocopy):
@@ -155,7 +156,7 @@ class VMachine:
         return self._run_cmd("is_powered_on")
 
     def login_in_guest(self):
-#       print "login with %s and %s" % (self.user, self.passwd)
+    #       print "login with %s and %s" % (self.user, self.passwd)
         return self._run_cmd("login_in_guest", self.user, self.passwd)
 
     def list_snapshots(self):
@@ -172,9 +173,9 @@ class VMachine:
             try:
                 self._run_vm(vm, "login_in_guest", self.user, self.passwd)
                 return self._run_vm(vm, "list_processes")
-#            except VIApiException:
-#                logging.error("path %s is not found on vm %s") % (dir_path, vm)
-#                raise Exception("path %s is not found on vm %s" % (dir_path, vm))
+            #            except VIApiException:
+            #                logging.error("path %s is not found on vm %s") % (dir_path, vm)
+            #                raise Exception("path %s is not found on vm %s" % (dir_path, vm))
             except Exception as e:
                 print "EXCEPTION %s" % e
                 return None
@@ -190,9 +191,9 @@ class VMachine:
             try:
                 self._run_vm(vm, "login_in_guest", self.user, self.passwd)
                 return self._run_vm(vm, "list_files", dir_path)
-#            except VIApiException:
-#                logging.error("path %s is not found on vm %s") % (dir_path, vm)
-#                raise Exception("path %s is not found on vm %s" % (dir_path, vm))
+            #            except VIApiException:
+            #                logging.error("path %s is not found on vm %s") % (dir_path, vm)
+            #                raise Exception("path %s is not found on vm %s" % (dir_path, vm))
             except Exception as e:
                 print "EXCEPTION %s" % e
                 return None

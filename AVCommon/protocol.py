@@ -8,27 +8,28 @@ from mq import MQStar
 
 import traceback
 
+
 class ProtocolClient:
     """ Protocol, client side. When the command is received, it's executed and the result resent to the server. """
 
-    def __init__(self, mq, vm, timeout = 0):
+    def __init__(self, mq, vm, timeout=0):
         self.mq = mq
         self.vm = vm
         self.timeout = 0
 
-        assert(isinstance(vm, str))
+        assert (isinstance(vm, str))
         assert mq
 
     def _execute_command(self, cmd):
         try:
-            ret = cmd.execute(self.vm, cmd.payload)
+            ret = cmd.execute(self.vm, cmd.args)
             if config.verbose:
                 logging.debug("cmd.execute ret: %s" % str(ret))
-            cmd.success, cmd.payload = ret
+            cmd.success, cmd.result = ret
         except Exception, e:
-            logging.error("ERROR: %s %s %s" % (type(e), e, traceback.format_exc(e)))
+            logging.exception("ERROR:_execute_command")
             cmd.success = False
-            cmd.payload = e
+            cmd.result = e
 
         assert isinstance(cmd.success, bool)
         self.send_answer(cmd)
@@ -38,22 +39,21 @@ class ProtocolClient:
     def _meta(self, cmd):
         if config.verbose:
             logging.debug("PROTO S executing meta")
-        ret = cmd.execute( self.vm, (self, cmd.payload) )
-        cmd.success, cmd.payload = ret
+        ret = cmd.execute(self.vm, (self, cmd.args))
+        cmd.success, cmd.result = ret
         assert isinstance(cmd.success, bool)
         self.send_answer(cmd)
         return cmd
 
     # client side
     def receive_command(self):
-        assert(isinstance(self.vm, str))
+        assert (isinstance(self.vm, str))
         #logging.debug("PROTO receiveCommand %s" % (self.client))
         msg = self.mq.receive_client(self.vm, blocking=True, timeout=self.timeout)
         if config.verbose:
             logging.debug("PROTO C receive_command %s, %s" % (self.vm, msg))
         cmd = command.unserialize(msg)
         cmd.vm = self.vm
-
 
         if cmd.side == "meta":
             return self._meta(cmd)
@@ -71,11 +71,12 @@ class Protocol(ProtocolClient):
     procedure = None
     last_command = None
 
-    def __init__(self, mq, vm, procedure=None, timeout = 0):
+    def __init__(self, mq, vm, procedure=None, timeout=0):
         ProtocolClient.__init__(self, mq, vm, timeout)
         self.mq = mq
         self.vm = vm
         self.procedure = copy.deepcopy(procedure)
+        self.sent_commands = []
         assert (isinstance(vm, str))
         assert mq
 
@@ -83,7 +84,7 @@ class Protocol(ProtocolClient):
 
     # server side
     def _send_command_mq(self, cmd):
-        cmd.on_init(self.vm, cmd.payload)
+        cmd.on_init(self.vm, cmd.args)
         self.mq.send_client(self.vm, cmd.serialize())
 
 
@@ -110,9 +111,10 @@ class Protocol(ProtocolClient):
         return self.send_command(copy.deepcopy(self.last_command))
 
     def send_command(self, cmd):
+        self.sent_commands.append(cmd)
         if config.verbose:
             logging.debug("PROTO S send_command: %s" % str(cmd))
-        #cmd = command.unserialize(cmd)
+            #cmd = command.unserialize(cmd)
         cmd.vm = self.vm
         try:
             if cmd.side == "client":
@@ -131,12 +133,19 @@ class Protocol(ProtocolClient):
         """ returns a command with name, success and payload """
         #msg = self.mq.receiveClient(self, client)
 
+        sent_command = self.sent_commands[0]
+
         cmd = command.unserialize(msg)
         cmd.vm = vm
         if config.verbose:
             logging.debug("PROTO S manage_answer %s: %s" % (vm, cmd))
 
-        assert(cmd.success is not None)
-        cmd.on_answer(vm, cmd.success, cmd.payload)
+        if cmd.success and cmd.name == sent_command.name and cmd.timestamp == sent_command.timestamp:
+            logging.debug("PROTO S we got the expected answer")
+            cmd.on_answer(vm, cmd.success, cmd.result)
+            self.sent_commands.pop(0)
+        else:
+            logging.debug("PROTO S ignoring unexpected answer")
+            cmd.success = None
 
         return cmd

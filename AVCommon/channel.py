@@ -3,6 +3,7 @@ from redis import StrictRedis
 from AVCommon import config
 from redis.exceptions import ConnectionError
 
+
 class Channel():
     """ Communication Channel, via Redis
     A channel is defined by a (blocking) list on a redis server. Messages are strings. """
@@ -35,7 +36,7 @@ class Channel():
                     ret = self.redis.blpop(self.channel, timeout)
                     break;
                 except ConnectionError, e:
-                    logging.debug("  CH TIMEOUT server: %s" % e)
+                    logging.exception("  CH TIMEOUT server")
                     ret = None
 
             if not ret and timeout:

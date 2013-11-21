@@ -16,19 +16,21 @@ if not prev in sys.path:
 
 vm_conf_file = "../AVMaster/conf/vms.cfg" #os.path.join("conf", "vms.cfg")
 
+
 def execute(vm_name, cmd, *args):
     global vm_conf_file
     # pysphere, vi_server
-    vmachine_cmds = [ "startup", "shutdown", "reboot",
-                      "get_snapshots", "revert_last_snapshot", "revert_to_snapshot", "create_snapshot", "delete_snapshot",
-                      "is_powered_on", "is_powered_off", "get_status",
-                      "list_directory", "make_directory", "get_file", "send_file", "list_processes" ]
+    vmachine_cmds = ["startup", "shutdown", "reboot",
+                     "get_snapshots", "revert_last_snapshot", "revert_to_snapshot", "create_snapshot",
+                     "delete_snapshot",
+                     "is_powered_on", "is_powered_off", "get_status",
+                     "list_directory", "make_directory", "get_file", "send_file", "list_processes"]
     # vmware tools
-    vmrun_cmds = [ "executeCmd", "runTest", "takeScreenshot",
-                   "mkdirInGuest", "copyFileToGuest", "copyFileFromGuest",
-                   "refreshSnapshot" ]
+    vmrun_cmds = ["executeCmd", "runTest", "takeScreenshot",
+                  "mkdirInGuest", "copyFileToGuest", "copyFileFromGuest",
+                  "refreshSnapshot"]
 
-    logging.debug("command: %s" % cmd )
+    logging.debug("command: %s" % cmd)
 
     try:
         vm = VMachine(vm_name)
@@ -60,8 +62,10 @@ def execute(vm_name, cmd, *args):
         logging.error("Exception found. %s" % e)
         raise
 
-if __name__=='__main__':
+
+if __name__ == '__main__':
     import logging.config
+
     logging.config.fileConfig('../logging.conf')
 
     t = tuple(sys.argv[1:])

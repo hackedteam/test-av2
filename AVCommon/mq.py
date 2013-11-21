@@ -6,6 +6,7 @@ import re
 from channel import Channel
 from AVCommon import config
 
+
 def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for x in range(size))
 
@@ -19,6 +20,7 @@ class MQStar():
     session = ""
     channels = {}
     """MQStar is a MessageQueue with a star topology based on Redis"""
+
     def __init__(self, host, session=None):
         self.host = host
         if not session:
@@ -46,7 +48,7 @@ class MQStar():
             logging.debug(" MQ clean %s" % k)
             self.channel_to_server.redis.delete(k)
 
-        #assert not self.channel_to_server.redis.keys("MQ_*")
+            #assert not self.channel_to_server.redis.keys("MQ_*")
 
     def add_client(self, client):
         if client not in self.channels.keys():
@@ -76,21 +78,21 @@ class MQStar():
         p = re.compile("\('(\w+)', (.+)\)")
         m = p.match(payload)
         assert m, "wrong format"
-        
+
         cmd, args = m.group(1), m.group(2)
         #logging.debug(" MQ read: %s args: %s" % (str(cmd), str(args)))
         #client, message = payload
         return cmd, args
 
-    def send_client(self,  client, message):
+    def send_client(self, client, message):
         if client not in self.channels.keys():
             logging.debug(" MQ error, sendClient, client not found: %s" %
-                self.channels)
+                          self.channels)
         ch = self.channels[client]
         ch.write(message)
 
     def receive_client(self, client, blocking=False, timeout=60):
-        assert(isinstance(client, str))
+        assert (isinstance(client, str))
         if client not in self.channels.keys():
             logging.debug(" MQ error, receiveClient, client (%s) not found: %s" % (client, self.channels))
         ch = self.channels[client]
