@@ -190,3 +190,16 @@ SCOUT:
     - SCREENSHOT
     - STOP_AGENT
     #- STOP_VM
+
+UPDATE_PYTHON:
+    - REVERT
+    - START_VM
+    - INTERNET: True
+    - PUSH:
+        - [active_py.msi, active_inst.bat]
+        - updates
+        - c:/Users/avtest/Desktop
+    - EXECUTE_VM: /Users/avtest/Desktop/active_inst.bat
+    - INTERNET: False
+    - STOP_VM
+    - REFRESH_SNAPSHOT

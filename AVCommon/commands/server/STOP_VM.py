@@ -12,7 +12,7 @@ def execute(vm, args):
     assert vm, "null vm"
 
     ret = vm_manager.execute(vm, "shutdown")
-    if ret == 0:
+    if ret:
         return True, "Stopped VM"
     else:
-        return False, "Not Stopped VM"
+        return False, "Not Stopped VM %s" % ret

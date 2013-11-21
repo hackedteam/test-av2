@@ -9,7 +9,11 @@ def execute(vm, args):
     logging.debug("    CS Execute")
     assert vm, "null vm"
 
-    ret = vm_manager.execute(vm, "runTest", args)
+    if isinstance(args, list):
+        cmd_args = tuple(args)
+    else:
+        cmd_args = (args,)
+    ret = vm_manager.execute(vm, "executeCmd", *cmd_args)
 
     if ret == 0:
         return True, "Command %s executed" % args
