@@ -12,7 +12,6 @@ autologin_script = "C:\\Users\\avtest\\Desktop\\autologon.bat"
 exe_path_src = "/Users/olli/Documents/work/AVTesting/malware/arg.exe"
 exe_path_dst = "c:\\Users\\avtest\\Desktop\\arg.exe"
 
-
 greet = '''
               _,=(_)=,_
            ,;`         `;,
@@ -59,9 +58,9 @@ c = raw_input("[>] Press Enter to executing infection...\n")
 x = vmman.executeCmd(avg, exe_path_dst)
 
 if x is not True:
-  sys.stdout.write("[!] Execution failed\n")
-  vmman.shutdown(avg)
-  sys.exit(0)
+    sys.stdout.write("[!] Execution failed\n")
+    vmman.shutdown(avg)
+    sys.exit(0)
 #
 # 4. wait for reboot
 c = raw_input("[>] Wait 5 min and reboot (press enter when ok)...\n")

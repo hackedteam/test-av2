@@ -12,10 +12,10 @@ cmd_folder = os.path.split(os.path.realpath(os.path.abspath(inspect_getfile)))[0
 os.chdir(cmd_folder)
 
 if cmd_folder not in sys.path:
-     sys.path.insert(0, cmd_folder)
+    sys.path.insert(0, cmd_folder)
 parent = os.path.split(cmd_folder)[0]
 if parent not in sys.path:
-     sys.path.insert(0, parent)
+    sys.path.insert(0, parent)
 
 from AVCommon.mq import MQStar
 from AVCommon.protocol import Protocol
@@ -24,24 +24,30 @@ from AVCommon.procedure import Procedure
 
 commands = ['BUILD', 'GET', 'SET']
 
+
 class MQFeedProcedure(object):
-    protocol=None
+    protocol = None
+
     def receive_client(self, client, blocking=False, timeout=60):
         cmd = self.protocol.procedure.next_command()
         logging.debug("receive_client: %s, %s" % (client, cmd))
         return cmd.serialize()
-    def send_client(self,  client, message):
+
+    def send_client(self, client, message):
         pass
+
     def receive_server(self, blocking=False, timeout=10):
         pass
+
     def send_server(self, client, message):
         logging.debug("send_server: %s" % message)
         pass
+
     def add_client(self, vm):
         pass
 
-class AVAgent(object):
 
+class AVAgent(object):
     def __init__(self, vm, redis='localhost', session=None):
         self.vm = vm
         self.host = redis
@@ -72,14 +78,17 @@ class AVAgent(object):
 
         logging.info("stop receiving commands")
 
+
 def start_agent(args):
     vm, redis, session = args
     avagent = AVAgent(vm, redis, session)
     avagent.start_agent()
 
+
 def start_agent_args(vm, redis, session):
     avagent = AVAgent(vm, redis, session)
     avagent.start_agent()
+
 
 if __name__ == "__main__":
     logging.config.fileConfig('../logging.conf')
