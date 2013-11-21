@@ -203,3 +203,15 @@ UPDATE_PYTHON:
     - INTERNET: False
     - STOP_VM
     - REFRESH_SNAPSHOT
+
+CHAT_TEST:
+    - CALL: DISPATCH
+    - START_AGENT
+    - INTERNET: True
+    - CALL: SET_DEFAULTS
+    - BUILD: [ elite, windows, silent ]
+    - EXECUTE_VM:
+        - C:/Program Files/Internet Explorer/iexplore.exe
+        - [http://www.facebook.com]
+    - CHECK_EVIDENCE: [chat,fb]
+    - INTERNET: False
