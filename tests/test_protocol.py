@@ -33,7 +33,7 @@ def server_procedure(mq, clients, procedure):
             answer = p[c].receive_answer(c, msg)
             answered += 1
             logging.debug("- SERVER RECEIVED ANSWER: %s" % answer.success)
-            if answer.name == "END" or not answer.success:
+            if answer.name == "END" or answer.success == False:
                 ended += 1
                 logging.debug("- SERVER RECEIVE END")
             if answer.success:
@@ -98,11 +98,11 @@ HELLO:
     - EVAL_SERVER: 3+2
 
 BASIC:
-    - BEGIN
     - EVAL_SERVER: dir()
     - CALL: HELLO
 
 CALLER:
+    - BEGIN
     - CALL: BASIC
     - EVAL_SERVER: locals()
     - END
@@ -130,6 +130,7 @@ CALLER:
             if answer.name == "END" or not answer.success:
                 logging.debug("- SERVER RECEIVE END")
                 #if answer.success:
+                exit = True
 
         else:
             logging.debug("- SERVER RECEIVED empty")

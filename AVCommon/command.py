@@ -9,7 +9,7 @@ from AVCommon import config
 import commands
 import inspect
 import glob
-
+import time
 import pickle
 import importlib
 
@@ -69,7 +69,8 @@ def normalize(data):
     #assert(ident == "CMD")
     cmd = data
     success = None
-    payload = None
+    args = None
+    result = None
     vm = None
 
     assert data, "cannot normalize a null argument"
@@ -77,15 +78,20 @@ def normalize(data):
     identified = "instance"
     if isinstance(data, Command):
         logging.warn("normalizing a command")
-        return data.name, data.success, data.payload, data.vm
+        return data.name, data.success, data.args, data.result, data.vm
     elif isinstance(data, dict):
         identified = "dict"
         assert len(data) == 1
         cmd = data.keys()[0]
-        payload = data[cmd]
+        args = data[cmd]
     elif not isinstance(data, str) and len(data) == 3:
         identified = "len 3"
         cmd, success, payload = data
+        if success == None:
+            args = payload
+        else:
+            result = payload
+
     elif isinstance(data, str):
         identified = "str"
         m = re.compile("\('(\w+)\', (\w+), (.+)\)").match(data)
@@ -101,6 +107,10 @@ def normalize(data):
                 payload = groups[2]
             except ValueError:
                 payload = groups[2]
+            if success == None:
+                args = payload
+            else:
+                result = payload
 
     #logging.debug(1)Command.knownCommands
 
@@ -109,22 +119,36 @@ def normalize(data):
     assert isinstance(success, bool) or success is None, "success: %s" % success
     assert isinstance(cmd, str), "not a string: %s" % cmd
 
-    return (cmd, success, payload, vm)
+    return (cmd, success, args, result, vm)
 
 
 def factory(data):
     if not known_commands:
         init()
 
-    name, success, payload, vm = normalize(data)
-    return _factory(name, success, payload, vm)
+    name, success, args, result, vm = normalize(data)
+
+    return _factory(name, success, args, result, vm)
 
 
-def _factory(name, success, payload, vm):
+def eval_safe(attr,  value):
+
+    if isinstance(value, str) and attr.startswith("|"):
+        a = value[1:]
+    else:
+        try:
+            a = ast.literal_eval(value)
+        except:
+            a = value
+
+    attr = a
+
+
+def _factory(name, success, args, result,  vm, timestamp=time.time()):
     assert name in known_commands.keys(), "Unknown command: %s" % name
 
     m = known_commands[name]
-    c = Command(name, success, payload, vm, m.side)
+    c = Command(name, success, args, result, vm, m.side, timestamp)
 
     c.execute = m.execute
     if c.side == "client":
@@ -135,23 +159,18 @@ def _factory(name, success, payload, vm):
         c.on_init = lambda x, y, z: None
 
     # payload eval in safe way
-    if isinstance(payload, str) and payload.startswith("|"):
-        c.payload = payload[1:]
-    else:
-        try:
-            c.payload = ast.literal_eval(payload)
-        except:
-            c.payload = payload
-        #assert isinstance(c, Command), "not an instance: %s of %s" % (c.__class__, Command)
+    eval_safe(c.args, args)
+    eval_safe(c.result, result)
+
     return c
 
 
 def unserialize(message):
     data = base64.b64decode(message)
 
-    name, success, payload, vm, side = pickle.loads(data)
-    logging.debug("unserialized: (%s,%s,%s,%s)" % (name, success, str(payload)[:50], vm))
-    return _factory(name, success, payload, vm)
+    name, success, args, result, vm, side, timestamp = pickle.loads(data)
+    logging.debug("unserialized: (%s,%s,%s,%s,%s,%s)" % (name, success, args, str(result)[:50], vm, timestamp))
+    return _factory(name, success, args, result, vm, timestamp)
 
 
 class Command(object):
@@ -165,19 +184,24 @@ class Command(object):
     side = None
     vm = None
 
-    def __init__(self, name, success=None, payload="", vm=None, side=None):
+    def __init__(self, name, success=None, args="", result=None, vm=None, side=None,  timestamp=time.time()):
         """ A command is constructed with a name, that identifies the derived class """
         self.name = name
         self.success = success
-        self.payload = payload
+        self.args = args
+        self.result = result
+        self.timestamp = timestamp
         self.vm = vm
         self.side = side
 
     def serialize(self):
-        serialized = pickle.dumps(( self.name, self.success, self.payload, self.vm, self.side ),
+        serialized = pickle.dumps(( self.name, self.success, self.args, self.result, self.vm, self.side, self.timestamp ),
                                   pickle.HIGHEST_PROTOCOL)
         #logging.debug("pickle.dumps(%s)" % serialized)
         return base64.b64encode(serialized)
 
     def __str__(self):
-        return "%s,%s,%s" % (self.name, self.success, self.payload)
+        if self.result:
+            return "%s,%s,%s" % (self.name, self.success, self.result)
+        else:
+            return "%s,%s,%s" % (self.name, self.success, self.args)

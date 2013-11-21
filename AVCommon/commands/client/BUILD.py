@@ -16,7 +16,10 @@ def on_init(vm, args):
 
 def on_answer(vm, success, answer):
     """ server side """
-    pass
+    if isinstance(answer, list) and len(answer) > 0:
+        logging.info("BUILD ANSWER LAST: %s" % answer[-1])
+    else:
+        logging.info("BUILD ANSWER: %s" % answer)
 
 
 def execute(vm, args):
@@ -30,6 +33,8 @@ def execute(vm, args):
     params = command.context["build_parameters"]
     blacklist = command.context["blacklist"]
 
+    report = command.context["report"]
+
     logging.debug("args: %s", args)
     action, platform, kind = args
 
@@ -40,7 +45,7 @@ def execute(vm, args):
     assert action in ['scout', 'elite', 'internet', 'test', 'clean', 'pull'], "action: %s" % action
     assert platform_type in ['desktop', 'mobile'], "platform_type: %s" % platform_type
 
-    ret = build.build(action, platform, platform_type, kind, param, backend, frontend, blacklist)
+    ret = build.build(action, platform, platform_type, kind, param, backend, frontend, blacklist, report)
 
     time.sleep(10)
     logging.debug("stop sleeping")

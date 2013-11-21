@@ -107,6 +107,9 @@ UPLOAD_AGENT:
         - /opt/AVTest2
         - c:\\AVTest
 
+PUSH_ASSETS_BUILD:
+    - PUSH: [ AVAgent/assets/config*, AVAgent/assets/keyinject.exe, AVAgent/assets/meltapp.exe ]
+
 UPDATE:
     - INTERNET: False
     - REVERT
@@ -160,7 +163,7 @@ MELT:
     - START_AGENT
     - CALL: SET_DEFAULTS
     - CALL: PUSH_ASSETS_BUILD
-    - BUILD: [ elite, windows, melt ]
+    - BUILD: [ scout, windows, melt ]
     - STOP_AGENT
 
 WINDOWS:
@@ -189,21 +192,19 @@ CHECK_SIGNATURE:
     - BUILD: [ pull, blackberry, silent ]
     - BUILD: [ pull, ios, silent ]
 
-PUSH_ASSETS_BUILD:
-    - PUSH: [ AVAgent/assets/config*, AVAgent/assets/keyinject.exe, AVAgent/assets/meltapp.exe ]
 
 TEST:
     - START_AGENT
     - CALL: SET_DEFAULTS
     #- CALL: CHECK_SIGNATURE
     - CALL: PUSH_ASSETS_BUILD
-    - BUILD: [ pull, android, silent ]
-    - BUILD: [ scout, windows, silent ]
+    #- BUILD: [ pull, android, silent ]
+    - BUILD: [ scout, windows, melt ]
     - STOP_AGENT
 
 TEST_SCOUT:
     - CALL: SET_DEFAULTS
-    - CALL: PUSH_ASSETS
+    - CALL: PUSH_ASSETS_BUILD
     - BUILD: [ scout, windows, silent ]
 
 TEST_SCREENSHOT:

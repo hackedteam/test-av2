@@ -24,7 +24,6 @@ from AVCommon.procedure import Procedure
 
 commands = ['BUILD', 'GET', 'SET']
 
-
 class MQFeedProcedure(object):
     protocol = None
 
@@ -56,22 +55,28 @@ class AVAgent(object):
         shutil.rmtree('build', ignore_errors=True)
         logging.debug("vm: %s host: %s session: %s" % (self.vm, self.host, session))
 
+        command.context["report"] = self.report
+
+    def report(self, message):
+        logging.debug("report: %s" % message)
+        self.pc.send_answer(command._factory("BUILD", None, None, message, self.vm))
+
     def start_agent(self, mq=None, procedure=None):
         if not mq:
             mq = MQStar(self.host, self.session)
-            pc = Protocol(mq, self.vm)
+            self.pc = Protocol(mq, self.vm)
         else:
             assert procedure
-            pc = Protocol(mq, self.vm, procedure=procedure)
-            mq.protocol = pc
-            logging.debug("mq: %s pc:%s" % (mq.protocol.procedure, pc.procedure))
+            self.pc = Protocol(mq, self.vm, procedure=procedure)
+            mq.protocol = self.pc
+            logging.debug("mq: %s pc:%s" % (mq.protocol.procedure, self.pc.procedure))
         mq.add_client(self.vm)
 
         logging.info("start receiving commands")
         exit = False
         while not exit:
             logging.debug("- CLIENT %s LISTENING" % self.vm)
-            received = pc.receive_command()
+            received = self.pc.receive_command()
             logging.debug("- CLIENT %s EXECUTED: %s" % (self.vm, received))
             if received.name == 'STOP_AGENT':
                 exit = True

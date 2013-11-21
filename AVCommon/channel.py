@@ -36,7 +36,7 @@ class Channel():
                     ret = self.redis.blpop(self.channel, timeout)
                     break;
                 except ConnectionError, e:
-                    logging.debug("  CH TIMEOUT server: %s" % e)
+                    logging.exception("  CH TIMEOUT server")
                     ret = None
 
             if not ret and timeout:

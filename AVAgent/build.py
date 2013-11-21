@@ -584,12 +584,14 @@ class AgentBuild:
 
 
 results = []
-
+report_send = None
 
 def add_result(result):
-    global results
+    global results, report_send
     logging.debug(result)
     results.append(result)
+    if report_send:
+        report_send(result)
 
 
 internet_checked = False
@@ -641,8 +643,8 @@ def clean(args):
     vmavtest._delete_targets(operation)
 
 
-def build(action, platform, platform_type, kind, param, backend, frontend, blacklist):
-    global results
+def build(action, platform, platform_type, kind, param, backend, frontend, blacklist, report):
+    global results, report_send
     results = []
 
     class Args:
@@ -658,8 +660,11 @@ def build(action, platform, platform_type, kind, param, backend, frontend, black
     args.param = param
     args.blacklist = blacklist
     args.platform_type = platform_type
+    report_send = report
 
     connection.host = args.backend
+
+    report_send("+ INIT %s, %s, %s" % (action, platform, kind))
 
     try:
         if action in ["pull", "scout", "silent"]:

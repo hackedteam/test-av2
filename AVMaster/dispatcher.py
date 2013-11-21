@@ -50,8 +50,14 @@ class Dispatcher(object):
                 c, msg = rec
                 p = av_machines[c]
                 answer = p.receive_answer(c, msg)
+
                 if self.report:
                     self.report.received(c, msg)
+
+                if answer.success == None:
+                    logging.debug("- SERVER IGNORING")
+                    continue
+
                 answered += 1
                 #logging.debug("- SERVER RECEIVED ANSWER: %s" % answer.success)
                 if answer.name == "END":
