@@ -10,7 +10,6 @@ from ..web.models import db
 
 
 class Report:
-
     def __init__(self, test_id=None, results=None):
         self.test_id = test_id
         self.results = results
@@ -51,7 +50,7 @@ class Report:
             print "[report:send mail] Impossible to send report via mail. Exception: %s" % e
             return False
 
-    def _build_mail_body(self,  url_dir):
+    def _build_mail_body(self, url_dir):
 
         hresults = []
         hcolumns = ['name']
@@ -80,7 +79,7 @@ class Report:
             hresults.append(hres)
 
         print "DBG hresults %s" % hresults
-        style  = """<html><head><style type'text/css'>
+        style = """<html><head><style type'text/css'>
 #suc { background-color: green; width: 10px; height: 10px; }
 #err { background-color: black; width: 10px; height: 10px; }
 #fai { background-color: red; width: 10px; height: 10px; }
@@ -144,13 +143,13 @@ a.fill-div { display: block; height: 100%; width: 100%; text-decoration: none; }
                         break
                     elif "STARTED" in rd[col]:  # or rd[col] == "n":
                         print "DBG found line STARTED"
-#                       l += linetoken % ("error", link)
+                        #                       l += linetoken % ("error", link)
                         l += linetoken % ("err", link)
                         found = True
                         break
                 if not found:
                     print "DBG found nothing. assuming ERROR"
-#                   l += linetoken % ("error", link)
+                    #                   l += linetoken % ("error", link)
                     l += linetoken % ("err", link)
             l += lineend
 
@@ -161,7 +160,7 @@ a.fill-div { display: block; height: 100%; width: 100%; text-decoration: none; }
 
         return content
 
-    def send_report_color_mail(self,  url_dir):
+    def send_report_color_mail(self, url_dir):
         content = self._build_mail_body(url_dir)
 
         try:

@@ -59,7 +59,7 @@ def init_db(db_path):
         print "[!] No database found! Creating one"
         db.create_all()
 
-# if __name__ == "__main__":
+    # if __name__ == "__main__":
     # init_db()
     # assert Report(0,"22-12-22-03:03:03") not None
     # assert Result("melt","SUCCESS","SUCCES SYNC") not None

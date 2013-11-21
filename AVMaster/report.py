@@ -2,6 +2,7 @@ __author__ = 'fabrizio'
 
 import logging
 
+
 class Report:
     c_sent = {}
     c_received = {}

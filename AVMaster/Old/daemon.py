@@ -2,6 +2,7 @@ import sys
 
 from lib.web.app import DB_PATH, init_db, app
 
+
 def init_web():
     port = 8000
 
@@ -12,9 +13,10 @@ def init_web():
 
     app.run(host='0.0.0.0', port=port)
 
-def main():
 
+def main():
     init_web()
+
 
 if __name__ == "__main__":
     main()

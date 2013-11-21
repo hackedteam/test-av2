@@ -1,69 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<title>AV Monitor</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="">
-<meta name="author" content="">
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap-responsive.css') }}">
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/report.colors.css') }}">
-<style>
+    <meta charset="utf-8">
+    <title>AV Monitor</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap-responsive.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/report.colors.css') }}">
+    <style>
 
-body {
-    padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
-}
-.footer {
-    margin-top: 45px;
-    padding: 35px 0 36px;
-    border-top: 1px solid #e5e5e5;
-}
-.footer p {
-    margin-bottom: 0;
-    color: #555;
-}
-.mono {
-    font-family: monospace;
-}
-.signature {
-    padding: 6px;
-    margin-bottom: 3px;
-}
-</style>
+        body {
+        padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
+        }
+        .footer {
+        margin-top: 45px;
+        padding: 35px 0 36px;
+        border-top: 1px solid #e5e5e5;
+        }
+        .footer p {
+        margin-bottom: 0;
+        color: #555;
+        }
+        .mono {
+        font-family: monospace;
+        }
+        .signature {
+        padding: 6px;
+        margin-bottom: 3px;
+        }
+    </style>
 
-<link rel="shortcut icon" href="ico/favicon.ico">
-<link rel="apple-touch-icon-precomposed" sizes="144x144" href="ico/apple-touch-icon-144-precomposed.png">
-<link rel="apple-touch-icon-precomposed" sizes="114x114" href="ico/apple-touch-icon-114-precomposed.png">
-<link rel="apple-touch-icon-precomposed" sizes="72x72" href="ico/apple-touch-icon-72-precomposed.png">
-<link rel="apple-touch-icon-precomposed" href="ico/apple-touch-icon-57-precomposed.png">
+    <link rel="shortcut icon" href="ico/favicon.ico">
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="ico/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="ico/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="ico/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="ico/apple-touch-icon-57-precomposed.png">
 </head>
 <body>
-    <div class="navbar navbar-fixed-top">
-        <div class="navbar-inner">
-            <div class="container">
-                <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+<div class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
-                </a>
-                <!--<a class="brand" href="/">Cuckoo Sandbox</a>-->
-                <div class="nav-collapse">
-                    <ul class="nav">
-                        <li><a href="/">Browse</a></li>
-                    </ul>
-                </div><!--/.nav-collapse -->
+            </a>
+            <!--<a class="brand" href="/">Cuckoo Sandbox</a>-->
+            <div class="nav-collapse">
+                <ul class="nav">
+                    <li><a href="/">Browse</a></li>
+                </ul>
             </div>
+            <!--/.nav-collapse -->
         </div>
     </div>
-    <div class="container">
-        {% block body %} {% endblock %}
+</div>
+<div class="container">
+    {% block body %} {% endblock %}
 
-        <footer class="footer">
-            <p class="pull-right"><a href="#">Back to top</a></p>
-            <p>&copy;2010-2012 <a href="http://www.hackingteam.com">] HackingTeam [</a></p>
-        </footer>
-    </div><!-- Close container -->
+    <footer class="footer">
+        <p class="pull-right"><a href="#">Back to top</a></p>
+
+        <p>&copy;2010-2012 <a href="http://www.hackingteam.com">] HackingTeam [</a></p>
+    </footer>
+</div>
+<!-- Close container -->
 
 <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/functions.js') }}"></script>

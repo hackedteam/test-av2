@@ -10,6 +10,9 @@ from ConfigParser import ConfigParser
 from pysphere import VIServer
 from pysphere import VIException
 
+from AVCommon import config
+
+
 class vSphere:
     def __init__(self, vm_path, sdk_host, sdk_user, sdk_domain, sdk_passwd):
         self.vm_path = vm_path
@@ -34,7 +37,6 @@ class vSphere:
 
 
 class VMRun:
-
     def __init__(self, config_file):
         self.config = ConfigParser()
         self.config.read(config_file)
@@ -60,21 +62,25 @@ class VMRun:
         if popen is True:
             return self._run_popen(pargs, timeout)
         elif bg is True:
-            logging.debug("running in bg mode")
+            if config.verbose:
+                logging.debug("running in bg mode")
             return self._run_bg(pargs)
         else:
             return self._run_call(pargs)
 
     def _run_call(self, pargs):
-        logging.debug("_run_call")
+        if config.verbose:
+            logging.debug("_run_call")
         return subprocess.call(pargs)
 
     def _run_bg(self, pargs):
-        logging.debug("_run_bg")
+        if config.verbose:
+            logging.debug("_run_bg")
         subprocess.Popen(pargs, stdout=subprocess.PIPE)
 
     def _run_popen(self, pargs, timeout=40):
-        logging.debug("_run_popen")
+        if config.verbose:
+            logging.debug("_run_popen")
         p = subprocess.Popen(pargs, stdout=subprocess.PIPE)
 
         executed = False
@@ -164,7 +170,7 @@ class VMRun:
     def mkdirInGuest(self, vmx, dir_path):
         sys.stdout.write("[%s] Creating directory %s.\n" % (vmx, dir_path))
         self._run_cmd(vmx, "CreateDirectoryInGuest", [
-                      dir_path], [vmx.user, vmx.passwd])
+            dir_path], [vmx.user, vmx.passwd])
 
     def listDirectoryInGuest(self, vmx, dir_path):
         sys.stdout.write("[%s] Listing directory %s.\n" % (vmx, dir_path))
@@ -179,19 +185,19 @@ class VMRun:
         sys.stdout.write("[%s] Copying file from %s to %s.\n" %
                          (vmx, src_file, dst_file))
         return self._run_cmd(vmx, "CopyFileFromHostToGuest",
-                      [src_file, dst_file], [vmx.user, vmx.passwd])
+                             [src_file, dst_file], [vmx.user, vmx.passwd])
 
     def copyFileFromGuest(self, vmx, src_file, dst_file):
         sys.stdout.write("[%s] Copying file from %s to %s.\n" %
                          (vmx, src_file, dst_file))
         return self._run_cmd(vmx, "CopyFileFromGuestToHost",
-                      [src_file, dst_file], [vmx.user, vmx.passwd])
+                             [src_file, dst_file], [vmx.user, vmx.passwd])
 
     def executeCmd(self, vmx, cmd, args=[], timeout=40, interactive=True, bg=False):
         sys.stdout.write("[%s] Executing %s\n" % (vmx, cmd))
-        logging.debug("Executing %s with args %s" % (cmd,args))
+        logging.debug("Executing %s with args %s" % (cmd, args))
         logging.debug("on %s with credentials %s %s" % (vmx, vmx.user, vmx.passwd))
-        logging.debug("Options: timeout: %s, interactive: %s, background: %s" % (timeout,interactive,bg))
+        logging.debug("Options: timeout: %s, interactive: %s, background: %s" % (timeout, interactive, bg))
         cmds = []
         if interactive is True:
             cmds.append("-interactive")

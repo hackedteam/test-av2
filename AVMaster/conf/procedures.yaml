@@ -137,12 +137,40 @@ MANUAL_BUILD:
     - BUILD: [ pull, windows, silent ]
     - STOP_AGENT
 
+SCOUT:
+    - CALL: DISPATCH
+    - START_AGENT
+    - CALL: SET_DEFAULTS
+    - CALL: PUSH_ASSETS_BUILD
+    - BUILD: [ scout, windows, silent ]
+    - SCREENSHOT
+    - STOP_AGENT
+    #- STOP_VM
+
 ELITE:
     - CALL: DISPATCH
     - START_AGENT
     - CALL: SET_DEFAULTS
-
+    - CALL: PUSH_ASSETS_BUILD
     - BUILD: [ elite, windows, silent ]
+    - STOP_AGENT
+
+MELT:
+    - CALL: DISPATCH
+    - START_AGENT
+    - CALL: SET_DEFAULTS
+    - CALL: PUSH_ASSETS_BUILD
+    - BUILD: [ elite, windows, melt ]
+    - STOP_AGENT
+
+WINDOWS:
+    - CALL: DISPATCH
+    - START_AGENT
+    - CALL: SET_DEFAULTS
+    - CALL: PUSH_ASSETS_BUILD
+    - BUILD: [ scout, windows, silent ]
+    - BUILD: [ elite, windows, silent ]
+    - BUILD: [ scout, windows, melt ]
     - STOP_AGENT
 
 CHECK_SIGNATURE:
@@ -181,15 +209,6 @@ TEST_SCOUT:
 TEST_SCREENSHOT:
     - SCREENSHOT
 
-SCOUT:
-    - CALL: DISPATCH
-    - START_AGENT
-    - CALL: SET_DEFAULTS
-    - CALL: PUSH_ASSETS_BUILD
-    - BUILD: [ scout, windows, silent ]
-    - SCREENSHOT
-    - STOP_AGENT
-    #- STOP_VM
 
 UPDATE_PYTHON:
     - REVERT
