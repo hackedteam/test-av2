@@ -1,5 +1,6 @@
 import logging
 
+
 def execute(vm, args):
     """ client side, returns (bool,*) """
     logging.debug("    CS Execute")

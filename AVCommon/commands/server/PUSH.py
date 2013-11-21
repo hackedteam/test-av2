@@ -5,6 +5,7 @@ import logging
 
 report_level = 2
 
+
 def execute(vm, args):
     """ server side """
     from AVMaster import vm_manager
@@ -28,11 +29,11 @@ def execute(vm, args):
 
     """ look if i need all files in one directory """
     for src_file in src_files:
-        g = glob.glob(os.path.join(src_dir,src_file))
+        g = glob.glob(os.path.join(src_dir, src_file))
         print g
         for f in g:
             # s is the relative file, expanded by glob
-            s = f.replace("%s/" % src_dir,"")
+            s = f.replace("%s/" % src_dir, "")
             all_src.append(s)
 
             # add all the parents to the relative_parents set, to avoid repetitions
@@ -43,10 +44,10 @@ def execute(vm, args):
 
     # sorts the parents by length, so that parent is always before its sons
     parents = list(relative_parents)
-    parents.sort(lambda x,y: len(x) - len(y))
+    parents.sort(lambda x, y: len(x) - len(y))
     logging.debug("parents: %s" % parents)
 
-    ntdir = lambda x: x.replace("/","\\")
+    ntdir = lambda x: x.replace("/", "\\")
 
     for r in parents:
         rdir = ntdir(os.path.join(dst_dir, r))

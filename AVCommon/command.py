@@ -18,13 +18,14 @@ import base64
 inspect_getfile = inspect.getfile(inspect.currentframe())
 cmd_folder = os.path.split(os.path.realpath(os.path.abspath(inspect_getfile)))[0]
 if cmd_folder not in sys.path:
-     sys.path.insert(0, cmd_folder)
+    sys.path.insert(0, cmd_folder)
 parent = os.path.split(cmd_folder)[0]
 if parent not in sys.path:
-     sys.path.insert(0, parent)
+    sys.path.insert(0, parent)
 
-known_commands = { }
+known_commands = {}
 context = {}
+
 
 def init():
     global command_names
@@ -34,7 +35,7 @@ def init():
     commands = []
     for d in ["AVAgent", "AVCommon", "AVMaster"]:
         for side in ["server", "client", "meta"]:
-            search = os.path.join(parent,d,"commands",side,"*.py")
+            search = os.path.join(parent, d, "commands", side, "*.py")
             dcommands = glob.glob(search)
             for dc in dcommands:
                 name_file = os.path.split(dc)[1]
@@ -42,8 +43,8 @@ def init():
                 if name.startswith("__init__"):
                     continue
 
-                path = "%s.%s.%s.%s" % (d,"commands",side,name)
-                commands.append( (name, side, path) )
+                path = "%s.%s.%s.%s" % (d, "commands", side, name)
+                commands.append((name, side, path))
                 #logging.debug("%s" % (name))
 
     for name, side, path in commands:
@@ -52,6 +53,7 @@ def init():
         known_commands[name] = m
 
     logging.info("Commands: %s" % known_commands.keys())
+
 
 def normalize(data):
     """ a command cane be unserialized in many ways:
@@ -78,7 +80,7 @@ def normalize(data):
         return data.name, data.success, data.payload, data.vm
     elif isinstance(data, dict):
         identified = "dict"
-        assert len(data)==1
+        assert len(data) == 1
         cmd = data.keys()[0]
         payload = data[cmd]
     elif not isinstance(data, str) and len(data) == 3:
@@ -109,12 +111,14 @@ def normalize(data):
 
     return (cmd, success, payload, vm)
 
+
 def factory(data):
     if not known_commands:
         init()
 
     name, success, payload, vm = normalize(data)
     return _factory(name, success, payload, vm)
+
 
 def _factory(name, success, payload, vm):
     assert name in known_commands.keys(), "Unknown command: %s" % name
@@ -127,8 +131,8 @@ def _factory(name, success, payload, vm):
         c.on_answer = m.on_answer
         c.on_init = m.on_init
     else:
-        c.on_answer = lambda x,y,z: None
-        c.on_init = lambda x,y,z: None
+        c.on_answer = lambda x, y, z: None
+        c.on_init = lambda x, y, z: None
 
     # payload eval in safe way
     if isinstance(payload, str) and payload.startswith("|"):
@@ -138,15 +142,17 @@ def _factory(name, success, payload, vm):
             c.payload = ast.literal_eval(payload)
         except:
             c.payload = payload
-    #assert isinstance(c, Command), "not an instance: %s of %s" % (c.__class__, Command)
+        #assert isinstance(c, Command), "not an instance: %s of %s" % (c.__class__, Command)
     return c
 
-def unserialize( message ):
-    data=base64.b64decode(message)
+
+def unserialize(message):
+    data = base64.b64decode(message)
 
     name, success, payload, vm, side = pickle.loads(data)
     logging.debug("unserialized: (%s,%s,%s,%s)" % (name, success, str(payload)[:50], vm))
     return _factory(name, success, payload, vm)
+
 
 class Command(object):
     """ A Command is a base class for any instruction to give on a channel.
@@ -168,7 +174,8 @@ class Command(object):
         self.side = side
 
     def serialize(self):
-        serialized = pickle.dumps( ( self.name, self.success, self.payload, self.vm, self.side ) , pickle.HIGHEST_PROTOCOL )
+        serialized = pickle.dumps(( self.name, self.success, self.payload, self.vm, self.side ),
+                                  pickle.HIGHEST_PROTOCOL)
         #logging.debug("pickle.dumps(%s)" % serialized)
         return base64.b64encode(serialized)
 

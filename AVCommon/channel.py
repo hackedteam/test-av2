@@ -3,6 +3,7 @@ from redis import StrictRedis
 from AVCommon import config
 from redis.exceptions import ConnectionError
 
+
 class Channel():
     """ Communication Channel, via Redis
     A channel is defined by a (blocking) list on a redis server. Messages are strings. """

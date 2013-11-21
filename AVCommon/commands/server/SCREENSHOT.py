@@ -3,6 +3,7 @@ import sys
 import logging
 import time
 
+
 def execute(vm, img_path):
     """ server side """
     from AVMaster import vm_manager

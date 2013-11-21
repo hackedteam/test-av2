@@ -1,6 +1,5 @@
 __author__ = 'fabrizio'
 
-
 import logging
 import time
 
@@ -9,13 +8,16 @@ from AVAgent import build
 
 report_level = 1
 
+
 def on_init(vm, args):
     """ server side """
     pass
 
+
 def on_answer(vm, success, answer):
     """ server side """
     pass
+
 
 def execute(vm, args):
     """ client side, returns (bool,*) """

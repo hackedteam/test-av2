@@ -8,15 +8,16 @@ from mq import MQStar
 
 import traceback
 
+
 class ProtocolClient:
     """ Protocol, client side. When the command is received, it's executed and the result resent to the server. """
 
-    def __init__(self, mq, vm, timeout = 0):
+    def __init__(self, mq, vm, timeout=0):
         self.mq = mq
         self.vm = vm
         self.timeout = 0
 
-        assert(isinstance(vm, str))
+        assert (isinstance(vm, str))
         assert mq
 
     def _execute_command(self, cmd):
@@ -38,7 +39,7 @@ class ProtocolClient:
     def _meta(self, cmd):
         if config.verbose:
             logging.debug("PROTO S executing meta")
-        ret = cmd.execute( self.vm, (self, cmd.payload) )
+        ret = cmd.execute(self.vm, (self, cmd.payload))
         cmd.success, cmd.payload = ret
         assert isinstance(cmd.success, bool)
         self.send_answer(cmd)
@@ -46,14 +47,13 @@ class ProtocolClient:
 
     # client side
     def receive_command(self):
-        assert(isinstance(self.vm, str))
+        assert (isinstance(self.vm, str))
         #logging.debug("PROTO receiveCommand %s" % (self.client))
         msg = self.mq.receive_client(self.vm, blocking=True, timeout=self.timeout)
         if config.verbose:
             logging.debug("PROTO C receive_command %s, %s" % (self.vm, msg))
         cmd = command.unserialize(msg)
         cmd.vm = self.vm
-
 
         if cmd.side == "meta":
             return self._meta(cmd)
@@ -71,7 +71,7 @@ class Protocol(ProtocolClient):
     procedure = None
     last_command = None
 
-    def __init__(self, mq, vm, procedure=None, timeout = 0):
+    def __init__(self, mq, vm, procedure=None, timeout=0):
         ProtocolClient.__init__(self, mq, vm, timeout)
         self.mq = mq
         self.vm = vm
@@ -112,7 +112,7 @@ class Protocol(ProtocolClient):
     def send_command(self, cmd):
         if config.verbose:
             logging.debug("PROTO S send_command: %s" % str(cmd))
-        #cmd = command.unserialize(cmd)
+            #cmd = command.unserialize(cmd)
         cmd.vm = self.vm
         try:
             if cmd.side == "client":
@@ -136,7 +136,7 @@ class Protocol(ProtocolClient):
         if config.verbose:
             logging.debug("PROTO S manage_answer %s: %s" % (vm, cmd))
 
-        assert(cmd.success is not None)
+        assert (cmd.success is not None)
         cmd.on_answer(vm, cmd.success, cmd.payload)
 
         return cmd
