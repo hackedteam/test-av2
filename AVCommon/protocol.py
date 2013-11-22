@@ -84,7 +84,7 @@ class Protocol(ProtocolClient):
 
     # server side
     def _send_command_mq(self, cmd):
-        cmd.on_init(self.vm, cmd.args)
+        cmd.on_init(self, cmd.args)
         self.mq.send_client(self.vm, cmd.serialize())
 
 

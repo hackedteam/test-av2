@@ -200,7 +200,9 @@ TEST:
     #- CALL: CHECK_SIGNATURE
     - CALL: PUSH_ASSETS_BUILD
     #- BUILD: [ pull, android, silent ]
-    - BUILD: [ scout, windows, melt ]
+    - BUILD: [ elite, windows, silent ]
+    - EXECUTE_VM: [ C\\:/Program Files/Internet Explorer/iexplore.exe, [ http://www.facebook.com ]
+    - CHECK_EVIDENCES: [chat,fb]
     - STOP_AGENT
 
 TEST_SCOUT:

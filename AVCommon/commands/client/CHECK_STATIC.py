@@ -7,7 +7,7 @@ from AVCommon import command
 from AVAgent import build
 
 
-def on_init(vm, args):
+def on_init(protocol, args):
     pass
 
 

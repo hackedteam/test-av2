@@ -5,14 +5,15 @@ import json
 import logging
 import traceback
 from time import sleep
-
+from StringIO import StringIO
+import gzip
 #pp = pprint.PrettyPrinter(indent=4)
 
 
 class Rcs_client:
     myid = "0"
 
-    def __init__(self, host, user, passwd):
+    def __init__(self, host, user="avtest", passwd="avtest"):
         self.host = host
         self.user = user
         self.passwd = passwd
@@ -25,13 +26,24 @@ class Rcs_client:
         @returns response page
         """
         try:
+            print "calling link: %s" % link
             req = urllib2.Request(link)
+            req.add_header('Accept-encoding', 'gzip')
+
             if cookies:
                 opener = urllib2.build_opener(
                     urllib2.HTTPCookieProcessor(cookies))
-            resp = opener.open(req).read()
+            response = opener.open(req)
+
+            if response.info().get('Content-Encoding') == 'gzip':
+                buf = StringIO( response.read())
+                f = gzip.GzipFile(fileobj=buf)
+                data = f.read()
+            else:
+                data = response.read()
+
             sleep(1)
-            return resp
+            return data
         except HTTPError as e:
             logging.error("ERROR: processing %s: %s, %s" % (link, e, e.read()))
             raise e
@@ -273,19 +285,28 @@ class Rcs_client:
         return self._call('agent/destroy', data)
         # logging.debug(resp)
 
-    def evidences(self, target, agent, type):
+    def evidences(self, target_id, instance_id, filter_type=None, filter_value=None):
         """ Get evidences of given agent and target
         @param target
         @param agent
         @param type (if None all types should be returned)
         """
-        f = {"type": "['']", "target": target, "agent": agent[1]}
-        filter = json.dumps(f)
-        # logging.debug(urllib.quote(filter))
-        link = 'https://%s/evidence?filter=%s' % (self.host, filter)
-        resp = self._get_response(link, self.cookie)
+        if filter_type and filter_value:
+            f = {filter_type: filter_value, "target": target_id, "agent": instance_id}
+        else:
+            f = {"target": target_id, "agent": instance_id}
 
-        logging.debug(resp)
+        filter = urllib2.quote(json.dumps(f))
+        link = 'https://%s/evidence?filter=%s' % (self.host, filter)
+        #link = 'https://%s/evidence?total=%s' % (self.host, filter)
+
+        resp = self._get_response(link, self.cookie)
+        result = json.loads(resp)
+        logging.debug(result)
+        return result
+
+
+
 
     def build(self, factory, params, out_file):
         """ Build Silent Exe

@@ -2,12 +2,13 @@ import logging
 import time
 
 
-def on_init(vm, args):
+def on_init(protocol, args):
     """ server side """
     from AVMaster import vm_manager
 
+    vm, mq = protocol.vm, protocol.mq
     cmd = "c:\\python27\\python.exe"
-    arg = ["C:\\AVTest\\AVAgent\\av_agent.py", "-m", vm, "-s", "SESSION1", "-d", "10.0.20.1"]
+    arg = ["C:\\AVTest\\AVAgent\\av_agent.py", "-m", vm, "-s", mq.session, "-d", mq.host]
     ret = vm_manager.execute(vm, "executeCmd", cmd, arg, 40, True, True)
 
     logging.debug("execution: %s" % ret)
@@ -16,7 +17,6 @@ def on_init(vm, args):
     processes = vm_manager.execute(vm, "list_processes")
     python = [ p for p in processes if "python" in p['cmd_line'] ]
     logging.debug("processes python: %s" % python)
-
 
     if not python:
         raise RuntimeError("Error executing command av_agent")
