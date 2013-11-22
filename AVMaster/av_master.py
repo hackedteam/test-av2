@@ -12,7 +12,6 @@ from AVCommon.mq import MQStar
 from AVCommon import command
 from report import Report
 
-
 class AVMaster():
     """docstring for Master"""
 

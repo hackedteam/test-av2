@@ -96,11 +96,16 @@ T_IS:
         - 20
     - CHECK_SHUTDOWN
     - SLEEP: 5
+
+TEST_INTERNET:
+    - INTERNET: True
+    - SLEEP: 15
+    - INTERNET: False
 """
     procedures = Procedure.load_from_yaml(yaml)
  
-    #vms = ["noav", "zenovm"]
-    vms = ["noav"]
+    vms = ["noav", "zenovm"]
+    #vms = ["noav"]
     redis_host = "localhost"
     mq = MQStar(redis_host)
     mq.clean()
@@ -126,7 +131,7 @@ T_IS:
     dispatcher.dispatch(procedures["UPDATE"])
     '''
     logging.info("STARTING TEST 5")
-    dispatcher.dispatch(procedures["T_IS"])
+    dispatcher.dispatch(procedures["TEST_INTERNET"])
 #    '''
 if __name__ == '__main__':
     logging.config.fileConfig('../logging.conf')

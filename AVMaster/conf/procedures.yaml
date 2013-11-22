@@ -104,7 +104,8 @@ SET_DEFAULTS:
 UPLOAD_AGENT:
     - PUSH:
         - [ logging.conf, AVAgent/*.py, AVCommon/*.py, AVCommon/commands/client/*.py, AVCommon/commands/meta/*.py, AVCommon/commands/*.py,]
-        - /opt/AVTest2
+#        - /opt/AVTest2
+        - /home/olli/AVTest
         - c:\\AVTest
 
 PUSH_ASSETS_BUILD:
@@ -230,8 +231,8 @@ CHAT_TEST:
     - INTERNET: True
     - CALL: SET_DEFAULTS
     - BUILD: [ elite, windows, silent ]
-    - EXECUTE_VM:
-        - C:/Program Files/Internet Explorer/iexplore.exe
-        - [http://www.facebook.com]
-    - CHECK_EVIDENCE: [chat,fb]
+#    - EXECUTE_VM:
+#        - C:/Program Files/Internet Explorer/iexplore.exe
+#        - [http://www.facebook.com]
+#    - CHECK_EVIDENCE: [chat,fb]
     - INTERNET: False
