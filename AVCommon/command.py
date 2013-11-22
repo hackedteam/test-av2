@@ -204,8 +204,8 @@ class Command(object):
         ts = time.strftime("%y%m%d-%H%M%S", time.localtime(self.timestamp))
         if self.success == None:
             if self.result:
-                return "%s, %s, res: %s" % (self.name, ts, self.result)
+                return "%s, %s, %s" % (self.name, ts, self.result)
             else:
-                return "%s, %s, args: %s" % (self.name, ts, self.args)
+                return "%s, %s, %s" % (self.name, ts, self.args)
         else:
             return "%s, %s, %s, %s, %s" % (self.name, ts, self.args, self.success, self.result)

@@ -17,23 +17,22 @@ def execute(vm, args):
 
     # first time i launched internet
     if "internet" not in command.context.keys():
-        command.context["internet"] = {}
-        command.context["internet"]["enabled"] = args
-        command.context["internet"]["vms"] = []
+        command.context["internet"] = []
 
-        if args == True:
-            cmd = "sudo ../AVMaster/net_enable.sh"
-        else:
-            cmd = "sudo ../AVMaster/net_disable.sh"
-        go = True
+    cmd = None
+
+    if args == True:
+        # we want internet on
+        command.context["internet"].append(vm)
+        cmd = "sudo ../AVMaster/net_enable.sh"
     else:
-        if args == True:
-            command.context["internet"]["vms"].append(vm)
-        else:
-            command.context["internet"]["vms"].remove(vm)
-            if command.context["internet"]["vms"] == []:
-                goo = True
-    if go:
+        # we want internet off, but we wait the last user
+        if vm in command.context["internet"]:
+            command.context["internet"].remove(vm)
+        if not command.context["internet"]:
+            cmd = "sudo ../AVMaster/net_disable.sh"
+
+    if cmd:
         ret = os.system(cmd)
 
         if ret == 0:

@@ -218,6 +218,9 @@ CHECK_SIGNATURE:
 
 
 TEST:
+    - SET:
+        VM: [360cn,adaware,ahnlab,avg,avira,bitdef,comodo]
+    - CALL: DISPATCH
     - START_AGENT
     - CALL: SET_DEFAULTS
     #- CALL: CHECK_SIGNATURE
