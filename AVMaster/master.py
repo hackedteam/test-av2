@@ -511,40 +511,6 @@ def dispatch_status(vm, kind, server, test_id, r_id, res, status, message):
 
         status = 3
 
-        """
-
-        # CHECK FOR ERROR IN EXECUTION
-
-        out = vmman.listProcesses(vm)
-        found = False
-        tick = 0
-        print "DBG script to find is %s" % buildbat
-
-        while tick <= 3:
-            if "python.exe" in out or buildbat in out or "cmd.exe" in out:
-                found = True
-                #print "DBG process found for %s, %s!" % (vm.name,kind)
-                #print "DBG %s" % out
-                break
-
-            print "DBG Python.EXE not found for %s. sleeping 5 secs (retry %d)" % (vm.name, tick)
-            print "DBG processes:\n%s" % out
-            tick+=1
-            sleep(5)
-
-        if found is False:
-            print "%s not EXECUTED. Retry ENVIRONMENT" % vm.name
-            status = 1
-            dispatch_status(vm, kind, server, test_id, r_id, status, message)
-        else:
-            job_log(vm.name, "EXECUTED %s, %s" % (vm.name,kind))
-            upd_record_result(r_id, result="EXECUTED")
-
-            status = 3
-            print "DBG new status %d" % status
-
-        """
-
     if status == 3:
 
         if "ENDED" in message: 
@@ -552,15 +518,6 @@ def dispatch_status(vm, kind, server, test_id, r_id, res, status, message):
             print "DBG new status %d" % status
 #            return status
         else:
-            #   SAVING LOGS
-
-#            if log is "":
-#                log = str(message)
-#                save_logs(r_id, log)
-#            else:
-#                log += ", %s" % str(message)
-#                save_logs(r_id, log)
-
             log = str(message)
             save_logs(r_id, log)
 
@@ -573,19 +530,23 @@ def dispatch_status(vm, kind, server, test_id, r_id, res, status, message):
             if "FAILED SCOUT BUILD" in message or "FAILED SCOUT EXECUTE" in message:
 
                 # SAVING SAMPLE
+                try:
+                    platform = message.split(" ")[-1].split("\\")[-2]
+                    build_zip_src = "%s\\%s\\build.zip" % (test_dir, platform)
+                    build_zip_dst = "tmp/detected_%s.zip" % vm
+                    print "DBG copying %s to %s" % (build_zip_src, build_zip_dst)
+                    vm.get_file(build_zip_src, build_zip_dst)
+                    print "DBG adding record sample"
+                    a = add_record_sample(r_id, build_zip_dst)
+                    if a:
+                        print "sample SAVED on db"
+                        #os.system('sudo rm -fr %s') % build_zip_dst
+                    else:
+                        print "sample NOT SAVED on db"
+                except IndexError as ie:
+                    print "ERROR saving detected sample"
+                    print message
 
-                platform = message.split(" ")[-1].split("\\")[-2]
-                build_zip_src = "%s\\%s\\build.zip" % (test_dir, platform)
-                build_zip_dst = "tmp/detected_%s.zip" % vm
-                print "DBG copying %s to %s" % (build_zip_src, build_zip_dst)
-                vm.get_file(build_zip_src, build_zip_dst)
-                print "DBG adding record sample"
-                a = add_record_sample(r_id, build_zip_dst)
-                if a:
-                    print "sample SAVED on db"
-                    #os.system('sudo rm -fr %s') % build_zip_dst
-                else:
-                    print "sample NOT SAVED on db"
     return status, res
 
 def push(flargs):
