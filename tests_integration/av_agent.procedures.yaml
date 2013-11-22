@@ -89,13 +89,6 @@ SET_DEFAULTS:
     - SET:
         backend: 192.168.100.201
         frontend: 172.20.100.204
-        redis: 10.0.20.1
-
-TEST:
-    - START_AGENT
-    - CALL: SET_DEFAULTS
-    - BUILD: [ silent, windows, scout ]
-    - STOP_AGENT
 
 UPLOAD_AGENT:
     - PUSH:
@@ -119,12 +112,6 @@ UPDATE:
     - STOP_VM
     - REFRESH_SNAPSHOT
 
-DISPATCH:
-    - REVERT
-    - START_VM
-    - UPDATE
-    - PUSH: [ file.sh, anotherfile.sh ]
-
 SCOUT:
     - CALL: DISPATCH
     - START_AGENT
@@ -146,5 +133,8 @@ ELITE:
     - BUILD: [ elite, windows, silent ]
     - STOP_AGENT
 
-STATIC:
-    - CALL: DISPATCH
+TEST:
+    - START_AGENT
+    - CALL: SET_DEFAULTS
+    - BUILD: [ silent, windows, scout ]
+    - STOP_AGENT

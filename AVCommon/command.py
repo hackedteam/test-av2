@@ -201,7 +201,11 @@ class Command(object):
         return base64.b64encode(serialized)
 
     def __str__(self):
+        ts = time.strftime("%y%m%d-%H%M%S", time.localtime(self.timestamp))
         if self.success == None:
-            return "%s,%s,%s" % (self.name, self.timestamp, self.args)
+            if self.result:
+                return "%s, %s, res: %s" % (self.name, ts, self.result)
+            else:
+                return "%s, %s, args: %s" % (self.name, ts, self.args)
         else:
-            return "%s,%s,%s,%s,%s" % (self.name, self.timestamp, self.args, self.success, self.result)
+            return "%s, %s, %s, %s, %s" % (self.name, ts, self.args, self.success, self.result)

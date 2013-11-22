@@ -85,8 +85,8 @@ class Dispatcher(object):
                 exit = True
 
 
-        if self.report:
-            self.report.dump()
+        #if self.report:
+        #    self.report.dump()
 
         logging.debug("answered: %s, ended: %s, num_commands: %s" % ( answered, ended, self.num_commands))
         assert ended == len(self.vms), "answered: %s, ended: %s, num_commands: %s" % ( answered, ended, len(self.vms))
