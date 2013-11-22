@@ -139,7 +139,12 @@ class TestRcsClient(unittest.TestCase):
                 instances = conn.instances(ident)
                 logging.debug("instances:  %s" % instances)
 
+
                 for instance_id in instances:
+                    evidences = conn.evidences(target_id, instance_id)
+                    devices = conn.evidences(target_id, instance_id, "type", "device")
+                    continue
+
                     logging.debug("info %s" % instance_id)
                     info = conn.instance_info(instance_id)
                     logging.debug(info)

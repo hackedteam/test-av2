@@ -490,6 +490,8 @@ class AgentBuild:
         target_id, factory_id, ident = self._create_new_factory(
             operation, target, factory, config)
 
+        connection.rcs=(target_id,factory_id,ident,operation, target, factory)
+
         logging.debug("- Built")
 
         #        add_result("+ platfoooorm %s" % self.platform)

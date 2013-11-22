@@ -8,7 +8,7 @@ from AVCommon import command
 vm = None
 
 
-def on_init(vm, args):
+def on_init(protocol, args):
     """ server side """
     pass
 
