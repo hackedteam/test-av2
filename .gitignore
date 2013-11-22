@@ -16,3 +16,6 @@ results.txt
 /tests_integration/AVTest.log
 
 /.idea/RCSAVTest.iml
+
+/AVAgent/report.log
+/AVAgent/report.TEST.log

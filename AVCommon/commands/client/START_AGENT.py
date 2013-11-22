@@ -8,7 +8,13 @@ def on_init(protocol, args):
 
     vm, mq = protocol.vm, protocol.mq
     cmd = "c:\\python27\\python.exe"
-    arg = ["C:\\AVTest\\AVAgent\\av_agent.py", "-m", vm, "-s", mq.session, "-d", mq.host]
+
+    if mq.host == "localhost":
+        redis = "10.0.20.1"
+    else:
+        redis = mq.host
+
+    arg = ["C:\\AVTest\\AVAgent\\av_agent.py", "-m", vm, "-s", mq.session, "-d", redis]
     ret = vm_manager.execute(vm, "executeCmd", cmd, arg, 40, True, True)
 
     logging.debug("execution: %s" % ret)

@@ -28,6 +28,9 @@ class Dispatcher(object):
         logging.debug("- SERVER len(procedure): %s" % len(procedure))
         self.num_commands = len(procedure)
 
+        if self.report:
+            self.report.init(procedure)
+
         av_machines = {}
         for vm in self.vms:
             av_machines[vm] = Protocol(self.mq, vm, procedure)
@@ -52,7 +55,8 @@ class Dispatcher(object):
                 answer = p.receive_answer(c, msg)
 
                 if self.report:
-                    self.report.received(c, msg)
+                    from AVCommon import command
+                    self.report.received(c, command.unserialize(msg))
 
                 if answer.success == None:
                     logging.debug("- SERVER IGNORING")
@@ -79,6 +83,10 @@ class Dispatcher(object):
             else:
                 logging.debug("- SERVER RECEIVED empty")
                 exit = True
+
+
+        if self.report:
+            self.report.dump()
 
         logging.debug("answered: %s, ended: %s, num_commands: %s" % ( answered, ended, self.num_commands))
         assert ended == len(self.vms), "answered: %s, ended: %s, num_commands: %s" % ( answered, ended, len(self.vms))

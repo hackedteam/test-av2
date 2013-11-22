@@ -99,7 +99,6 @@ SET_DEFAULTS:
     - SET:
         backend: 192.168.100.201
         frontend: 172.20.100.204
-        redis: 10.0.20.1
 
 UPLOAD_AGENT:
     - PUSH:
@@ -133,6 +132,7 @@ DISPATCH:
     - REVERT
     - START_VM
     - CALL: UPLOAD_AGENT
+    - CALL: PUSH_ASSETS_BUILD
 
 MANUAL_BUILD:
     - START_AGENT
@@ -197,10 +197,10 @@ TEST:
     - START_AGENT
     - CALL: SET_DEFAULTS
     #- CALL: CHECK_SIGNATURE
-    - CALL: PUSH_ASSETS_BUILD
+    #- CALL: PUSH_ASSETS_BUILD
     #- BUILD: [ pull, android, silent ]
     - BUILD: [ elite, windows, silent ]
-    - EXECUTE_VM: [ C\\:/Program Files/Internet Explorer/iexplore.exe, [ http://www.facebook.com ]
+    - EXECUTE_VM: [ 'C:/Program Files/Internet Explorer/iexplore.exe', [ 'http://www.facebook.com' ]]
     - CHECK_EVIDENCES: [chat,fb]
     - STOP_AGENT
 

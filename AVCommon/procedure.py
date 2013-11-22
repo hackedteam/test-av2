@@ -36,16 +36,17 @@ class Procedure:
 
     def add_begin_end(self):
         if self.command_list[0].name != "BEGIN":
-            self.command_list.insert(0, "BEGIN")
+            self.command_list.insert(0, command.factory("BEGIN"))
         if self.command_list[-1].name != "END":
-            self.command_list.append("END")
+            self.command_list.append(command.factory("END"))
 
     def insert(self, new_proc):
         self.command_list = new_proc.command_list + self.command_list
 
     def next_command(self):
         c = self.command_list.pop(0)
-        return command.factory(c)
+        #return command.factory(c)
+        return c
 
     def __len__(self):
         return len(self.command_list)

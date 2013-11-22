@@ -10,6 +10,7 @@ from AVCommon.procedure import Procedure
 from AVCommon.mq import MQStar
 from AVMaster.dispatcher import Dispatcher
 from AVMaster import vm_manager
+from AVMaster import report
 
 from AVAgent import av_agent
 
@@ -24,11 +25,13 @@ def test_dispatcher_server():
     mq.clean()
 
     #istanzia n client e manda delle procedure.
-
+    rep = report.Report()
     vm_manager.vm_conf_file = "../AVMaster/conf/vms.cfg"
-    dispatcher = Dispatcher(mq, vms)
+    dispatcher = Dispatcher(mq, vms, report = rep)
 
     test = Procedure("TEST", [("EVAL_SERVER", None, 'vm'), ("SLEEP", None, 10)])
+
+
     dispatcher.dispatch(test)
 
 if __name__ == '__main__':

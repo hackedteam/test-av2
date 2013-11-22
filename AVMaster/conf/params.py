@@ -72,5 +72,17 @@ params['exploit_web'] = {"generate":
                                   "url": "http://HOSTNAME/APPNAME"}, "factory": {"_id": "000"}
 }
 
-y = yaml.dump(params)
-print y
+params = {'EXECUTE_VM': [ 'C:/Program Files/Internet Explorer/iexplore.exe', [ 'http://www.facebook.com' ]]}
+
+#params = {'TEST': ['START_AGENT', {'CALL': 'SET_DEFAULTS'}, {'CALL': 'PUSH_ASSETS_BUILD'}, {'BUILD': ['elite', 'windows', 'silent']}, {'CHECK_EVIDENCES': ['chat', 'fb']}, 'STOP_AGENT']}
+
+print yaml.dump(params)
+
+
+y = """
+EXECUTE_VM:
+    - C:/Program Files/Internet Explorer/iexplore.exe
+    - ['http://www.facebook.com']
+"""
+print yaml.load(y)
+

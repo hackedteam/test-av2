@@ -201,7 +201,7 @@ class Command(object):
         return base64.b64encode(serialized)
 
     def __str__(self):
-        if self.result:
-            return "%s,%s,%s" % (self.name, self.success, self.result)
+        if self.success == None:
+            return "%s,%s,%s" % (self.name, self.timestamp, self.args)
         else:
-            return "%s,%s,%s" % (self.name, self.success, self.args)
+            return "%s,%s,%s,%s,%s" % (self.name, self.timestamp, self.args, self.success, self.result)
