@@ -12,3 +12,7 @@ results.txt
 /.coverage
 
 /AVAgent/build/
+
+/tests_integration/AVTest.log
+
+/.idea/RCSAVTest.iml
