@@ -15,8 +15,8 @@ def on_answer(vm, success, answer):
 def execute(vm, args):
     from AVAgent import build
 
-    target = command.context["target"]
-    agent = command.context["agent"]
+    #target = command.context["target"]
+    #agent = command.context["agent"]
 
     type_ev, filter = args
 
@@ -25,7 +25,9 @@ def execute(vm, args):
     with build.connection() as client:
         logging.debug("connected")
         target_id, factory_id, ident, operation, target, factory = client.rcs
-        ret = client.evidences(target, agent, "type", type_ev)
+        instance_id = client.instance_id
+        logging.debug("rcs: %s %s" % (client.rcs, instance_id))
+        ret = client.evidences(target, instance_id, "type", type_ev)
         if ret:
             logging.debug("got evidences")
             content = ret['data']['content']

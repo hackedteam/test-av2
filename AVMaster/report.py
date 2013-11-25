@@ -14,9 +14,7 @@ class Report:
     # arriva pulito
     def sent(self, av, command):
         logging.debug("sent: %s (%s)" % (av, command))
-        if av not in Report.c_sent:
-            Report.c_sent[av] = []
-        Report.c_sent[av].append(str(command))
+        Report.c_sent[av]=str(command)
         self.dump()
 
     # arriva pulito
@@ -29,4 +27,13 @@ class Report:
 
     def dump(self):
         f=open("report.%s.log" % self.name, "w+")
-        f.write(yaml.dump(self.c_received, default_flow_style=False))
+        rep = {}
+
+        for k in self.c_received.keys():
+            try:
+                rep[k]={"RECEIVED" : self.c_received[k], "LAST_SENT" : self.c_sent.get(k,"") }
+                rep["LAST_RECEIVED": (k, self.c_received[k][-1]) ]
+            except:
+                pass
+
+        f.write(yaml.dump(rep, default_flow_style=False, indent=4))

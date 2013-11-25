@@ -127,6 +127,8 @@ class Protocol(ProtocolClient):
         except Exception, ex:
             logging.error("Error sending command %s: %s" % (cmd, ex))
             logging.error(traceback.format_exc(ex))
+            cmd.success = False
+            cmd.result = str(ex)
             return False
 
     def receive_answer(self, vm, msg):
@@ -141,11 +143,13 @@ class Protocol(ProtocolClient):
             logging.debug("PROTO S manage_answer %s: %s" % (vm, cmd))
 
         if cmd.success and cmd.name == sent_command.name and cmd.timestamp == sent_command.timestamp:
-            logging.debug("PROTO S we got the expected answer")
+            if config.verbose:
+                logging.debug("PROTO S we got the expected answer")
             cmd.on_answer(vm, cmd.success, cmd.result)
             self.sent_commands.pop(0)
         else:
-            logging.debug("PROTO S ignoring unexpected answer")
+            if config.verbose:
+                logging.debug("PROTO S ignoring unexpected answer")
             cmd.success = None
 
         return cmd

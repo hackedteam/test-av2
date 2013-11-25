@@ -123,8 +123,7 @@ SET_DEFAULTS:
 UPLOAD_AGENT:
     - PUSH:
         - [ logging.conf, AVAgent/*.py, AVCommon/*.py, AVCommon/commands/client/*.py, AVCommon/commands/meta/*.py, AVCommon/commands/*.py,]
-#        - /opt/AVTest2
-        - /home/olli/AVTest
+        - /opt/AVTest2
         - c:\\AVTest
 
 PUSH_ASSETS_BUILD:
@@ -216,10 +215,8 @@ CHECK_SIGNATURE:
     - BUILD: [ pull, blackberry, silent ]
     - BUILD: [ pull, ios, silent ]
 
-
 TEST:
-    - SET:
-        VM: [360cn,adaware,ahnlab,avg,avira,bitdef,comodo]
+    #- VM: [360cn,adaware,ahnlab,avg,avira,bitdef,comodo]
     - CALL: DISPATCH
     - START_AGENT
     - CALL: SET_DEFAULTS

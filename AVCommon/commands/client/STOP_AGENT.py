@@ -18,4 +18,4 @@ def execute(vm, args):
     assert vm, "null vm"
 
     #TODO: stops a AVAgent on vm
-    return True, ""
+    return True, "AGENT STOPPED"

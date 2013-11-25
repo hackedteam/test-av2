@@ -30,7 +30,8 @@ def execute(vm_name, cmd, *args):
                   "mkdirInGuest", "copyFileToGuest", "copyFileFromGuest", "deleteDirectoryInGuest",
                   "refreshSnapshot"]
 
-    logging.debug("command: %s" % cmd)
+    if config.verbose:
+        logging.debug("vm: %s, command: %s" % (vm_name, cmd))
 
     try:
         vm = VMachine(vm_name)
@@ -68,6 +69,7 @@ if __name__ == '__main__':
 
     logging.config.fileConfig('../logging.conf')
 
+    logging.debug("args: %s" % str(sys.argv[1:]))
     t = tuple(sys.argv[1:])
     ret = execute(*t)
 
