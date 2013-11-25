@@ -315,8 +315,13 @@ class AgentBuild:
 
             assert len(instances) <= 1, "too many instances"
 
-            if len(instances) > 0:
+            if len(instances) == 1:
                 add_result("+ SUCCESS SCOUT SYNC")
+                c.instance = instances[0]
+                return instances[0]
+            elif len(instances) > 1:
+                add_result("+ FAILED SCOUT SYNC, TOO MANY INSTANCES")
+                c.instance = instances[0]
                 return instances[0]
 
             add_result("+ NO SCOUT SYNC")
@@ -490,7 +495,7 @@ class AgentBuild:
         target_id, factory_id, ident = self._create_new_factory(
             operation, target, factory, config)
 
-        connection.rcs=(target_id,factory_id,ident,operation, target, factory)
+        connection.rcs=(target_id, factory_id, ident, operation, target, factory)
 
         logging.debug("- Built")
 

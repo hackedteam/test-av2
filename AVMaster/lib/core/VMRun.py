@@ -23,14 +23,16 @@ class vSphere:
     def __enter__(self):
         self.server = VIServer()
         self.server.connect(self.sdk_host, self.sdk_user, self.sdk_passwd)
-        logging.debug("connected to vSphere")
+        if config.verbose:
+            logging.debug("connected to vSphere")
         vm = self.server.get_vm_by_path(self.vm_path)
         return vm
 
     def __exit__(self, type, value, traceback):
         try:
             self.server.disconnect()
-            logging.debug("disconnected from vSphere")
+            if config.verbose:
+                logging.debug("disconnected from vSphere")
         except VIException as e:
             logging.debug("Problem in disconnection. Fault is: %s" % e.fault)
             pass
@@ -102,11 +104,13 @@ class VMRun:
             return []
 
     def startup(self, vmx):
-        sys.stdout.write("[%s] Starting!\r\n" % vmx)
+        if config.verbose:
+            logging.debug("[%s] Starting!\r\n" % vmx)
         self._run_cmd(vmx, "start")
 
     def shutdown(self, vmx):
-        sys.stdout.write("[%s] Stopping!\r\n" % vmx)
+        if config.verbose:
+            logging.debug("[%s] Stopping!\r\n" % vmx)
         self._run_cmd(vmx, "stop")
 
     def shutdownUpgrade(self, vmx):
@@ -118,29 +122,29 @@ class VMRun:
         return True
 
     def reboot(self, vmx):
-        sys.stdout.write("[%s] Rebooting!\r\n" % vmx)
+        logging.debug("[%s] Rebooting!\r\n" % vmx)
         self._run_cmd(vmx, "reset", ["hard"])
 
     def suspend(self, vmx):
-        sys.stdout.write("[%s] Suspending!\r\n" % vmx)
+        logging.debug("[%s] Suspending!\r\n" % vmx)
         self._run_cmd(vmx, "suspend", ["soft"])
 
     def createSnapshot(self, vmx, snapshot):
-        sys.stdout.write("[%s] Creating snapshot %s.\n" % (vmx, snapshot))
+        logging.debug("[%s] Creating snapshot %s.\n" % (vmx, snapshot))
         self._run_cmd(vmx, "snapshot", [snapshot])
 
     def deleteSnapshot(self, vmx, snapshot):
-        sys.stdout.write("[%s] Deleting snapshot %s.\n" % (vmx, snapshot))
+        logging.debug("[%s] Deleting snapshot %s.\n" % (vmx, snapshot))
         self._run_cmd(vmx, "deleteSnapshot", [snapshot])
 
     def revertSnapshot(self, vmx, snapshot):
-        sys.stdout.write("[%s] Reverting snapshot %s.\n" % (vmx, snapshot))
+        logging.debug("[%s] Reverting snapshot %s.\n" % (vmx, snapshot))
         self._run_cmd(vmx, "revertToSnapshot", [snapshot])
 
     def refreshSnapshot(self, vmx, delete=True):
         untouchables = ["ready", "activated", "_datarecovery_"]
 
-        sys.stdout.write("[%s] Refreshing snapshot.\n" % vmx)
+        logging.debug("[%s] Refreshing snapshot.\n" % vmx)
 
         # create new snapshot
         date = datetime.now().strftime('%Y%m%d-%H%M')
@@ -168,42 +172,44 @@ class VMRun:
             return "%s, ERROR: no snapshots!" % vmx
 
     def mkdirInGuest(self, vmx, dir_path):
-        sys.stdout.write("[%s] Creating directory %s.\n" % (vmx, dir_path))
+        logging.debug("[%s] Creating directory %s.\n" % (vmx, dir_path))
         self._run_cmd(vmx, "CreateDirectoryInGuest", [
             dir_path], [vmx.user, vmx.passwd])
 
     def listDirectoryInGuest(self, vmx, dir_path):
-        sys.stdout.write("[%s] Listing directory %s.\n" % (vmx, dir_path))
+        logging.debug("[%s] Listing directory %s.\n" % (vmx, dir_path))
         return self._run_cmd(vmx, "listDirectoryInGuest", [dir_path], [vmx.user, vmx.passwd], popen=True)
 
     def deleteDirectoryInGuest(self, vmx, dir_path):
-        sys.stdout.write("[%s] Delete directory %s.\n" % (vmx, dir_path))
+        logging.debug("[%s] Delete directory %s.\n" % (vmx, dir_path))
         self._run_cmd(
             vmx, "DeleteDirectoryInGuest", [dir_path], [vmx.user, vmx.passwd])
 
     def copyFileToGuest(self, vmx, src_file, dst_file):
-        sys.stdout.write("[%s] Copying file from %s to %s.\n" %
+        logging.debug("[%s] Copying file from %s to %s.\n" %
                          (vmx, src_file, dst_file))
         return self._run_cmd(vmx, "CopyFileFromHostToGuest",
                              [src_file, dst_file], [vmx.user, vmx.passwd])
 
     def copyFileFromGuest(self, vmx, src_file, dst_file):
-        sys.stdout.write("[%s] Copying file from %s to %s.\n" %
+        logging.debug("[%s] Copying file from %s to %s.\n" %
                          (vmx, src_file, dst_file))
         return self._run_cmd(vmx, "CopyFileFromGuestToHost",
                              [src_file, dst_file], [vmx.user, vmx.passwd])
 
     def executeCmd(self, vmx, cmd, args=[], timeout=40, interactive=True, bg=False):
-        sys.stdout.write("[%s] Executing %s\n" % (vmx, cmd))
-        logging.debug("Executing %s with args %s" % (cmd, args))
-        logging.debug("on %s with credentials %s %s" % (vmx, vmx.user, vmx.passwd))
-        logging.debug("Options: timeout: %s, interactive: %s, background: %s" % (timeout, interactive, bg))
+        logging.debug("[%s] Executing %s\n" % (vmx, cmd))
+        if config.verbose:
+            logging.debug("Executing %s with args %s" % (cmd, args))
+            logging.debug("on %s with credentials %s %s" % (vmx, vmx.user, vmx.passwd))
+            logging.debug("Options: timeout: %s, interactive: %s, background: %s" % (timeout, interactive, bg))
         cmds = []
         if interactive is True:
             cmds.append("-interactive")
         cmds.append(cmd)
         cmds.extend(args)
-        logging.debug("background execution is %s" % bg)
+        if config.verbose:
+            logging.debug("background execution is %s" % bg)
         return self._run_cmd(vmx,
                              "runProgramInGuest",
                              cmds,
@@ -214,12 +220,13 @@ class VMRun:
         return self.executeCmd(vmx, script, interactive=True)
 
     def listProcesses(self, vmx):
-        sys.stdout.write("[%s] List processes\n" % vmx)
+        logging.debug("[%s] List processes\n" % vmx)
         return self._run_cmd(vmx, "listProcessesInGuest", vmx_creds=[vmx.user, vmx.passwd], popen=True)
 
     def takeScreenshot(self, vmx, out_img):
-        sys.stdout.write("[%s] Taking screenshot.\n" % vmx)
-        sys.stdout.write("CALLING FUNCTIONS WITH out img %s, u: %s, p: %s.\n" % (out_img, vmx.user, vmx.passwd))
+        logging.debug("[%s] Taking screenshot.\n" % vmx)
+        if config.verbose:
+            logging.debug("CALLING FUNCTIONS WITH out img %s, u: %s, p: %s.\n" % (out_img, vmx.user, vmx.passwd))
         self._run_cmd(vmx, "captureScreen", [out_img], [vmx.user, vmx.passwd])
         return os.path.exists(out_img)
 

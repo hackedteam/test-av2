@@ -6,7 +6,14 @@ sys.path.append(os.path.split(os.getcwd())[0])
 sys.path.append(os.getcwd())
 
 from AVCommon.protocol import Protocol
+from AVCommon import command
 
+def red(msg, max_len=50):
+    s = str(msg)
+    if len(s) < max_len:
+        return s
+
+    return "%s ..." %  s[:50]
 
 class Dispatcher(object):
     """docstring for Dispatcher"""
@@ -42,46 +49,45 @@ class Dispatcher(object):
             c = p.last_command
             if self.report:
                 self.report.sent(p, str(c))
-            logging.debug("- SERVER SENT: %s" % c)
+            logging.info("- SERVER SENT: %s" % c)
 
         ended = 0
         answered = 0
         while not exit and ended < len(self.vms):
             rec = self.mq.receive_server(blocking=True, timeout=self.timeout)
             if rec is not None:
-                logging.debug("- SERVER RECEIVED %s %s" % ( str(rec)[:50], type(rec)))
                 c, msg = rec
+                logging.info("- SERVER RECEIVED %s" % ( red(command.unserialize(msg))))
                 p = av_machines[c]
                 answer = p.receive_answer(c, msg)
 
                 if self.report:
-                    from AVCommon import command
                     self.report.received(c, command.unserialize(msg))
 
                 if answer.success == None:
-                    logging.debug("- SERVER IGNORING")
+                    logging.info("- SERVER IGNORING")
                     continue
 
                 answered += 1
                 #logging.debug("- SERVER RECEIVED ANSWER: %s" % answer.success)
                 if answer.name == "END":
                     ended += 1
-                    logging.debug("- SERVER RECEIVE END")
+                    logging.info("- SERVER RECEIVE END")
                 elif answer.success:
                     r = p.send_next_command()
                     cmd = p.last_command
                     if self.report:
                         self.report.sent(p.vm, str(cmd))
-                    logging.debug("- SERVER SENT: %s, %s" % (c, cmd))
+                    logging.info("- SERVER SENT: %s, %s" % (c, cmd))
                     if not r:
-                        logging.debug("- SERVER SENDING ERROR, ENDING")
+                        logging.info("- SERVER SENDING ERROR, ENDING")
                         ended += 1
                 else:
                     ended += 1
-                    logging.debug("- SERVER RECEIVE ERROR, ENDING")
+                    logging.info("- SERVER RECEIVE ERROR, ENDING")
 
             else:
-                logging.debug("- SERVER RECEIVED empty")
+                logging.info("- SERVER RECEIVED empty")
                 exit = True
 
 

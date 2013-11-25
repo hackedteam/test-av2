@@ -26,4 +26,4 @@ def execute(vm, args):
     if clean is True:
         return True, "VM is not infected"
     else:
-        return False, "VM is INFECTED!!!!"
+        return False, "VM is INFECTED"
