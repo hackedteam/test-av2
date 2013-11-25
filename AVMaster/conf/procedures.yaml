@@ -239,7 +239,6 @@ TEST_SCOUT:
 TEST_SCREENSHOT:
     - SCREENSHOT
 
-
 UPDATE_PYTHON:
     - REVERT
     - START_VM
@@ -248,6 +247,7 @@ UPDATE_PYTHON:
         - [active_py.msi, active_inst.bat]
         - updates
         - c:/Users/avtest/Desktop
+    - DELETE_DIR: C:/Python27/Lib/site-packages
     - EXECUTE_VM: /Users/avtest/Desktop/active_inst.bat
     - INTERNET: False
     - STOP_VM
@@ -264,3 +264,8 @@ CHAT_TEST:
 #        - [http://www.facebook.com]
 #    - CHECK_EVIDENCE: [chat,fb]
     - INTERNET: False
+
+TEST_PY:
+    - START_VM
+    - SLEEP: 180
+    - START_AGENT
