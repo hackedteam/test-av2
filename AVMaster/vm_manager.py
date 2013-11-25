@@ -27,7 +27,7 @@ def execute(vm_name, cmd, *args):
                      "list_directory", "make_directory", "get_file", "send_file", "list_processes"]
     # vmware tools
     vmrun_cmds = ["executeCmd", "runTest", "takeScreenshot",
-                  "mkdirInGuest", "copyFileToGuest", "copyFileFromGuest",
+                  "mkdirInGuest", "copyFileToGuest", "copyFileFromGuest", "deleteDirectoryInGuest",
                   "refreshSnapshot"]
 
     logging.debug("command: %s" % cmd)

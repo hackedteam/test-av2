@@ -179,7 +179,7 @@ class VMRun:
     def deleteDirectoryInGuest(self, vmx, dir_path):
         sys.stdout.write("[%s] Delete directory %s.\n" % (vmx, dir_path))
         self._run_cmd(
-            vmx, "DeleteDirectoryInGuest", [dir_path], [vmx.user, vmx.passwd])
+            vmx, "deleteDirectoryInGuest", [dir_path], [vmx.user, vmx.passwd])
 
     def copyFileToGuest(self, vmx, src_file, dst_file):
         sys.stdout.write("[%s] Copying file from %s to %s.\n" %

@@ -101,11 +101,21 @@ TEST_INTERNET:
     - INTERNET: True
     - SLEEP: 15
     - INTERNET: False
+
+TEST_DIR:
+    - PUSH:
+        - [gigi/gggg]
+        - /tmp
+        - C:/Users/avtest/Desktop/gigi
+    - SLEEP: 10
+    - DELETE_DIR: C:/Users/avtest/Desktop/gigi
+TEST_DIR_KO:
+    - DELETE_DIR: C:/Users/avtest/Desktop/gigiol
 """
     procedures = Procedure.load_from_yaml(yaml)
  
-    vms = ["noav", "zenovm"]
-    #vms = ["noav"]
+    #vms = ["noav", "zenovm"]
+    vms = ["noav"]
     redis_host = "localhost"
     mq = MQStar(redis_host)
     mq.clean()
@@ -131,7 +141,8 @@ TEST_INTERNET:
     dispatcher.dispatch(procedures["UPDATE"])
     '''
     logging.info("STARTING TEST 5")
-    dispatcher.dispatch(procedures["TEST_INTERNET"])
+    dispatcher.dispatch(procedures["TEST_DIR"])
+    dispatcher.dispatch(procedures["TEST_DIR_KO"])
 #    '''
 if __name__ == '__main__':
     logging.config.fileConfig('../logging.conf')
