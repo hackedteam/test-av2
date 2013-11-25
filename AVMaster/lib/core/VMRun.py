@@ -198,9 +198,8 @@ class VMRun:
                              [src_file, dst_file], [vmx.user, vmx.passwd])
 
     def executeCmd(self, vmx, cmd, args=[], timeout=40, interactive=True, bg=False):
-        logging.debug("[%s] Executing %s\n" % (vmx, cmd))
+        logging.debug("[%s] Executing %s with args %s" % (vmx, cmd, str(args)))
         if config.verbose:
-            logging.debug("Executing %s with args %s" % (cmd, args))
             logging.debug("on %s with credentials %s %s" % (vmx, vmx.user, vmx.passwd))
             logging.debug("Options: timeout: %s, interactive: %s, background: %s" % (timeout, interactive, bg))
         cmds = []

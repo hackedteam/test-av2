@@ -30,7 +30,8 @@ class MQFeedProcedure(object):
     def receive_client(self, client, blocking=False, timeout=60):
         cmd = self.protocol.procedure.next_command()
         logging.debug("receive_client: %s, %s" % (client, cmd))
-        return cmd.serialize()
+        if cmd:
+            return cmd.serialize()
 
     def send_client(self, client, message):
         pass

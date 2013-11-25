@@ -108,7 +108,8 @@ class Protocol(ProtocolClient):
             self.last_command = None
             return False
         self.last_command = self.procedure.next_command()
-        return self.send_command(copy.deepcopy(self.last_command))
+        #return self.send_command(copy.deepcopy(self.last_command))
+        return self.send_command(self.last_command)
 
     def send_command(self, cmd):
         self.sent_commands.append(cmd)
@@ -125,10 +126,11 @@ class Protocol(ProtocolClient):
                 self._meta(cmd)
             return True
         except Exception, ex:
-            logging.error("Error sending command %s: %s" % (cmd, ex))
-            logging.error(traceback.format_exc(ex))
             cmd.success = False
             cmd.result = str(ex)
+            logging.error("Error sending command %s: %s" % (cmd, ex))
+            logging.error(traceback.format_exc(ex))
+
             return False
 
     def receive_answer(self, vm, msg):

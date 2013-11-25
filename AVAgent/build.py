@@ -312,6 +312,7 @@ class AgentBuild:
         with connection() as c:
             instances = c.instances(ident)
             logging.debug("DBG instances: %s" % instances)
+            logging.debug("DBG rcs: %s" % c.rcs)
 
             assert len(instances) <= 1, "too many instances"
 
@@ -615,11 +616,11 @@ def execute_agent(args, level, platform):
                           platform, args.kind, ftype, args.blacklist, args.param)
 
     """ starts a scout """
-    if socket.gethostname() not in ['Zanzara.local', 'win7zenoav', "paradox"]:
+    if socket.gethostname() not in ['Zanzara.local', 'win7zenoav', 'win7noav', "paradox"]:
         if not internet_checked and internet_on():
             add_result("+ ERROR: I reach Internet")
 
-            exit(0)
+            return False
 
     internet_checked = True
     logging.debug("- Network unreachable")
@@ -641,6 +642,8 @@ def execute_agent(args, level, platform):
 
         else:
             add_result("+ ERROR USER CREATE")
+
+    return True
 
 
 def clean(args):
@@ -671,16 +674,21 @@ def build(action, platform, platform_type, kind, param, backend, frontend, black
 
     connection.host = args.backend
 
-    report_send("+ INIT %s, %s, %s" % (action, platform, kind))
+    if report_send:
+        report_send("+ INIT %s, %s, %s" % (action, platform, kind))
 
     try:
-        if action in ["pull", "scout", "silent"]:
+        if action in ["pull", "scout", "elite"]:
             execute_agent(args, action, args.platform)
         elif action == "clean":
             clean(args)
+        else:
+            add_result("+ ERROR, Unknown action %s, %s, %s" % (action, platform, kind))
     except Exception, ex:
         add_result("+ ERROR: %s" % ex)
 
+    if report_send:
+        report_send("+ END %s" % (action))
     return results
 
 
@@ -707,11 +715,8 @@ def main():
     else:
         avname = socket.gethostname().replace("win8", "").lower()
 
-    platform_type = {}
-    for v in platform_desktop:
-        platform_type[v] = 'desktop'
-    for v in platform_mobile:
-        platform_type[v] = 'mobile'
+    platform_mobile = ["android", "blackberry", "ios"]
+
 
     blacklist = "bitdef,comodo,gdata,drweb,emsisoft,sophos,360cn,kis32,avg,avg32".split(',')
     demo = False
@@ -786,8 +791,12 @@ def main():
                                       "url": "http://HOSTNAME/APPNAME"}, "factory": {"_id": "000"}
     }
 
-    build(args.action, args.platform, platform_type[args.platform], args.kind, params[args.platform], args.backend,
-          args.frontend, blacklist)
+    p_t = "desktop"
+    if args.platform in platform_mobile:
+        p_t = "mobile"
+    build(args.action, args.platform, p_t, args.kind,
+          params[args.platform], args.backend,
+          args.frontend, blacklist, None)
 
 
 if __name__ == "__main__":
