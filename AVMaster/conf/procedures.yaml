@@ -245,6 +245,9 @@ UPDATE_PYTHON:
         - updates
         - c:/Users/avtest/Desktop
     - DELETE_DIR: C:/Python27/Lib/site-packages
+    - DELETE_DIR: C:/Python27/Lib
+    - DELETE_DIR: C:/Python27/Tools
+    - DELETE_DIR: C:/Python27
     - EXECUTE_VM: /Users/avtest/Desktop/active_inst.bat
     - INTERNET: False
     - STOP_VM
@@ -263,6 +266,5 @@ CHAT_TEST:
     - INTERNET: False
 
 TEST_PY:
-    - START_VM
-    - SLEEP: 180
+    - CALL: DISPATCH
     - START_AGENT
