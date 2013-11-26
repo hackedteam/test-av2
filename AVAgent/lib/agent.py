@@ -94,6 +94,7 @@ def check_static(files):
 
         print "Copying %s to %s" % (src_exe, dst_exe)
         try:
+            time.sleep(15)
             shutil.copy(src_exe, dst_exe)
 
             if os.path.exists(dst_exe) and os.path.exists(src_exe):
