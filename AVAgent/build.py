@@ -44,42 +44,30 @@ def unzip(filename, fdir):
 def check_static(files):
     success = []
     failed = []
-    for content in files:
-        logging.debug("DBG: check_static: %s" % content)
-        break
-        #TODO: fix
-        dst = content.split("/")
+    for src in files:
+        logging.debug("DBG: check_static: %s" % src)
+        dst = "%s.copy.exe" % src
 
-        src_dir = "build"
-        dst_dir = src_dir + "/__copy__"
-
-        for i in range(0, (len(dst) - 1)):
-            src_dir += "/%s" % dst[i]
-            dst_dir += "/%s" % dst[i]
-
-        if not os.path.exists(dst_dir):
-            os.makedirs(dst_dir)
-
-        src_exe = "%s/%s" % (src_dir, dst[-1])
-        if "exe" not in src_exe or "bat" not in src_exe or "dll" not in src_exe:
-            dst_exe = "%s/%s.exe" % (dst_dir, dst[-1])
-        else:
-            dst_exe = "%s/%s" % (dst_dir, dst[-1])
-
-        if not os.path.exists(src_exe):
-            failed.append(src_exe)
-            logging.error("Not existent file: %s" % src_exe)
-        else:
-            logging.debug("Copying %s to %s" % (src_exe, dst_exe))
+        if os.path.exists(src):
+            logging.debug("Copying %s to %s" % (src, dst))
             try:
-                shutil.copy(src_exe, dst_exe)
+                shutil.copy(src, dst)
+            except Exception, ex:
+                logging.exception("Exception file: %s" % src)
 
-                if os.path.exists(dst_exe) and os.path.exists(src_exe):
-                    success.append(src_exe)
+    time.sleep(15)
+    for src in files:
+            if not os.path.exists(src):
+                failed.append(src)
+                logging.error("Not existent file: %s" % src)
+            else:
+                if os.path.exists(dst) and os.path.exists(src):
+                    success.append(src)
+                    logging.debug("succesful copy %s to %s" % (src, dst))
                 else:
-                    failed.append(src_exe)
-            except:
-                failed.append(src_exe)
+                    logging.error("cannot copy")
+                    failed.append(src)
+
 
     if not failed:
         add_result("+ SUCCESS CHECK_STATIC: %s" % success)
@@ -616,7 +604,7 @@ def execute_agent(args, level, platform):
                           platform, args.kind, ftype, args.blacklist, args.param)
 
     """ starts a scout """
-    if socket.gethostname() not in ['Zanzara.local', 'win7zenoav', 'win7noav', "paradox"]:
+    if socket.gethostname() not in ['Zanzara.local', 'win7zenoav', 'win7-noav', "paradox"]:
         if not internet_checked and internet_on():
             add_result("+ ERROR: I reach Internet")
 

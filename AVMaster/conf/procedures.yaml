@@ -113,21 +113,24 @@ SET_BLACKLIST:
     - SET:
         blacklist: [bitdef,comodo,gdata,drweb,emsisoft,sophos,360cn,kis32,avg,avg32]
 
-SET_DEFAULTS:
+SET_DEFAULTS_WINDOWS:
     - CALL: SET_BLACKLIST
     - CALL: SET_BUILD_PARAMS_WINDOWS
     - SET:
         backend: 192.168.100.201
         frontend: 172.20.100.204
 
-UPLOAD_AGENT:
-    - PUSH:
-        - [ logging.conf, AVAgent/*.py, AVCommon/*.py, AVCommon/commands/client/*.py, AVCommon/commands/meta/*.py, AVCommon/commands/*.py,]
-        - ..
-        - c:\\AVTest
+SET_DEFAULTS:
+    - CALL: SET_BLACKLIST
+    - CALL: SET_BUILD_PARAMS_DESKTOP
+    - CALL: SET_BUILD_PARAMS_MOBILE
+    - CALL: SET_BUILD_PARAMS_EXPLOIT
+    - SET:
+        backend: 192.168.100.201
+        frontend: 172.20.100.204
 
-PUSH_ASSETS_BUILD:
-    - PUSH: [ AVAgent/assets/config*, AVAgent/assets/keyinject.exe, AVAgent/assets/meltapp.exe ]
+# -------------- MANAGEMENT -------------- #
+
 
 UPDATE:
     - INTERNET: False
@@ -147,6 +150,32 @@ UPDATE:
     - STOP_VM
     - REFRESH_SNAPSHOT
 
+UPDATE_PYTHON:
+    - REVERT
+    - START_VM
+    - INTERNET: True
+    - PUSH:
+        - [active_py.msi, active_inst.bat]
+        - updates
+        - c:/Users/avtest/Desktop
+    - DELETE_DIR: C:/Python27/Lib/site-packages
+    - EXECUTE_VM: /Users/avtest/Desktop/active_inst.bat
+    - INTERNET: False
+    - STOP_VM
+    - REFRESH_SNAPSHOT
+
+
+# ----------- PARTIAL COMMANDS -------------- #
+
+UPLOAD_AGENT:
+    - PUSH:
+        - [ logging.conf, AVAgent/*.py, AVCommon/*.py, AVCommon/commands/client/*.py, AVCommon/commands/meta/*.py, AVCommon/commands/*.py,]
+        - ..
+        - c:\\AVTest
+
+PUSH_ASSETS_BUILD:
+    - PUSH: [ AVAgent/assets/config*, AVAgent/assets/keyinject.exe, AVAgent/assets/meltapp.exe ]
+
 DISPATCH:
     - INTERNET: False
     - REVERT
@@ -154,11 +183,22 @@ DISPATCH:
     - CALL: UPLOAD_AGENT
     - CALL: PUSH_ASSETS_BUILD
 
-MANUAL_BUILD:
-    - START_AGENT
-    - CALL: SET_DEFAULTS
+CHECK_SIGNATURE:
+    # check che era in windows/silent
+    - PUSH: [ AVAgent/assets/avtest.swf ]
+    - PUSH: [ AVAgent/assets/sqlite, AVAgent/assets/sqlite_mod, AVAgent/assets/codec, AVAgent/assets/codec_mod ]
+    #- CHECK_STATIC: [ AVAgent/assets/* ]
+    - CALL: PUSH_ASSETS_BUILD
+    - CALL: SET_BUILD_PARAMS_DESKTOP
+    - BUILD: [ pull, osx, silent ]
     - BUILD: [ pull, windows, silent ]
-    - STOP_AGENT
+    - BUILD: [ pull, linux, silent ]
+    - CALL: SET_BUILD_PARAMS_MOBILE
+    - BUILD: [ pull, android, silent ]
+    - BUILD: [ pull, blackberry, silent ]
+    - BUILD: [ pull, ios, silent ]
+
+# ------------- FULL COMMANDS -------------- #
 
 SCOUT:
     - CALL: DISPATCH
@@ -196,37 +236,19 @@ WINDOWS:
     - BUILD: [ scout, windows, melt ]
     - STOP_AGENT
 
-CHECK_SIGNATURE:
-    # check che era in windows/silent
-    - PUSH: [ AVAgent/assets/avtest.swf ]
-    - PUSH: [ AVAgent/assets/sqlite, AVAgent/assets/sqlite_mod, AVAgent/assets/codec, AVAgent/assets/codec_mod ]
-    #- WGET : [ http://172.20.100.204/exp_$VM_NAME$/avtest.swf, assets/file.swf ]
-    - PUSH: [ AVAgent/assets/config* ]
 
-    - CHECK_STATIC: [ AVAgent/assets/* ]
-
-    - CALL: SET_BUILD_PARAMS_DESKTOP
-    - BUILD: [ pull, windows, silent ]
-    - BUILD: [ pull, linux, silent ]
-    - BUILD: [ pull, osx, silent ]
-
-    - CALL: SET_BUILD_PARAMS_MOBILE
-    - BUILD: [ pull, android, silent ]
-    - BUILD: [ pull, blackberry, silent ]
-    - BUILD: [ pull, ios, silent ]
-
-TEST:
-    #- VM: [360cn,adaware,ahnlab,avg,avira,bitdef,comodo]
+STATIC:
+    - INTERNET: False
     - CALL: DISPATCH
     - START_AGENT
-    - CALL: SET_DEFAULTS
-    #- CALL: CHECK_SIGNATURE
-    #- CALL: PUSH_ASSETS_BUILD
-    #- BUILD: [ pull, android, silent ]
-    - BUILD: [ scout, windows, silent ]
-    #- EXECUTE_VM: [ 'C:/Program Files/Internet Explorer/iexplore.exe', [ 'http://www.facebook.com' ]]
-    #- CHECK_EVIDENCES: [chat,fb]
+    - CALL: CHECK_SIGNATURE
     - STOP_AGENT
+
+# ---------------- TEST --------------- #
+
+TEST_VM:
+    - VM: [360cn,adaware,ahnlab,avg,avira,bitdef,comodo]
+
 
 TEST_SCOUT:
     - CALL: SET_DEFAULTS
@@ -236,31 +258,6 @@ TEST_SCOUT:
 TEST_SCREENSHOT:
     - SCREENSHOT
 
-UPDATE_PYTHON:
-    - REVERT
-    - START_VM
-    - INTERNET: True
-    - PUSH:
-        - [active_py.msi, active_inst.bat]
-        - updates
-        - c:/Users/avtest/Desktop
-    - DELETE_DIR: C:/Python27/Lib/site-packages
-    - EXECUTE_VM: /Users/avtest/Desktop/active_inst.bat
-    - INTERNET: False
-    - STOP_VM
-    - REFRESH_SNAPSHOT
-
-CHAT_TEST:
-    - CALL: DISPATCH
-    - START_AGENT
-    - CALL: SET_DEFAULTS
-    - BUILD: [ elite, windows, silent ]
-    - EXECUTE_VM:
-        - C:/Program Files/Internet Explorer/iexplore.exe
-        - [ www.facebook.com ]
-    - CHECK_EVIDENCES: [chat,fb]
-    - INTERNET: False
-    - STOP_AGENT
 
 TEST_PY:
     - CALL: UPLOAD_AGENT
@@ -269,15 +266,7 @@ TEST_PY:
     - CALL: SET_DEFAULTS
     - BUILD: [ elite, windows, silent ]
 
-BUILD_ELITE:
-    - CALL: SET_DEFAULTS
-    - BUILD: [ elite, windows, silent ]
-
-BUILD_SCOUT:
-    - CALL: SET_DEFAULTS
-    - BUILD: [ elite, windows, silent ]
-
-CHECK_CHAT:
+TEST_CHAT:
     - START_AGENT
     - CALL: SET_DEFAULTS
     - EXECUTE_VM:
@@ -288,3 +277,11 @@ CHECK_CHAT:
         - True
     - BUILD: [ elite, windows, silent ]
     - CHECK_EVIDENCES: [chat,fb]
+
+STARTED_STATIC_OSX:
+    - START_AGENT
+    - CALL: SET_DEFAULTS
+    #- CALL: PUSH_ASSETS_BUILD
+    - CALL: SET_BUILD_PARAMS_DESKTOP
+    - BUILD: [ pull, osx, silent ]
+    - STOP_AGENT
