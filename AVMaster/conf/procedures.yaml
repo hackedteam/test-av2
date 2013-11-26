@@ -246,16 +246,23 @@ STATIC:
 
 STATIC_OSX:
     - INTERNET: False
+    - SLEEP: [1, 300]
     - CALL: DISPATCH
     - START_AGENT
+    - CALL: SET_BLACKLIST
     - CALL: SET_BUILD_PARAMS_DESKTOP
+    - SET:
+        backend: 192.168.100.201
+        frontend: 172.20.100.204
     - BUILD: [ pull, osx, silent ]
     - STOP_AGENT
 
 # ---------------- TEST --------------- #
 
 TEST_VM:
-    - VM: [360cn,adaware,ahnlab,avg,avira,bitdef,comodo]
+    - VM: [360cn,adaware,ahnlab,avg,avast,avira,bitdef,comodo,drweb,emsisoft]
+    - VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
+    # removed VM: [pctools,sophos,emsisoft]
 
 
 TEST_SCOUT:
