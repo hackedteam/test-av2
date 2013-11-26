@@ -144,14 +144,15 @@ class Protocol(ProtocolClient):
         if config.verbose:
             logging.debug("PROTO S manage_answer %s: %s" % (vm, cmd))
 
-        if cmd.success and cmd.name == sent_command.name and cmd.timestamp == sent_command.timestamp:
+        if cmd.success != None and cmd.name == sent_command.name and cmd.timestamp == sent_command.timestamp:
             if config.verbose:
                 logging.debug("PROTO S we got the expected answer")
             cmd.on_answer(vm, cmd.success, cmd.result)
             self.sent_commands.pop(0)
         else:
             if config.verbose:
-                logging.debug("PROTO S ignoring unexpected answer")
+                logging.debug("PROTO S ignoring unexpected answer, success: ")
+                logging.debug("cmd.timestamp == sent_command.timestamp" % cmd.timestamp == sent_command.timestamp)
             cmd.success = None
 
         return cmd

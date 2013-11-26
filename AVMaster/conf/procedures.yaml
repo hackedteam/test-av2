@@ -255,11 +255,11 @@ CHAT_TEST:
     - START_AGENT
     - CALL: SET_DEFAULTS
     - BUILD: [ elite, windows, silent ]
-#    - EXECUTE_VM:
-#        - C:/Program Files/Internet Explorer/iexplore.exe
-#        - [http://www.facebook.com]
-#    - CHECK_EVIDENCE: [chat,fb]
-#    - INTERNET: False
+    - EXECUTE_VM:
+        - C:/Program Files/Internet Explorer/iexplore.exe
+        - [ www.facebook.com ]
+    - CHECK_EVIDENCES: [chat,fb]
+    - INTERNET: False
     - STOP_AGENT
 
 TEST_PY:
@@ -278,5 +278,13 @@ BUILD_SCOUT:
     - BUILD: [ elite, windows, silent ]
 
 CHECK_CHAT:
-    - SET:
-        instance: '52936d8a4e0913a9a50214ee'
+    - START_AGENT
+    - CALL: SET_DEFAULTS
+    - EXECUTE_VM:
+        - C:/Program Files/Internet Explorer/iexplore.exe
+        - [ 'http:\\www.facebook.com' ]
+        - 40
+        - True
+        - True
+    - BUILD: [ elite, windows, silent ]
+    - CHECK_EVIDENCES: [chat,fb]

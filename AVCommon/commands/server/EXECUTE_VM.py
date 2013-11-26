@@ -16,9 +16,10 @@ def execute(vm, args):
         cmd_args = (args,)
     ret = vm_manager.execute(vm, "executeCmd", *cmd_args)
 
+    logging.debug("ret: %s" % ret)
     if ret == 0:
         return True, "Command %s executed" % args
     else:
-        return False, "Command %s not executed" % args
+        return True, "Command %s not executed" % args
 
 

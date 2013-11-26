@@ -312,7 +312,7 @@ class AgentBuild:
         with connection() as c:
             instances = c.instances(ident)
             logging.debug("DBG instances: %s" % instances)
-            logging.debug("DBG rcs: %s" % c.rcs)
+            logging.debug("DBG rcs: %s" % str(connection.rcs))
 
             assert len(instances) <= 1, "too many instances"
 
@@ -498,7 +498,7 @@ class AgentBuild:
 
         connection.rcs=(target_id, factory_id, ident, operation, target, factory)
 
-        logging.debug("- Built")
+        logging.debug("- Built, rcs: %s" % str(connection.rcs))
 
         #        add_result("+ platfoooorm %s" % self.platform)
         #        add_result("+ kiiiiiiiind %s" % self.kind)

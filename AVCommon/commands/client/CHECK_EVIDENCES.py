@@ -24,9 +24,9 @@ def execute(vm, args):
     ret = []
     with build.connection() as client:
         logging.debug("connected")
-        target_id, factory_id, ident, operation, target, factory = client.rcs
-        instance_id = client.instance_id
-        logging.debug("rcs: %s %s" % (client.rcs, instance_id))
+        target_id, factory_id, ident, operation, target, factory = build.connection.rcs
+        instance_id = build.connection.instance_id
+        logging.debug("rcs: %s %s" % (str(build.connection.rcs), instance_id))
         ret = client.evidences(target, instance_id, "type", type_ev)
         if ret:
             logging.debug("got evidences")
