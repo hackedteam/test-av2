@@ -244,6 +244,14 @@ STATIC:
     - CALL: CHECK_SIGNATURE
     - STOP_AGENT
 
+STATIC_OSX:
+    - INTERNET: False
+    - CALL: DISPATCH
+    - START_AGENT
+    - CALL: SET_BUILD_PARAMS_DESKTOP
+    - BUILD: [ pull, osx, silent ]
+    - STOP_AGENT
+
 # ---------------- TEST --------------- #
 
 TEST_VM:
