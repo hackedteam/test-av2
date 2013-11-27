@@ -129,6 +129,9 @@ class VMachine:
     def startup(self):
         return self._run_task("power_on")
 
+    def reboot(self):
+        return self._run_task("reset")
+
     def shutdown(self):
         return self._run_task("power_off")
 
