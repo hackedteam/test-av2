@@ -128,8 +128,7 @@ class Protocol(ProtocolClient):
         except Exception, ex:
             cmd.success = False
             cmd.result = str(ex)
-            logging.error("Error sending command %s: %s" % (cmd, ex))
-            logging.error(traceback.format_exc(ex))
+            logging.exception("Error sending command %s: %s" % (cmd, ex))
 
             return False
 

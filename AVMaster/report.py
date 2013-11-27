@@ -3,6 +3,7 @@ __author__ = 'fabrizio'
 import logging
 import pickle
 import yaml
+import time
 
 class Report:
     c_sent = {}
@@ -10,6 +11,7 @@ class Report:
 
     def init(self, procedure):
         self.name = procedure.name
+        self.timestamp = int(time.time())
 
     # arriva pulito
     def sent(self, av, command):
@@ -29,10 +31,11 @@ class Report:
         f=open("report.%s.log" % self.name, "w+")
         rep = {}
 
+        rep["LAST_RECEIVED"] = []
         for k in self.c_received.keys():
             try:
                 rep[k]={"RECEIVED" : self.c_received[k], "LAST_SENT" : self.c_sent.get(k,"") }
-                rep["LAST_RECEIVED": (k, self.c_received[k][-1]) ]
+                rep["LAST_RECEIVED"].append( list(k, self.c_received[k][-1]) )
             except:
                 pass
 

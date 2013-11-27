@@ -245,8 +245,7 @@ STATIC:
     - STOP_AGENT
 
 STATIC_OSX:
-    - INTERNET: False
-    - SLEEP: [1, 300]
+    - SLEEP: [1, 60]
     - CALL: DISPATCH
     - START_AGENT
     - CALL: SET_BLACKLIST
@@ -256,6 +255,7 @@ STATIC_OSX:
         frontend: 172.20.100.204
     - BUILD: [ pull, osx, silent ]
     - STOP_AGENT
+    - STOP_VM
 
 # ---------------- TEST --------------- #
 

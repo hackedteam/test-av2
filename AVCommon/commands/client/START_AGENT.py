@@ -19,10 +19,15 @@ def on_init(protocol, args):
 
     logging.debug("execution: %s" % ret)
 
-    time.sleep(5)
-    processes = vm_manager.execute(vm, "list_processes")
-    python = [ p for p in processes if "python" in p['cmd_line'] ]
-    logging.debug("processes python: %s" % python)
+    for i in range(5):
+        time.sleep(10)
+        processes = vm_manager.execute(vm, "list_processes")
+        if not processes:
+            continue
+        python = [ p for p in processes if "python" in p['cmd_line'] ]
+        logging.debug("processes python: %s" % python)
+        if python:
+            return True
 
     if not python:
         raise RuntimeError("Error executing command av_agent")
