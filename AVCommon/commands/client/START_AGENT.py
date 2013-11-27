@@ -23,6 +23,7 @@ def on_init(protocol, args):
         time.sleep(10)
         processes = vm_manager.execute(vm, "list_processes")
         if not processes:
+            logging.debug("%s: null list_processes: %s" % vm)
             continue
         python = [ p for p in processes if "python" in p['cmd_line'] ]
         logging.debug("processes python: %s" % python)

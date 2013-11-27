@@ -35,7 +35,7 @@ class Report:
         for k in self.c_received.keys():
             try:
                 rep[k]={"RECEIVED" : self.c_received[k], "LAST_SENT" : self.c_sent.get(k,"") }
-                rep["LAST_RECEIVED"].append( list(k, self.c_received[k][-1]) )
+                rep["LAST_RECEIVED"].append( {k: self.c_received[k][-1]} )
             except:
                 pass
 
