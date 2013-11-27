@@ -245,7 +245,7 @@ STATIC:
     - STOP_AGENT
 
 STATIC_OSX:
-    - SLEEP: [1, 60]
+    - SLEEP: [1, 600]
     - CALL: DISPATCH
     - START_AGENT
     - CALL: SET_BLACKLIST
