@@ -12,9 +12,11 @@ def execute(vm, args):
     assert vm, "null vm"
     assert command.context is not None
 
-    assert isinstance(args, list), "VM expects a list"
+    protocol, mon_args = args
 
-    command.context["VM"] = args
+    assert isinstance(mon_args, list), "VM expects a list"
+
+    dispatch = protocol.dispatcher
 
     logging.debug("items: %s" % (command.context))
-    return True, "VM"
+    return True, "MONITOR"

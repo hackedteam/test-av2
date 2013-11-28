@@ -26,7 +26,7 @@ class Dispatcher(object):
         self.report = report
         self.timeout = timeout
 
-    def dispatch(self, procedure, ):
+    def dispatch(self, procedure ):
         global received
         exit = False
 

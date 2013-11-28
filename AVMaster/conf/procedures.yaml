@@ -304,8 +304,7 @@ STARTED_STATIC_OSX:
 TEST_DAILY:
     - VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
     - MONITOR:
-        - START: DAILY]
+        - START: DAILY
         - CALL: UPDATE
         - CALL: [ STATIC_OSX, BUILD ]
-        - END
-        - MAIL:
+        - END: [ MAIL, FILE, WEB ]

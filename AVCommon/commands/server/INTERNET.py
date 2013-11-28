@@ -2,8 +2,6 @@ import os
 import sys
 import logging
 
-sys.path.append(os.path.split(os.getcwd())[0])
-sys.path.append(os.getcwd())
 
 from AVCommon import command
 
