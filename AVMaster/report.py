@@ -9,26 +9,29 @@ class Report:
     c_sent = {}
     c_received = {}
 
+    test_id =0
+
     def init(self, procedure):
         self.name = procedure.name
         self.timestamp = int(time.time())
 
     # arriva pulito
-    def sent(self, av, command):
+    def sent(self, proc, av, command):
         logging.debug("sent: %s (%s)" % (av, command))
         Report.c_sent[av]=str(command)
         self.dump()
 
     # arriva pulito
-    def received(self, av, command):
+    def received(self, proc, av, command):
         logging.debug("received: %s (%s)" % (av, command))
         if av not in Report.c_received:
             Report.c_received[av] = []
         Report.c_received[av].append(str(command))
+        self.db_save(self.test_id, proc, av, command)
         self.dump()
 
     def dump(self):
-        f=open("report.%s.log" % self.name, "w+")
+        f=open("report.%s.%s.log" % (self.timestamp, self.name), "w+")
         rep = {}
 
         rep["LAST_RECEIVED"] = []

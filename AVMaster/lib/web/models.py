@@ -28,7 +28,7 @@ class Result(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     vm_name = db.Column(db.String(16), index=True)
     test_id = db.Column(db.Integer, db.ForeignKey('test.id'), index=True)
-    kind = db.Column(db.String(16))
+    kind = db.Column(db.String(16)) # silent, melt, exploit...
     result = db.Column(db.Text)
     scrshot = db.Column(db.BLOB)
     log = db.Column(db.Text)

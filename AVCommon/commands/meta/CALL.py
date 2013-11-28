@@ -10,6 +10,7 @@ def execute(vm, args):
 
     assert protocol
     assert protocol.procedure
+
     protocol.procedure.insert(proc)
 
     return True, proc_name
