@@ -29,8 +29,8 @@ class AVMaster():
 
         if proc.command_list and proc.command_list[0].name == "VM":
             vm_command = proc.command_list.pop(0)
-            self.names = vm_command.args
-            logging.info("VM override: %s" % self.names)
+            self.vm_names = vm_command.args
+            logging.info("VM override: %s" % self.vm_names)
         mq = MQStar(self.args.redis, self.args.session)
         if self.args.clean:
             logging.warn("cleaning mq")

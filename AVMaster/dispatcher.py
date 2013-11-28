@@ -38,6 +38,7 @@ class Dispatcher(object):
         if self.report:
             self.report.init(procedure)
 
+        logging.debug("self.vms: %s" % self.vms)
         av_machines = {}
         for vm in self.vms:
             av_machines[vm] = Protocol(self, vm, procedure)

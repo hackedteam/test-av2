@@ -77,7 +77,7 @@ class MQStar():
 
         p = re.compile("\('(\w+)', (.+)\)")
         m = p.match(payload)
-        assert m, "wrong format"
+        assert m, "wrong format: %s" % m
 
         cmd, args = m.group(1), m.group(2)
         #logging.debug(" MQ read: %s args: %s" % (str(cmd), str(args)))
