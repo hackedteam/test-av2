@@ -27,6 +27,10 @@ class AVMaster():
         proc = procedures[self.procedure]
         assert proc, "cannot find the specified procedure: %s" % self.procedure
 
+        if proc.command_list and proc.command_list[0].name == "VM":
+            vm_command = proc.command_list.pop(0)
+            self.names = vm_command.args
+            logging.info("VM override: %s" % self.names)
         mq = MQStar(self.args.redis, self.args.session)
         if self.args.clean:
             logging.warn("cleaning mq")
@@ -44,7 +48,7 @@ class AVMaster():
 def main():
     parser = argparse.ArgumentParser(description='AVMonitor master.')
 
-    parser.add_argument('-m', '--vm', required=True,
+    parser.add_argument('-m', '--vm', required=False, default='',
                         help="Virtual Machines comma separated on which executing the operation")
     parser.add_argument('-v', '--verbose', action='store_true', default=False,
                         help="Verbose")

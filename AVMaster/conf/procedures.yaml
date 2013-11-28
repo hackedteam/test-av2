@@ -143,7 +143,8 @@ UPDATE:
     - SLEEP: 3600
     - INTERNET: False
     - CALL: UPLOAD_AGENT
-    - EXECUTE_VM: AVAgent/shutdown.bat
+    - PUSH: [ AVAgent/assets/shutdown.bat ]
+    - EXECUTE_VM: AVAgent/assets/shutdown.bat
     #- CHECK_SHUTDOWN
     - START_VM
     - SLEEP: 180
@@ -171,7 +172,7 @@ UPDATE_PYTHON:
 
 UPLOAD_AGENT:
     - PUSH:
-        - [ logging.conf, AVAgent/*.py, AVCommon/*.py, AVCommon/commands/client/*.py, AVCommon/commands/meta/*.py, AVCommon/commands/*.py, AVAgent/shutdown.bat]
+        - [ logging.conf, AVAgent/*.py, AVCommon/*.py, AVCommon/commands/client/*.py, AVCommon/commands/meta/*.py, AVCommon/commands/*.py]
         - ..
         - c:\\AVTest
 
@@ -306,8 +307,9 @@ STARTED_STATIC_OSX:
 TEST_DAILY:
     - VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
     - MONITOR:
-        - START: DAILY]
+        - START: DAILY
         - CALL: UPDATE
         - CALL: [ STATIC_OSX, BUILD ]
-        - END
-        - MAIL:
+        - END: [ MAIL, FILE, WEB ]
+
+
