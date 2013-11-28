@@ -90,6 +90,7 @@ def update(flargs):
         
         print "[%s] waiting for Updates" % vm_name
         sleep(updatetime * 60)
+        #sleep(60*5)
         sleep(random.randint(10,300))
 
         job_log(vm_name, "SHUTDOWN")
