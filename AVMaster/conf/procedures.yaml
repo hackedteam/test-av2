@@ -157,12 +157,14 @@ UPDATE_PYTHON:
     - PUSH:
         - [active_py.msi, active_inst.bat]
         - updates
-        - c:/Users/avtest/Desktop
+        - c:/
+#        - c:/Users/avtest/Desktop
     - DELETE_DIR: C:/Python27/Lib/site-packages
-    - EXECUTE_VM: /Users/avtest/Desktop/active_inst.bat
+#    - EXECUTE_VM: /Users/avtest/Desktop/active_inst.bat
+    - EXECUTE_VM: /active_inst.bat
     - INTERNET: False
     - STOP_VM
-    - REFRESH_SNAPSHOT
+#    - REFRESH_SNAPSHOT
 
 
 # ----------- PARTIAL COMMANDS -------------- #
@@ -308,3 +310,5 @@ TEST_DAILY:
         - CALL: UPDATE
         - CALL: [ STATIC_OSX, BUILD ]
         - END: [ MAIL, FILE, WEB ]
+
+
