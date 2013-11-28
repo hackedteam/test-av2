@@ -248,6 +248,7 @@ STATIC:
     - STOP_AGENT
 
 STATIC_OSX:
+    - VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
     - SLEEP: [1, 600]
     - CALL: DISPATCH
     - START_AGENT
