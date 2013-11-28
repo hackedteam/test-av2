@@ -63,12 +63,18 @@ class AVAgent(object):
         self.pc.send_answer(command._factory("BUILD", None, None, message, self.vm))
 
     def start_agent(self, mq=None, procedure=None):
+        class D:
+            pass
+        d = D()
         if not mq:
+
             mq = MQStar(self.host, self.session)
-            self.pc = Protocol(mq, self.vm)
+
+            d.mq = mq
+            self.pc = Protocol(d, self.vm)
         else:
             assert procedure
-            self.pc = Protocol(mq, self.vm, procedure=procedure)
+            self.pc = Protocol(d, self.vm, procedure=procedure)
             mq.protocol = self.pc
             logging.debug("mq: %s pc:%s" % (mq.protocol.procedure, self.pc.procedure))
         mq.add_client(self.vm)

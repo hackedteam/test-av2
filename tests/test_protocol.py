@@ -60,7 +60,11 @@ def test_ProtocolEval():
                 ("END", None, None)]
     procedure = Procedure("PROC", commands)
 
-    p = Protocol(mq, c, procedure)
+    class D:
+        pass
+    d = D()
+    d.mq = mq
+    p = Protocol(d, c, procedure)
 
     while p.send_next_command():
         logging.debug("sent command: %s" % p.last_command)
@@ -112,7 +116,12 @@ CALLER:
     caller = Procedure.procedures["CALLER"]
     basic = Procedure.procedures["BASIC"]
 
-    p = Protocol(mq, c, caller)
+    class D:
+        pass
+    d = D()
+    d.mq = mq
+
+    p = Protocol(d, c, caller)
     while p.send_next_command():
         logging.debug("sent command")
 

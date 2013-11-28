@@ -24,6 +24,7 @@ def execute(vm, args):
                     if started:
                         return True, "Started VM"
                 if not started:
+                    logging.debug("%s: reboot requested" % vm)
                     vm_manager.execute(vm, "reboot")
                     sleep(10)
                     continue

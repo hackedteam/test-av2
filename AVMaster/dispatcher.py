@@ -40,7 +40,7 @@ class Dispatcher(object):
 
         av_machines = {}
         for vm in self.vms:
-            av_machines[vm] = Protocol(self.mq, vm, procedure)
+            av_machines[vm] = Protocol(self, vm, procedure)
 
         for p in av_machines.values():
             #a.start()

@@ -2,7 +2,6 @@ import logging
 
 from AVCommon.procedure import Procedure
 
-
 def execute(vm, args):
     protocol, proc_name = args
     logging.debug("    CS Execute: %s" % proc_name)

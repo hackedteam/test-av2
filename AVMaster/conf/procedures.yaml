@@ -135,7 +135,7 @@ SET_DEFAULTS:
 UPDATE:
     - INTERNET: False
     - REVERT
-    - SLEEP: [10, 180]
+    - SLEEP: [0, 600]
     - START_VM
     - SLEEP: 180
     #- CHECK_INFECTION
@@ -143,7 +143,7 @@ UPDATE:
     - SLEEP: 3600
     - INTERNET: False
     - CALL: UPLOAD_AGENT
-    - EXECUTE_VM: shutdown.bat
+    - EXECUTE_VM: AVAgent/shutdown.bat
     #- CHECK_SHUTDOWN
     - START_VM
     - SLEEP: 180
@@ -171,7 +171,7 @@ UPDATE_PYTHON:
 
 UPLOAD_AGENT:
     - PUSH:
-        - [ logging.conf, AVAgent/*.py, AVCommon/*.py, AVCommon/commands/client/*.py, AVCommon/commands/meta/*.py, AVCommon/commands/*.py,]
+        - [ logging.conf, AVAgent/*.py, AVCommon/*.py, AVCommon/commands/client/*.py, AVCommon/commands/meta/*.py, AVCommon/commands/*.py, AVAgent/shutdown.bat]
         - ..
         - c:\\AVTest
 
@@ -247,7 +247,7 @@ STATIC:
     - STOP_AGENT
 
 STATIC_OSX:
-    - SLEEP: [1, 60]
+    - SLEEP: [1, 600]
     - CALL: DISPATCH
     - START_AGENT
     - CALL: SET_BLACKLIST
@@ -302,3 +302,12 @@ STARTED_STATIC_OSX:
     - CALL: SET_BUILD_PARAMS_DESKTOP
     - BUILD: [ pull, osx, silent ]
     - STOP_AGENT
+
+TEST_DAILY:
+    - VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
+    - MONITOR:
+        - START: DAILY]
+        - CALL: UPDATE
+        - CALL: [ STATIC_OSX, BUILD ]
+        - END
+        - MAIL:
