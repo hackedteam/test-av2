@@ -20,7 +20,6 @@ def execute(vm, args):
         command.context["internet_true"] = set()
         command.context["internet_false"] = set()
 
-
     cmd = None
 
     if args == True:

@@ -71,16 +71,18 @@ class Protocol(ProtocolClient):
     procedure = None
     last_command = None
 
-    def __init__(self, mq, vm, procedure=None, timeout=0):
-        ProtocolClient.__init__(self, mq, vm, timeout)
-        self.mq = mq
+    def __init__(self, dispatcher, vm, procedure=None, timeout=0):
+        ProtocolClient.__init__(self, dispatcher.mq, vm, timeout)
+        self.dispatcher = dispatcher
         self.vm = vm
         self.procedure = copy.deepcopy(procedure)
         self.sent_commands = []
         assert (isinstance(vm, str))
-        assert mq
+        assert dispatcher
+        self.add_vm(vm)
 
-        mq.add_client(vm)
+    def add_vm(self, vm):
+        self.mq.add_client(vm)
 
     # server side
     def _send_command_mq(self, cmd):
@@ -95,7 +97,6 @@ class Protocol(ProtocolClient):
 
         if blocking:
             t.join()
-
 
     #def next(self):
     #    logging.debug("next")

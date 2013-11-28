@@ -9,15 +9,12 @@ def execute(vm, args):
     """ client side, returns (bool,*) """
     logging.debug("    SET %s" % str(args))
 
-    protocol, vms = args
-
     assert vm, "null vm"
     assert command.context is not None
 
-    assert isinstance(vms, list), "VM expects a list"
+    assert isinstance(args, list), "VM expects a list"
 
-    command.context["VM"] = vms
-
+    command.context["VM"] = args
 
     logging.debug("items: %s" % (command.context))
     return True, "VM"
