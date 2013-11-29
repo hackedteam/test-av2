@@ -15,7 +15,7 @@ from AVMaster import vm_manager
 
 from AVAgent import av_agent
 
-from AVMaster.report import Report
+from AVMaster import report
 from AVCommon import command
 
 import time
@@ -82,10 +82,9 @@ TEST:
     #istanzia n client e manda delle procedure.
 
     vm_manager.vm_conf_file = "../AVMaster/conf/vms.cfg"
-    report= Report()
 
     # dispatcher, inoltra e riceve i comandi della procedura test sulle vm
-    dispatcher = Dispatcher(mq, vms, report, timeout = 10)
+    dispatcher = Dispatcher(mq, vms, timeout = 10)
     thread = threading.Thread(target=dispatcher.dispatch, args=(test["TEST"],))
     thread.start()
     #p = Process(target=dispatcher.dispatch, args=(test["TEST"],))
@@ -106,10 +105,8 @@ TEST:
     #p.join()
     thread.join()
 
-
-    logging.debug(dispatcher.report)
-    logging.debug("sent: %s" % dispatcher.report.c_sent)
-    logging.debug("received: %s" % Report.c_received)
+    logging.debug("sent: %s" % report.c_sent)
+    logging.debug("received: %s" % report.c_received)
 
 if __name__ == '__main__':
     logging.config.fileConfig('../logging.conf')

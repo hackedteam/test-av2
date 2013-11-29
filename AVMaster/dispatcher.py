@@ -7,6 +7,7 @@ sys.path.append(os.getcwd())
 
 from AVCommon.protocol import Protocol
 from AVCommon import command
+from AVMaster import report
 
 def red(msg, max_len=50):
     s = str(msg)
@@ -20,10 +21,9 @@ class Dispatcher(object):
 
     vms = []
 
-    def __init__(self, mq, vms, report=None, timeout=0):
+    def __init__(self, mq, vms, timeout=0):
         self.vms = vms
         self.mq = mq
-        self.report = report
         self.timeout = timeout
 
     def dispatch(self, procedure ):
@@ -35,8 +35,7 @@ class Dispatcher(object):
         logging.debug("- SERVER len(procedure): %s" % len(procedure))
         self.num_commands = len(procedure)
 
-        if self.report:
-            self.report.init(procedure)
+        report.init(procedure.name)
 
         logging.debug("self.vms: %s" % self.vms)
         av_machines = {}
@@ -48,8 +47,9 @@ class Dispatcher(object):
             self.mq.clean(p)
             r = p.send_next_command()
             c = p.last_command
-            if self.report:
-                self.report.sent(p, str(c))
+
+            report.sent(p.vm, str(c))
+
             logging.info("- SERVER SENT: %s" % c)
 
         ended = 0
@@ -62,8 +62,7 @@ class Dispatcher(object):
                 p = av_machines[c]
                 answer = p.receive_answer(c, msg)
 
-                if self.report:
-                    self.report.received(c, command.unserialize(msg))
+                report.received(c, command.unserialize(msg))
 
                 if answer.success == None:
                     logging.info("- SERVER IGNORING")
@@ -77,8 +76,9 @@ class Dispatcher(object):
                 elif answer.success:
                     r = p.send_next_command()
                     cmd = p.last_command
-                    if self.report:
-                        self.report.sent(p.vm, str(cmd))
+
+                    report.sent(p.vm, str(cmd))
+
                     logging.info("- SERVER SENT: %s, %s" % (c, cmd))
                     if not r:
                         logging.info("- SERVER SENDING ERROR, ENDING")

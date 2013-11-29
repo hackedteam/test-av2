@@ -677,7 +677,9 @@ def build(action, platform, platform_type, kind, param, backend, frontend, black
 
     if report_send:
         report_send("+ END %s" % (action))
-    return results
+
+    errors =  [ b for b in results if b.startswith("+ ERROR") or b.startswith("+ FAILED")]
+    return results, any(errors), errors
 
 
 def main():

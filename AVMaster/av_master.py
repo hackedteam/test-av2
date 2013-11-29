@@ -10,7 +10,7 @@ from AVCommon.procedure import Procedure
 from dispatcher import Dispatcher
 from AVCommon.mq import MQStar
 from AVCommon import command
-from report import Report
+import report
 
 class AVMaster():
     """docstring for Master"""
@@ -19,7 +19,6 @@ class AVMaster():
         self.args = args
         self.vm_names = args.vm.split(',')
         self.procedure = args.procedure.upper()
-        self.report = Report()
         command.init()
 
     def start(self):
@@ -38,7 +37,7 @@ class AVMaster():
 
         logging.info("mq session: %s" % mq.session)
 
-        dispatcher = Dispatcher(mq, self.vm_names, report=self.report)
+        dispatcher = Dispatcher(mq, self.vm_names)
         dispatcher.dispatch(proc)
 
     def on_finished(self, vm):
