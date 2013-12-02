@@ -1,19 +1,20 @@
 __author__ = 'zeno'
 
-from AVMaster import report
 from AVCommon import command
 import logging
 
 def execute(vm, args):
     # counts the inits
+    from AVMaster import report
+
     protocol, args = args
     logging.debug("    CS Execute: %s" % args)
     if "report" not in command.context.keys():
         logging.info("report init: %s" % args)
-        #command.context["report"] = set()
+        command.context["report"] = set()
         #report.init(args)
 
-    #command.context["report"].add(vm)
+    command.context["report"].add(vm)
+    assert command.context["report"]
 
-
-    return True, ""
+    return True, vm

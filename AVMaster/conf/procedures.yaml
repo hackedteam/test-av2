@@ -249,8 +249,9 @@ STATIC:
 
 STATIC_OSX:
     - VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
-    - SLEEP: [1, 600]
-    - CALL: DISPATCH
+    - SLEEP: [1, 60]
+    #- CALL: DISPATCH
+    - CALL: UPLOAD_AGENT
     - START_AGENT
     - CALL: SET_BLACKLIST
     - CALL: SET_BUILD_PARAMS_DESKTOP
@@ -313,7 +314,7 @@ TEST_DAILY:
 
 TEST_DAILY:
     #- VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
-    - VM: [360cn,adaware,ahnlab]
+    - VM: [adaware,ahnlab,avast]
     - REPORT_INIT # generazione Test, status = 0, report.test_id = random()
     - REPORT_KIND: UPDATE
     #- CALL: UPDATE # aggiunge un result kind = UPDATE

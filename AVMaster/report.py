@@ -12,6 +12,18 @@ from AVCommon.singleton import Singleton
 
 @Singleton
 class Report:
+    def init(self, o):
+        self.c_sent = o.c_sent
+        self.c_received = o.c_received
+
+        self.test_id = o.test_id
+        self.timestamp = o.timestamp
+
+        self.reports = o.reports
+        self.current_procedure = o.current_procedure
+        self.procedures = o.procedures
+        self.name = o.name
+
     def __init__(self):
         self.c_sent = {}
         self.c_received = {}
@@ -22,10 +34,11 @@ class Report:
         self.reports = {} # proc is the key
         self.current_procedure = {} # vm is the key
         self.procedures = []
+        self.name = ""
 
 
 def init(name):
-    report = Report.Instance()
+    report = Report()
     report.name = name
 
 def end():
@@ -35,7 +48,7 @@ def end():
 
 
 def get_result(received):
-    report = Report.Instance()
+    report = Report()
 
     builds = [ b for b in received if b.startswith("BUILD")]
     failed = [ b for b in builds if   "+ ERROR" in b or "+ FAILED" in b ]
@@ -48,7 +61,7 @@ def get_result(received):
         return [True, received[-1]]
 
 def set_procedure(vm, proc_name):
-    report = Report.Instance()
+    report = Report()
 
     if vm in report.current_procedure.keys():
         if vm in report.c_received:
@@ -65,7 +78,7 @@ def set_procedure(vm, proc_name):
 
 # arriva pulito
 def sent(av, command):
-    report = Report.Instance()
+    report = Report()
 
     assert isinstance( av, str)
     logging.debug("sent (%s): %s (%s)" % (report.current_procedure.get(av,""), av, command))
@@ -74,7 +87,7 @@ def sent(av, command):
 
 # arriva pulito
 def received(av, command):
-    report = Report.Instance()
+    report = Report()
 
     assert isinstance( av, str)
 
@@ -92,7 +105,9 @@ def dump():
     f.write(yaml.dump(report, default_flow_style=False, indent=4))
 
 def restore(file_name):
-    report = Report.Instance()
+    #report = Report()
+    f = open(file_name)
 
-    f = open(file_name  )
-    report = yaml.load(f)
+    r = yaml.load(f)
+    Report().init(r)
+    return r

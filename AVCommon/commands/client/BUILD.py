@@ -19,7 +19,7 @@ def on_answer(vm, success, answer):
     if isinstance(answer, list) and len(answer) > 0:
         logging.info("BUILD ANSWER LAST: %s" % answer[-1])
     else:
-        logging.info("BUILD ANSWER: %s" % answer)
+        logging.info("BUILD ANSWER: %s" % str(answer))
 
 
 def execute(vm, args):

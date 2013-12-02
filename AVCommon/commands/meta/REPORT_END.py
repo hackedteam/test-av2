@@ -1,11 +1,12 @@
 __author__ = 'zeno'
 
-from AVMaster import report
+
 from AVCommon import command
 import logging
 
 def execute(vm, args):
     # counts the end, when it's equal to init, finish
+    from AVMaster import report
 
     protocol, args = args
     assert "report" in command.context.keys()
@@ -17,4 +18,4 @@ def execute(vm, args):
         report.end()
 
     logging.debug("    CS Execute")
-    return True, ""
+    return True, vm

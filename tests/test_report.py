@@ -3,10 +3,14 @@ __author__ = 'zeno'
 from AVMaster import report
 
 def test_report_load():
-    report.restore("report.STATIC_OSX.log")
-    assert report.name == "STATIC_OSX"
-    assert report.c_received
-    assert report.c_sent
+    r = report.restore("report.TEST_DAILY.log")
+
+    r2 = report.Report()
+    assert r.c_sent == r2.c_sent
+
+    assert r.name == "TEST_DAILY"
+    assert r.c_received
+    assert r.c_sent
 
 
 if __name__=="__main__":
