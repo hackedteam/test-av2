@@ -1,1 +1,1 @@
-c:\windows\system32\shutdown.exe /s
+c:\windows\system32\shutdown.exe /s /f /t 0

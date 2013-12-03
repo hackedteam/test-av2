@@ -3,28 +3,36 @@ __author__ = 'zeno'
 import time
 import threading
 import logging
+import os
 
 
 thread = None
-found = False
+found = []
+go_on = True
 
 def on_init(protocol, args):
     pass
 
 
 def on_answer(vm, success, answer):
-    pass
-
+    from AVMaster import vm_manager
+    logging.debug("CROP answer: %s|%s" % (success, answer))
+    if not answer:
+        logging.warn("We have to PULL images: %s" % answer)
+        for src in answer:
+            dst = src
+            logging.debug("PULL: %s -> %s" % (src, dst))
+            vm_manager.execute(vm, "copyFileFromGuest", src, dst)
 
 def execute(vm, args):
-    global im1, thread, go_on
+    global im1, thread, go_on, found
     from PIL import ImageGrab
 
     if args:
         # starts a crop server
         logging.debug("start a crop server")
         im1 = ImageGrab.grab()
-        thread = threading.Thread(target=crop, args=(vm,))
+        thread = threading.Thread(target=grab_loop, args=(vm,))
         thread.start()
         logging.debug("exiting")
         return True, "%s" % args
@@ -33,18 +41,23 @@ def execute(vm, args):
         logging.debug("stop grab_loop")
         go_on = False
         thread.join()
-        logging.debug("exiting")
-        return not found, "%s" % args
+        logging.debug("exiting, returning %s" % found)
+        return found == [], found
 
 
-def grab_loop():
+def grab_loop(vm):
     global go_on, found
     i=0;
-    found = False
+    logging.debug("grab loop")
+    if not os.path.exists("crop"):
+        os.mkdir("crop")
+
     while go_on:
         i+=1
-        found |= crop(i)
-        time.sleep(1)
+        f = crop(i)
+        if f:
+            found.append(f)
+        time.sleep(2)
     logging.debug("exiting grab_loop")
     return found
 
@@ -76,7 +89,7 @@ def crop(i):
     c=im2.crop((l,t,r,b))
     im1 = im2
     if c.size[0] > 20 and c.size[1] > 20:
-        name = "crop_%s.png" % i
+        name = "crop/%s.png" % i
         logging.debug("actual crop save: %s" % name)
-        print name, c.size
+        logging.debug("name: %s size: %s" % ( name, c.size ))
         c.save(name)

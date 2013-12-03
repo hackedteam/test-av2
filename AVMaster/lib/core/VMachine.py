@@ -46,8 +46,8 @@ class VMachine:
         self.create_snapshot(date)
         if delete is True:
             snap_list = self.list_snapshots()
-            #            for snap in snap_list:
-            #                print snap.get_name()
+            for snap in snap_list[:-2]:
+                 logging.debug("should delete: %s" % snap.get_name())
             if len(snap_list) > 0 and snap_list[-2].get_name() not in untouchables and "manual" not in snap_list[
                 -2].get_name():
                 logging.debug("deleting %s" % snap_list[-2].get_name())
@@ -108,7 +108,7 @@ class VMachine:
         logging.debug(self.get_all_pid())
         logging.debug("exiting")
 
-    def shutdown_upgrade(self, timeout=120):
+    def down_upgrade(self, timeout=120):
 
         tick = 0
 

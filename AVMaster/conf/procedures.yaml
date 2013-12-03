@@ -167,16 +167,26 @@ UPDATE_PYTHON:
     - STOP_VM
 #    - REFRESH_SNAPSHOT
 
+UPDATE_FAST:
+#    - VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
+    - VM: [360cn,avast32]
+    - INTERNET: True
+    - SLEEP: [0, 60]
+    - REVERT
+    - START_VM
+    - SLEEP: 180
+    - PUSH: [ AVAgent/assets/shutdown.bat ]
+    - EXECUTE_VM: /AVTest/AVAgent/assets/shutdown.bat
+    - SLEEP: 60
+    - START_VM
+    - SLEEP: 60
+    - STOP_VM
+    - REFRESH_SNAPSHOT
 
 # ----------- PARTIAL COMMANDS -------------- #
 
 UPLOAD_AGENT:
-    - PUSH:
-        - [ logging.conf, AVAgent/*.py, AVCommon/*.py, AVCommon/commands/client/*.py, AVCommon/commands/meta/*.py, AVCommon/commands/*.py]
-        - ..
-        - c:\\AVTest
-
-PUSH_ASSETS_BUILD:
+    - PUSH: [ logging.conf, AVAgent/*.py, AVCommon/*.py, AVCommon/commands/client/*.py, AVCommon/commands/meta/*.py, AVCommon/commands/*.py]
     - PUSH: [ AVAgent/assets/config*, AVAgent/assets/keyinject.exe, AVAgent/assets/meltapp.exe ]
 
 DISPATCH:
@@ -184,14 +194,12 @@ DISPATCH:
     - REVERT
     - START_VM
     - CALL: UPLOAD_AGENT
-    - CALL: PUSH_ASSETS_BUILD
 
 CHECK_SIGNATURE:
     # check che era in windows/silent
     - PUSH: [ AVAgent/assets/avtest.swf ]
     - PUSH: [ AVAgent/assets/sqlite, AVAgent/assets/sqlite_mod, AVAgent/assets/codec, AVAgent/assets/codec_mod ]
     #- CHECK_STATIC: [ AVAgent/assets/* ]
-    - CALL: PUSH_ASSETS_BUILD
     - CALL: SET_BUILD_PARAMS_DESKTOP
     - BUILD: [ pull, osx, silent ]
     - BUILD: [ pull, windows, silent ]
@@ -207,7 +215,6 @@ SCOUT:
     - CALL: DISPATCH
     - START_AGENT
     - CALL: SET_DEFAULTS
-    - CALL: PUSH_ASSETS_BUILD
     - BUILD: [ scout, windows, silent ]
     - SCREENSHOT
     - STOP_AGENT
@@ -217,7 +224,6 @@ ELITE:
     - CALL: DISPATCH
     - START_AGENT
     - CALL: SET_DEFAULTS
-    - CALL: PUSH_ASSETS_BUILD
     - BUILD: [ elite, windows, silent ]
     - STOP_AGENT
 
@@ -225,7 +231,6 @@ MELT:
     - CALL: DISPATCH
     - START_AGENT
     - CALL: SET_DEFAULTS
-    - CALL: PUSH_ASSETS_BUILD
     - BUILD: [ scout, windows, melt ]
     - STOP_AGENT
 
@@ -233,7 +238,6 @@ WINDOWS:
     - CALL: DISPATCH
     - START_AGENT
     - CALL: SET_DEFAULTS
-    - CALL: PUSH_ASSETS_BUILD
     - BUILD: [ scout, windows, silent ]
     - BUILD: [ elite, windows, silent ]
     - BUILD: [ scout, windows, melt ]
@@ -248,8 +252,8 @@ STATIC:
     - STOP_AGENT
 
 STATIC_OSX:
-    - VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
-    - SLEEP: [1, 60]
+    #- VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
+    #- SLEEP: [1, 60]
     #- CALL: DISPATCH
     - CALL: UPLOAD_AGENT
     - START_AGENT
@@ -258,11 +262,13 @@ STATIC_OSX:
     - SET:
         backend: 192.168.100.201
         frontend: 172.20.100.204
+    - CROP: True
     - BUILD: [ pull, osx, silent ]
+    - CROP: False
     - STOP_AGENT
-    - STOP_VM
+    #- STOP_VM
 
-REVERT:
+CROP_TEST:
     #- VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
     - VM: [adaware,ahnlab]
     - INTERNET: False
@@ -277,6 +283,10 @@ REVERT:
     - SLEEP: 10
     - CROP: False
 
+REVERT_ALL:
+    - VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
+    - INTERNET: False
+    - REVERT
 # ---------------- TEST --------------- #
 
 TEST_VM:
@@ -294,7 +304,6 @@ TEST_VM:
 
 TEST_SCOUT:
     - CALL: SET_DEFAULTS
-    - CALL: PUSH_ASSETS_BUILD
     - BUILD: [ scout, windows, silent ]
 
 TEST_SCREENSHOT:
@@ -303,7 +312,6 @@ TEST_SCREENSHOT:
 
 TEST_PY:
     - CALL: UPLOAD_AGENT
-    - CALL: PUSH_ASSETS_BUILD
     - START_AGENT
     - CALL: SET_DEFAULTS
     - BUILD: [ elite, windows, silent ]
@@ -323,7 +331,6 @@ TEST_CHAT:
 STARTED_STATIC_OSX:
     - START_AGENT
     - CALL: SET_DEFAULTS
-    #- CALL: PUSH_ASSETS_BUILD
     - CALL: SET_BUILD_PARAMS_DESKTOP
     - BUILD: [ pull, osx, silent ]
     - STOP_AGENT
@@ -350,6 +357,5 @@ TEST_SCOUT_GUIDO:
     - CALL: DISPATCH
     - START_AGENT
     - CALL: SET_DEFAULTS_WINDOWS
-    - CALL: PUSH_ASSETS_BUILD
     - BUILD: [ scout, windows, silent ]
     - STOP_AGENT
