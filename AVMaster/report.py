@@ -99,7 +99,7 @@ def received(av, command):
     dump()
 
 def dump():
-    report = Report.Instance()
+    report = Report()
 
     f=open("report.%s.%s.log" % (report.timestamp, report.name), "w+")
     f.write(yaml.dump(report, default_flow_style=False, indent=4))

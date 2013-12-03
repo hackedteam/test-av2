@@ -262,13 +262,35 @@ STATIC_OSX:
     - STOP_AGENT
     - STOP_VM
 
+REVERT:
+    #- VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
+    - VM: [adaware,ahnlab]
+    - INTERNET: False
+    - REVERT
+    - INTERNET: True
+    - SLEEP: [1,60]
+    - START_VM
+    - EXECUTE_VM:
+        - easy_install
+        - [Pillow]
+    - CROP: True
+    - SLEEP: 10
+    - CROP: False
+
 # ---------------- TEST --------------- #
 
 TEST_VM:
-    - VM: [360cn,adaware,ahnlab,avg,avast,avira,bitdef,comodo,drweb,emsisoft]
-    - VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
+    #- VM: [360cn,adaware,ahnlab,avg,avast,avira,bitdef,comodo,drweb,emsisoft]
+    #- VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
     # removed VM: [pctools,sophos,emsisoft]
-
+    - VM: [fsecure]
+    - EXECUTE_VM:
+        - c:\\python27\\scripts\\easy_install.exe
+        - [Pillow]
+    - PUSH: [ AVAgent/assets/exec_admin.lnk, AVAgent/assets/execution.bat ]
+    - EXECUTE_VM:
+        - c:\\Avtest\\AVAgent\\assets\\exec_admin.lnk
+        - []
 
 TEST_SCOUT:
     - CALL: SET_DEFAULTS
@@ -321,3 +343,13 @@ TEST_DAILY:
     - REPORT_KIND: STATIC_OSX
     - CALL: STATIC_OSX
     - REPORT_END # chiude il Test con status = 1, genera output
+
+TEST_SCOUT_GUIDO:
+    - VM: [drweb,zoneal]
+    - SLEEP: [1, 60]
+    - CALL: DISPATCH
+    - START_AGENT
+    - CALL: SET_DEFAULTS_WINDOWS
+    - CALL: PUSH_ASSETS_BUILD
+    - BUILD: [ scout, windows, silent ]
+    - STOP_AGENT
