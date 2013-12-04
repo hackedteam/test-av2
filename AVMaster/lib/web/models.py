@@ -11,7 +11,9 @@ app.config.from_pyfile('settings.py')
 #app.jinja_env.undefined = jinja2.StrictUndefined
 db = SQLAlchemy(app)
 
-
+""" Test class
+    definisce un'esecuzione di un determinato test
+"""
 class Test(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     #time   = db.Column(db.DateTime)
@@ -23,7 +25,9 @@ class Test(db.Model):
         self.status = status
         self.time = time
 
-
+""" Test Result
+    definisce uno dei risultati del test (es avira, melt, SUCCESS)
+"""
 class Result(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     vm_name = db.Column(db.String(16), index=True)
@@ -42,7 +46,9 @@ class Result(db.Model):
         if result is not None:
             self.result = result
 
-
+""" Sample
+    definisce un Sample. viene salvato il sample quando il test viene completato come FAILED
+"""
 class Sample(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     r_id = db.Column(db.Integer, db.ForeignKey('result.id'))
@@ -52,7 +58,7 @@ class Sample(db.Model):
         self.r_id = r_id
         self.exe = exe
 
-
+""" init db if db doesnt exists """
 def init_db(db_path):
     """ If no db found create one """
     if not os.path.exists(db_path):
