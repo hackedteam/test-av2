@@ -105,8 +105,9 @@ TEST:
     #p.join()
     thread.join()
 
-    logging.debug("sent: %s" % report.c_sent)
-    logging.debug("received: %s" % report.c_received)
+    r = report.Report()
+    logging.debug("sent: %s" % r.c_sent)
+    logging.debug("received: %s" % r.c_received)
 
 if __name__ == '__main__':
     logging.config.fileConfig('../logging.conf')
