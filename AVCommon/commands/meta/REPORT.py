@@ -17,21 +17,24 @@ def execute(vm, args):
 
     assert isinstance(mon_args, list), "VM expects a list"
 
-
     assert protocol
     assert protocol.procedure
+
+    logging.debug("insert report init")
+
+    command_list = []
+
+    command_list.append("REPORT_INIT")
+    for proc_name in mon_args:
+        logging.debug("insert report kind: %s" % (proc_name))
+        command_list.append(["REPORT_KIND", None, (proc_name)])
+        command_list.append(["CALL", None, (proc_name)])
+
+    command_list.append("REPORT_END")
+
+    proc = Procedure("_REPORT", command_list)
     protocol.procedure.insert(proc)
 
-    protocol.procedure.insert("REPORT_INIT")
-    for proc_name in mon_args:
-        protocol.procedure.insert({"REPORT_KIND", None, proc_name})
-        proc = Procedure.procedures[proc_name]
-        protocol.procedure.insert(proc)
-
-        #columns[c] = report.results
-
-    protocol.procedure.insert("REPORT_END")
-
-
-    logging.debug("items: %s" % (command.context))
-    return True, "MONITOR"
+    logging.debug("procedure: %s" % (protocol.procedure.command_list))
+    logging.debug("report items: %s" % (command.context))
+    return True, "REPORT"

@@ -43,11 +43,13 @@ def init(name):
 
 def end(vm):
     report = Report()
-    #for vm in report.current_procedure.keys():
+    #
     logging.debug("setting end to %s" % vm)
     set_procedure(vm, None)
-    dump()
 
+def finish():
+    logging.debug("report finish")
+    dump()
 
 def get_result(received):
     report = Report()

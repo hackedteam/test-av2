@@ -1,6 +1,15 @@
 __author__ = 'zeno'
 
+import logging
+import logging.config
+
+from AVCommon.procedure import Procedure
+from AVCommon.mq import MQStar
+from AVMaster.dispatcher import Dispatcher
+from AVMaster import vm_manager
+
 from AVMaster import report
+
 
 def test_report_load():
     r = report.restore("report.UPDATE_FAST.log")
@@ -12,6 +21,41 @@ def test_report_load():
     assert r.c_received
     assert r.c_sent
 
+def test_report_meta():
+    yaml = """
+
+P1:
+    - SLEEP: 1
+
+P2:
+    - SLEEP: 2
+
+P3:
+    - SLEEP: 3
+
+TEST_REPORT:
+    - VM: [noav,zenoav]
+    - REPORT:
+        - P1
+        - P2
+        - P3
+"""
+    procedures = Procedure.load_from_yaml(yaml)
+
+    #vms = ["noav", "zenovm"]
+    vms = ["noav"]
+    redis_host = "localhost"
+    mq = MQStar(redis_host)
+    mq.clean()
+
+    vm_manager.vm_conf_file = "../AVMaster/conf/vms.cfg"
+    dispatcher = Dispatcher(mq, vms)
+
+    logging.info("STARTING TEST REPORT")
+    dispatcher.dispatch(procedures["TEST_REPORT"])
+    logging.info("STOPPING TEST REPORT")
 
 if __name__=="__main__":
+    logging.config.fileConfig('../logging.conf')
     test_report_load()
+    test_report_meta()
