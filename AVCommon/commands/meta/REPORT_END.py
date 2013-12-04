@@ -13,9 +13,9 @@ def execute(vm, args):
     assert vm in command.context["report"]
 
     command.context["report"].remove(vm)
-    if not command.context["report"]:
-        logging.info("report end")
-        report.end()
+    #if not command.context["report"]:
+    #    logging.info("report end: %s" % vm)
+    report.end(vm)
 
     logging.debug("    CS Execute")
     return True, vm

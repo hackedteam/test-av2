@@ -41,10 +41,12 @@ def init(name):
     report = Report()
     report.name = name
 
-def end():
-    global report
-    for vm in report.current_procedure.keys():
-        set_procedure(vm, "END")
+def end(vm):
+    report = Report()
+    #for vm in report.current_procedure.keys():
+    logging.debug("setting end to %s" % vm)
+    set_procedure(vm, None)
+    dump()
 
 
 def get_result(received):
@@ -56,25 +58,27 @@ def get_result(received):
         return [False, failed[-1]]
     if builds:
         last = builds[-1]
-        return [ True, last ]
+        return [True, last]
     else:
         return [True, received[-1]]
 
 def set_procedure(vm, proc_name):
     report = Report()
 
+    assert vm in report.c_received, "%s not in %s" % (vm, report.c_received)
+
     if vm in report.current_procedure.keys():
-        if vm in report.c_received:
-            proc = report.current_procedure[vm]
-            if proc not in report.reports.keys():
-                report.reports[proc]=[]
-            report.reports[proc].append({ vm: get_result(report.c_received[vm]) })
-        else:
-            logging.debug("no vm in report.c_received")
-    else:
-        logging.debug("no vm in report.current_procedure")
+        proc = report.current_procedure[vm]
+        if proc not in report.reports.keys():
+            report.reports[proc]=[]
+
+        res = get_result(report.c_received[vm])
+        logging.debug("adding %s/%s: %s" % (proc, vm, str(res)))
+        report.reports[proc].append({ vm: res })
 
     report.current_procedure[vm] = proc_name
+    assert vm in report.current_procedure.keys(), "%s not in %s" % (vm, report.current_procedure.keys())
+
 
 # arriva pulito
 def sent(av, command):
