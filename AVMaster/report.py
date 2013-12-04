@@ -41,6 +41,9 @@ def init(name):
     report = Report()
     report.name = name
 
+def clean():
+    Report().__init__()
+
 def end(vm):
     report = Report()
     #
@@ -76,11 +79,13 @@ def set_procedure(vm, proc_name):
 
         res = get_result(report.c_received[vm])
         logging.debug("adding %s/%s: %s" % (proc, vm, str(res)))
+
         report.reports[proc].append({ vm: res })
+
+        # qui si deve salvare il record: t_id = report.test_id, name = vm,  kind = proc, result = res
 
     report.current_procedure[vm] = proc_name
     assert vm in report.current_procedure.keys(), "%s not in %s" % (vm, report.current_procedure.keys())
-
 
 # arriva pulito
 def sent(av, command):

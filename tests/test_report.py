@@ -21,6 +21,8 @@ def test_report_load():
     assert r.c_received
     assert r.c_sent
 
+    report.clean()
+
 def test_report_meta():
     yaml = """
 
@@ -42,8 +44,8 @@ TEST_REPORT:
 """
     procedures = Procedure.load_from_yaml(yaml)
 
-    #vms = ["noav", "zenovm"]
-    vms = ["noav"]
+    vms = ["noav", "zenovm"]
+    #vms = ["noav"]
     redis_host = "localhost"
     mq = MQStar(redis_host)
     mq.clean()
@@ -54,6 +56,17 @@ TEST_REPORT:
     logging.info("STARTING TEST REPORT")
     dispatcher.dispatch(procedures["TEST_REPORT"])
     logging.info("STOPPING TEST REPORT")
+
+    r = report.Report()
+
+    assert r
+    assert len(r.c_received) == len(vms)
+    assert len(r.c_sent) == len(vms)
+    assert len(r.current_procedure) == len(vms)
+    assert len(r.reports) == 3
+
+    #logging.debug("Report: %s" % r )
+
 
 if __name__=="__main__":
     logging.config.fileConfig('../logging.conf')
