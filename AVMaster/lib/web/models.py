@@ -15,11 +15,11 @@ db = SQLAlchemy(app)
     definisce un'esecuzione di un determinato test
 """
 class Test(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)                        # test id
     #time   = db.Column(db.DateTime)
-    time = db.Column(db.String(25))
-    status = db.Column(db.Integer)  # 0: started, 1: completed
-    results = db.relationship('Result', backref='test', lazy='dynamic')
+    time = db.Column(db.String(25))                                     # start time
+    status = db.Column(db.Integer)  # 0: started, 1: completed          # status of test
+    results = db.relationship('Result', backref='test', lazy='dynamic') # results
 
     def __init__(self, status, time):
         self.status = status
@@ -29,13 +29,13 @@ class Test(db.Model):
     definisce uno dei risultati del test (es avira, melt, SUCCESS)
 """
 class Result(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    vm_name = db.Column(db.String(16), index=True)
-    test_id = db.Column(db.Integer, db.ForeignKey('test.id'), index=True)
-    kind = db.Column(db.String(16)) # silent, melt, exploit...
-    result = db.Column(db.Text)
-    scrshot = db.Column(db.BLOB)
-    log = db.Column(db.Text)
+    id = db.Column(db.Integer, primary_key=True)                          # result id
+    vm_name = db.Column(db.String(16), index=True)                        # vm where test is executed
+    test_id = db.Column(db.Integer, db.ForeignKey('test.id'), index=True) # test id referenced
+    kind = db.Column(db.String(16)) # silent, melt, exploit...            # kind of test
+    result = db.Column(db.Text)                                           # result
+    scrshot = db.Column(db.BLOB)                                          # binary of screenshot
+    log = db.Column(db.Text)                                              # logs
 
     def __init__(self, vm_name, test_id, kind, status, result=None):
         self.kind = kind
@@ -50,9 +50,9 @@ class Result(db.Model):
     definisce un Sample. viene salvato il sample quando il test viene completato come FAILED
 """
 class Sample(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    r_id = db.Column(db.Integer, db.ForeignKey('result.id'))
-    exe = db.Column(db.BLOB)
+    id = db.Column(db.Integer, primary_key=True)             # sample id
+    r_id = db.Column(db.Integer, db.ForeignKey('result.id')) # result referenced
+    exe = db.Column(db.BLOB)                                 # exe blob
 
     def __init__(self, r_id, exe):
         self.r_id = r_id
