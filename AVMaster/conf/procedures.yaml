@@ -269,6 +269,19 @@ DAILY:
     - CALL: ELITE
     - REPORT_END # chiude il Test con status = 1, genera output
 
+
+PUSH_VIRUS:
+    - CROP: True
+    - PUSH: [ AVAgent/vira/conficker.dll ]
+    - CROP: False
+
+CHECK_POSITIVE:
+    - VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
+    - INTERNET: False
+    - REPORT:
+        - DISPATCH
+        - PUSH_VIRUS
+
 # ---------------- TEST --------------- #
 
 TEST_VM:
