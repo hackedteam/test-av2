@@ -19,6 +19,7 @@ class AVMaster():
         self.args = args
         self.vm_names = args.vm.split(',')
         self.procedure = args.procedure.upper()
+        self.pool = args.pool
         command.init()
 
     def start(self):
@@ -38,7 +39,7 @@ class AVMaster():
         logging.info("mq session: %s" % mq.session)
 
         dispatcher = Dispatcher(mq, self.vm_names)
-        dispatcher.dispatch(proc)
+        dispatcher.dispatch(proc, pool = self.pool)
 
     def on_finished(self, vm):
         pass

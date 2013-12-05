@@ -24,9 +24,10 @@ def on_answer(vm, success, answer):
             logging.debug("PULL: %s -> %s" % (src, dst))
             vm_manager.execute(vm, "copyFileFromGuest", src, dst)
 
+
 def execute(vm, args):
-    global im1, thread, go_on, found
     from PIL import ImageGrab
+    global im1, thread, go_on, found
 
     if args:
         # starts a crop server
@@ -47,24 +48,26 @@ def execute(vm, args):
 
 def grab_loop(vm):
     global go_on, found
-    i=0;
+    iter=0;
     logging.debug("grab loop")
     if not os.path.exists("crop"):
         os.mkdir("crop")
 
     while go_on:
-        i+=1
-        f = crop(i)
+        iter+=1
+        f = crop(iter)
         if f:
             found.append(f)
         time.sleep(2)
     logging.debug("exiting grab_loop")
     return found
 
-def crop(i):
+
+def crop(iter):
+    from PIL import ImageGrab
     global im1
 
-    logging.debug("crop: %s" % i)
+    logging.debug("crop: %s" % iter)
     d1= im1.getdata()
     im2 = ImageGrab.grab()
     d2=im2.getdata()
@@ -89,7 +92,7 @@ def crop(i):
     c=im2.crop((l,t,r,b))
     im1 = im2
     if c.size[0] > 20 and c.size[1] > 20:
-        name = "crop/%s.png" % i
+        name = "crop/%s.png" % iter
         logging.debug("actual crop save: %s" % name)
         logging.debug("name: %s size: %s" % ( name, c.size ))
         c.save(name)

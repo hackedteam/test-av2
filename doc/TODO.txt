@@ -1,28 +1,10 @@
-- PROJECT
-	- rivedere user story
-	- ridefinire e uniformare nomi e scope dei comandi
-		- elencare i casi d'uso del prodotto
-		- identificare la sintassi per avmaster
-		- ridefinire la sintassi di avagent
-	- procedure
 
-- AVMaster
+VMWARE
+ - autologin
+ - vmrun / sdk per sbloccare il login
 
-- AVAgent
-	- avtest per sergent, con upgrade
-	- test firme statiche
-	- test silent melt
+update:
+ - monday manual update
+ - disable system autoupdate ?
+ - autoupdate only on sunday night.
 
-
-- python daemon
-	Es: python daemon 8002
-	- da automatizzare, creazione dir data, lancio demone
-
-- report
-	- utilizzare sorgente unica (db)
-
-- unit test, integration
-	- TDD, integrare test case nel sistema
-
-
-- test static deve fare download dei cores dal server

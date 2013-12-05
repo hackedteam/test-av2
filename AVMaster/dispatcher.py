@@ -26,7 +26,31 @@ class Dispatcher(object):
         self.mq = mq
         self.timeout = timeout
 
-    def dispatch(self, procedure ):
+    def end(self, c):
+        logging.debug("- SERVER END: %s" % c)
+        self.ended.add(c)
+        if self.pool:
+            m = self.pool.pop()
+            logging.debug("pool popped: %s" % m)
+            self.start(m)
+
+    def start(self, p):
+        logging.debug("- SERVER START: %s" % p)
+        self.mq.clean(p)
+        r = p.send_next_command()
+        c = p.last_command
+
+        report.sent(p.vm, str(c))
+        logging.info("- SERVER SENT: %s" % c)
+
+    def pool_start(self, machines, size):
+        logging.debug("pool start, size: %s" % size )
+        self.pool = machines
+        for i in range(size):
+            m = self.pool.pop()
+            self.start(m)
+
+    def dispatch(self, procedure, pool=0 ):
         global received
         exit = False
 
@@ -42,19 +66,13 @@ class Dispatcher(object):
         for vm in self.vms:
             av_machines[vm] = Protocol(self, vm, procedure)
 
-        for p in av_machines.values():
-            #a.start()
-            self.mq.clean(p)
-            r = p.send_next_command()
-            c = p.last_command
+        if pool == 0:
+            pool = len(self.vms)
+        self.pool_start(av_machines.values(), pool)
 
-            report.sent(p.vm, str(c))
-
-            logging.info("- SERVER SENT: %s" % c)
-
-        ended = set()
+        self.ended = set()
         answered = 0
-        while not exit and len(ended) < len(self.vms):
+        while not exit and len(self.ended) < len(self.vms):
             rec = self.mq.receive_server(blocking=True, timeout=self.timeout)
             if rec is not None:
                 c, msg = rec
@@ -71,8 +89,8 @@ class Dispatcher(object):
                 answered += 1
                 #logging.debug("- SERVER RECEIVED ANSWER: %s" % answer.success)
                 if answer.name == "END":
-                    ended.add(c)
-                    logging.info("- SERVER RECEIVE END: %s" % ended)
+                    self.end(c)
+                    logging.info("- SERVER RECEIVE END: %s" % self.ended)
                 elif answer.success:
                     r = p.send_next_command()
                     cmd = p.last_command
@@ -82,9 +100,9 @@ class Dispatcher(object):
                     logging.info("- SERVER SENT: %s, %s" % (c, cmd))
                     if not r:
                         logging.info("- SERVER SENDING ERROR, ENDING")
-                        ended.add(c)
+                        self.end(c)
                 else:
-                    ended.add(c)
+                    self.end(c)
                     logging.info("- SERVER RECEIVE ERROR, ENDING: %s" %c)
 
             else:
@@ -95,7 +113,7 @@ class Dispatcher(object):
         #if self.report:
         #    self.report.dump()
 
-        logging.debug("answered: %s, ended: %s, num_commands: %s" % ( answered, len(ended), self.num_commands))
-        assert len(ended) == len(self.vms), "answered: %s, ended: %s, num_commands: %s" % ( answered, len(ended), len(self.vms))
+        logging.debug("answered: %s, ended: %s, num_commands: %s" % ( answered, len(self.ended), self.num_commands))
+        assert len(self.ended) == len(self.vms), "answered: %s, ended: %s, num_commands: %s" % ( answered, len(self.ended), len(self.vms))
         #assert answered >= (len(self.vms) * (self.num_commands)), "answered: %s, len(vms): %s, num_commands: %s" % (answered , len(self.vms), self.num_commands)
         return answered
