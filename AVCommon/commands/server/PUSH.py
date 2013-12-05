@@ -30,7 +30,8 @@ def execute(vm, args):
     """ look if i need all files in one directory """
     for src_file in src_files:
         g = glob.glob(os.path.join(src_dir, src_file))
-        print g
+        if not g:
+            logging.warn("Empty glob")
         for f in g:
             # s is the relative file, expanded by glob
             s = f.replace("%s/" % src_dir, "")

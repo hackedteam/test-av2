@@ -47,6 +47,8 @@ class Dispatcher(object):
         logging.debug("pool start, size: %s" % size )
         self.pool = machines
         for i in range(size):
+            if not self.pool:
+                break
             m = self.pool.pop()
             self.start(m)
 
