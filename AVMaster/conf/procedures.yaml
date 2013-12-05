@@ -249,10 +249,11 @@ STATIC_OSX:
     - STOP_AGENT
     #- STOP_VM
 
+
 REVERT_ALL:
     - VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
-    - INTERNET: False
-    - REVERT
+    - INTERNET: False    - REVERT
+
 
 DAILY:
     #- VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
@@ -269,14 +270,15 @@ DAILY:
     - CALL: ELITE
     - REPORT_END # chiude il Test con status = 1, genera output
 
-
 PUSH_VIRUS:
+    - START_AGENT
     - CROP: True
-    - PUSH: [ AVAgent/vira/conficker.dll ]
+    - PUSH: [ AVAgent/assets/vira/conficker.dll ]
     - CROP: False
 
 CHECK_POSITIVE:
-    - VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
+    #- VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
+    - VM: [360cn,adaware,ahnlab,avast]
     - INTERNET: False
     - REPORT:
         - DISPATCH

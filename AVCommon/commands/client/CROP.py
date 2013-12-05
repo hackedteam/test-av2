@@ -43,7 +43,8 @@ def execute(vm, args):
         go_on = False
         thread.join()
         logging.debug("exiting, returning %s" % found)
-        return found == [], found
+        success = len(found) == 0
+        return success, found
 
 
 def grab_loop(vm):
