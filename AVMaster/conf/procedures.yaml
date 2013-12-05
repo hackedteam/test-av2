@@ -275,6 +275,7 @@ PUSH_VIRUS:
     - CROP: True
     - PUSH: [ AVAgent/assets/vira/conficker.dll ]
     - CROP: False
+    - STOP_AGENT
 
 CHECK_POSITIVE:
     #- VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
@@ -282,6 +283,15 @@ CHECK_POSITIVE:
     - INTERNET: False
     - REPORT:
         - DISPATCH
+        - PUSH_VIRUS
+
+CHECK_ELITE:
+    - VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
+    - INTERNET: False
+    - REPORT:
+        - DISPATCH
+        - ELITE
+        - STATIC_OSX
         - PUSH_VIRUS
 
 # ---------------- TEST --------------- #
@@ -298,20 +308,6 @@ TEST_VM:
     - EXECUTE_VM:
         - c:\\Avtest\\AVAgent\\assets\\exec_admin.lnk
         - []
-
-TEST_SCOUT:
-    - CALL: SET_DEFAULTS
-    - BUILD: [ scout, windows, silent ]
-
-TEST_SCREENSHOT:
-    - SCREENSHOT
-
-
-TEST_PY:
-    - CALL: UPLOAD_AGENT
-    - START_AGENT
-    - CALL: SET_DEFAULTS
-    - BUILD: [ elite, windows, silent ]
 
 TEST_CHAT:
     - START_AGENT
@@ -350,22 +346,6 @@ TEST_REPORT:
     - REPORT_KIND: MOBILE
     - SLEEP: 3
     - REPORT_END # chiude il Test con status = 1, genera output
-
-
-TEST_CROP:
-    #- VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
-    - VM: [adaware,ahnlab]
-    - INTERNET: False
-    - REVERT
-    - INTERNET: True
-    - SLEEP: [1,60]
-    - START_VM
-    - EXECUTE_VM:
-        - easy_install
-        - [Pillow]
-    - CROP: True
-    - SLEEP: 10
-    - CROP: False
 
 TEST_POOL:
     #- VM: [360cn,adaware,ahnlab,avg,avast,avira,bitdef,comodo,drweb,emsisoft]

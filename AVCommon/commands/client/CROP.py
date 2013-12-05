@@ -97,3 +97,6 @@ def crop(iter):
         logging.debug("actual crop save: %s" % name)
         logging.debug("name: %s size: %s" % ( name, c.size ))
         c.save(name)
+        return True
+
+    return False
