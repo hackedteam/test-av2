@@ -380,7 +380,7 @@ def dispatch_kind(vm_name, kind, args, r_id=None, res=None, tries=0, status=0):
     elif kind == "exploit":
         max_minute = 20
     elif kind == "mobile" or "exploit_" in kind:
-        max_minute = 5  
+        max_minute = 10
 
     vm = VMachine(vm_conf_file, vm_name)
     job_log(vm.name, "DISPATCH %s" % kind)

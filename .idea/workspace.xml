@@ -6,10 +6,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4052f9d9-3c11-47a0-a6cc-5122f61c053e" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/AVMaster/lib/core/VMManager.py" afterPath="$PROJECT_DIR$/AVMaster/lib/core/VMManager.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/AVAgent/lib/agent.py" afterPath="$PROJECT_DIR$/AVAgent/lib/agent.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/AVMaster/master.py" afterPath="$PROJECT_DIR$/AVMaster/master.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/AVMaster/conf/vms.cfg" afterPath="$PROJECT_DIR$/AVMaster/conf/vms.cfg" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="RCSAVTest.iws" />
@@ -51,9 +48,7 @@
         <entry file="file://$PROJECT_DIR$/AVAgent/lib/agent.py">
           <provider selected="true" editor-type-id="text-editor">
             <state line="99" column="67" selection-start="2609" selection-end="2609" vertical-scroll-proportion="0.0" vertical-offset="1185" max-vertical-offset="12420">
-              <folding>
-                <element signature="e#0#9#0" expanded="true" />
-              </folding>
+              <folding />
             </state>
           </provider>
         </entry>
@@ -61,7 +56,7 @@
       <file leaf-file-name="master.py" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/AVMaster/master.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="91" column="8" selection-start="2256" selection-end="2256" vertical-scroll-proportion="0.7105263" vertical-offset="960" max-vertical-offset="12645">
+            <state line="450" column="38" selection-start="14607" selection-end="14607" vertical-scroll-proportion="0.7631579" vertical-offset="6315" max-vertical-offset="12645">
               <folding>
                 <element signature="e#0#15#0" expanded="true" />
               </folding>
@@ -82,9 +77,7 @@
         <entry file="file://$PROJECT_DIR$/AVMaster/lib/core/VMachine.py">
           <provider selected="true" editor-type-id="text-editor">
             <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="3645">
-              <folding>
-                <element signature="e#0#9#0" expanded="true" />
-              </folding>
+              <folding />
             </state>
           </provider>
         </entry>
@@ -92,10 +85,8 @@
       <file leaf-file-name="VMManager.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/AVMaster/lib/core/VMManager.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="95" column="0" selection-start="2816" selection-end="2816" vertical-scroll-proportion="-1.1538461" vertical-offset="1395" max-vertical-offset="3225">
-              <folding>
-                <element signature="e#0#17#0" expanded="true" />
-              </folding>
+            <state line="95" column="0" selection-start="2816" selection-end="2816" vertical-scroll-proportion="0.0" vertical-offset="1395" max-vertical-offset="3225">
+              <folding />
             </state>
           </provider>
         </entry>
@@ -141,7 +132,7 @@
     <scope name="Common" pattern="" />
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="1302" />
+    <option name="x" value="1345" />
     <option name="y" value="22" />
     <option name="width" value="1203" />
     <option name="height" value="706" />
@@ -173,90 +164,7 @@
     </navigator>
     <panes>
       <pane id="Scope">
-        <subPane subId="Project Files">
-          <PATH>
-            <PATH_ELEMENT USER_OBJECT="Root">
-              <option name="myItemId" value="" />
-              <option name="myItemType" value="" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT USER_OBJECT="AVTest">
-              <option name="myItemId" value="" />
-              <option name="myItemType" value="" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT USER_OBJECT="Root">
-              <option name="myItemId" value="" />
-              <option name="myItemType" value="" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT USER_OBJECT="AVTest">
-              <option name="myItemId" value="" />
-              <option name="myItemType" value="" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT USER_OBJECT="AVMaster">
-              <option name="myItemId" value="" />
-              <option name="myItemType" value="" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT USER_OBJECT="Root">
-              <option name="myItemId" value="" />
-              <option name="myItemType" value="" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT USER_OBJECT="AVTest">
-              <option name="myItemId" value="" />
-              <option name="myItemType" value="" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT USER_OBJECT="AVMaster">
-              <option name="myItemId" value="" />
-              <option name="myItemType" value="" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT USER_OBJECT="lib">
-              <option name="myItemId" value="" />
-              <option name="myItemType" value="" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT USER_OBJECT="Root">
-              <option name="myItemId" value="" />
-              <option name="myItemType" value="" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT USER_OBJECT="AVTest">
-              <option name="myItemId" value="" />
-              <option name="myItemType" value="" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT USER_OBJECT="AVMaster">
-              <option name="myItemId" value="" />
-              <option name="myItemType" value="" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT USER_OBJECT="lib">
-              <option name="myItemId" value="" />
-              <option name="myItemType" value="" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT USER_OBJECT="core">
-              <option name="myItemId" value="" />
-              <option name="myItemType" value="" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT USER_OBJECT="Root">
-              <option name="myItemId" value="" />
-              <option name="myItemType" value="" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT USER_OBJECT="AVTest">
-              <option name="myItemId" value="" />
-              <option name="myItemType" value="" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT USER_OBJECT="AVMaster">
-              <option name="myItemId" value="" />
-              <option name="myItemType" value="" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT USER_OBJECT="conf">
-              <option name="myItemId" value="" />
-              <option name="myItemType" value="" />
-            </PATH_ELEMENT>
-          </PATH>
-        </subPane>
+        <subPane subId="Project Files" />
       </pane>
       <pane id="ProjectPane">
         <subPane>
@@ -273,14 +181,14 @@
   <component name="PropertiesComponent">
     <property name="options.splitter.main.proportions" value="0.3" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="TODO_SCOPE" value="Project Files" />
-    <property name="recentsLimit" value="5" />
     <property name="options.lastSelected" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
-    <property name="restartRequiresConfirmation" value="true" />
+    <property name="recentsLimit" value="5" />
+    <property name="TODO_SCOPE" value="Project Files" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/tests" />
+    <property name="restartRequiresConfirmation" value="true" />
     <property name="FullScreen" value="false" />
-    <property name="options.searchVisible" value="true" />
     <property name="options.splitter.details.proportions" value="0.2" />
+    <property name="options.searchVisible" value="true" />
   </component>
   <component name="PyConsoleOptionsProvider">
     <option name="myPythonConsoleState">
@@ -656,7 +564,7 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="1302" y="22" width="1203" height="706" extended-state="0" />
+    <frame x="1345" y="22" width="1203" height="706" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32968882" sideWeight="0.49960223" order="7" side_tool="false" content_ui="tabs" />
@@ -700,9 +608,9 @@
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.22603878" sideWeight="0.6719717" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.25852036" sideWeight="0.67266774" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.41850594" sideWeight="0.7723845" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.17979316" sideWeight="0.6703112" order="5" side_tool="false" content_ui="combo" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39949536" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.17979316" sideWeight="0.6703112" order="5" side_tool="false" content_ui="combo" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.41850594" sideWeight="0.7723845" order="2" side_tool="false" content_ui="tabs" />
     </layout-to-restore>
   </component>
   <component name="VcsContentAnnotationSettings">
@@ -732,19 +640,52 @@
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/AVAgent/lib/agent.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="96" column="25" selection-start="2497" selection-end="2497" vertical-scroll-proportion="0.0" vertical-offset="1380" max-vertical-offset="12315">
+        <state line="99" column="67" selection-start="2609" selection-end="2609" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="12420">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/AVMaster/master.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="91" column="8" selection-start="2256" selection-end="2256" vertical-scroll-proportion="0.0" vertical-offset="1275" max-vertical-offset="12645">
           <folding>
-            <element signature="e#0#9#0" expanded="true" />
+            <element signature="e#0#15#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/AVMaster/conf/vms.cfg">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="35" column="50" selection-start="1205" selection-end="1205" vertical-scroll-proportion="0.0" vertical-offset="572" max-vertical-offset="1275">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/AVMaster/lib/core/VMachine.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="3645">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/AVMaster/lib/core/VMManager.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="95" column="0" selection-start="2816" selection-end="2816" vertical-scroll-proportion="0.0" vertical-offset="1395" max-vertical-offset="3225">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/AVAgent/lib/agent.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="96" column="25" selection-start="2497" selection-end="2497" vertical-scroll-proportion="0.0" vertical-offset="1380" max-vertical-offset="12315">
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/AVAgent/lib/agent.py">
       <provider selected="true" editor-type-id="text-editor">
         <state line="567" column="0" selection-start="20839" selection-end="20839" vertical-scroll-proportion="0.0" vertical-offset="420" max-vertical-offset="12300">
-          <folding>
-            <element signature="e#0#9#0" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -766,9 +707,7 @@
     <entry file="file://$PROJECT_DIR$/AVAgent/lib/agent.py">
       <provider selected="true" editor-type-id="text-editor">
         <state line="99" column="67" selection-start="2609" selection-end="2609" vertical-scroll-proportion="0.0" vertical-offset="1185" max-vertical-offset="12420">
-          <folding>
-            <element signature="e#0#9#0" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -782,24 +721,20 @@
     <entry file="file://$PROJECT_DIR$/AVMaster/lib/core/VMachine.py">
       <provider selected="true" editor-type-id="text-editor">
         <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="3645">
-          <folding>
-            <element signature="e#0#9#0" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/AVMaster/lib/core/VMManager.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="95" column="0" selection-start="2816" selection-end="2816" vertical-scroll-proportion="-1.1538461" vertical-offset="1395" max-vertical-offset="3225">
-          <folding>
-            <element signature="e#0#17#0" expanded="true" />
-          </folding>
+        <state line="95" column="0" selection-start="2816" selection-end="2816" vertical-scroll-proportion="0.0" vertical-offset="1395" max-vertical-offset="3225">
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/AVMaster/master.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="91" column="8" selection-start="2256" selection-end="2256" vertical-scroll-proportion="0.7105263" vertical-offset="960" max-vertical-offset="12645">
+        <state line="450" column="38" selection-start="14607" selection-end="14607" vertical-scroll-proportion="0.7631579" vertical-offset="6315" max-vertical-offset="12645">
           <folding>
             <element signature="e#0#15#0" expanded="true" />
           </folding>
