@@ -6,8 +6,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4052f9d9-3c11-47a0-a6cc-5122f61c053e" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/AVMaster/master.py" afterPath="$PROJECT_DIR$/AVMaster/master.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/AVAgent/conf/vmavtest.cfg" afterPath="$PROJECT_DIR$/AVAgent/conf/vmavtest.cfg" />
     </list>
     <ignored path="RCSAVTest.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -53,13 +52,22 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="master.py" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="master.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/AVMaster/master.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="450" column="38" selection-start="14607" selection-end="14607" vertical-scroll-proportion="0.7631579" vertical-offset="6315" max-vertical-offset="12645">
+            <state line="433" column="11" selection-start="13882" selection-end="13882" vertical-scroll-proportion="0.0" vertical-offset="6315" max-vertical-offset="12645">
               <folding>
                 <element signature="e#0#15#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="vmavtest.cfg" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/AVAgent/conf/vmavtest.cfg">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="6" column="1" selection-start="138" selection-end="138" vertical-scroll-proportion="0.15437393" vertical-offset="0" max-vertical-offset="583">
+              <folding />
             </state>
           </provider>
         </entry>
@@ -109,7 +117,6 @@
   <component name="IdeDocumentHistory">
     <option name="changedFiles">
       <list>
-        <option value="$PROJECT_DIR$/AVMaster/report.py" />
         <option value="$PROJECT_DIR$/tests/test_procedure.py" />
         <option value="$PROJECT_DIR$/AVCommon/commands/meta/CALL.py" />
         <option value="$PROJECT_DIR$/AVCommon/config.py" />
@@ -125,6 +132,7 @@
         <option value="$PROJECT_DIR$/AVMaster/conf/vms.cfg" />
         <option value="$PROJECT_DIR$/AVMaster/lib/core/VMManager.py" />
         <option value="$PROJECT_DIR$/AVMaster/master.py" />
+        <option value="$PROJECT_DIR$/AVAgent/conf/vmavtest.cfg" />
       </list>
     </option>
   </component>
@@ -151,7 +159,7 @@
     <option name="STATE" value="0" />
   </component>
   <component name="ProjectView">
-    <navigator currentView="Scope" currentSubView="Project Files" proportions="" version="1" splitterProportion="0.5">
+    <navigator currentView="ProjectPane" proportions="" version="1" splitterProportion="0.5">
       <flattenPackages />
       <showMembers />
       <showModules />
@@ -734,10 +742,17 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/AVMaster/master.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="450" column="38" selection-start="14607" selection-end="14607" vertical-scroll-proportion="0.7631579" vertical-offset="6315" max-vertical-offset="12645">
+        <state line="433" column="11" selection-start="13882" selection-end="13882" vertical-scroll-proportion="0.0" vertical-offset="6315" max-vertical-offset="12645">
           <folding>
             <element signature="e#0#15#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/AVAgent/conf/vmavtest.cfg">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="6" column="1" selection-start="138" selection-end="138" vertical-scroll-proportion="0.15437393" vertical-offset="0" max-vertical-offset="583">
+          <folding />
         </state>
       </provider>
     </entry>
