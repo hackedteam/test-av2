@@ -20,7 +20,7 @@ def on_answer(vm, success, answer):
     if not answer:
         logging.warn("We have to PULL images: %s" % answer)
         for src in answer:
-            dst = src
+            dst = "%s/%s_%s" %(crop,vm,src)
             logging.debug("PULL: %s -> %s" % (src, dst))
             vm_manager.execute(vm, "copyFileFromGuest", src, dst)
 
@@ -32,6 +32,7 @@ def execute(vm, args):
     if args:
         # starts a crop server
         logging.debug("start a crop server")
+
         im1 = ImageGrab.grab()
         thread = threading.Thread(target=grab_loop, args=(vm,))
         thread.start()
@@ -60,8 +61,8 @@ def grab_loop(vm):
         if f:
             found.append(f)
         time.sleep(2)
-    logging.debug("exiting grab_loop")
-    return found
+    logging.debug("exiting grab_loop, found: " % found)
+    #return found
 
 
 def crop(iter):

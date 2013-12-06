@@ -398,18 +398,13 @@ class AgentBuild:
         logging.debug("DBG %s in %s" % (self.hostname, self.blacklist))
         if not upgradable:
             if self.hostname in self.blacklist:
-                result = "+ SUCCESS ELITE BLACKLISTED"
-                logging.debug(result)
+                add_result("+ SUCCESS ELITE BLACKLISTED")
             else:
-                result = "+ FAILED ELITE UPGRADE"
-                logging.debug(result)
-
+                add_result("+ FAILED ELITE UPGRADE")
             return
         else:
             if self.hostname in self.blacklist:
-                result = "+ FAILED ELITE BLACKLISTED"
-                logging.debug(result)
-
+                add_result("+ FAILED ELITE BLACKLISTED")
                 return
 
         logging.debug("- Elite, Wait for 25 minutes: %s" % time.ctime())
@@ -417,19 +412,16 @@ class AgentBuild:
 
         elite = self._check_elite(instance)
         if elite:
-            result = "+ SUCCESS ELITE INSTALL"
-            logging.debug(result)
+            add_result("+ SUCCESS ELITE INSTALL")
             logging.debug("- Elite, wait for 4 minute then uninstall: %s" % time.ctime())
             sleep(60 * 2)
             self._uninstall(instance)
             sleep(60 * 2)
-            result = "+ SUCCESS ELITE UNINSTALLED"
-            logging.debug(result)
+            add_result("+ SUCCESS ELITE UNINSTALLED")
         else:
             output = self._list_processes()
             logging.debug(output)
-            result = "+ FAILED ELITE INSTALL"
-            logging.debug(result)
+            add_result("+ FAILED ELITE INSTALL")
 
         logging.debug("- Result: %s" % elite)
         logging.debug("- sending Results to Master")

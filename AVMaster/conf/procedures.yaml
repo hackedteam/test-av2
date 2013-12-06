@@ -194,14 +194,21 @@ SCOUT:
     - SCREENSHOT
     - STOP_AGENT
 
+GET_AV_LOG:
+    - PULL:
+        - ['AVTest.log']
+        - c:\\AVTest\\AVAgent
+        - logs
+
 ELITE:
     - START_AGENT
     - CALL: SET_DEFAULTS
     - CROP: True
     - BUILD: [ elite, windows, silent ]
+    - SLEEP: 30
     - CROP: False
-    - CHECK_EMPTY: '/Users/avtest/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup'
-    - CHECK_EMPTY: '/Documents and Settings/avtest/Start Menu/Programs/Startup/'
+    - CHECK_EMPTY_DIR: '/Users/avtest/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup'
+    - CHECK_EMPTY_DIR: '/Documents and Settings/avtest/Start Menu/Programs/Startup/'
     - SCREENSHOT
     - STOP_AGENT
 
@@ -276,6 +283,7 @@ PUSH_VIRUS:
     - START_AGENT
     - CROP: True
     - PUSH: [ AVAgent/assets/vira/conficker.dll ]
+    - SLEEP: 30
     - CROP: False
     - CHECK_EMPTY_DIR: AVAgent/crop
     - STOP_AGENT
