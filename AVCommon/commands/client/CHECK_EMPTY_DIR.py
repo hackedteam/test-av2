@@ -20,9 +20,11 @@ def execute(vm, args):
 
     if not os.path.exists(args):
         res = True, "Not existent dir: %s" % args
-    elif not os.listdir(args):
-        res = True, "Empty dir: %s" % args
     else:
-        res = False, "Non empty dir: %s" % args
+        l = os.listdir(args)
+        if not l:
+            res = True, "Empty dir: %s" % args
+        else:
+            res = False, "Non empty dir: %s" % l
 
     return res

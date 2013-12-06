@@ -1,5 +1,7 @@
 __author__ = 'zeno'
 
+
+import os
 import logging
 import logging.config
 
@@ -11,8 +13,20 @@ from AVMaster import vm_manager
 from AVMaster import report
 
 
+def test_report_extract():
+    logging.debug("dir: %s" % os.getcwd())
+    r = report.restore("report.CHECK_ELITE.log")
+    assert r.name == "CHECK_ELITE"
+    assert r.c_received
+    assert r.c_sent
+
+    report.report()
+
+    report.clean()
+
+
 def test_report_load():
-    r = report.restore("report.TEST_DAILY.log")
+    r = report.restore("report.UPDATE_FAST.log")
 
     r2 = report.Report()
     assert r.c_sent == r2.c_sent
@@ -70,5 +84,6 @@ TEST_REPORT:
 
 if __name__=="__main__":
     logging.config.fileConfig('../logging.conf')
+    test_report_extract()
     test_report_load()
     test_report_meta()

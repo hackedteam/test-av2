@@ -9,7 +9,7 @@ def execute(vm, args):
 
     protocol, args = args
     logging.debug("    CS REPORT_KIND:  %s,%s" % (vm,args))
-    assert vm in command.context["report"], "report: %s" % command.context["report"]
+    #assert vm in command.context["report"], "report: %s" % command.context["report"]
 
     report.set_procedure(vm, args)
-    return True, "%s: %s" % (vm, args)
+    return True, "%s| %s" % (vm, args)

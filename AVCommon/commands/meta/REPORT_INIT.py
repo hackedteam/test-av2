@@ -9,12 +9,12 @@ def execute(vm, args):
 
     protocol, args = args
     logging.debug("    CS REPORT_INIT:  %s,%s" % (vm,args))
-    if "report" not in command.context.keys():
-        logging.info("report init: %s" % args)
-        command.context["report"] = set()
+    #if "report" not in command.context.keys():
+    #    logging.info("report init: %s" % args)
+    #    command.context["report"] = set()
         #report.init(args)
 
-    command.context["report"].add(vm)
-    assert command.context["report"]
+    #command.context["report"].add(vm)
+    #assert command.context["report"]
 
     return True, vm

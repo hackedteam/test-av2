@@ -1,5 +1,6 @@
 __author__ = 'fabrizio'
 
+import os
 import logging
 import pickle
 import yaml
@@ -9,6 +10,11 @@ import uuid
 
 report = None
 from AVCommon.singleton import Singleton
+
+class Cmd:
+    def __init__(self, cmd):
+        res = [ s.strip() for s in cmd.split(',', 4)]
+        self.name, self.success, self.ts, self.args, self.result = res
 
 @Singleton
 class Report:
@@ -49,13 +55,22 @@ def end(vm):
     #
     logging.debug("setting end to %s" % vm)
     set_procedure(vm, None)
+    dump()
 
 def finish():
     logging.debug("report finish")
-    dump()
+    #dump()
 
-def get_result(received):
+def is_success(cmd):
+
+    c = Cmd(cmd)
+    return c.success
+
+def get_result(received, sent):
     report = Report()
+
+    if not is_success(sent):
+        return [ False, sent ]
 
     builds = [ b for b in received if b.startswith("BUILD")]
     failed = [ b for b in builds if   "+ ERROR" in b or "+ FAILED" in b ]
@@ -65,7 +80,8 @@ def get_result(received):
         last = builds[-1]
         return [True, last]
     else:
-        return [True, received[-1]]
+        last = received[-1]
+        return [is_success(last), last]
 
 def set_procedure(vm, proc_name):
     report = Report()
@@ -77,7 +93,7 @@ def set_procedure(vm, proc_name):
         if proc not in report.reports.keys():
             report.reports[proc]=[]
 
-        res = get_result(report.c_received[vm])
+        res = get_result(report.c_received[vm], report.c_sent[vm])
         logging.debug("adding %s/%s: %s" % (proc, vm, str(res)))
 
         report.reports[proc].append({ vm: res })
@@ -86,6 +102,20 @@ def set_procedure(vm, proc_name):
 
     report.current_procedure[vm] = proc_name
     assert vm in report.current_procedure.keys(), "%s not in %s" % (vm, report.current_procedure.keys())
+
+def report():
+    report = Report()
+
+    report.vm = {}
+    for vm in report.c_received.keys():
+        report.vm[vm] = []
+        for c in report.c_received[vm]:
+            cmd = Cmd(c)
+            if cmd.name == "REPORT_KIND":
+                current_proc = cmd.args
+                report.vm[vm].append(current_proc)
+
+
 
 # arriva pulito
 def sent(av, command):
@@ -117,6 +147,10 @@ def dump():
 
 def restore(file_name):
     #report = Report()
+    logging.debug("dir: %s list: %s" % (os.getcwd(), os.listdir(".")))
+
+    assert os.path.exists(file_name)
+
     f = open(file_name)
 
     r = yaml.load(f)
