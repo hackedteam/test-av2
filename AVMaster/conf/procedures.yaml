@@ -200,6 +200,8 @@ ELITE:
     - CROP: True
     - BUILD: [ elite, windows, silent ]
     - CROP: False
+    - CHECK_EMPTY: '/Users/avtest/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup'
+    - CHECK_EMPTY: '/Documents and Settings/avtest/Start Menu/Programs/Startup/'
     - SCREENSHOT
     - STOP_AGENT
 
@@ -275,6 +277,7 @@ PUSH_VIRUS:
     - CROP: True
     - PUSH: [ AVAgent/assets/vira/conficker.dll ]
     - CROP: False
+    - CHECK_EMPTY_DIR: AVAgent/crop
     - STOP_AGENT
 
 CHECK_POSITIVE:
@@ -286,7 +289,8 @@ CHECK_POSITIVE:
         - PUSH_VIRUS
 
 CHECK_ELITE:
-    - VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
+    #- VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
+    - VM: [avg]
     - INTERNET: False
     - REPORT:
         - DISPATCH
