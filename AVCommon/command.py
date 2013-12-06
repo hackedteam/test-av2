@@ -203,4 +203,4 @@ class Command(object):
 
     def __str__(self):
         ts = time.strftime("%y%m%d-%H%M%S", time.localtime(self.timestamp))
-        return "%s, %s, %s: %s, %s" % (self.name, ts, self.args, self.success, self.result)
+        return "%s, %s, %s, %s, %s" % (self.name, self.success, ts, self.args, self.result)

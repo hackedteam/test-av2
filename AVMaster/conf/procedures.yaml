@@ -290,7 +290,7 @@ PUSH_VIRUS:
 
 CHECK_POSITIVE:
     #- VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
-    - VM: [360cn,adaware,ahnlab,avast]
+    - VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32]
     - INTERNET: False
     - REPORT:
         - DISPATCH
@@ -298,8 +298,9 @@ CHECK_POSITIVE:
 
 CHECK_ELITE:
     #- VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
-    - VM: [avg]
+    - VM: [avg,avira,avast32]
     - INTERNET: False
+    - SLEEP: [1,60]
     - REPORT:
         - DISPATCH
         - ELITE

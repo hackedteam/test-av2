@@ -31,7 +31,7 @@ class Dispatcher(object):
         self.ended.add(c)
         if self.pool:
             m = self.pool.pop()
-            logging.debug("pool popped: %s" % m)
+            logging.debug("pool popped: %s, remains: %s" % (m.vm, len(self.pool)))
             self.start(m)
 
     def start(self, p):
@@ -56,6 +56,7 @@ class Dispatcher(object):
         global received
         exit = False
 
+        command.context = {}
         procedure.add_begin_end()
 
         logging.debug("- SERVER len(procedure): %s" % len(procedure))
@@ -80,8 +81,8 @@ class Dispatcher(object):
                 c, msg = rec
                 logging.info("- SERVER RECEIVED %s" % ( red(command.unserialize(msg))))
                 p = av_machines[c]
-                answer = p.receive_answer(c, msg)
 
+                answer = p.receive_answer(c, msg)
                 report.received(c, command.unserialize(msg))
 
                 if answer.success == None:
@@ -104,8 +105,14 @@ class Dispatcher(object):
                         logging.info("- SERVER SENDING ERROR, ENDING")
                         self.end(c)
                 else:
-                    self.end(c)
-                    logging.info("- SERVER RECEIVE ERROR, ENDING: %s" %c)
+                    # deve skippare fino al command: END_PROC
+                    r = p.send_next_call()
+                    cmd = p.last_command
+                    if cmd:
+                        report.sent(p.vm, str(cmd))
+                    else:
+                        self.end(c)
+                        logging.info("- SERVER RECEIVE ERROR, ENDING: %s" %c)
 
             else:
                 logging.info("- SERVER RECEIVED empty")

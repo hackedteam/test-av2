@@ -122,29 +122,35 @@ class VMRun:
         return True
 
     def reboot(self, vmx):
-        logging.debug("[%s] Rebooting!\r\n" % vmx)
+        if config.verbose:
+            logging.debug("[%s] Rebooting!\r\n" % vmx)
         self._run_cmd(vmx, "reset", ["hard"])
 
     def suspend(self, vmx):
-        logging.debug("[%s] Suspending!\r\n" % vmx)
+        if config.verbose:
+            logging.debug("[%s] Suspending!\r\n" % vmx)
         self._run_cmd(vmx, "suspend", ["soft"])
 
     def createSnapshot(self, vmx, snapshot):
-        logging.debug("[%s] Creating snapshot %s.\n" % (vmx, snapshot))
+        if config.verbose:
+            logging.debug("[%s] Creating snapshot %s.\n" % (vmx, snapshot))
         self._run_cmd(vmx, "snapshot", [snapshot])
 
     def deleteSnapshot(self, vmx, snapshot):
-        logging.debug("[%s] Deleting snapshot %s.\n" % (vmx, snapshot))
+        if config.verbose:
+            logging.debug("[%s] Deleting snapshot %s.\n" % (vmx, snapshot))
         self._run_cmd(vmx, "deleteSnapshot", [snapshot])
 
     def revertSnapshot(self, vmx, snapshot):
-        logging.debug("[%s] Reverting snapshot %s.\n" % (vmx, snapshot))
+        if config.verbose:
+            logging.debug("[%s] Reverting snapshot %s.\n" % (vmx, snapshot))
         self._run_cmd(vmx, "revertToSnapshot", [snapshot])
 
     def refreshSnapshot(self, vmx, delete=True):
         untouchables = ["ready", "activated", "_datarecovery_"]
 
-        logging.debug("[%s] Refreshing snapshot.\n" % vmx)
+        if config.verbose:
+            logging.debug("[%s] Refreshing snapshot.\n" % vmx)
 
         # create new snapshot
         date = datetime.now().strftime('%Y%m%d-%H%M')
@@ -172,33 +178,39 @@ class VMRun:
             return "%s, ERROR: no snapshots!" % vmx
 
     def mkdirInGuest(self, vmx, dir_path):
-        logging.debug("[%s] Creating directory %s.\n" % (vmx, dir_path))
+        if config.verbose:
+            logging.debug("[%s] Creating directory %s.\n" % (vmx, dir_path))
         self._run_cmd(vmx, "CreateDirectoryInGuest", [
             dir_path], [vmx.user, vmx.passwd])
 
     def listDirectoryInGuest(self, vmx, dir_path):
-        logging.debug("[%s] Listing directory %s.\n" % (vmx, dir_path))
+        if config.verbose:
+            logging.debug("[%s] Listing directory %s.\n" % (vmx, dir_path))
         return self._run_cmd(vmx, "listDirectoryInGuest", [dir_path], [vmx.user, vmx.passwd], popen=True)
 
     def deleteDirectoryInGuest(self, vmx, dir_path):
-        logging.debug("[%s] Delete directory %s.\n" % (vmx, dir_path))
+        if config.verbose:
+            logging.debug("[%s] Delete directory %s.\n" % (vmx, dir_path))
         self._run_cmd(
             vmx, "deleteDirectoryInGuest", [dir_path], [vmx.user, vmx.passwd])
 
     def copyFileToGuest(self, vmx, src_file, dst_file):
-        logging.debug("[%s] Copying file from %s to %s.\n" %
+        if config.verbose:
+            logging.debug("[%s] Copying file from %s to %s.\n" %
                          (vmx, src_file, dst_file))
         return self._run_cmd(vmx, "CopyFileFromHostToGuest",
                              [src_file, dst_file], [vmx.user, vmx.passwd])
 
     def copyFileFromGuest(self, vmx, src_file, dst_file):
-        logging.debug("[%s] Copying file from %s to %s.\n" %
+        if config.verbose:
+            logging.debug("[%s] Copying file from %s to %s.\n" %
                          (vmx, src_file, dst_file))
         return self._run_cmd(vmx, "CopyFileFromGuestToHost",
                              [src_file, dst_file], [vmx.user, vmx.passwd])
 
     def executeCmd(self, vmx, cmd, args=[], timeout=40, interactive=True, bg=False):
-        logging.debug("[%s] Executing %s with args %s" % (vmx, cmd, str(args)))
+        if config.verbose:
+            logging.debug("[%s] Executing %s with args %s" % (vmx, cmd, str(args)))
         if config.verbose:
             logging.debug("on %s with credentials %s %s" % (vmx, vmx.user, vmx.passwd))
             logging.debug("Options: timeout: %s, interactive: %s, background: %s" % (timeout, interactive, bg))
@@ -219,11 +231,13 @@ class VMRun:
         return self.executeCmd(vmx, script, interactive=True)
 
     def listProcesses(self, vmx):
-        logging.debug("[%s] List processes\n" % vmx)
+        if config.verbose:
+            logging.debug("[%s] List processes\n" % vmx)
         return self._run_cmd(vmx, "listProcessesInGuest", vmx_creds=[vmx.user, vmx.passwd], popen=True)
 
     def takeScreenshot(self, vmx, out_img):
-        logging.debug("[%s] Taking screenshot.\n" % vmx)
+        if config.verbose:
+            logging.debug("[%s] Taking screenshot.\n" % vmx)
         if config.verbose:
             logging.debug("CALLING FUNCTIONS WITH out img %s, u: %s, p: %s.\n" % (out_img, vmx.user, vmx.passwd))
         self._run_cmd(vmx, "captureScreen", [out_img], [vmx.user, vmx.passwd])

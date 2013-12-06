@@ -104,6 +104,21 @@ class Protocol(ProtocolClient):
     #        logging.debug("next, got a new command")
     #        yield self.send_command(c)
 
+    def send_next_call(self):
+        while(True):
+            if not self.procedure:
+                self.last_command = None
+                return False
+
+            self.last_command = self.procedure.next_command()
+            if(self.last_command.name == "CALL"):
+                break
+
+            logging.debug("skipping to the next: %s" % self.last_command.name)
+
+        #return self.send_command(copy.deepcopy(self.last_command))
+        return self.send_command(self.last_command)
+
     def send_next_command(self):
         if not self.procedure:
             self.last_command = None

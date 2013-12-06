@@ -10,15 +10,15 @@ def execute(vm, args):
 
     logging.debug("    CS REPORT_KIND: %s,%s" % (vm,args))
     protocol, args = args
-    assert "report" in command.context.keys()
-    assert vm in command.context["report"]
+    #assert "report" in command.context.keys()
+    #assert vm in command.context["report"]
 
-    command.context["report"].remove(vm)
+    #command.context["report"].remove(vm)
     #if not command.context["report"]:
     #    logging.info("report end: %s" % vm)
     report.end(vm)
-    if not command.context["report"]:
-        report.finish()
+    #if not command.context["report"]:
+    #    report.finish()
 
     logging.debug("    CS Execute")
     return True, vm
