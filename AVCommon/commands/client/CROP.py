@@ -5,7 +5,6 @@ import threading
 import logging
 import os
 
-
 thread = None
 found = []
 go_on = True
@@ -42,7 +41,8 @@ def execute(vm, args):
         # stops the crop server
         logging.debug("stop grab_loop")
         go_on = False
-        thread.join()
+        if thread:
+            thread.join()
         logging.debug("exiting, returning %s" % found)
         success = len(found) == 0
         return success, found

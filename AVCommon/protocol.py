@@ -111,9 +111,11 @@ class Protocol(ProtocolClient):
                 return False
 
             self.last_command = self.procedure.next_command()
-            if(self.last_command.name == "CALL"):
+            name = self.last_command.name
+            if name == "CALL":
                 break
-
+            if name.startswith("STOP") or name.startswith("REPORT"):
+                break
             logging.debug("skipping to the next: %s" % self.last_command.name)
 
         #return self.send_command(copy.deepcopy(self.last_command))
