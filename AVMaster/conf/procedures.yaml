@@ -324,10 +324,10 @@ CHECK_ELITE:
 
 
 MANUAL_SCOUT:
-    - SLEEP: [1, 60]
-    - CALL: DISPATCH
+    #- SLEEP: [1, 60]
+    #- CALL: DISPATCH
     - START_AGENT
-    - CALL: SET_DEFAULTS_WINDOWS
+    - CALL: SET_DEFAULTS
     - BUILD: [ scout, windows, silent ]
     - STOP_AGENT
 
