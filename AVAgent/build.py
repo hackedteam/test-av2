@@ -667,10 +667,12 @@ def build(action, platform, platform_type, kind, param, backend, frontend, black
     except Exception, ex:
         add_result("+ ERROR: %s" % ex)
 
-    if report_send:
-        report_send("+ END %s" % (action))
-
     errors =  [ b for b in results if b.startswith("+ ERROR") or b.startswith("+ FAILED")]
+    success = not any(errors)
+
+    if report_send:
+        report_send("+ END %s %s" % (action, success))
+
     return results, any(errors), errors
 
 

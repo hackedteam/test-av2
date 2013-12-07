@@ -20,7 +20,8 @@ def test_report_extract():
     assert r.c_received
     assert r.c_sent
 
-    report.report()
+    s = report.report()
+    logging.debug(s)
 
     report.clean()
 

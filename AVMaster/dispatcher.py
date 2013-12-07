@@ -79,7 +79,7 @@ class Dispatcher(object):
             rec = self.mq.receive_server(blocking=True, timeout=self.timeout)
             if rec is not None:
                 c, msg = rec
-                logging.info("- SERVER RECEIVED %s" % ( red(command.unserialize(msg))))
+                logging.info("- SERVER RECEIVED %s, %s" % (c, red(command.unserialize(msg))))
                 p = av_machines[c]
 
                 answer = p.receive_answer(c, msg)
@@ -93,7 +93,7 @@ class Dispatcher(object):
                 #logging.debug("- SERVER RECEIVED ANSWER: %s" % answer.success)
                 if answer.name == "END":
                     self.end(c)
-                    logging.info("- SERVER RECEIVE END: %s" % self.ended)
+                    logging.info("- SERVER RECEIVE END: %s, %s" % (c, self.ended))
                 elif answer.success:
                     r = p.send_next_command()
                     cmd = p.last_command
@@ -102,7 +102,7 @@ class Dispatcher(object):
 
                     logging.info("- SERVER SENT: %s, %s" % (c, cmd))
                     if not r:
-                        logging.info("- SERVER SENDING ERROR, ENDING")
+                        logging.info("- SERVER SENDING ERROR, ENDING: %s" %c)
                         self.end(c)
                 else:
                     # deve skippare fino al command: END_PROC

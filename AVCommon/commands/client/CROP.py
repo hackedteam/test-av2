@@ -47,7 +47,6 @@ def execute(vm, args):
         success = len(found) == 0
         return success, found
 
-
 def grab_loop(vm):
     global go_on, found
     iter=0;
@@ -58,6 +57,7 @@ def grab_loop(vm):
     while go_on:
         iter+=1
         f = crop(iter)
+
         if f:
             found.append(f)
         time.sleep(2)
@@ -72,6 +72,7 @@ def crop(iter):
     logging.debug("crop: %s" % iter)
     d1= im1.getdata()
     im2 = ImageGrab.grab()
+
     d2=im2.getdata()
 
     w = d1.size[0]

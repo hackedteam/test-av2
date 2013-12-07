@@ -7,12 +7,16 @@ import yaml
 import time
 import random
 import uuid
+import ast
 
 report = None
 from AVCommon.singleton import Singleton
 
 class Cmd:
     def __init__(self, cmd):
+
+        #res = ast.literal_eval("[" + cmd + "]")
+        #if not res:
         res = [ s.strip() for s in cmd.split(',', 4)]
         self.name, self.success, self.ts, self.args, self.result = res
 
@@ -105,16 +109,30 @@ def set_procedure(vm, proc_name):
 
 def report():
     report = Report()
-
     report.vm = {}
+
+    summary = ""
     for vm in report.c_received.keys():
         report.vm[vm] = []
+        current_proc = None
+        summary += "%s\n" % vm
         for c in report.c_received[vm]:
             cmd = Cmd(c)
+
             if cmd.name == "REPORT_KIND":
                 current_proc = cmd.args
                 report.vm[vm].append(current_proc)
-
+                summary += "  %s\n" % current_proc
+            else:
+                if current_proc:
+                    if cmd.success == 'False':
+                        summary+="    %s\n" % c
+                    elif cmd.name=="BUILD" and cmd.success == 'None':
+                        check = ['ERROR','FAILED','END']
+                        errors = any([ s in c for s in check ])
+                        if errors:
+                            summary+="    %s\n" % (c)
+    return summary
 
 
 # arriva pulito

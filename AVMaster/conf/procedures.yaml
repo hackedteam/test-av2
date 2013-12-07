@@ -142,6 +142,21 @@ UPDATE_PYTHON:
     - STOP_VM
 #    - REFRESH_SNAPSHOT
 
+UPDATE_REG:
+    - INTERNET: False
+    - REVERT
+    - START_VM
+    - PUSH:
+        - [active_py.msi, active_inst.bat]
+        - updates
+        - c:/
+#        - c:/Users/avtest/Desktop
+    - DELETE_DIR: C:/Python27/Lib/site-packages
+#    - EXECUTE_VM: /Users/avtest/Desktop/active_inst.bat
+    - EXECUTE_VM: /active_inst.bat
+    - INTERNET: False
+    - STOP_VM
+
 UPDATE_FAST:
 #    - VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
     - VM: [360cn,avast32]
@@ -297,15 +312,24 @@ CHECK_POSITIVE:
         - PUSH_VIRUS
 
 CHECK_ELITE:
-    #- VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
-    - VM: [avast32,avg32,avira,bitdef,comodo]
+    - VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
+    #- VM: [avast32,avg32,avira,bitdef,comodo]
     - INTERNET: False
     - SLEEP: [1,60]
+    - CALL: DISPATCH
     - REPORT:
-        - DISPATCH
         - ELITE
         - STATIC_OSX
         - PUSH_VIRUS
+
+
+MANUAL_SCOUT:
+    - SLEEP: [1, 60]
+    - CALL: DISPATCH
+    - START_AGENT
+    - CALL: SET_DEFAULTS_WINDOWS
+    - BUILD: [ scout, windows, silent ]
+    - STOP_AGENT
 
 # ---------------- TEST --------------- #
 
@@ -339,15 +363,6 @@ TEST_DAILY:
     - REPORT:
         - UPDATE
         - STATIC_OSX
-
-TEST_SCOUT_GUIDO:
-    - VM: [drweb,zoneal]
-    - SLEEP: [1, 60]
-    - CALL: DISPATCH
-    - START_AGENT
-    - CALL: SET_DEFAULTS_WINDOWS
-    - BUILD: [ scout, windows, silent ]
-    - STOP_AGENT
 
 TEST_REPORT:
     - VM: [noav,zenoav]
