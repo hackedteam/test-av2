@@ -40,7 +40,11 @@ def unzip(filename, fdir):
     return names
 
 
-def check_static(files):
+def check_static(files, report = None):
+    global report_send
+    if report:
+        report_send = report
+
     success = []
     failed = []
     for src in files:

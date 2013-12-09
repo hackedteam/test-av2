@@ -1,0 +1,1 @@
+regedit -s /avtest/assets/ForceAutoLogon.reg

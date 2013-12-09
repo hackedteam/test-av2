@@ -146,16 +146,12 @@ UPDATE_REG:
     - INTERNET: False
     - REVERT
     - START_VM
-    - PUSH:
-        - [active_py.msi, active_inst.bat]
-        - updates
-        - c:/
-#        - c:/Users/avtest/Desktop
-    - DELETE_DIR: C:/Python27/Lib/site-packages
-#    - EXECUTE_VM: /Users/avtest/Desktop/active_inst.bat
-    - EXECUTE_VM: /active_inst.bat
-    - INTERNET: False
+    - PUSH: [assets/ForceAutoLogon.reg, assets/update_reg.bat]
+
+    - EXECUTE_VM: c:/avtest/assets/update_reg.bat
+    - DELETE_DIR: assets
     - STOP_VM
+    - REFRESH_SNAPSHOT
 
 UPDATE_FAST:
 #    - VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
@@ -306,7 +302,7 @@ PUSH_VIRUS:
 
 CHECK_POSITIVE:
     #- VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
-    - VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32]
+    - VM: [avast,avira,eset,fsecure]
     - INTERNET: False
     - REPORT:
         - DISPATCH
