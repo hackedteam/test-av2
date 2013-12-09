@@ -2,19 +2,14 @@ __author__ = 'fabrizio'
  
 import sys
 import os
-import logging
-import logging.config
+from AVCommon.logger import logging
+
 from time import sleep
 import time
 
 sys.path.append(os.path.split(os.getcwd())[0])
 sys.path.append(os.getcwd())
- 
-from AVCommon.procedure import Procedure
-from AVCommon.command import Command
- 
-import logging
-import logging.config
+
  
 from AVCommon.procedure import Procedure
 from AVCommon.mq import MQStar
@@ -145,5 +140,5 @@ TEST_DIR_KO:
     dispatcher.dispatch(procedures["TEST_DIR_KO"])
 #    '''
 if __name__ == '__main__':
-    logging.config.fileConfig('../logging.conf')
+
     test_vm_commands()

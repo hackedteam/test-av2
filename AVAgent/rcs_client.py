@@ -2,13 +2,13 @@ import urllib2
 from urllib2 import HTTPError
 import cookielib
 import json
-import logging
 import traceback
 from time import sleep
 from StringIO import StringIO
 import gzip
 #pp = pprint.PrettyPrinter(indent=4)
 
+from AVCommon.logger import logging
 
 class Rcs_client:
     myid = "0"

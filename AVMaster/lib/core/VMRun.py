@@ -1,7 +1,7 @@
 import subprocess
 import sys
 import os
-import logging
+from AVCommon.logger import logging
 
 from time import sleep
 from datetime import datetime

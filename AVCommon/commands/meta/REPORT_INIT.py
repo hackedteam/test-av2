@@ -1,7 +1,7 @@
 __author__ = 'zeno'
 
 from AVCommon import command
-import logging
+from AVCommon.logger import logging
 
 def execute(vm, args):
     # counts the inits

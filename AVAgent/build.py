@@ -18,8 +18,7 @@ from urllib2 import HTTPError
 import ctypes
 
 from rcs_client import Rcs_client
-import logging
-import redis
+from AVCommon.logger import logging
 
 MOUSEEVENTF_MOVE = 0x0001  # mouse move
 MOUSEEVENTF_ABSOLUTE = 0x8000  # absolute move
@@ -784,7 +783,4 @@ def main():
 
 
 if __name__ == "__main__":
-    import logging.config
-
-    logging.config.fileConfig('../logging.conf')
     main()

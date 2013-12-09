@@ -1,6 +1,6 @@
 import sys
 import os
-import logging
+from AVCommon.logger import logging
 import ast
 import re
 import abc

@@ -4,7 +4,7 @@ import sys, os
 sys.path.append(os.path.split(os.getcwd())[0])
 sys.path.append(os.getcwd())
 
-import logging, logging.config
+from AVCommon.logger import logging
 from multiprocessing import Pool, Process
 import threading
 
@@ -69,6 +69,6 @@ TEST:
     logging.debug("received: %s" % Report.c_received)
 
 if __name__ == '__main__':
-    logging.config.fileConfig('../logging.conf')
+
     #test_dispatcher_server()
     test_avagent_pull()

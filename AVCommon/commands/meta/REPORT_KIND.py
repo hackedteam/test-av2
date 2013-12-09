@@ -1,6 +1,6 @@
 __author__ = 'zeno'
 
-import logging
+from AVCommon.logger import logging
 from AVCommon import command
 
 def execute(vm, args):

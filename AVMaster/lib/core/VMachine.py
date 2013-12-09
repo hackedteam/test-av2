@@ -1,5 +1,5 @@
 import os
-import logging
+from AVCommon.logger import logging
 
 from time import sleep
 from ConfigParser import ConfigParser, NoSectionError

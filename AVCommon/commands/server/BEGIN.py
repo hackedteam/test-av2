@@ -1,4 +1,4 @@
-import logging
+from AVCommon.logger import logging
 
 from AVCommon import command
 

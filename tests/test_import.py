@@ -1,8 +1,7 @@
 __author__ = 'zeno'
 
 import sys, os
-import logging
-import logging.config
+from AVCommon.logger import logging
 
 def test_import_avcommon():
     sys.path.append(os.path.split(os.getcwd())[0])
@@ -14,8 +13,5 @@ def test_import_avcommon():
     import AVCommon
 
 if __name__ == "__main__":
-    try:
-        logging.config.fileConfig('logging.conf')
-    except:
-        logging.config.fileConfig('../logging.conf')
+
     test_import_avcommon()

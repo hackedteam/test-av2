@@ -12,7 +12,7 @@ try:
 except ImportError:
     from yaml import Loader, Dumper
 
-import logging
+from AVCommon.logger import logging
 
 import pprint
 

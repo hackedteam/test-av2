@@ -96,7 +96,7 @@ SET_BUILD_PARAMS_EXPLOIT:
 
 SET_BLACKLIST:
     - SET:
-        blacklist: [bitdef,comodo,gdata,drweb,emsisoft,sophos,360cn,kis32,avg,avg32]
+        blacklist: [bitdef,comodo,gdata,drweb,emsisoft,sophos,360cn,kis32,avg,avg32,avast32]
 
 SET_DEFAULTS:
     - CALL: SET_BLACKLIST
@@ -176,7 +176,7 @@ UPDATE_FAST:
 # ----------- PARTIAL COMMANDS -------------- #
 
 UPLOAD_AGENT:
-    - PUSH: [ logging.conf, AVAgent/*.py, AVCommon/*.py, AVCommon/commands/client/*.py, AVCommon/commands/meta/*.py, AVCommon/commands/*.py]
+    - PUSH: [ logging.yml, AVAgent/*.py, AVCommon/*.py, AVCommon/commands/client/*.py, AVCommon/commands/meta/*.py, AVCommon/commands/*.py]
     - PUSH: [ AVAgent/assets/config*, AVAgent/assets/keyinject.exe, AVAgent/assets/meltapp.exe ]
 
 DISPATCH:
@@ -198,6 +198,13 @@ CHECK_SIGNATURE:
     - BUILD: [ pull, blackberry, silent ]
     - BUILD: [ pull, ios, silent ]
 
+GET_AV_LOG:
+    - PULL:
+        - ['avmonitor.log']
+        - c:\\AVTest\\AVAgent
+        - logs
+
+
 # ------------- FULL COMMANDS -------------- #
 
 SCOUT:
@@ -208,12 +215,6 @@ SCOUT:
     - CROP: False
     - SCREENSHOT
     - STOP_AGENT
-
-GET_AV_LOG:
-    - PULL:
-        - ['AVTest.log']
-        - c:\\AVTest\\AVAgent
-        - logs
 
 ELITE:
     - START_AGENT
@@ -278,7 +279,6 @@ REVERT_ALL:
     - VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
     - INTERNET: False    - REVERT
 
-
 DAILY:
     #- VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
     - VM: [ahnlab,avast]
@@ -300,6 +300,7 @@ PUSH_VIRUS:
     - PUSH: [ AVAgent/assets/vira/conficker.dll ]
     - SLEEP: 30
     - CROP: False
+    - CHECK_STATIC: [ AVAgent/assets/vira/conficker.dll ]
     - CHECK_EMPTY_DIR: AVAgent/crop
     - STOP_AGENT
 
@@ -321,7 +322,6 @@ CHECK_ELITE:
         - ELITE
         - STATIC_OSX
         - PUSH_VIRUS
-
 
 MANUAL_SCOUT:
     #- SLEEP: [1, 60]
@@ -358,24 +358,3 @@ TEST_CHAT:
     - BUILD: [ elite, windows, silent ]
     - CHECK_EVIDENCES: [chat,fb]
 
-TEST_DAILY:
-    - VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
-    - REPORT:
-        - UPDATE
-        - STATIC_OSX
-
-TEST_REPORT:
-    - VM: [noav,zenoav]
-    - REPORT_INIT # generazione Test, status = 0, report.test_id = random()
-    - REPORT_KIND: UPDATE
-    - SLEEP: 1
-    - REPORT_KIND: SCOUT
-    - SLEEP: 2
-    - REPORT_KIND: MOBILE
-    - SLEEP: 3
-    - REPORT_END # chiude il Test con status = 1, genera output
-
-TEST_POOL:
-    #- VM: [360cn,adaware,ahnlab,avg,avast,avira,bitdef,comodo,drweb,emsisoft]
-    - VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
-    - SLEEP: [1,60]

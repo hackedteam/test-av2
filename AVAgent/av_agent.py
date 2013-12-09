@@ -1,8 +1,6 @@
 __author__ = 'fabrizio'
 
 import sys, os
-
-import logging, logging.config
 import argparse
 import shutil
 import inspect
@@ -17,12 +15,13 @@ parent = os.path.split(cmd_folder)[0]
 if parent not in sys.path:
     sys.path.insert(0, parent)
 
+from AVCommon.logger import logging
+
+
 from AVCommon.mq import MQStar
 from AVCommon.protocol import Protocol
 from AVCommon import command
 from AVCommon.procedure import Procedure
-
-commands = ['BUILD', 'GET', 'SET']
 
 class MQFeedProcedure(object):
     protocol = None
@@ -103,7 +102,7 @@ def start_agent_args(vm, redis, session):
 
 
 if __name__ == "__main__":
-    logging.config.fileConfig('../logging.conf')
+
 
     parser = argparse.ArgumentParser(description='AVMonitor agent.')
     parser.add_argument('-v', '--verbose', action='store_true', default=False,

@@ -4,11 +4,8 @@ sys.path.append(os.getcwd())
 
 from unittest import TestCase
 
-import logging
-import logging.config
-
+from AVCommon.logger import logging
 import logging_child
-
 
 class TestChannel(TestCase):
     def test_formatter(selfs):
@@ -23,7 +20,7 @@ class TestChannel(TestCase):
         logging.info('Some information')
         logging.warning('A shot across the bows')
 
-        logging.config.fileConfig('../logging.conf')
+
         logging.debug('A debug message')
         logging.info('Some information')
 

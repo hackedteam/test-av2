@@ -5,8 +5,7 @@ sys.path.append(os.getcwd())
 from AVCommon.mq import MQStar
 import time
 import threading
-import logging
-import logging.config
+from AVCommon.logger import logging
 from redis import StrictRedis
 
 received = []
@@ -109,7 +108,7 @@ def test_MQ():
 
 
 if __name__ == '__main__':
-    logging.config.fileConfig('../logging.conf')
+
     test_MQClean()
     test_MQ()
     test_MultipleMQ()

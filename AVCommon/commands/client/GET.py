@@ -1,6 +1,6 @@
 __author__ = 'fabrizio'
 
-import logging
+from AVCommon.logger import logging
 import time
 
 from AVCommon import command

@@ -8,9 +8,7 @@ from AVCommon.protocol import Protocol
 from AVCommon.procedure import Procedure
 from AVCommon.mq import MQStar
 
-import logging
-import logging.config
-
+from AVCommon.logger import logging
 
 def server_procedure(mq, clients, procedure):
     global received
@@ -148,6 +146,6 @@ CALLER:
     assert answers == 7, "wrong answers: %s" % answers
 
 if __name__ == '__main__':
-    logging.config.fileConfig('../logging.conf')
+
     #test_ProtocolEval()
     test_ProtocolCall()

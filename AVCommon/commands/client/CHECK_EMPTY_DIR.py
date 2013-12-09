@@ -1,7 +1,7 @@
 __author__ = 'fabrizio'
 
 import os
-import logging
+from AVCommon.logger import logging
 from AVCommon import command
 
 def on_init(protocol, args):

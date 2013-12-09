@@ -6,8 +6,7 @@ sys.path.append(os.getcwd())
 
 import command
 
-import logging
-import logging.config
+from AVCommon.logger import logging
 
 
 def test_commandSerialize():
@@ -134,7 +133,7 @@ def test_commandStart():
     #c.on_answer("vm", ret, answer)
 
 if __name__ == '__main__':
-    logging.config.fileConfig('../logging.conf')
+
     test_commandSerialize()
     test_commandStart()
     test_commandSerialization()

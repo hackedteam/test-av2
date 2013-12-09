@@ -1,6 +1,6 @@
 import os
 import sys
-import logging
+from AVCommon.logger import logging
 
 
 def execute(vm, args):
