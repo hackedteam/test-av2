@@ -1,7 +1,7 @@
 import os
 import sys
 import glob
-import logging
+from AVCommon.logger import logging
 
 report_level = 2
 

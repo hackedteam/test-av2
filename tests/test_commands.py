@@ -8,8 +8,7 @@ import os
 sys.path.append(os.path.split(os.getcwd())[0])
 sys.path.append(os.getcwd())
 
-import logging
-import logging.config
+from AVCommon.logger import logging
 
 from AVCommon import command
 
@@ -36,5 +35,5 @@ def test_commands():
     logging.debug(command.context)
 
 if __name__ == '__main__':
-    logging.config.fileConfig('../logging.conf')
+
     test_commands()

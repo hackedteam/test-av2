@@ -1,5 +1,5 @@
 __author__ = 'zeno'
-import logging
+from AVCommon.logger import logging
 
 
 def on_init(vm, args):

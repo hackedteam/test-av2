@@ -1,6 +1,6 @@
 import os
 import sys
-import logging
+from AVCommon.logger import logging
 
 sys.path.append(os.path.split(os.getcwd())[0])
 sys.path.append(os.getcwd())
@@ -65,9 +65,6 @@ def execute(vm_name, cmd, *args):
 
 
 if __name__ == '__main__':
-    import logging.config
-
-    logging.config.fileConfig('../logging.conf')
 
     logging.debug("args: %s" % str(sys.argv[1:]))
     t = tuple(sys.argv[1:])

@@ -1,6 +1,6 @@
 import string
 import random
-import logging
+from AVCommon.logger import logging
 import re
 
 from channel import Channel

@@ -1,4 +1,15 @@
 
+- PUSH VIRUS
+    aggiungere STATIC_CHECK
+
+- CHECK_EMPTY_DIR
+    aggiungere whitelist
+
+- CROP
+    download dei file
+
+
+
 VMWARE
  - autologin
  - vmrun / sdk per sbloccare il login

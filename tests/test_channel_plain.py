@@ -8,9 +8,7 @@ from redis import StrictRedis
 import ast
 import string
 import random
-import logging
-import logging.config
-
+from AVCommon.logger import logging
 
 count = 0
 
@@ -98,7 +96,6 @@ def test_ChannelRandom():
 
 
 if __name__ == '__main__':
-    logging.config.fileConfig('../logging.conf')
     test_ChannelTimeout()
     test_Redis()
     test_ChannelList()

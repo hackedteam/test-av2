@@ -2,7 +2,7 @@ import sys, os
 sys.path.append(os.path.split(os.getcwd())[0])
 sys.path.append(os.getcwd())
 
-import logging, logging.config
+from AVCommon.logger import logging
 from multiprocessing import Pool
 import threading
 
@@ -33,6 +33,6 @@ def test_dispatcher_server():
     dispatcher.dispatch(test)
 
 if __name__ == '__main__':
-    logging.config.fileConfig('../logging.conf')
+
     test_dispatcher_server()
 

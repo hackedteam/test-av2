@@ -8,7 +8,7 @@ from AVCommon.mq import MQStar
 from AVCommon.procedure import Procedure
 
 from mock import MagicMock
-import logging, logging.config
+from AVCommon.logger import logging
 
 
 def notest_mock():
@@ -60,7 +60,7 @@ def notest_ProtocolEval():
             exit = True
 
 if __name__ == "__main__":
-    logging.config.fileConfig('../logging.conf')
+
 
     notest_mock()
     notest_ProtocolEval()

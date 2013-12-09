@@ -1,7 +1,6 @@
 import sys
 import os
-import logging
-import logging.config
+from AVCommon.logger import logging
 from time import sleep
 
 sys.path.append(os.path.split(os.getcwd())[0])
@@ -66,7 +65,7 @@ def test_execute():
 
 
 if __name__ == '__main__':
-    logging.config.fileConfig('../logging.conf')
+
 #    test_instance()
 #    test_up_and_down()
     test_execute()

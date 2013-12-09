@@ -1,4 +1,4 @@
-import logging
+from AVCommon.logger import logging
 from redis import StrictRedis
 from AVCommon import config
 from redis.exceptions import ConnectionError

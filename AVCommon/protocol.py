@@ -1,4 +1,4 @@
-import logging
+from AVCommon.logger import logging
 import copy
 import threading
 from AVCommon import config

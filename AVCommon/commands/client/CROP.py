@@ -2,7 +2,7 @@ __author__ = 'zeno'
 
 import time
 import threading
-import logging
+from AVCommon.logger import logging
 import os
 
 thread = None

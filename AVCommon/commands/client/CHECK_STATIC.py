@@ -1,6 +1,6 @@
 __author__ = 'zeno'
 
-import logging
+from AVCommon.logger import logging
 import time
 
 from AVCommon import command
@@ -16,6 +16,6 @@ def on_answer(vm, success, answer):
 
 
 def execute(vm, args):
-    failed = build.check_static(args)
+    failed = build.check_static(args, command.context["report"])
 
-    return not failed, failed
+    return failed==[], failed

@@ -2,8 +2,7 @@ __author__ = 'zeno'
 
 
 import os
-import logging
-import logging.config
+from AVCommon.logger import logging
 
 from AVCommon.procedure import Procedure
 from AVCommon.mq import MQStar
@@ -84,7 +83,7 @@ TEST_REPORT:
 
 
 if __name__=="__main__":
-    logging.config.fileConfig('../logging.conf')
+
     test_report_extract()
     test_report_load()
     test_report_meta()

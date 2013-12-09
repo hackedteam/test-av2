@@ -4,7 +4,7 @@ import argparse
 
 sys.path.append(os.path.split(os.getcwd())[0])
 
-import logging, logging.config
+from AVCommon.logger import logging
 
 from AVCommon.procedure import Procedure
 from dispatcher import Dispatcher
@@ -71,6 +71,6 @@ def main():
 
 
 if __name__ == '__main__':
-    logging.config.fileConfig('../logging.conf')
+
     #logger=logging.getLogger('root')
     main()

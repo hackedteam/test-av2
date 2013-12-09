@@ -1,0 +1,26 @@
+version: 1
+formatters:
+  simpleFormatter:
+    format: '%(asctime)s %(levelname)7s %(filename)18s:%(lineno)3d|   %(message)s'
+    datefmt: '%Y%m%d %H%M%S'
+handlers:
+  console:
+    class: logging.StreamHandler
+    level: DEBUG
+    formatter: simpleFormatter
+    stream: ext://sys.stdout
+  file:
+    class: logging.handlers.RotatingFileHandler
+    level: DEBUG
+    formatter: simpleFormatter
+    filename: avmonitor.log
+    maxBytes: 0
+    backupCount: 3
+loggers:
+  avmonitor:
+    level: DEBUG
+    handlers: [console, file]
+    propagate: no
+root:
+  level: DEBUG
+  handlers: [console, file]

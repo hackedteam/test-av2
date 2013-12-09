@@ -7,9 +7,7 @@ from AVCommon.command import Command
 
 from AVCommon import command
 
-import logging
-import logging.config
-
+from AVCommon.logger import logging
 
 def test_dispatcher():
     c = command.factory(["BEGIN", True, ['whatever', 'end']])
@@ -89,7 +87,7 @@ SCOUT:
 
 
 if __name__ == '__main__':
-    logging.config.fileConfig('../logging.conf')
+
     test_procedure_file()
     test_procedure_yaml()
     test_dispatcher()

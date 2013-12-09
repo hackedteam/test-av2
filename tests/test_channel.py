@@ -10,8 +10,9 @@ from redis import StrictRedis
 import ast
 import string
 import random
-import logging, sys
-import logging.config
+from AVCommon.logger import logging
+import sys
+
 
 import unittest
 
@@ -120,7 +121,7 @@ class TestChannel(unittest.TestCase):
             assert(m == r)
 
 if __name__ == '__main__':
-    logging.config.fileConfig('../logging.conf')
+
 
     #test_dispatcher_server()
     unittest.main()
