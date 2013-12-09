@@ -142,11 +142,16 @@ UPDATE_PYTHON:
 #    - REFRESH_SNAPSHOT
 
 UPDATE_REG:
+    #- VM: [360cn,ahnlab,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm]
+    - VM: [mbytes,ahnlab]
     - INTERNET: False
     - REVERT
+    - SLEEP: [ 1, 120 ]
     - START_VM
     - PUSH: [assets/update_reg.bat]
     - EXECUTE_VM: c:/avtest/assets/update_reg.bat
+    - SLEEP: 120
+    - EXECUTE_VM: c:/windows/system32/ipconfig.exe
     - DELETE_DIR: assets
     - STOP_VM
     - REFRESH_SNAPSHOT
@@ -289,7 +294,9 @@ STATIC_OSX:
 
 REVERT_ALL:
     - VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
-    - INTERNET: False    - REVERT
+    - INTERNET: False
+    - SLEEP: [1, 60]
+    - REVERT
 
 DAILY:
     #- VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
