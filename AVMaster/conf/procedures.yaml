@@ -133,11 +133,11 @@ UPDATE_PYTHON:
     - PUSH:
         - [active_py.msi, active_inst.bat]
         - updates
-        - c:/
+        - c:/Users/avtest/Desktop
 #        - c:/Users/avtest/Desktop
     - DELETE_DIR: C:/Python27/Lib/site-packages
-#    - EXECUTE_VM: /Users/avtest/Desktop/active_inst.bat
-    - EXECUTE_VM: /active_inst.bat
+    - EXECUTE_VM: /Users/avtest/Desktop/active_inst.bat
+#    - EXECUTE_VM: /active_inst.bat
     - INTERNET: False
     - STOP_VM
 #    - REFRESH_SNAPSHOT
@@ -178,6 +178,12 @@ UPDATE_FAST:
 UPLOAD_AGENT:
     - PUSH: [ logging.conf, AVAgent/*.py, AVCommon/*.py, AVCommon/commands/client/*.py, AVCommon/commands/meta/*.py, AVCommon/commands/*.py]
     - PUSH: [ AVAgent/assets/config*, AVAgent/assets/keyinject.exe, AVAgent/assets/meltapp.exe ]
+
+UPLOAD_SKYPE:
+    - PUSH:
+        - [SkypeSetup.exe]
+        - updates
+        - c:/Users/avtest/Desktop
 
 DISPATCH:
     - INTERNET: False
