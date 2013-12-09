@@ -107,7 +107,6 @@ SET_DEFAULTS:
 
 # -------------- MANAGEMENT -------------- #
 
-
 UPDATE:
     - INTERNET: False
     - REVERT
@@ -146,8 +145,7 @@ UPDATE_REG:
     - INTERNET: False
     - REVERT
     - START_VM
-    - PUSH: [assets/ForceAutoLogon.reg, assets/update_reg.bat]
-
+    - PUSH: [assets/update_reg.bat]
     - EXECUTE_VM: c:/avtest/assets/update_reg.bat
     - DELETE_DIR: assets
     - STOP_VM
@@ -206,6 +204,17 @@ GET_AV_LOG:
         - c:\\AVTest\\AVAgent
         - logs
 
+PUSH_VIRUS:
+    - START_AGENT
+    - CROP: True
+    - PUSH: [ AVAgent/assets/vira/conficker.dll ]
+    - SLEEP: 30
+    - CROP: False
+    - CHECK_STATIC: [ AVAgent/assets/vira/conficker.dll ]
+    - CHECK_EMPTY_DIR:
+        - [ '/Users/avtest/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup', '/Documents and Settings/avtest/Start Menu/Programs/Startup/']
+        - [ desktop.ini ]
+    - STOP_AGENT
 
 # ------------- FULL COMMANDS -------------- #
 
@@ -225,8 +234,9 @@ ELITE:
     - BUILD: [ elite, windows, silent ]
     - SLEEP: 30
     - CROP: False
-    - CHECK_EMPTY_DIR: '/Users/avtest/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup'
-    - CHECK_EMPTY_DIR: '/Documents and Settings/avtest/Start Menu/Programs/Startup/'
+    - CHECK_EMPTY_DIR:
+        - [ '/Users/avtest/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup', '/Documents and Settings/avtest/Start Menu/Programs/Startup/']
+        - [ desktop.ini ]
     - SCREENSHOT
     - STOP_AGENT
 
@@ -295,16 +305,6 @@ DAILY:
     - REPORT_KIND: ELITE
     - CALL: ELITE
     - REPORT_END # chiude il Test con status = 1, genera output
-
-PUSH_VIRUS:
-    - START_AGENT
-    - CROP: True
-    - PUSH: [ AVAgent/assets/vira/conficker.dll ]
-    - SLEEP: 30
-    - CROP: False
-    - CHECK_STATIC: [ AVAgent/assets/vira/conficker.dll ]
-    - CHECK_EMPTY_DIR: AVAgent/crop
-    - STOP_AGENT
 
 CHECK_POSITIVE:
     #- VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
