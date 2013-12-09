@@ -349,14 +349,11 @@ TEST_VM:
         - []
 
 TEST_CHAT:
-    - START_AGENT
-    - CALL: SET_DEFAULTS
     - EXECUTE_VM:
         - C:/Program Files/Internet Explorer/iexplore.exe
-        - [ 'http:\\www.facebook.com' ]
+        - [ 'www.facebook.com' ]
         - 40
         - True
         - True
-    - BUILD: [ elite, windows, silent ]
     - CHECK_EVIDENCES: [chat,fb]
 
