@@ -7,6 +7,7 @@ sys.path.append(os.getcwd())
 
 from AVCommon.protocol import Protocol
 from AVCommon import command
+from AVCommon import config
 from AVMaster import report
 
 def red(msg, max_len=50):
@@ -105,14 +106,22 @@ class Dispatcher(object):
                         logging.info("- SERVER SENDING ERROR, ENDING: %s" %c)
                         self.end(c)
                 else:
+                    # answer.success == False
                     # deve skippare fino al command: END_PROC
-                    r = p.send_next_call()
-                    cmd = p.last_command
-                    if cmd:
-                        report.sent(p.vm, str(cmd))
+
+                    if config.skip_to_call:
+
+                        r = p.send_next_call()
+                        cmd = p.last_command
+                        if cmd:
+                            report.sent(p.vm, str(cmd))
+                        else:
+                            self.end(c)
+                            logging.info("- SERVER RECEIVE ERROR, ENDING: %s" %c)
                     else:
                         self.end(c)
                         logging.info("- SERVER RECEIVE ERROR, ENDING: %s" %c)
+
 
             else:
                 logging.info("- SERVER RECEIVED empty")

@@ -190,32 +190,42 @@ DISPATCH:
     - START_VM
     - CALL: UPLOAD_AGENT
 
-CHECK_SIGNATURE:
-    # check che era in windows/silent
-    - PUSH: [ AVAgent/assets/avtest.swf ]
-    - PUSH: [ AVAgent/assets/sqlite, AVAgent/assets/sqlite_mod, AVAgent/assets/codec, AVAgent/assets/codec_mod ]
-    #- CHECK_STATIC: [ AVAgent/assets/* ]
-    - CALL: SET_BUILD_PARAMS
-    - BUILD: [ pull, osx, silent ]
-    - BUILD: [ pull, windows, silent ]
-    - BUILD: [ pull, linux, silent ]
-    - BUILD: [ pull, android, silent ]
-    - BUILD: [ pull, blackberry, silent ]
-    - BUILD: [ pull, ios, silent ]
-
 GET_AV_LOG:
     - PULL:
         - ['avmonitor.log']
         - c:\\AVTest\\AVAgent
         - logs
 
+BUILD_DESKTOP:
+    - PUSH: [ AVAgent/assets/avtest.swf ]
+    - PUSH: [ AVAgent/assets/sqlite, AVAgent/assets/sqlite_mod, AVAgent/assets/codec, AVAgent/assets/codec_mod ]
+    - CHECK_STATIC: [ AVAgent/assets/* ]
+    - BUILD: [ pull, windows, silent ]
+    - BUILD: [ pull, osx, silent ]
+    - BUILD: [ pull, linux, silent ]
+
+BUILD_MOBILE:
+    - BUILD: [ pull, blackberry, silent ]
+    - BUILD: [ pull, android, silent ]
+    - BUILD: [ pull, ios, silent ]
+
+BUILD_EXPLOIT:
+    - PUSH: [ AVAgent/assets/avtest.swf, AVAgent/assets/melt*, AVAgent/assets/PMIEFuck-WinWord.dll ]
+    - PUSH: [ AVAgent/assets/sqlite, AVAgent/assets/sqlite_mod, AVAgent/assets/codec, AVAgent/assets/codec_mod ]
+    - CALL: SET_DEFAULTS
+    - CALL: SET_BUILD_PARAMS_EXPLOIT
+    - BUILD: [ pull, exploit, melt ]
+    - BUILD: [ pull, exploit_docx, melt ]
+    - BUILD: [ pull, exploit_ppsx, melt ]
+    - BUILD: [ pull, exploit_web, melt ]
+
 PUSH_VIRUS:
     - START_AGENT
     - CROP: True
-    - PUSH: [ AVAgent/assets/vira/conficker.dll ]
+    - PUSH: [ AVAgent/assets/vira/conficker.dll, AVAgent/assets/vira/eicar.com ]
     - SLEEP: 30
     - CROP: False
-    - CHECK_STATIC: [ AVAgent/assets/vira/conficker.dll ]
+    - CHECK_STATIC: [ AVAgent/assets/vira/conficker.dll, AVAgent/assets/vira/eicar.com ]
     - CHECK_EMPTY_DIR:
         - [ '/Users/avtest/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup', '/Documents and Settings/avtest/Start Menu/Programs/Startup/']
         - [ desktop.ini ]
@@ -264,19 +274,18 @@ WINDOWS:
     - STOP_AGENT
 
 STATIC:
+    - VM: [noav]
     - INTERNET: False
-    - CALL: UPLOAD_AGENT
+    - CALL: DISPATCH
     - START_AGENT
-    - CALL: SET_DEFAULTS
-    - CROP: True
-    - BUILD: [ pull, windows, silent ]
-    - BUILD: [ pull, osx, silent ]
-    - BUILD: [ pull, linux, silent ]
-    - BUILD: [ pull, blackberry, silent ]
-    - BUILD: [ pull, android, silent ]
-    - BUILD: [ pull, ios, silent ]
-    - CROP: False
+    #- CROP: True
+    - REPORT:
+        #- BUILD_DESKTOP
+        #- BUILD_MOBILE
+        - BUILD_EXPLOIT
+    #- CROP: False
     - STOP_AGENT
+    - STOP_VM
 
 STATIC_OSX:
     #- VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
@@ -323,7 +332,7 @@ CHECK_POSITIVE:
 
 CHECK_ELITE:
     - VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
-    #- VM: [avast32,avg32,avira,bitdef,comodo]
+    #- VM: [trendm,norton,avast]
     - INTERNET: False
     - SLEEP: [1,60]
     - CALL: DISPATCH
@@ -367,3 +376,4 @@ TEST_CHAT:
 TEST_REFRESH:
     - STOP_VM
     - REFRESH_SNAPSHOT
+

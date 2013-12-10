@@ -19,9 +19,13 @@ def on_answer(vm, success, answer):
     logging.debug("CROP answer: %s|%s" % (success, answer))
     if not success:
         logging.warn("We have to PULL images: %s" % answer)
+        dst_dir = "%s/crop" % config.basedir_server
+        if not os.path.exists(dst_dir):
+            os.mkdir(dst_dir)
+
         for src in answer:
-            dst = "%s/%s_%s" %(crop,vm,src)
-            src_av = "%s/%s" % (config.basedir_avsrc)
+            dst = "%s/%s_%s" %(dst_dir,vm,src)
+            src_av = "%s/%s" % (config.basedir_av, src)
             logging.debug("PULL: %s -> %s" % (src, dst))
             vm_manager.execute(vm, "copyFileFromGuest",src_av ,dst)
 
