@@ -314,8 +314,8 @@ DAILY:
     - REPORT_END # chiude il Test con status = 1, genera output
 
 CHECK_POSITIVE:
-    #- VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
-    - VM: [avast,avira,eset,fsecure]
+    - VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
+    #- VM: [avast,avira,eset,fsecure]
     - INTERNET: False
     - REPORT:
         - DISPATCH
@@ -367,3 +367,6 @@ TEST_CHAT:
     - BUILD: [ elite, windows, silent ]
     - CHECK_EVIDENCES: [chat,fb]
 
+TEST_REFRESH:
+    - STOP_VM
+    - REFRESH_SNAPSHOT

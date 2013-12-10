@@ -154,13 +154,18 @@ class VMRun:
 
         # create new snapshot
         date = datetime.now().strftime('%Y%m%d-%H%M')
-        self.createSnapshot(vmx, "%s" % date)
+        self.createSnapshot(vmx, "auto_%s" % date)
         if delete is True:
             snaps = self.listSnapshots(vmx)
             logging.debug("snapshots %s" % snaps)
-            if len(snaps) > 0 and snaps[-2] not in untouchables and "manual" not in snaps[-2]:
-                logging.debug("deleting %s" % snaps[-2])
-                self.deleteSnapshot(vmx, snaps[-2])
+            if len(snaps) > 2:
+                for s in snaps[1:-1]:
+                    logging.debug("checking %s" % s)
+                    if s not in untouchables and "manual" not in s:
+                        logging.debug("deleting %s" % s)
+                        self.deleteSnapshot(vmx, s)
+                    else:
+                        logging.debug("ignoring %s" % s)
 
     def revertLastSnapshot(self, vmx):
         snap = self.listSnapshots(vmx)

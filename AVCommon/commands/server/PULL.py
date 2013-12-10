@@ -1,7 +1,7 @@
 import os
 import sys
 from AVCommon.logger import logging
-
+from AVCommon import config
 
 def execute(vm, args):
     """ server side """
@@ -14,6 +14,10 @@ def execute(vm, args):
     #TODO pull files from vm
     src_files, src_dir, dst_dir = args
     assert isinstance(src_files, list), "PULL expects a list of src files"
+
+    if not (src_dir.startswith("\\") or src_dir.startswith("/") or src_dir[1]==':'):
+        src_dir = "%s/%s" % (config.basedir_av, src_dir)
+        logging.debug("Added basedir to src_dir: %s" % src_dir)
 
     memo = []
     for src_file in src_files:
