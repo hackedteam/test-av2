@@ -18,6 +18,7 @@ def on_init(protocol, args):
     ret = vm_manager.execute(vm, "executeCmd", cmd, arg, 40, True, True)
 
     logging.debug("execution: %s" % ret)
+    python = None
 
     for i in range(5):
         time.sleep(10)

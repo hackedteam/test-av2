@@ -19,4 +19,4 @@ def execute(vm, args):
     command.context["VM"] = vms
 
     logging.debug("items: %s" % (command.context))
-    return True, "VM"
+    return True, vms

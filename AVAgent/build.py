@@ -486,17 +486,8 @@ class AgentBuild:
         #        add_result("+ platfoooorm %s" % self.platform)
         #        add_result("+ kiiiiiiiind %s" % self.kind)
 
-        meltfile = None
-        if self.kind == 'melt':
-            if self.platform == 'exploit_docx':
-                meltfile = 'assets/meltexploit.docx'
-            elif self.platform == 'exploit_ppsx':
-                meltfile = 'assets/meltexploit.ppsx'
-            elif self.platform == 'exploit':
-                meltfile = 'assets/meltexploit.txt'
-            else:
-                meltfile = 'assets/meltapp.exe'
 
+        meltfile = self.param.get('meltfile',None)
         exe = self._build_agent(factory_id, meltfile)
 
         if "exploit_" in self.platform:
@@ -553,7 +544,7 @@ class AgentBuild:
         def check_file(filename):
             try:
                 with open(filename):
-                    logging.debug("DBG %s saved")
+                    logging.debug("DBG %s saved" % filename)
                     return True
             except IOError:
                 logging.debug("DBG failed saving %s" % appname)

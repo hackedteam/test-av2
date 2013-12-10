@@ -65,6 +65,7 @@ class Dispatcher(object):
 
         report.init(procedure.name)
 
+        assert self.vms
         logging.debug("self.vms: %s" % self.vms)
         av_machines = {}
         for vm in self.vms:

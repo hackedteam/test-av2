@@ -18,6 +18,15 @@ SET_BUILD_PARAMS:
                   binary: {admin: false, demo: true}
                   melt: {admin: false, bit64: true, codec: true, scout: true}
                   platform: windows
+                  meltfile: assets/meltapp.exe
+                  sign: {}
+                  package: {}
+                windows_elite:
+                  platform_type: desktop
+                  binary: {admin: false, demo: true}
+                  melt: {admin: false, bit64: true, codec: true, scout: false}
+                  platform: windows
+                  meltfile: assets/meltapp.exe
                   sign: {}
                   package: {}
                 android:
@@ -48,6 +57,7 @@ SET_BUILD_PARAMS_EXPLOIT:
                   platform_type: desktop
                   deliver: {user: USERID}
                   factory: {_id: '000'}
+                  meltfile: assets/meltexploit.txt
                   generate:
                     binary: {admin: false, demo: false}
                     exploit: HT-2012-001
@@ -60,6 +70,7 @@ SET_BUILD_PARAMS_EXPLOIT:
                   platform_type: desktop
                   deliver: {user: USERID}
                   factory: {_id: '000'}
+                  meltfile : assets/meltexploit.docx
                   generate:
                     binary: {admin: false, demo: false}
                     exploit: HT-2013-002
@@ -72,6 +83,7 @@ SET_BUILD_PARAMS_EXPLOIT:
                   platform_type: desktop
                   deliver: {user: USERID}
                   factory: {_id: '000'}
+                  meltfile: assets/meltexploit.ppsx
                   generate:
                     binary: {admin: false, demo: false}
                     exploit: HT-2013-003
@@ -84,6 +96,7 @@ SET_BUILD_PARAMS_EXPLOIT:
                   platform_type: desktop
                   deliver: {user: USERID}
                   factory: {_id: '000'}
+                  meltfile : assets/meltexploit.docx
                   generate:
                     binary: {admin: false, demo: false}
                     exploit: HT-2013-002
@@ -214,10 +227,10 @@ BUILD_EXPLOIT:
     - PUSH: [ AVAgent/assets/sqlite, AVAgent/assets/sqlite_mod, AVAgent/assets/codec, AVAgent/assets/codec_mod ]
     - CALL: SET_DEFAULTS
     - CALL: SET_BUILD_PARAMS_EXPLOIT
+    - BUILD: [ pull, exploit_web, melt ]
+    #- BUILD: [ pull, exploit_ppsx, melt ]
     - BUILD: [ pull, exploit, melt ]
     - BUILD: [ pull, exploit_docx, melt ]
-    - BUILD: [ pull, exploit_ppsx, melt ]
-    - BUILD: [ pull, exploit_web, melt ]
 
 PUSH_VIRUS:
     - START_AGENT
@@ -274,16 +287,16 @@ WINDOWS:
     - STOP_AGENT
 
 STATIC:
-    - VM: [noav]
+    - VM_ALL
     - INTERNET: False
     - CALL: DISPATCH
     - START_AGENT
-    #- CROP: True
+    - CROP: True
     - REPORT:
-        #- BUILD_DESKTOP
-        #- BUILD_MOBILE
+        - BUILD_DESKTOP
+        - BUILD_MOBILE
         - BUILD_EXPLOIT
-    #- CROP: False
+    - CROP: False
     - STOP_AGENT
     - STOP_VM
 
@@ -365,12 +378,14 @@ TEST_VM:
         - []
 
 TEST_CHAT:
+    - VM_ALL
     - EXECUTE_VM:
-        - C:/Program Files/Internet Explorer/iexplore.exe
-        - [ 'www.facebook.com' ]
-        - 40
-        - True
-        - True
+         - C:/Program Files/Internet Explorer/iexplore.exe
+         - [ 'http://www.facebook.com' ]
+         - 40
+         - True
+         - True
+
     - CHECK_EVIDENCES: [chat,fb]
 
 TEST_REFRESH:
