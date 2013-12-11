@@ -223,7 +223,7 @@ class AgentBuild:
 
             return (target, factory_id, ident)
 
-    def _build_agent(self, factory, melt=None, demo=False, tries=0):
+    def _build_agent(self, factory, melt=None, kind="silent", demo=False, tries=0):
         with connection() as c:
 
             try:
@@ -232,7 +232,7 @@ class AgentBuild:
                 if os.path.exists(filename):
                     os.remove(filename)
 
-                if melt:
+                if kind=="melt" and melt:
                     logging.debug("- Melt build with: ", melt)
                     appname = "exp_%s" % self.hostname
                     self.param['melt']['appname'] = appname
@@ -261,7 +261,7 @@ class AgentBuild:
                 if tries <= 3:
                     tries += 1
                     logging.debug("DBG problem building scout. tries number %s" % tries)
-                    return self._build_agent(factory, melt, demo, tries)
+                    return self._build_agent(factory, melt, kind, demo, tries)
                 else:
                     add_result("+ ERROR SCOUT BUILD AFTER %s BUILDS" % tries)
                     raise err
@@ -487,9 +487,8 @@ class AgentBuild:
         #        add_result("+ platfoooorm %s" % self.platform)
         #        add_result("+ kiiiiiiiind %s" % self.kind)
 
-
         meltfile = self.param.get('meltfile',None)
-        exe = self._build_agent(factory_id, meltfile)
+        exe = self._build_agent(factory_id, meltfile, self.kind)
 
         if "exploit_" in self.platform:
             if self.platform == 'exploit_docx':

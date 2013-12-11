@@ -9,7 +9,9 @@ def on_init(protocol, args):
     vm, mq = protocol.vm, protocol.mq
     cmd = "c:\\python27\\python.exe"
 
-    if mq.host == "localhost":
+    if args:
+        redis = args
+    elif mq.host == "localhost":
         redis = "10.0.20.1"
     else:
         redis = mq.host

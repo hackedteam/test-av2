@@ -32,3 +32,9 @@ TEST_REFRESH:
     - STOP_VM
     - REFRESH_SNAPSHOT
 
+
+TEST_ELITE:
+    - VM: ['noav']
+    - START_AGENT: 127.0.0.1
+    - CALL: BUILD_ELITE
+    - STOP_AGENT
