@@ -27,4 +27,4 @@ if not basedir:
             break
 
 assert basedir
-dir()
+#dir()

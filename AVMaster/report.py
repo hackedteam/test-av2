@@ -36,7 +36,10 @@ class Report:
         self.c_received = {}
 
         self.test_id = str(uuid.uuid1())
-        self.timestamp = int(time.time())
+
+        self.timestamp = time.strftime("%y%m%d-%H%M%S", time.localtime(time.time()))
+
+        #self.timestamp = int(time.time())
 
         self.reports = {} # proc is the key
         self.current_procedure = {} # vm is the key
