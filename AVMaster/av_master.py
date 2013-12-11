@@ -1,6 +1,7 @@
 import os
 import sys
 import argparse
+import glob
 
 sys.path.append(os.path.split(os.getcwd())[0])
 
@@ -22,9 +23,18 @@ class AVMaster():
         self.pool = args.pool
         command.init()
 
+    def load_procedures(self):
+        if os.path.exists("conf/procedures.yaml"):
+            Procedure.load_from_file("conf/procedures.yaml")
+
+        confs = glob.glob("conf/procedures/*.yaml")
+        for conf in confs:
+            logging.info("Loading conf: %s" % conf)
+            Procedure.load_from_file(conf)
+
     def start(self):
-        procedures = Procedure.load_from_file("conf/procedures.yaml")
-        proc = procedures[self.procedure]
+        self.load_procedures()
+        proc = Procedure.procedures[self.procedure]
         assert proc, "cannot find the specified procedure: %s" % self.procedure
 
         # command line vm list overrides procedures.yaml

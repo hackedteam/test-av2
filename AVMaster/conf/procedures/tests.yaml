@@ -1,0 +1,31 @@
+
+# ---------------- TEST --------------- #
+
+TEST_VM:
+    #- VM: [360cn,adaware,ahnlab,avg,avast,avira,bitdef,comodo,drweb,emsisoft]
+    #- VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
+    # removed VM: [pctools,sophos,emsisoft]
+    - VM: [fsecure]
+    - EXECUTE_VM:
+        - c:\\python27\\scripts\\easy_install.exe
+        - [Pillow]
+    - PUSH: [ AVAgent/assets/exec_admin.lnk, AVAgent/assets/execution.bat ]
+    - EXECUTE_VM:
+        - c:\\Avtest\\AVAgent\\assets\\exec_admin.lnk
+        - []
+
+TEST_CHAT:
+    - VM_ALL
+    - EXECUTE_VM:
+         - C:/Program Files/Internet Explorer/iexplore.exe
+         - [ 'http://www.facebook.com' ]
+         - 40
+         - True
+         - True
+
+    - CHECK_EVIDENCES: [chat,fb]
+
+TEST_REFRESH:
+    - STOP_VM
+    - REFRESH_SNAPSHOT
+

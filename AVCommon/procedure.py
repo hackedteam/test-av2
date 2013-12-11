@@ -55,10 +55,10 @@ class Procedure:
         return len(self.command_list)
 
     @staticmethod
-    def load_from_yaml(stream):
+    def load_from_yaml(stream, append=False):
         procedures = {}
         data = load(stream, Loader=Loader)
-        pp.pprint(data)
+        #pp.pprint(data)
         for name in data.keys():
             command_list = []
             command_data = data[name]
@@ -69,7 +69,8 @@ class Procedure:
                 #logging.debug("  command: %s" % c)
 
             procedures[name] = Procedure(name, command_list)
-        Procedure.procedures = procedures
+
+        Procedure.procedures.update(procedures)
         return procedures
 
     @staticmethod
