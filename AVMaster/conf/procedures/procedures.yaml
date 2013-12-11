@@ -1,0 +1,155 @@
+
+# ----------- PARTIAL COMMANDS -------------- #
+
+UPLOAD_AGENT:
+    - PUSH: [ logging.yml, AVAgent/*.py, AVCommon/*.py, AVCommon/commands/client/*.py, AVCommon/commands/meta/*.py, AVCommon/commands/*.py]
+    - PUSH: [ AVAgent/assets/config*, AVAgent/assets/keyinject.exe, AVAgent/assets/meltapp.exe ]
+
+UPLOAD_SKYPE:
+    - PUSH:
+        - [SkypeSetup.exe]
+        - updates
+        - c:/Users/avtest/Desktop
+
+DISPATCH:
+    - INTERNET: False
+    - REVERT
+    - START_VM
+    - CALL: UPLOAD_AGENT
+
+GET_AV_LOG:
+    - PULL:
+        - ['avmonitor.log']
+        - c:\\AVTest\\AVAgent
+        - logs
+
+
+PUSH_VIRUS:
+    - START_AGENT
+    - CROP: True
+    - PUSH: [ AVAgent/assets/vira/conficker.dll, AVAgent/assets/vira/eicar.com ]
+    - SLEEP: 30
+    - CROP: False
+    - CHECK_STATIC: [ AVAgent/assets/vira/conficker.dll, AVAgent/assets/vira/eicar.com ]
+    - CHECK_EMPTY_DIR:
+        - [ '/Users/avtest/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup', '/Documents and Settings/avtest/Start Menu/Programs/Startup/']
+        - [ desktop.ini ]
+    - STOP_AGENT
+
+# ------------- FULL COMMANDS -------------- #
+
+SCOUT:
+    - START_AGENT
+    - CALL: SET_DEFAULTS
+    - CROP: True
+    - BUILD: [ scout, windows, silent ]
+    - CROP: False
+    - SCREENSHOT
+    - STOP_AGENT
+
+ELITE:
+    - START_AGENT
+    - CALL: SET_DEFAULTS
+    - CROP: True
+    - BUILD: [ elite, windows, silent ]
+    - SLEEP: 30
+    - CROP: False
+    - CHECK_EMPTY_DIR:
+        - [ '/Users/avtest/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup', '/Documents and Settings/avtest/Start Menu/Programs/Startup/']
+        - [ desktop.ini ]
+    - SCREENSHOT
+    - STOP_AGENT
+
+MELT:
+    - START_AGENT
+    - CALL: SET_DEFAULTS
+    - CROP: True
+    - BUILD: [ scout, windows, melt ]
+    - CROP: False
+    - STOP_AGENT
+    - SCREENSHOT
+
+WINDOWS:
+    - CALL: DISPATCH
+    - START_AGENT
+    - CALL: SET_DEFAULTS
+    - BUILD: [ scout, windows, silent ]
+    - BUILD: [ elite, windows, silent ]
+    - BUILD: [ scout, windows, melt ]
+    - STOP_AGENT
+
+STATIC:
+    - VM_ALL
+    - INTERNET: False
+    - CALL: DISPATCH
+    - START_AGENT
+    - CROP: True
+    - REPORT:
+        - BUILD_DESKTOP
+        - BUILD_MOBILE
+        - BUILD_EXPLOIT
+    - CROP: False
+    - STOP_AGENT
+    - STOP_VM
+
+STATIC_OSX:
+    #- VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
+    #- SLEEP: [1, 60]
+    #- CALL: DISPATCH
+    - CALL: UPLOAD_AGENT
+    - START_AGENT
+    - CALL: SET_DEFAULTS
+    - CROP: True
+    - BUILD: [ pull, osx, silent ]
+    - CROP: False
+    - STOP_AGENT
+    #- STOP_VM
+
+
+REVERT_ALL:
+    - VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
+    - INTERNET: False
+    - SLEEP: [1, 60]
+    - REVERT
+
+DAILY:
+    #- VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
+    - VM: [ahnlab,avast]
+    - INTERNET: False
+    - REPORT_INIT # generazione Test, status = 0, report.test_id = random()
+    - REPORT_KIND: UPDATE
+    #- CALL: UPDATE_FAST # aggiunge un result kind = UPDATE
+    - SLEEP: 1
+    - CALL: DISPATCH
+    - REPORT_KIND: STATIC_OSX
+    - CALL: STATIC_OSX
+    - REPORT_KIND: ELITE
+    - CALL: ELITE
+    - REPORT_END # chiude il Test con status = 1, genera output
+
+CHECK_POSITIVE:
+    - VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
+    #- VM: [avast,avira,eset,fsecure]
+    - INTERNET: False
+    - REPORT:
+        - DISPATCH
+        - PUSH_VIRUS
+
+CHECK_ELITE:
+    - VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
+    #- VM: [trendm,norton,avast]
+    - INTERNET: False
+    - SLEEP: [1,60]
+    - CALL: DISPATCH
+    - REPORT:
+        - ELITE
+        - STATIC_OSX
+        - PUSH_VIRUS
+
+MANUAL_SCOUT:
+    #- SLEEP: [1, 60]
+    #- CALL: DISPATCH
+    - START_AGENT
+    - CALL: SET_DEFAULTS
+    - BUILD: [ scout, windows, silent ]
+    - STOP_AGENT
