@@ -1,0 +1,66 @@
+# -------------- MANAGEMENT -------------- #
+
+UPDATE:
+    - INTERNET: False
+    - REVERT
+    - SLEEP: [0, 600]
+    - START_VM
+    - SLEEP: 180
+    #- CHECK_INFECTION
+    - INTERNET: True
+    - SLEEP: 3600
+    - INTERNET: False
+    - CALL: UPLOAD_AGENT
+    - PUSH: [ AVAgent/assets/shutdown.bat ]
+    - EXECUTE_VM: AVAgent/assets/shutdown.bat
+    - START_VM
+    - SLEEP: 180
+    - STOP_VM
+    - REFRESH_SNAPSHOT
+
+UPDATE_PYTHON:
+    - REVERT
+    - START_VM
+    - INTERNET: True
+    - PUSH:
+        - [active_py.msi, active_inst.bat]
+        - updates
+        - c:/Users/avtest/Desktop
+#        - c:/Users/avtest/Desktop
+    - DELETE_DIR: C:/Python27/Lib/site-packages
+    - EXECUTE_VM: /Users/avtest/Desktop/active_inst.bat
+#    - EXECUTE_VM: /active_inst.bat
+    - INTERNET: False
+    - STOP_VM
+#    - REFRESH_SNAPSHOT
+
+UPDATE_REG:
+    #- VM: [360cn,ahnlab,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm]
+    - VM: [mbytes,ahnlab]
+    - INTERNET: False
+    - REVERT
+    - SLEEP: [ 1, 120 ]
+    - START_VM
+    - PUSH: [assets/update_reg.bat]
+    - EXECUTE_VM: c:/avtest/assets/update_reg.bat
+    - SLEEP: 120
+    - EXECUTE_VM: c:/windows/system32/ipconfig.exe
+    - DELETE_DIR: assets
+    - STOP_VM
+    - REFRESH_SNAPSHOT
+
+UPDATE_FAST:
+#    - VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
+    - VM: [360cn,avast32]
+    - INTERNET: True
+    - SLEEP: [0, 60]
+    - REVERT
+    - START_VM
+    - SLEEP: 180
+    - PUSH: [ AVAgent/assets/shutdown.bat ]
+    - EXECUTE_VM: /AVTest/AVAgent/assets/shutdown.bat
+    - SLEEP: 60
+    - START_VM
+    - SLEEP: 60
+    - STOP_VM
+    - REFRESH_SNAPSHOT

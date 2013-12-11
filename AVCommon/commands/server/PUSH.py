@@ -2,6 +2,8 @@ import os
 import sys
 import glob
 from AVCommon.logger import logging
+from AVCommon import config
+
 
 report_level = 2
 
@@ -18,7 +20,7 @@ def execute(vm, args):
     if isinstance(args[0], list):
         src_files, src_dir, dst_dir = args
     elif isinstance(args[0], basestring):
-        src_files, src_dir, dst_dir = args, "/opt/AVTest2", "c:\\AVTest"
+        src_files, src_dir, dst_dir = args, config.basedir_server, config.basedir_av
     else:
         raise RuntimeError("wrong arguments")
 

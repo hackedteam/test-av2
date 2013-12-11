@@ -12,3 +12,9 @@ __box = Box()
 
 verbose = False
 basedir = False
+
+# dispatcher
+skip_to_call = False
+
+basedir_server = "/opt/AVTest2"
+basedir_av = "c:\\AVTest"

@@ -12,16 +12,22 @@ go_on = True
 def on_init(protocol, args):
     pass
 
+from AVCommon import config
 
 def on_answer(vm, success, answer):
     from AVMaster import vm_manager
     logging.debug("CROP answer: %s|%s" % (success, answer))
-    if not answer:
+    if not success:
         logging.warn("We have to PULL images: %s" % answer)
+        dst_dir = "%s/crop" % config.basedir_server
+        if not os.path.exists(dst_dir):
+            os.mkdir(dst_dir)
+
         for src in answer:
-            dst = "%s/%s_%s" %(crop,vm,src)
+            dst = "%s/%s_%s" %(dst_dir,vm,src)
+            src_av = "%s/%s" % (config.basedir_av, src)
             logging.debug("PULL: %s -> %s" % (src, dst))
-            vm_manager.execute(vm, "copyFileFromGuest", src, dst)
+            vm_manager.execute(vm, "copyFileFromGuest",src_av ,dst)
 
 
 def execute(vm, args):
@@ -57,6 +63,8 @@ def grab_loop(vm):
     while go_on:
         iter+=1
         f = crop(iter)
+        if f=="ERROR":
+            return
 
         if f:
             found.append(f)
@@ -71,7 +79,11 @@ def crop(iter):
 
     logging.debug("crop: %s" % iter)
     d1= im1.getdata()
-    im2 = ImageGrab.grab()
+    try:
+        im2 = ImageGrab.grab()
+    except:
+        logging.exception("Cannot grab")
+        return "ERROR"
 
     d2=im2.getdata()
 

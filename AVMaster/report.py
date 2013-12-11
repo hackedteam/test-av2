@@ -14,9 +14,6 @@ from AVCommon.singleton import Singleton
 
 class Cmd:
     def __init__(self, cmd):
-
-        #res = ast.literal_eval("[" + cmd + "]")
-        #if not res:
         res = [ s.strip() for s in cmd.split(',', 4)]
         self.name, self.success, self.ts, self.args, self.result = res
 
@@ -170,7 +167,17 @@ def restore(file_name):
     assert os.path.exists(file_name)
 
     f = open(file_name)
+    lines = []
+    while True:
+        l = f.readline()
+        if not l:
+            break
+        if "lambda" in l:
+            continue
+        lines.append(l)
 
-    r = yaml.load(f)
+    y = "".join(lines)
+
+    r = yaml.load(y)
     Report().init(r)
     return r
