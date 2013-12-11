@@ -1,3 +1,16 @@
+# ------------ FOGLIO DI STILE -------------- #
+
+# 3 livelli: SYSTEM, VM, AGENT
+# SYSTEM: // opzionale START_VM + STOP_VM
+#    - INIT_
+#    - END_
+#    - SYSTEM_
+# VM: // no START_VM, si' opzionale: START_AGENT + STOP_AGENT
+#   - VM
+# AGENT: // no START_VM, no START_AGENT
+#   - AG_
+#   - CHECK_
+#   - *
 
 # ----------- PARTIAL COMMANDS -------------- #
 
@@ -11,7 +24,7 @@ UPLOAD_SKYPE:
         - updates
         - c:/Users/avtest/Desktop
 
-DISPATCH:
+INIT_DISPATCH:
     - INTERNET: False
     - REVERT
     - START_VM
@@ -23,8 +36,7 @@ GET_AV_LOG:
         - c:\\AVTest\\AVAgent
         - logs
 
-
-PUSH_VIRUS:
+VM_PUSH_VIRUS:
     - START_AGENT
     - CROP: True
     - PUSH: [ AVAgent/assets/vira/conficker.dll, AVAgent/assets/vira/eicar.com ]

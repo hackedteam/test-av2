@@ -12,7 +12,7 @@ SET_DEFAULTS:
         frontend: 172.20.100.204
 
 # -------------- BUILD -------------- #
-
+# Requires: START_AGENT
 
 BUILD_DESKTOP:
     - CALL: SET_DEFAULTS
