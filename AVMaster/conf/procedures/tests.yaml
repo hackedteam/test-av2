@@ -27,6 +27,7 @@ TEST_REFRESH:
 
 TEST_ELITE:
     - VM: ['noav']
-    - START_AGENT: 127.0.0.1
+    - START_AGENT:
+        - redis: 127.0.0.1
     - CALL: BUILD_ELITE
     - STOP_AGENT
