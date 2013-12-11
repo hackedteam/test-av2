@@ -14,6 +14,10 @@ SET_DEFAULTS:
 # -------------- BUILD -------------- #
 # Requires: START_AGENT
 
+BUILD_ELITE:
+    - CALL: SET_DEFAULTS
+    - BUILD: [ pull, windows_elite, silent ]
+
 BUILD_DESKTOP:
     - CALL: SET_DEFAULTS
     - PUSH: [ AVAgent/assets/avtest.swf ]

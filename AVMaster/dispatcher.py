@@ -88,7 +88,7 @@ class Dispatcher(object):
                 report.received(c, command.unserialize(msg))
 
                 if answer.success == None:
-                    logging.info("- SERVER IGNORING")
+                    logging.debug("- SERVER IGNORING")
                     continue
 
                 answered += 1
