@@ -62,7 +62,8 @@ class Procedure:
         for name in data.keys():
             command_list = []
             command_data = data[name]
-            logging.debug("new procedure: %s\nargs: %s" % (name, data[name]))
+            if config.verbose:
+                logging.debug("new procedure: %s\nargs: %s" % (name, data[name]))
             for c in command_data:
                 #c = command.factory(c)
                 command_list.append(c)
