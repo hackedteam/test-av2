@@ -205,6 +205,7 @@ class AgentBuild:
                 logging.debug("- Create target: %s" % target)
                 target_id = c.target_create(
                     operation_id, target, 'made by vmavtest at %s' % time.ctime())
+
             factory_id, ident = c.factory_create(
                 operation_id, target_id, self.ftype, factory,
                 'made by vmavtestat at %s' % time.ctime()

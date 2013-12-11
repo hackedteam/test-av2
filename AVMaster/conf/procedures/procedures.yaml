@@ -14,11 +14,11 @@
 
 # ----------- PARTIAL COMMANDS -------------- #
 
-UPLOAD_AGENT:
+AV_UPLOAD_AGENT:
     - PUSH: [ logging.yml, AVAgent/*.py, AVCommon/*.py, AVCommon/commands/client/*.py, AVCommon/commands/meta/*.py, AVCommon/commands/*.py]
     - PUSH: [ AVAgent/assets/config*, AVAgent/assets/keyinject.exe, AVAgent/assets/meltapp.exe ]
 
-UPLOAD_SKYPE:
+AV_UPLOAD_SKYPE:
     - PUSH:
         - [SkypeSetup.exe]
         - updates
@@ -28,13 +28,21 @@ INIT_DISPATCH:
     - INTERNET: False
     - REVERT
     - START_VM
-    - CALL: UPLOAD_AGENT
+    - CALL: AV_UPLOAD_AGENT
 
-GET_AV_LOG:
+END_DISPATCH:
+    - STOP_VM
+
+AV_GET_LOG:
     - PULL:
         - ['avmonitor.log']
         - c:\\AVTest\\AVAgent
         - logs
+
+LOGOUT:
+    - EXECUTE_VM:
+        - c:/Windows/System32/logoff
+    - SLEEP: 120
 
 VM_PUSH_VIRUS:
     - START_AGENT
@@ -50,7 +58,7 @@ VM_PUSH_VIRUS:
 
 # ------------- FULL COMMANDS -------------- #
 
-SCOUT:
+VM_SCOUT:
     - START_AGENT
     - CALL: SET_DEFAULTS
     - CROP: True
@@ -59,7 +67,7 @@ SCOUT:
     - SCREENSHOT
     - STOP_AGENT
 
-ELITE:
+VM_ELITE:
     - START_AGENT
     - CALL: SET_DEFAULTS
     - CROP: True
@@ -71,8 +79,10 @@ ELITE:
         - [ desktop.ini ]
     - SCREENSHOT
     - STOP_AGENT
+    - UNINSTALL
+    - CALL: LOGOUT
 
-MELT:
+VM_MELT:
     - START_AGENT
     - CALL: SET_DEFAULTS
     - CROP: True
@@ -80,9 +90,11 @@ MELT:
     - CROP: False
     - STOP_AGENT
     - SCREENSHOT
+    - UNINSTALL
+    - CALL: LOGOUT
 
-WINDOWS:
-    - CALL: DISPATCH
+SYSTEM_WINDOWS:
+    - CALL: INIT_DISPATCH
     - START_AGENT
     - CALL: SET_DEFAULTS
     - BUILD: [ scout, windows, silent ]
@@ -90,10 +102,18 @@ WINDOWS:
     - BUILD: [ scout, windows, melt ]
     - STOP_AGENT
 
-STATIC:
+VM_STATIC:
+    - START_AGENT
+    - CROP: True
+    - CALL: BUILD_DESKTOP
+    - CALL: BUILD_MOBILE
+    - CALL: BUILD_EXPLOIT
+    - STOP_AGENT
+
+SYSTEM_STATIC:
     - VM_ALL
     - INTERNET: False
-    - CALL: DISPATCH
+    - CALL: INIT_DISPATCH
     - START_AGENT
     - CROP: True
     - REPORT:
@@ -104,11 +124,11 @@ STATIC:
     - STOP_AGENT
     - STOP_VM
 
-STATIC_OSX:
+VM_STATIC_OSX:
     #- VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
     #- SLEEP: [1, 60]
-    #- CALL: DISPATCH
-    - CALL: UPLOAD_AGENT
+    #- CALL: INIT_DISPATCH
+    - CALL: AV_UPLOAD_AGENT
     - START_AGENT
     - CALL: SET_DEFAULTS
     - CROP: True
@@ -117,29 +137,24 @@ STATIC_OSX:
     - STOP_AGENT
     #- STOP_VM
 
-
-REVERT_ALL:
-    - VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
+SYSTEM_REVERT_ALL:
+    - VM_ALL
     - INTERNET: False
     - SLEEP: [1, 60]
     - REVERT
 
-DAILY:
-    #- VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
-    - VM: [ahnlab,avast]
-    - INTERNET: False
-    - REPORT_INIT # generazione Test, status = 0, report.test_id = random()
-    - REPORT_KIND: UPDATE
-    #- CALL: UPDATE_FAST # aggiunge un result kind = UPDATE
-    - SLEEP: 1
-    - CALL: DISPATCH
-    - REPORT_KIND: STATIC_OSX
-    - CALL: STATIC_OSX
-    - REPORT_KIND: ELITE
-    - CALL: ELITE
-    - REPORT_END # chiude il Test con status = 1, genera output
+SYSTEM_DAILY:
+    - VM_ALL
+    #- VM: [ahnlab,avast]
+    - SLEEP: [1, 60]
+    - CALL: INIT_DISPATCH
+    - REPORT:
+        - VM_STATIC
+        - VM_ELITE
+        - VM_MELT
+    - CALL: END_DISPATCH
 
-CHECK_POSITIVE:
+SYSTEM_POSITIVE:
     - VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
     #- VM: [avast,avira,eset,fsecure]
     - INTERNET: False
@@ -147,20 +162,20 @@ CHECK_POSITIVE:
         - DISPATCH
         - PUSH_VIRUS
 
-CHECK_ELITE:
+SYSTEM_ELITE:
     - VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
     #- VM: [trendm,norton,avast]
     - INTERNET: False
     - SLEEP: [1,60]
-    - CALL: DISPATCH
+    - CALL: INIT_DISPATCH
     - REPORT:
         - ELITE
         - STATIC_OSX
         - PUSH_VIRUS
 
-MANUAL_SCOUT:
+AV_SCOUT:
     #- SLEEP: [1, 60]
-    #- CALL: DISPATCH
+    #- CALL: INIT_DISPATCH
     - START_AGENT
     - CALL: SET_DEFAULTS
     - BUILD: [ scout, windows, silent ]

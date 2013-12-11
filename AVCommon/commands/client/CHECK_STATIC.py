@@ -2,6 +2,7 @@ __author__ = 'zeno'
 
 from AVCommon.logger import logging
 import time
+import glob
 
 from AVCommon import command
 from AVAgent import build
@@ -16,6 +17,8 @@ def on_answer(vm, success, answer):
 
 
 def execute(vm, args):
-    failed = build.check_static(args, command.context["report"])
+    files = glob.glob(args)
+    logging.debug("Expanded files: %s" % files)
+    failed = build.check_static(files, command.context["report"])
 
     return failed==[], failed
