@@ -11,6 +11,13 @@ SET_DEFAULTS:
         backend: 192.168.100.201
         frontend: 172.20.100.204
 
+SET_DEFAULTS_FUNCTIONAL:
+    - CALL: SET_BLACKLIST
+    - CALL: SET_BUILD_PARAMS # defined in build_params.yaml
+    - SET:
+        backend: 192.168.100.201
+        frontend: 192.168.100.204
+
 # -------------- BUILD -------------- #
 # Requires: START_AGENT
 
