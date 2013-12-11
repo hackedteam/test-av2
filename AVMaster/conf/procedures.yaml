@@ -322,8 +322,9 @@ CHECK_POSITIVE:
         - PUSH_VIRUS
 
 CHECK_ELITE:
-    - VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
+    #- VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
     #- VM: [avast32,avg32,avira,bitdef,comodo]
+    - VM: [trendm,norton]
     - INTERNET: False
     - SLEEP: [1,60]
     - CALL: DISPATCH
