@@ -14,11 +14,19 @@ TEST_VM:
         - []
 
 TEST_CHAT:
-#    - VM_ALL
+    - CALL: INIT_DISPATCH
+    - START_AGENT: 172.20.20.168
+    - CALL: SET_DEFAULTS_FUNCTIONAL
+    - CROP: False
+    - BUILD: [ pull, windows_elite, silent ]
+    - EXECUTE_VM:
+        - C:/AVTest/AVAgent/build/windows/agent.exe
+    - SLEEP: 60
     - PUSH: [ AVAgent/assets/facebook.bat ]
     - EXECUTE_VM:
          - C:/AVTest/AVAgent/assets/facebook.bat
     - CHECK_EVIDENCES: [chat,fb]
+    - CALL: END_DISPATCH
 
 TEST_REFRESH:
     - STOP_VM
