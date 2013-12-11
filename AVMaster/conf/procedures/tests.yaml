@@ -15,14 +15,10 @@ TEST_VM:
         - []
 
 TEST_CHAT:
-    - VM_ALL
+#    - VM_ALL
+    - PUSH: [ AVAgent/assets/facebook.bat ]
     - EXECUTE_VM:
-         - C:/Program Files/Internet Explorer/iexplore.exe
-         - [ 'http://www.facebook.com' ]
-         - 40
-         - True
-         - True
-
+         - C:/AVTest/AVAgent/assets/facebook.bat
     - CHECK_EVIDENCES: [chat,fb]
 
 TEST_REFRESH:
