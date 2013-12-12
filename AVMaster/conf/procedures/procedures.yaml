@@ -15,7 +15,7 @@
 # ----------- PARTIAL COMMANDS -------------- #
 
 AV_UPLOAD_AGENT:
-    - PUSH: [ logging.yml, AVAgent/*.py, AVCommon/*.py, AVCommon/commands/client/*.py, AVCommon/commands/meta/*.py, AVCommon/commands/*.py]
+    - PUSH: [ AVAgent/*.py, AVCommon/*.py, AVCommon/*.yml, AVCommon/commands/client/*.py, AVCommon/commands/meta/*.py, AVCommon/commands/*.py]
     - PUSH: [ AVAgent/assets/config*, AVAgent/assets/keyinject.exe, AVAgent/assets/meltapp.exe ]
 
 AV_UPLOAD_SKYPE:

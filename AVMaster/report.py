@@ -2,6 +2,7 @@ __author__ = 'fabrizio'
 
 import os
 from AVCommon.logger import logging
+from AVCommon import logger
 import pickle
 import yaml
 import time
@@ -160,7 +161,7 @@ def received(av, command):
 def dump():
     report = Report()
 
-    f=open("report.%s.%s.log" % (report.timestamp, report.name), "w+")
+    f=open("%s/report.%s.%s.log" % (logger.logdir, report.timestamp, report.name), "w+")
     f.write(yaml.dump(report, default_flow_style=False, indent=4))
 
 def restore(file_name):

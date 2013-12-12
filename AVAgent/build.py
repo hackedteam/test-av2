@@ -131,6 +131,8 @@ class connection:
     user = "avmonitor"
     passwd = "avmonitorp123"
 
+    rcs=[]
+    instance_id = None
 
     def __enter__(self):
         logging.debug("DBG login %s@%s" % (self.user, self.host))
@@ -223,7 +225,7 @@ class AgentBuild:
 
             return (target, factory_id, ident)
 
-    def _build_agent(self, factory, melt=None, kind="silent", demo=False, tries=0):
+    def _build_agent(self, factory, melt=None, kind="silent",tries=0):
         with connection() as c:
 
             try:
@@ -261,7 +263,7 @@ class AgentBuild:
                 if tries <= 3:
                     tries += 1
                     logging.debug("DBG problem building scout. tries number %s" % tries)
-                    return self._build_agent(factory, melt, kind, demo, tries)
+                    return self._build_agent(factory, melt, kind, tries)
                 else:
                     add_result("+ ERROR SCOUT BUILD AFTER %s BUILDS" % tries)
                     raise err
@@ -321,7 +323,7 @@ class AgentBuild:
             # self._
             return None
 
-    def _check_elite(self, instance_id):
+    def _check_elite(self, instance_id=connection.instance_id):
         with connection() as c:
             info = c.instance_info(instance_id)
             logging.debug('DBG _check_elite %s' % info)
@@ -334,11 +336,11 @@ class AgentBuild:
 
             return ret
 
-    def _uninstall(self, instance_id):
+    def uninstall(self, instance_id=connection.instance_id):
         with connection() as c:
             c.instance_close(instance_id)
 
-    def _upgrade_elite(self, instance_id):
+    def _upgrade_elite(self, instance_id=connection.instance_id):
         with connection() as c:
             ret = c.instance_upgrade(instance_id)
             logging.debug("DBG _upgrade_elite: %s" % ret)
@@ -389,15 +391,18 @@ class AgentBuild:
 
     def execute_elite(self):
         """ build scout and upgrade it to elite """
-        instance = self.execute_scout()
+        instance_id = self.execute_scout()
+        connection.instance_id = instance_id
 
-        if not instance:
+        if not instance_id:
             logging.debug("- exiting execute_elite because did't sync")
 
             return
 
+        assert connection.instance_id
+
         logging.debug("- Try upgrade to elite")
-        upgradable = self._upgrade_elite(instance)
+        upgradable = self._upgrade_elite(instance_id)
 
         logging.debug("DBG %s in %s" % (self.hostname, self.blacklist))
         if not upgradable:
@@ -414,12 +419,12 @@ class AgentBuild:
         logging.debug("- Elite, Wait for 25 minutes: %s" % time.ctime())
         sleep(25 * 60)
 
-        elite = self._check_elite(instance)
+        elite = self._check_elite(instance_id)
         if elite:
             add_result("+ SUCCESS ELITE INSTALL")
             logging.debug("- Elite, wait for 4 minute then uninstall: %s" % time.ctime())
             sleep(60 * 2)
-            self._uninstall(instance)
+            self.uninstall(instance_id)
             sleep(60 * 2)
             add_result("+ SUCCESS ELITE UNINSTALLED")
         else:
@@ -488,7 +493,7 @@ class AgentBuild:
         #        add_result("+ kiiiiiiiind %s" % self.kind)
 
         meltfile = self.param.get('meltfile',None)
-        exe = self._build_agent(factory_id, meltfile, self.kind)
+        exe = self._build_agent(factory_id, melt=meltfile, kind=self.kind)
 
         if "exploit_" in self.platform:
             if self.platform == 'exploit_docx':

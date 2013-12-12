@@ -20,15 +20,15 @@ def on_answer(vm, success, answer):
     if not success:
         logging.warn("We have to PULL images: %s" % answer)
         dst_dir = "%s/crop" % config.basedir_server
-        if not os.path.exists(dst_dir):
-            os.mkdir(dst_dir)
 
         for src in answer:
             dst = "%s/%s_%s" %(dst_dir,vm,src)
+            if not os.path.exists(dst):
+                os.mkdirs(dst)
+
             src_av = "%s/%s" % (config.basedir_av, src)
             logging.debug("PULL: %s -> %s" % (src, dst))
             vm_manager.execute(vm, "copyFileFromGuest",src_av ,dst)
-
 
 def execute(vm, args):
     from PIL import ImageGrab

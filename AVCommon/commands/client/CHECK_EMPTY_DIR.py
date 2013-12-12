@@ -14,7 +14,7 @@ def on_answer(vm, success, answer):
 
 def execute(vm, args):
     from AVAgent import build
-    logging.debug("    CS CHECK_EMPTY_DIR:  %s,%s" % (vm, args))
+    logging.debug("    CS CHECK_EMPTY_DIR:  %s,%s" % (vm, str(args)))
 
     assert isinstance(args, list)
     dirs, whitelist = args
@@ -35,7 +35,7 @@ def execute(vm, args):
             files_remained=l.difference(wl)
 
             if l and wl and not files_remained:
-                logging.debug("all the files are whitelist: " % l)
+                logging.debug("all the files are whitelist: %s" % l)
 
             if not files_remained:
                 success |= True

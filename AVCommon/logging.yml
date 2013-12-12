@@ -13,7 +13,7 @@ handlers:
     class: logging.handlers.RotatingFileHandler
     level: DEBUG
     formatter: simpleFormatter
-    filename: avmonitor.log
+    filename: ../logs/avmonitor.log
     maxBytes: 0
     backupCount: 3
 loggers:
