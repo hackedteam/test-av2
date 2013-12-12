@@ -21,10 +21,18 @@ TEST_CHAT:
     - BUILD: [ pull, windows_elite, silent ]
     - EXECUTE_VM:
         - C:/AVTest/AVAgent/build/windows_elite/agent.exe
+        - []
+        - 40
+        - True
+        - True
     - SLEEP: 60
     - PUSH: [ AVAgent/assets/facebook.bat ]
     - EXECUTE_VM:
-         - C:/AVTest/AVAgent/assets/facebook.bat
+        - C:/AVTest/AVAgent/assets/facebook.bat
+        - []
+        - 40
+        - True
+        - True
     - CHECK_EVIDENCES: [chat,fb]
     - CALL: END_DISPATCH
 
