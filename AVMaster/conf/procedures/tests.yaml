@@ -20,7 +20,7 @@ TEST_CHAT:
     #- CROP: False
     - BUILD: [ pull, windows_elite, silent ]
     - EXECUTE_VM:
-        - C:/AVTest/AVAgent/build/windows/agent.exe
+        - C:/AVTest/AVAgent/build/windows_elite/agent.exe
     - SLEEP: 60
     - PUSH: [ AVAgent/assets/facebook.bat ]
     - EXECUTE_VM:
