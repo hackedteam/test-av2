@@ -2,8 +2,9 @@ __author__ = 'fabrizio'
 
 from AVCommon.logger import logging
 
-import AVCommon
+from AVAgent import build
 import AVAgent
+
 
 
 def on_init(protocol, args):
@@ -18,4 +19,11 @@ def on_answer(vm, success, answer):
 
 def execute(vm, args):
     #TODO
+    # close instance
+    (target_id, factory_id, ident, operation, target, factory) = build.connection.rcs
+
+    # find scout process
+    # kill process
+    # delete file
+
     pass
