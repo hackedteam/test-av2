@@ -144,19 +144,25 @@ class connection:
         logging.debug("DBG logout")
         self.conn.logout()
 
+def get_target_name():
+    return 'VM_%s' % get_hostname()
+
+def get_hostname():
+    host = socket.gethostname()
+    drop = ["winxp","win7","win8"]
+    for d in drop:
+        host = host.replace(d, "")
+
+    return host
 
 class AgentBuild:
     def __init__(self, backend, frontend=None, platform='windows', kind='silent',
                  ftype='desktop', blacklist=[], param=None):
         self.kind = kind
         self.host = (backend, frontend)
-        if "winxp" in socket.gethostname():
-            self.hostname = socket.gethostname().replace("winxp", "")
-        elif "win7" in socket.gethostname():
-            self.hostname = socket.gethostname().replace("win7", "")
-        else:
-            self.hostname = socket.gethostname().replace("win8", "")
-        #        self.hostname = socket.gethostname()
+
+        self.hostname = get_hostname()
+
         self.blacklist = blacklist
         self.platform = platform
         self.ftype = ftype
@@ -468,7 +474,7 @@ class AgentBuild:
 
         logging.debug("- Host: %s %s\n" % (self.hostname, time.ctime()))
         operation = 'AVMonitor'
-        target = 'VM_%s' % self.hostname
+        target = get_target_name()
         # desktop_exploit_melt, desktop_scout_
         factory = '%s_%s_%s_%s' % (
             self.hostname, self.ftype, self.platform, self.kind)

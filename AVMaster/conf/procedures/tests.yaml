@@ -35,7 +35,8 @@ TEST_CHAT:
         - True
         - True
     - SLEEP: 120
-    - CHECK_EVIDENCES: [chat,facebook]
+    - CHECK_EVIDENCES: [chat, program, facebook]
+    - CHECK_EVIDENCES: [device]
     - CALL: END_DISPATCH
 
 TEST_REFRESH:
@@ -52,12 +53,14 @@ TEST_EMPTY:
 
 TEST_EVIDENCE:
     - VM: ['funvm']
-    - CALL: INIT_DISPATCH
-    #- CALL: AV_PUSH_AGENT
-    - START_AGENT
+    #- CALL: INIT_DISPATCH
+    - CALL: AV_PUSH_AGENT
+    - START_AGENT: 172.20.20.168
     - CALL: SET_SERVERS
-    - CHECK_EVIDENCES: [chat,facebook,avtagent]
+    - CHECK_EVIDENCES: [device]
+    - CHECK_EVIDENCES: [chat,program,facebook]
     - STOP_AGENT
+    - CALL: AV_GET_LOG
 
 TEST_ELITE:
     #- VM: ['noav']

@@ -135,7 +135,7 @@ class Rcs_client:
     def operation(self, operation):
         """ gets the operation id of an operation """
         operations = self._call_get('operation')
-        logging.debug("DBG operation: %s" % operations)
+        #logging.debug("DBG operation: %s" % operations)
         ret = [(op['_id'], op['group_ids'][0])
                for op in operations if op['name'] == operation]
         return ret[0] if ret else (None, None)
@@ -143,6 +143,7 @@ class Rcs_client:
     def targets(self, operation_id, target=None):
         """ gets the targets id of an operation, matching the target name """
         targets = self._call_get('target')
+        #logging.debug("targets: %s" % targets)
         #pp = pprint.PrettyPrinter(indent=4)
         # pp.pprint(targets)
         if target:
@@ -154,7 +155,7 @@ class Rcs_client:
         return ret
 
     def all_factories(self):
-        """ gets the factories of an operation, matching the target id """
+        """ gets the factories """
         factories = self._call_get('factory')
 
         # pp.pprint(factories)
@@ -175,17 +176,27 @@ class Rcs_client:
     def instances(self, ident):
         """ gets the instances id of an operation, matching the ident """
         agents = self._call_get('agent')
+        # instances: [{u'status': u'open', u'scout': False, u'good': True, u'name': u'avtagent_desktop_windows_elite_silent (1)', u'platform': u'windows', u'demo': False, u'_kind': u'agent', u'stat': {u'grid_size': 183088, u'last_sync': 1386874247, u'source': u'172.20.20.151', u'user': u'avtest', u'device': u'AVTAGENT', u'last_sync_status': 0, u'size': 34599}, u'upgradable': False, u'instance': u'7f198461c7ce800381480345cc5d8617b3015c89', u'ident': u'RCS_0000057058', u'version': 2013103102, u'path': [u'51224a314e091305b800005d', u'52a895cc4e0913f2e600b406'], u'_id': u'52aa04d14e0913a56300c604', u'type': u'desktop', u'desc': u'made by vmavtestat at Thu Dec 12 19:46:32 2013'}]
         # pp.pprint(agents)
-        ret = [op['_id']
-               for op in agents if ident in op['ident'] and op['_kind'] == 'agent']
+        ret = [op['_id'] for op in agents if ident in op['ident'] and op['_kind'] == 'agent']
+        return ret
+
+    def instances_by_target_id(self, target_id):
+        """ gets the instances id of an operation, matching the ident """
+        logging.debug("lookin for instances with target: %s" % target_id)
+        agents = self._call_get('agent')
+        logging.debug("agents: %s" % agents)
+        #pp.pprint(agents)
+        ret = [op for op in agents if target_id in op['path'] and op['_kind'] == 'agent']
         return ret
 
     def instances_by_name(self, name):
         """ gets the instances id of an operation, matching the ident """
+        logging.debug("lookin for instances with target: %s" % name)
         agents = self._call_get('agent')
-        # pp.pprint(agents)
-        ret = [op
-               for op in agents if name in op['name'] and op['_kind'] == 'agent']
+        logging.debug("agents: %s" % agents)
+        #pp.pprint(agents)
+        ret = [op for op in agents if name in op['name'] and op['_kind'] == 'agent']
         return ret
 
     def agents(self, target_id):
@@ -317,8 +328,6 @@ class Rcs_client:
         result = json.loads(resp)
         logging.debug("results: " % result)
         return result
-
-
 
 
     def build(self, factory, params, out_file):

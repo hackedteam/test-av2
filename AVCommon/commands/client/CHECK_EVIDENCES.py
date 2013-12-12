@@ -15,30 +15,28 @@ def on_answer(vm, success, answer):
 def execute(vm, args):
     from AVAgent import build
 
-    #target = command.context["target"]
-    #agent = command.context["agent"]
+    type_ev = args.pop(0)
+    key, value = None, None
+    if args:
+        key, value = args
 
-    type_ev, prog = args[0:2]
-    target = None
-    #target = 'VM_%s' % self.hostname
+    target = build.get_target_name()
 
-    if len(args)>2:
-        target = args[2]
-
-    logging.debug("type_ev:%s, filter: %s" % (type_ev, prog))
+    logging.debug("target: %s, type_ev: %s, filter: %s=%s" % (target, type_ev, key, value))
     ret = []
 
     backend = command.context["backend"]
-    build.connection.host=backend
+    build.connection.host = backend
     with build.connection() as client:
         logging.debug("connected")
 
-        if not target:
-            logging.debug("rcs: %s" % (str(build.connection.rcs)))
-            target_id, factory_id, ident, operation, target, factory = build.connection.rcs
+        operation_id, group_id = client.operation('AVMonitor')
+        targets = client.targets(operation_id, target)
+        if len(targets) != 1:
+            return False, "not one target: %s" % len(targets)
 
-
-        instances = client.instances_by_name(target)
+        target_id = targets[0]
+        instances = client.instances_by_target_id(target_id)
         logging.debug("found these instances: %s" % instances)
         if len(instances) != 1:
             return False, "not one instance: %s" % len(instances)
@@ -50,9 +48,11 @@ def execute(vm, args):
         evidences = client.evidences(target_id, instance_id, "type", type_ev)
         for ev in evidences:
             content = ev['data']['content']
-            program = ev['data']['program']
-            logging.debug("got evidence: %s: %s" %(program, content))
-            if prog == program:
-                return True, "%s: %s" %(program, content)
-
+            logging.debug("got evidence")
+            if key:
+                v = ev['data'][key]
+                if v == value:
+                    return True, "%s: %s -> %s" %(type_ev, key, value)
+            else:
+                return True, "%s" %(type_ev)
     return False, ret
