@@ -1,10 +1,21 @@
+core:
+    - send procedure and vm in the execute, as first arg
+    - verify why sometimes dispatcher doesn't end correctly, especially when many vms are involved.
+
+build:
+    - logout to speedup elite upgrade
+    - work on CHECK_EVIDENCES
+    - add KILL_AGENT (client, find and kill agent process)
+
+report:
+    - integrate sqlite and alchemy
+    - download crop with procedure in the name
 
 VMWARE
- - autologin
- - vmrun / sdk per sbloccare il login
+    - vmrun / sdk per sbloccare il login
 
 update:
- - monday manual update
- - disable system autoupdate ?
- - autoupdate only on sunday night.
+    - monday manual update
+    - disable system autoupdate ?
+    - autoupdate only on sunday night.
 
