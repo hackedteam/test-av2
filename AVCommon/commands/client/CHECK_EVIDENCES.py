@@ -20,7 +20,7 @@ def execute(vm, args):
 
     type_ev, filter = args
 
-    logging.debug("type_ev, filter: %s" % (type_ev, filter))
+    logging.debug("type_ev:%s, filter: %s" % (type_ev, filter))
     ret = []
     with build.connection() as client:
         logging.debug("connected")
