@@ -19,7 +19,9 @@ def execute(vm, args):
     #agent = command.context["agent"]
 
     type_ev, prog = args[0:2]
-    ident = None
+    target = None
+    #target = 'VM_%s' % self.hostname
+
     if len(args)>2:
         target = args[2]
 

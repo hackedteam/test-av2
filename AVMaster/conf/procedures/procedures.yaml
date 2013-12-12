@@ -14,7 +14,7 @@
 
 # ----------- PARTIAL COMMANDS -------------- #
 
-AV_UPLOAD_AGENT:
+AV_PUSH_AGENT:
     - PUSH: [ AVAgent/*.py, AVCommon/*.py, AVCommon/*.yml, AVCommon/commands/client/*.py, AVCommon/commands/meta/*.py, AVCommon/commands/*.py]
     - PUSH: [ AVAgent/assets/config*, AVAgent/assets/keyinject.exe, AVAgent/assets/meltapp.exe ]
 
@@ -28,7 +28,7 @@ INIT_DISPATCH:
     - INTERNET: False
     - REVERT
     - START_VM
-    - CALL: AV_UPLOAD_AGENT
+    - CALL: AV_PUSH_AGENT
 
 END_DISPATCH:
     - STOP_VM
@@ -128,7 +128,7 @@ VM_STATIC_OSX:
     #- VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
     #- SLEEP: [1, 60]
     #- CALL: INIT_DISPATCH
-    - CALL: AV_UPLOAD_AGENT
+    - CALL: AV_PUSH_AGENT
     - START_AGENT
     - CALL: SET_DEFAULTS
     - CROP: True

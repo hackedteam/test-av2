@@ -15,6 +15,7 @@ TEST_VM:
 
 TEST_CHAT:
     - CALL: INIT_DISPATCH
+    #- CALL: AV_PUSH_AGENT
     - START_AGENT: 172.20.20.168
     - CALL: SET_DEFAULTS_FUNCTIONAL
     #- CROP: False
@@ -34,7 +35,7 @@ TEST_CHAT:
         - True
         - True
     - SLEEP: 120
-    - CHECK_EVIDENCES: [chat,fb]
+    - CHECK_EVIDENCES: [chat,facebook]
     - CALL: END_DISPATCH
 
 TEST_REFRESH:
@@ -50,9 +51,9 @@ TEST_EMPTY:
     - STOP_AGENT
 
 TEST_EVIDENCE:
-    - VM: ['noav']
-    #- CALL: INIT_DISPATCH
-    - CALL: AV_UPLOAD_AGENT
+    - VM: ['funvm']
+    - CALL: INIT_DISPATCH
+    #- CALL: AV_PUSH_AGENT
     - START_AGENT
     - CALL: SET_SERVERS
     - CHECK_EVIDENCES: [chat,facebook,avtagent]
@@ -60,7 +61,7 @@ TEST_EVIDENCE:
 
 TEST_ELITE:
     #- VM: ['noav']
-    #- CALL: AV_UPLOAD_AGENT
+    #- CALL: AV_PUSH_AGENT
     - START_AGENT
     - CALL: BUILD_ELITE
     - STOP_AGENT
