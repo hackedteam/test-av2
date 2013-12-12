@@ -41,7 +41,8 @@ TEST_EMPTY:
     - STOP_AGENT
 
 TEST_ELITE:
-    - VM: ['noav']
+    #- VM: ['noav']
+    #- CALL: AV_UPLOAD_AGENT
     - START_AGENT
     - CALL: BUILD_ELITE
     - STOP_AGENT
