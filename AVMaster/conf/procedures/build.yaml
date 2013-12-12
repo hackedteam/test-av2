@@ -4,12 +4,15 @@ SET_BLACKLIST:
     - SET:
         blacklist: [bitdef,comodo,gdata,drweb,emsisoft,sophos,360cn,kis32,avg,avg32,avast32]
 
-SET_DEFAULTS:
-    - CALL: SET_BLACKLIST
-    - CALL: SET_BUILD_PARAMS # defined in build_params.yaml
+SET_SERVERS:
     - SET:
         backend: 192.168.100.201
         frontend: 172.20.100.204
+
+SET_DEFAULTS:
+    - CALL: SET_BLACKLIST
+    - CALL: SET_BUILD_PARAMS # defined in build_params.yaml
+    - CALL: SET_SERVERS
 
 SET_DEFAULTS_FUNCTIONAL:
     - CALL: SET_BLACKLIST

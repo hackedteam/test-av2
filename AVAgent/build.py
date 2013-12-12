@@ -132,7 +132,6 @@ class connection:
     passwd = "avmonitorp123"
 
     rcs=[]
-    instance_id = None
 
     def __enter__(self):
         logging.debug("DBG login %s@%s" % (self.user, self.host))
@@ -223,7 +222,7 @@ class AgentBuild:
             with open('build/config.actual.json', 'wb') as f:
                 f.write(conf)
 
-            return (target, factory_id, ident)
+            return (target_id, factory_id, ident)
 
     def _build_agent(self, factory, melt=None, kind="silent",tries=0):
         with connection() as c:
@@ -302,7 +301,7 @@ class AgentBuild:
         subp = subprocess.Popen(['assets/keyinject.exe'])
         wait_timeout(subp, timeout)
 
-    def _check_instance(self, ident):
+    def check_instance(self, ident):
         with connection() as c:
             instances = c.instances(ident)
             logging.debug("DBG instances: %s" % instances)
@@ -323,7 +322,7 @@ class AgentBuild:
             # self._
             return None
 
-    def _check_elite(self, instance_id=connection.instance_id):
+    def _check_elite(self, instance_id):
         with connection() as c:
             info = c.instance_info(instance_id)
             logging.debug('DBG _check_elite %s' % info)
@@ -336,11 +335,11 @@ class AgentBuild:
 
             return ret
 
-    def uninstall(self, instance_id=connection.instance_id):
+    def uninstall(self, instance_id):
         with connection() as c:
             c.instance_close(instance_id)
 
-    def _upgrade_elite(self, instance_id=connection.instance_id):
+    def _upgrade_elite(self, instance_id):
         with connection() as c:
             ret = c.instance_upgrade(instance_id)
             logging.debug("DBG _upgrade_elite: %s" % ret)
@@ -392,14 +391,11 @@ class AgentBuild:
     def execute_elite(self):
         """ build scout and upgrade it to elite """
         instance_id = self.execute_scout()
-        connection.instance_id = instance_id
 
         if not instance_id:
             logging.debug("- exiting execute_elite because did't sync")
 
             return
-
-        assert connection.instance_id
 
         logging.debug("- Try upgrade to elite")
         upgradable = self._upgrade_elite(instance_id)
@@ -452,7 +448,7 @@ class AgentBuild:
             logging.debug("- Scout, wait for 1 minute: %s" % time.ctime())
             sleep(60 * 1)
 
-            instance = self._check_instance(ident)
+            instance = self.check_instance(ident)
             if instance:
                 break
 

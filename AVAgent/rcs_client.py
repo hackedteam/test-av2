@@ -180,6 +180,14 @@ class Rcs_client:
                for op in agents if ident in op['ident'] and op['_kind'] == 'agent']
         return ret
 
+    def instances_by_name(self, name):
+        """ gets the instances id of an operation, matching the ident """
+        agents = self._call_get('agent')
+        # pp.pprint(agents)
+        ret = [op
+               for op in agents if name in op['name'] and op['_kind'] == 'agent']
+        return ret
+
     def agents(self, target_id):
         """ gets the agents (agents and factories) of an operation, matching the target id """
         agents = self._call_get('agent')
@@ -285,12 +293,17 @@ class Rcs_client:
         return self._call('agent/destroy', data)
         # logging.debug(resp)
 
+    def _evidences(self, target):
+        pass
+
     def evidences(self, target_id, instance_id, filter_type=None, filter_value=None):
         """ Get evidences of given agent and target
         @param target
         @param agent
         @param type (if None all types should be returned)
         """
+
+        logging.debug("evidences: %s,%s,%s,%s" %(target_id, instance_id, filter_type, filter_value))
         if filter_type and filter_value:
             f = {filter_type: filter_value, "target": target_id, "agent": instance_id}
         else:
@@ -302,7 +315,7 @@ class Rcs_client:
 
         resp = self._get_response(link, self.cookie)
         result = json.loads(resp)
-        logging.debug(result)
+        logging.debug("results: " % result)
         return result
 
 

@@ -49,6 +49,15 @@ TEST_EMPTY:
         - [ desktop.ini ]
     - STOP_AGENT
 
+TEST_EVIDENCE:
+    - VM: ['noav']
+    #- CALL: INIT_DISPATCH
+    - CALL: AV_UPLOAD_AGENT
+    - START_AGENT
+    - CALL: SET_SERVERS
+    - CHECK_EVIDENCES: [chat,facebook,avtagent]
+    - STOP_AGENT
+
 TEST_ELITE:
     #- VM: ['noav']
     #- CALL: AV_UPLOAD_AGENT

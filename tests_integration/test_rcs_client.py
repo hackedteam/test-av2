@@ -5,11 +5,56 @@ sys.path.append(os.path.split(os.getcwd())[0])
 sys.path.append(os.getcwd())
 
 from AVAgent import rcs_client
+from AVCommon.logger import logging
 import traceback
 import unittest
 
 import socket
 import time
+
+
+def testEvidences():
+    logging.debug('test')
+    host = "rcs-minotauro"
+    user = "avmonitor"
+    passwd = "avmonitorp123"
+    conn = rcs_client.Rcs_client(host, user, passwd)
+    logging.debug(conn.login())
+
+    target = 'VM_avtagent'
+    ident = 'RCS_0000057054'
+    operation_id, group_id = conn.operation('AVMonitor')
+    targets = conn.targets(operation_id, target)
+
+    for target_id in targets:
+        logging.debug("target_id: %s" % target_id)
+        factories = conn.factories(target_id)
+        logging.debug("  factories: %s" % factories)
+        #for fac in [a for a,i in factories if i == ident]:
+        #    logging.debug("  factories: %s" % fac)
+
+    instances = conn.instances_by_name("avtagent")
+    logging.debug('instances: %s' % instances)
+
+    instance = instances[0]
+    instance_id = instance['_id']
+    target_id = instance['path'][1]
+
+    evidences_d = conn.evidences(target_id, instance_id, "type", "device")
+
+    evidences = conn.evidences(target_id, instance_id, "type", "chat")
+
+    prog = "facebook"
+    for ev in evidences:
+        content = ev['data']['content']
+        program = ev['data']['program']
+        logging.debug("got evidence: %s: %s" %(program, content))
+        if prog == program:
+            logging.info("GOT IT!")
+            break
+
+
+    conn.logout()
 
 def testMelt():
     logging.debug('test')
@@ -205,7 +250,7 @@ class TestRcsClient(unittest.TestCase):
         self.assertEqual(ret[0][1], factory_ident)
         #
 
-
 if __name__ == "__main__":
 
-    unittest.main()
+    #unittest.main()
+    testEvidences()

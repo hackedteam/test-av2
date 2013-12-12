@@ -15,7 +15,7 @@ verbose = False
 basedir = False
 
 # dispatcher
-skip_to_call = False
+skip_to_call = True
 
 #basedir_server = "/opt/AVTest2"
 basedir_server = package.basedir

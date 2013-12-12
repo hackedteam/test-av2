@@ -2,6 +2,7 @@
 # COMPLETE COMMANDS
 
 UPDATE:
+    - SKIP_TO_CALL: False
     - INTERNET: False
     - REVERT
     - SLEEP: [0, 600]
@@ -20,6 +21,7 @@ UPDATE:
     - REFRESH_SNAPSHOT
 
 UPDATE_PYTHON:
+    - SKIP_TO_CALL: False
     - REVERT
     - START_VM
     - INTERNET: True
@@ -38,6 +40,7 @@ UPDATE_PYTHON:
 UPDATE_REG:
     #- VM: [360cn,ahnlab,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm]
     - VM: [mbytes,ahnlab]
+    - SKIP_TO_CALL: False
     - INTERNET: False
     - REVERT
     - SLEEP: [ 1, 120 ]
@@ -53,6 +56,7 @@ UPDATE_REG:
 UPDATE_FAST:
 #    - VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
     - VM: [360cn,avast32]
+    - SKIP_TO_CALL: False
     - INTERNET: True
     - SLEEP: [0, 60]
     - REVERT

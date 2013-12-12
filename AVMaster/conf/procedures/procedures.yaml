@@ -36,7 +36,7 @@ END_DISPATCH:
 AV_GET_LOG:
     - PULL:
         - ['avmonitor.log']
-        - c:\\AVTest\\AVAgent
+        - c:\\AVTest\\logs
         - logs
 
 LOGOUT:
