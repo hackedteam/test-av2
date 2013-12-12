@@ -33,7 +33,7 @@ TEST_CHAT:
         - 40
         - True
         - True
-    - SLEEP: 60
+    - SLEEP: 120
     - CHECK_EVIDENCES: [chat,fb]
     - CALL: END_DISPATCH
 
