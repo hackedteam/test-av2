@@ -5,19 +5,19 @@ SET_BUILD_PARAMS:
           build_parameters:
                 linux:
                   platform_type: desktop
-                  binary: {admin: false, demo: true}
+                  binary: {admin: false, demo: false}
                   melt: {}
                   platform: linux
                   package: {}
                 osx:
                   platform_type: desktop
-                  binary: {admin: true, demo: true}
+                  binary: {admin: true, demo: false}
                   melt: {}
                   platform: osx
                   package: {}
                 windows:
                   platform_type: desktop
-                  binary: {admin: false, demo: true}
+                  binary: {admin: false, demo: false}
                   melt: {admin: false, bit64: true, codec: true, scout: true}
                   platform: windows
                   meltfile: assets/meltapp.exe
@@ -25,7 +25,7 @@ SET_BUILD_PARAMS:
                   package: {}
                 windows_elite:
                   platform_type: desktop
-                  binary: {admin: false, demo: true}
+                  binary: {admin: false, demo: false}
                   melt: {admin: false, bit64: true, codec: true, scout: false}
                   platform: windows
                   meltfile: assets/meltapp.exe
@@ -33,21 +33,21 @@ SET_BUILD_PARAMS:
                   package: {}
                 android:
                   platform_type: mobile
-                  binary: {admin: false, demo: true}
+                  binary: {admin: false, demo: false}
                   melt: {}
                   platform: android
                   sign: {}
                   package: {}
                 blackberry:
                   platform_type: mobile
-                  binary: {demo: true}
+                  binary: {demo: false}
                   melt: {appname: facebook, desc: Applicazione utilissima di social network, name: Facebook
                       Application, vendor: face inc, version: 1.2.3}
                   package: {}
                   platform: blackberry
                 ios:
                   platform_type: mobile
-                  binary: {demo: true}
+                  binary: {demo: false}
                   melt: {}
                   platform: ios
                   package: {type: local}

@@ -223,7 +223,7 @@ class AgentBuild:
 
             return (target, factory_id, ident)
 
-    def _build_agent(self, factory, melt=None, kind="silent", demo=False, tries=0):
+    def _build_agent(self, factory, melt=None, kind="silent",tries=0):
         with connection() as c:
 
             try:
@@ -261,7 +261,7 @@ class AgentBuild:
                 if tries <= 3:
                     tries += 1
                     logging.debug("DBG problem building scout. tries number %s" % tries)
-                    return self._build_agent(factory, melt, kind, demo, tries)
+                    return self._build_agent(factory, melt, kind, tries)
                 else:
                     add_result("+ ERROR SCOUT BUILD AFTER %s BUILDS" % tries)
                     raise err
@@ -488,7 +488,7 @@ class AgentBuild:
         #        add_result("+ kiiiiiiiind %s" % self.kind)
 
         meltfile = self.param.get('meltfile',None)
-        exe = self._build_agent(factory_id, meltfile, self.kind)
+        exe = self._build_agent(factory_id, melt=meltfile, kind=self.kind)
 
         if "exploit_" in self.platform:
             if self.platform == 'exploit_docx':
