@@ -37,7 +37,7 @@ TEST_CHAT:
     - SLEEP: 120
     - CHECK_EVIDENCES: [chat, program, facebook]
     - CHECK_EVIDENCES: [device]
-    - CALL: END_DISPATCH
+    #- CALL: END_DISPATCH
 
 TEST_REFRESH:
     - STOP_VM

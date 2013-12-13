@@ -21,12 +21,13 @@ def execute(vm, args):
         logging.info("shutting down with timeout %s." % timeout)
 
         vm_manager.execute(vm, "executeCmd","C:/Windows/System32/shutdown.exe",["/s"], timeout, False, True)
-        for i in range(0,timeout):
+
+        for i in range(0,timeout,tick):
             sleep(tick)
             if vm_manager.execute(vm, "is_powered_off"):
                 off = True
                 break
-            i+=tick
+
         if off:
             return True, "Stopped VM"
         else:
