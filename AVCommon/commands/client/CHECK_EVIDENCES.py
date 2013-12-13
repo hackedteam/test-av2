@@ -46,13 +46,18 @@ def execute(vm, args):
         target_id = instance['path'][1]
 
         evidences = client.evidences(target_id, instance_id, "type", type_ev)
-        for ev in evidences:
-            content = ev['data']['content']
-            logging.debug("got evidence")
-            if key:
+        number = 0
+        if key:
+            for ev in evidences:
+                #content = ev['data']['content']
+                logging.debug("got evidence")
+
                 v = ev['data'][key]
                 if v == value:
-                    return True, "%s: %s -> %s" %(type_ev, key, value)
-            else:
-                return True, "%s" %(type_ev)
+                    number+=1
+                    logging.debug( "evidence %s: %s -> %s" %(type_ev, key, value))
+        else:
+            number = len(evidences)
+
+        return number > 0, number
     return False, ret

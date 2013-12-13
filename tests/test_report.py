@@ -23,8 +23,6 @@ def test_report_extract():
     assert r.c_received
     assert r.c_sent
 
-
-
     report.clean()
 
 
@@ -88,5 +86,5 @@ TEST_REPORT:
 if __name__=="__main__":
 
     test_report_extract()
-    test_report_load()
-    test_report_meta()
+    #test_report_load()
+    #test_report_meta()

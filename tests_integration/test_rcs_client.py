@@ -50,11 +50,11 @@ def testEvidences():
     evidences_all = conn.evidences(target_id, instance_id)
     evidences_f =   conn.evidences(target_id, instance_id, "aid", instance_id)
 
-    prog = "facebook"
-    for ev in evidences:
-        content = ev['data']['content']
+    prog = "skype"
+    for ev in evidences_a:
+        #content = ev['data']['content']
         program = ev['data']['program']
-        logging.debug("got evidence: %s: %s" %(program, content))
+        logging.debug("got evidence: %s: %s" %(program, ev))
         if prog == program:
             logging.info("GOT IT!")
             break

@@ -129,7 +129,7 @@ def report():
                     if cmd.success == 'False':
                         summary+="    %s\n" % c
                     elif cmd.name=="BUILD" and cmd.success == 'None':
-                        check = ['+ ERROR','+ FAILED','+ END']
+                        check = ['+ ERROR','+ FAILED']
                         errors = any([ s in c for s in check ])
                         if errors:
                             summary+="    %s\n" % (c)
