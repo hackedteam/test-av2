@@ -10,7 +10,7 @@ found = []
 go_on = True
 
 def on_init(protocol, args):
-    pass
+    return True
 
 from AVCommon import config
 
@@ -18,13 +18,16 @@ def on_answer(vm, success, answer):
     from AVMaster import vm_manager
     logging.debug("CROP answer: %s|%s" % (success, answer))
     if not success:
+        if not answer or not isinstance(answer, list) :
+            return
+
         logging.warn("We have to PULL images: %s" % answer)
         dst_dir = "%s/crop" % config.basedir_server
 
         for src in answer:
             dst = "%s/%s_%s" %(dst_dir,vm,src)
             if not os.path.exists(dst):
-                os.mkdirs(dst)
+                os.makedirs(dst)
 
             src_av = "%s/%s" % (config.basedir_av, src)
             logging.debug("PULL: %s -> %s" % (src, dst))

@@ -10,7 +10,7 @@ vm = None
 
 def on_init(protocol, args):
     """ server side """
-    pass
+    return True
 
 
 def on_answer(vm, success, answer):

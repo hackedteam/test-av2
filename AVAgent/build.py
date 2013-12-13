@@ -130,7 +130,7 @@ class connection:
     host = ""
     user = "avmonitor"
     passwd = "avmonitorp123"
-
+    operation = 'AVMonitor'
     rcs=[]
 
     def __enter__(self):
@@ -171,6 +171,7 @@ class AgentBuild:
         logging.debug("DBG hostname: %s" % self.hostname)
 
     def _delete_targets(self, operation):
+        numtarget = 0
         with connection() as c:
             operation_id, group_id = c.operation(operation)
             logging.debug("operation_id: %s" % operation_id)
@@ -178,6 +179,8 @@ class AgentBuild:
             for t_id in targets:
                 logging.debug("- Delete target: %s" % t_id)
                 c.target_delete(t_id)
+                numtarget += 1
+        return numtarget
 
     def _create_new_factory(self, operation, target, factory, config):
         with connection() as c:
@@ -388,7 +391,7 @@ class AgentBuild:
         if not user_exists:
             connection.user = "avmonitor"
             with connection() as c:
-                ret = c.operation('AVMonitor')
+                ret = c.operation(connection.operation)
                 op_id, group_id = ret
                 c.user_create(user_name, connection.passwd, privs, group_id)
         connection.user = user_name
@@ -473,7 +476,7 @@ class AgentBuild:
         """ build and execute the  """
 
         logging.debug("- Host: %s %s\n" % (self.hostname, time.ctime()))
-        operation = 'AVMonitor'
+        operation = connection.operation
         target = get_target_name()
         # desktop_exploit_melt, desktop_scout_
         factory = '%s_%s_%s_%s' % (
@@ -627,11 +630,11 @@ def execute_agent(args, level, platform):
     return True
 
 
-def clean(args):
-    operation = 'AVMonitor'
-    logging.debug("- Server: %s/%s %s" % (args.backend, args.frontend, args.kind))
-    vmavtest = AgentBuild(args.backend, args.frontend, args.kind)
-    vmavtest._delete_targets(operation)
+def clean(backend):
+    logging.debug("- Clean Server: %s" % (backend))
+    connection.host = backend
+    vmavtest = AgentBuild(backend)
+    return vmavtest._delete_targets(connection.operation)
 
 
 def build(action, platform, platform_type, kind, param, backend, frontend, blacklist, report):
@@ -662,7 +665,7 @@ def build(action, platform, platform_type, kind, param, backend, frontend, black
         if action in ["pull", "scout", "elite"]:
             execute_agent(args, action, args.platform)
         elif action == "clean":
-            clean(args)
+            clean(args.backend)
         else:
             add_result("+ ERROR, Unknown action %s, %s, %s" % (action, platform, kind))
     except Exception, ex:

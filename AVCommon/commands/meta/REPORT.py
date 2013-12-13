@@ -35,6 +35,6 @@ def execute(vm, args):
     proc = Procedure("_REPORT", command_list)
     protocol.procedure.insert(proc)
 
-    logging.debug("procedure: %s" % (protocol.procedure.command_list))
-    logging.debug("report items: %s" % (command.context))
+    #logging.debug("procedure: %s" % (protocol.procedure.command_list))
+    #logging.debug("report items: %s" % (command.context))
     return True, "REPORT"

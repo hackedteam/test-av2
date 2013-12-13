@@ -4,7 +4,7 @@ from AVCommon.logger import logging
 
 def on_init(vm, args):
     """ server side """
-    pass
+    return True
 
 
 def on_answer(vm, success, answer):
