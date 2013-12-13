@@ -41,7 +41,7 @@ AV_GET_LOG:
 
 LOGOUT:
     - EXECUTE_VM:
-        - c:/Windows/System32/logoff
+        - /Windows/System32/logoff.exe
     - SLEEP: 120
 
 VM_PUSH_VIRUS:
@@ -78,8 +78,8 @@ VM_ELITE:
         - [ '/Users/avtest/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup', '/Documents and Settings/avtest/Start Menu/Programs/Startup/']
         - [ desktop.ini ]
     - SCREENSHOT
-    - STOP_AGENT
     - UNINSTALL
+    - STOP_AGENT
     - CALL: LOGOUT
 
 VM_MELT:
@@ -88,9 +88,9 @@ VM_MELT:
     - CROP: True
     - BUILD: [ scout, windows, melt ]
     - CROP: False
+    - UNINSTALL
     - STOP_AGENT
     - SCREENSHOT
-    - UNINSTALL
     - CALL: LOGOUT
 
 SYSTEM_WINDOWS:
@@ -108,6 +108,12 @@ VM_STATIC:
     - CALL: BUILD_DESKTOP
     - CALL: BUILD_MOBILE
     - CALL: BUILD_EXPLOIT
+    - STOP_AGENT
+
+VM_CLEAN_EVIDENCES:
+    - START_AGENT
+    - CALL: SET_SERVERS
+    - CLEAN_EVIDENCES
     - STOP_AGENT
 
 SYSTEM_STATIC:
@@ -146,8 +152,10 @@ SYSTEM_REVERT_ALL:
 SYSTEM_DAILY:
     - VM_ALL
     #- VM: [ahnlab,avast]
+
     - SLEEP: [1, 60]
     - CALL: INIT_DISPATCH
+    #- CALL: VM_CLEAN_EVIDENCES
     - REPORT:
         - VM_STATIC
         - VM_ELITE

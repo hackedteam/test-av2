@@ -312,17 +312,18 @@ class Rcs_client:
         @param target
         @param agent
         @param type (if None all types should be returned)
-        """
 
+        date: '24h' 'week' 'month' 'now'
+        """
         logging.debug("evidences: %s,%s,%s,%s" %(target_id, instance_id, filter_type, filter_value))
         if filter_type and filter_value:
-            f = {filter_type: filter_value, "target": target_id, "agent": instance_id}
+            f = {filter_type: filter_value, "target": target_id, "agent": instance_id, 'date':'dr'}
+
         else:
-            f = {"target": target_id, "agent": instance_id}
+            f = {"target": target_id, "agent": instance_id, 'date':'dr'}
 
         filter = urllib2.quote(json.dumps(f))
         link = 'https://%s/evidence?filter=%s' % (self.host, filter)
-        #link = 'https://%s/evidence?total=%s' % (self.host, filter)
 
         resp = self._get_response(link, self.cookie)
         result = json.loads(resp)

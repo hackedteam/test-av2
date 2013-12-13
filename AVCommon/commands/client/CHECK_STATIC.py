@@ -9,7 +9,7 @@ from AVAgent import build
 
 
 def on_init(protocol, args):
-    pass
+    return True
 
 
 def on_answer(vm, success, answer):

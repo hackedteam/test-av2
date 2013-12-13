@@ -17,6 +17,7 @@ def on_init(protocol, args):
         command.context[k] = v
 
     logging.debug("items: %s" % (command.context))
+    return True
 
 
 def on_answer(vm, success, answer):

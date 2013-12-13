@@ -5,7 +5,7 @@ from AVCommon.logger import logging
 from AVCommon import command
 
 def on_init(protocol, args):
-    pass
+    return True
 
 
 def on_answer(vm, success, answer):

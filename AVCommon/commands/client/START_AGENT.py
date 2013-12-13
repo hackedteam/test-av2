@@ -35,7 +35,7 @@ def on_init(protocol, args):
 
     if not python:
         raise RuntimeError("Error executing command av_agent")
-
+    return False
 
 def on_answer(vm, success, answer):
     """ server side """

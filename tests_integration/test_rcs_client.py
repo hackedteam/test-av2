@@ -42,9 +42,13 @@ def testEvidences():
     instance_id = instance['_id']
     target_id = instance['path'][1]
 
-    evidences_d = conn.evidences(target_id, instance_id, "type", "device")
 
-    evidences = conn.evidences(target_id, instance_id, "type", "chat")
+    evidences =   conn.evidences(target_id, instance_id, "type", "chat")
+    evidences_d = conn.evidences(target_id, instance_id, "type", "device")
+    evidences_a = conn.evidences(target_id, instance_id, "type", "addressbook")
+    evidences_w =   conn.evidences(target_id, instance_id, "type", "")
+    evidences_all = conn.evidences(target_id, instance_id)
+    evidences_f =   conn.evidences(target_id, instance_id, "aid", instance_id)
 
     prog = "facebook"
     for ev in evidences:
@@ -54,7 +58,6 @@ def testEvidences():
         if prog == program:
             logging.info("GOT IT!")
             break
-
 
     conn.logout()
 

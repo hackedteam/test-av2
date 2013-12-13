@@ -23,8 +23,7 @@ class ProtocolClient:
     def _execute_command(self, cmd):
         try:
             ret = cmd.execute(self.vm, cmd.args)
-            if config.verbose:
-                logging.debug("cmd.execute ret: %s" % str(ret))
+            logging.debug("cmd.execute ret: %s" % str(ret))
             cmd.success, cmd.result = ret
         except Exception, e:
             logging.exception("ERROR:_execute_command")
@@ -86,9 +85,21 @@ class Protocol(ProtocolClient):
 
     # server side
     def _send_command_mq(self, cmd):
-        cmd.on_init(self, cmd.args)
-        self.mq.send_client(self.vm, cmd.serialize())
-
+        accept = cmd.on_init(self, cmd.args)
+        if accept == True:
+            if config.verbose:
+                logging.debug("sending command to client")
+            self.mq.send_client(self.vm, cmd.serialize())
+        elif accept == None:
+            logging.debug("don't send command to client")
+            cmd.success = True
+            cmd.result = "blocked by on_init"
+            self.send_answer(cmd)
+        else:
+            logging.debug("error sending command to client")
+            cmd.success = False
+            cmd.result = "blocked by on_init with error"
+            self.send_answer(cmd)
 
     def _execute(self, cmd, blocking=False):
         #logging.debug("PROTO S executing server")
