@@ -2,15 +2,13 @@ __author__ = 'fabrizio'
  
 import sys
 import os
-from AVCommon.logger import logging
-
 from time import sleep
-import time
+#import time
 
 sys.path.append(os.path.split(os.getcwd())[0])
 sys.path.append(os.getcwd())
 
- 
+from AVCommon.logger import logging
 from AVCommon.procedure import Procedure
 from AVCommon.mq import MQStar
 from AVMaster.dispatcher import Dispatcher
@@ -106,11 +104,16 @@ TEST_DIR:
     - DELETE_DIR: C:/Users/avtest/Desktop/gigi
 TEST_DIR_KO:
     - DELETE_DIR: C:/Users/avtest/Desktop/gigiol
+
+TEST_STOP1:
+    - STOP_VM: 60
+TEST_STOP:
+    - STOP_VM
 """
     procedures = Procedure.load_from_yaml(yaml)
  
     #vms = ["noav", "zenovm"]
-    vms = ["noav"]
+    vms = ["zenoav"]
     redis_host = "localhost"
     mq = MQStar(redis_host)
     mq.clean()
@@ -136,9 +139,8 @@ TEST_DIR_KO:
     dispatcher.dispatch(procedures["UPDATE"])
     '''
     logging.info("STARTING TEST 5")
-    dispatcher.dispatch(procedures["TEST_DIR"])
-    dispatcher.dispatch(procedures["TEST_DIR_KO"])
-#    '''
+    dispatcher.dispatch(procedures["TEST_STOP"])
+
 if __name__ == '__main__':
 
     test_vm_commands()

@@ -11,8 +11,34 @@ def execute(vm, args):
     logging.debug("    CS Execute")
     assert vm, "null vm"
 
-    ret = vm_manager.execute(vm, "shutdown")
-    if ret:
-        return True, "Stopped VM"
+    if args:
+        assert isinstance(args, int), "you must specify an int for timeout."
+
+        timeout = args
+        off = False
+        tick = 15
+
+        logging.info("shutting down with timeout %s." % timeout)
+
+        vm_manager.execute(vm, "executeCmd","C:/Windows/System32/shutdown.exe",["/s"], timeout, False, True)
+        for i in range(0,timeout):
+            sleep(tick)
+            if vm_manager.execute(vm, "is_powered_off"):
+                off = True
+                break
+            i+=tick
+        if off:
+            return True, "Stopped VM"
+        else:
+            ret = vm_manager.execute(vm, "shutdown")
+            if ret:
+                return True, "Stopped VM"
+            else:
+                return False, "Not Stopped VM %s" % ret
     else:
-        return False, "Not Stopped VM %s" % ret
+        ret = vm_manager.execute(vm, "shutdown")
+
+        if ret:
+            return True, "Stopped VM"
+        else:
+            return False, "Not Stopped VM %s" % ret
