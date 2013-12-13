@@ -314,6 +314,10 @@ class Rcs_client:
         @param type (if None all types should be returned)
 
         date: '24h' 'week' 'month' 'now'
+        dr e da sono per il :date
+        gli altri sono per il :from :to
+        dr -> date received, da -> date acquired
+
         """
         logging.debug("evidences: %s,%s,%s,%s" %(target_id, instance_id, filter_type, filter_value))
         if filter_type and filter_value:
