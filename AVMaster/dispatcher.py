@@ -66,7 +66,7 @@ class Dispatcher(object):
         report.init(procedure.name)
 
         assert self.vms
-        assert self.vms[0]
+        assert self.vms[0], "please specify at least one VM"
         logging.debug("self.vms: %s" % self.vms)
         av_machines = {}
         for vm in self.vms:

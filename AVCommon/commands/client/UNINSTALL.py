@@ -25,6 +25,20 @@ def on_answer(vm, success, answer):
 
     pass
 
+def execute_calc():
+    pass
+
+def close_instance():
+    pass
+
+def kill_rcs():
+    pass
+
+def delete_startup():
+    pass
+
+def add_agent_startup():
+    pass
 
 def execute(vm, args):
     # execute "calc.exe"
