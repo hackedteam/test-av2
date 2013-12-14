@@ -677,7 +677,7 @@ def build(action, platform, platform_type, kind, param, backend, frontend, black
     if report_send:
         report_send("+ END %s %s" % (action, success))
 
-    return results, any(errors), errors
+    return results, success, errors
 
 
 def main():
