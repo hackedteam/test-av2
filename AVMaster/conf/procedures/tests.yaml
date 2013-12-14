@@ -103,3 +103,79 @@ TEST_CROP:
     - SLEEP: 10
     - CROP: False
     - STOP_AGENT
+
+TEST_PACKER_SILENT:
+    - CALL: INIT_DISPATCH
+    - START_AGENT
+    - CALL: SET_DEFAULT
+    - CROP: True
+    - REPORT:
+        - BUILD: [ pull, windows, silent ]
+        - CHECK_STATIC: [ AVAgent/build/windows/agent.exe ]
+
+        - BUILD: [ pull, windows, silent ]
+        - CHECK_STATIC: [ AVAgent/build/windows/agent.exe ]
+
+        - BUILD: [ pull, windows, silent ]
+        - CHECK_STATIC: [ AVAgent/build/windows/agent.exe ]
+
+        - BUILD: [ pull, windows, silent ]
+        - CHECK_STATIC: [ AVAgent/build/windows/agent.exe ]
+
+        - BUILD: [ pull, windows, silent ]
+        - CHECK_STATIC: [ AVAgent/build/windows/agent.exe ]
+
+        - BUILD: [ pull, windows, silent ]
+        - CHECK_STATIC: [ AVAgent/build/windows/agent.exe ]
+
+        - BUILD: [ pull, windows, silent ]
+        - CHECK_STATIC: [ AVAgent/build/windows/agent.exe ]
+
+        - BUILD: [ pull, windows, silent ]
+        - CHECK_STATIC: [ AVAgent/build/windows/agent.exe ]
+
+        - BUILD: [ pull, windows, silent ]
+        - CHECK_STATIC: [ AVAgent/build/windows/agent.exe ]
+
+        - BUILD: [ pull, windows, silent ]
+        - CHECK_STATIC: [ AVAgent/build/windows/agent.exe ]
+    - STOP_AGENT
+    - STOP_VM
+
+TEST_PACKER_MELT:
+    - CALL: INIT_DISPATCH
+    - START_AGENT
+    - CALL: SET_DEFAULT
+    - CROP: True
+    - REPORT:
+        - BUILD: [ pull, windows, melt ]
+        - CHECK_STATIC: [ AVAgent/build/windows/* ]
+
+        - BUILD: [ pull, windows, melt ]
+        - CHECK_STATIC: [ AVAgent/build/windows/* ]
+
+        - BUILD: [ pull, windows, melt ]
+        - CHECK_STATIC: [ AVAgent/build/windows/* ]
+
+        - BUILD: [ pull, windows, melt ]
+        - CHECK_STATIC: [ AVAgent/build/windows/* ]
+
+        - BUILD: [ pull, windows, melt ]
+        - CHECK_STATIC: [ AVAgent/build/windows/* ]
+
+        - BUILD: [ pull, windows, melt ]
+        - CHECK_STATIC: [ AVAgent/build/windows/* ]
+
+        - BUILD: [ pull, windows, melt ]
+        - CHECK_STATIC: [ AVAgent/build/windows/* ]
+
+        - BUILD: [ pull, windows, melt ]
+        - CHECK_STATIC: [ AVAgent/build/windows/* ]
+
+        - BUILD: [ pull, windows, melt ]
+        - CHECK_STATIC: [ AVAgent/build/windows/* ]
+
+        - BUILD: [ pull, windows, melt ]
+        - CHECK_STATIC: [ AVAgent/build/windows/* ]
+    - STOP_AGENT
+    - STOP_VM
