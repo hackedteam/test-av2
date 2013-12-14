@@ -107,7 +107,7 @@ TEST_CROP:
 TEST_PACKER_SILENT:
     - CALL: INIT_DISPATCH
     - START_AGENT
-    - CALL: SET_DEFAULT
+    - CALL: SET_DEFAULTS
     - CROP: True
     - REPORT:
         - BUILD: [ pull, windows, silent ]
@@ -142,40 +142,29 @@ TEST_PACKER_SILENT:
     - STOP_AGENT
     - STOP_VM
 
+BUILD_MELT_FAST:
+    - BUILD: [ pull, windows, melt ]
+
 TEST_PACKER_MELT:
-    - CALL: INIT_DISPATCH
+    - VM: [avg, avg32]
+    #- CALL: INIT_DISPATCH
+    - CALL: AV_PUSH_AGENT
     - START_AGENT
-    - CALL: SET_DEFAULT
+    - CALL: SET_DEFAULTS
     - CROP: True
     - REPORT:
-        - BUILD: [ pull, windows, melt ]
-        - CHECK_STATIC: [ AVAgent/build/windows/* ]
+        - BUILD_MELT_FAST
+        - BUILD_MELT_FAST
+        - BUILD_MELT_FAST
+        - BUILD_MELT_FAST
+        - BUILD_MELT_FAST
 
-        - BUILD: [ pull, windows, melt ]
-        - CHECK_STATIC: [ AVAgent/build/windows/* ]
+        - BUILD_MELT_FAST
+        - BUILD_MELT_FAST
+        - BUILD_MELT_FAST
+        - BUILD_MELT_FAST
+        - BUILD_MELT_FAST
 
-        - BUILD: [ pull, windows, melt ]
-        - CHECK_STATIC: [ AVAgent/build/windows/* ]
-
-        - BUILD: [ pull, windows, melt ]
-        - CHECK_STATIC: [ AVAgent/build/windows/* ]
-
-        - BUILD: [ pull, windows, melt ]
-        - CHECK_STATIC: [ AVAgent/build/windows/* ]
-
-        - BUILD: [ pull, windows, melt ]
-        - CHECK_STATIC: [ AVAgent/build/windows/* ]
-
-        - BUILD: [ pull, windows, melt ]
-        - CHECK_STATIC: [ AVAgent/build/windows/* ]
-
-        - BUILD: [ pull, windows, melt ]
-        - CHECK_STATIC: [ AVAgent/build/windows/* ]
-
-        - BUILD: [ pull, windows, melt ]
-        - CHECK_STATIC: [ AVAgent/build/windows/* ]
-
-        - BUILD: [ pull, windows, melt ]
-        - CHECK_STATIC: [ AVAgent/build/windows/* ]
+    - CROP: False
     - STOP_AGENT
     - STOP_VM

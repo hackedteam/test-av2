@@ -95,13 +95,13 @@ def set_procedure(vm, proc_name):
 
     if vm in report.current_procedure.keys():
         proc = report.current_procedure[vm]
-        if proc not in report.reports.keys():
-            report.reports[proc]=[]
+        #if proc not in report.reports.keys():
+        #    report.reports[proc]=[]
 
-        res = get_result(report.c_received[vm], report.c_sent[vm])
-        logging.debug("adding %s/%s: %s" % (proc, vm, str(res)))
+        #res = get_result(report.c_received[vm], report.c_sent[vm])
+        #logging.debug("adding %s/%s: %s" % (proc, vm, str(res)))
 
-        report.reports[proc].append({ vm: res })
+        #report.reports[proc].append({ vm: res })
 
         # qui si deve salvare il record: t_id = report.test_id, name = vm,  kind = proc, result = res
 

@@ -17,7 +17,7 @@ from AVCommon import config
 def on_answer(vm, success, answer):
     from AVMaster import vm_manager
     logging.debug("CROP answer: %s|%s" % (success, answer))
-    # answer = ['crop/1.png','crop/3.png']
+    # answer = [1,5,7]
     if not success:
         if not answer or not isinstance(answer, list) :
             return
@@ -25,17 +25,17 @@ def on_answer(vm, success, answer):
         logging.warn("We have to PULL images: %s" % answer)
         dir = "%s/logs/crop" % config.basedir_server
 
-        for src in answer:
+        for iter in answer:
             try:
-                name = src.split('/')[1]
+                src = "%s/%s.png" % (config.basedir_crop, iter)
+                #name = src.split('/')[-1]
                 dst_dir = "%s/%s" %(dir, vm)
                 if not os.path.exists(dst_dir):
                     os.makedirs(dst_dir)
-                dst = "%s/%s" % (dst_dir, name)
+                dst = "%s/%s.png" % (dst_dir, iter)
 
-                src_av = "%s/%s" % (config.basedir_av, src)
                 logging.debug("PULL: %s -> %s" % (src, dst))
-                vm_manager.execute(vm, "copyFileFromGuest",src_av ,dst)
+                vm_manager.execute(vm, "copyFileFromGuest",src ,dst)
             except:
                 logging.exception("Cannot get image %s" % src)
 
@@ -97,7 +97,7 @@ def crop(iter):
     d2=im2.getdata()
 
     w = d1.size[0]
-    h = d1.size[1] - 20
+    h = d1.size[1] - 60
     l,r,t,b = w,0,h,0
 
     for y in range(h):
@@ -115,11 +115,11 @@ def crop(iter):
 
     c=im2.crop((l,t,r,b))
     im1 = im2
-    if c.size[0] > 20 and c.size[1] > 20:
-        name = "crop/%s.png" % iter
+    if c.size[0] > 30 and c.size[1] > 30:
+        name = "%s/%s.png" % ( config.basedir_crop, iter)
         logging.debug("actual crop save: %s" % name)
         logging.debug("name: %s size: %s" % ( name, c.size ))
         c.save(name)
-        return name
+        return iter
 
     return None

@@ -45,10 +45,8 @@ def execute(vm, args):
     assert action in ['scout', 'elite', 'internet', 'test', 'clean', 'pull'], "action: %s" % action
     assert platform_type in ['desktop', 'mobile'], "platform_type: %s" % platform_type
 
-    ret = build.build(action, platform, platform_type, kind, param, backend, frontend, blacklist, report)
+    results, success, errors = build.build(action, platform, platform_type, kind, param, backend, frontend, blacklist, report)
 
-    time.sleep(10)
-    logging.debug("stop sleeping")
-    return True, ret
+    return success, results
 
 
