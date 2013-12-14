@@ -14,11 +14,11 @@ def execute(vm, img_path):
     logging.debug("    CS Execute")
     assert vm, "null vm"
 
-    basedir = "%s/screenshots" % config.basedir_server
+    basedir = "%s/logs/screenshots" % config.basedir_server
 
     if not img_path:
         if not os.path.exists(basedir):
-            os.mkdir(basedir)
+            os.makedirs(basedir)
         img_path = "%s/%s.%s.png" % (basedir, vm, int(time.time()))
 
     ret = vm_manager.execute(vm, "takeScreenshot", img_path)

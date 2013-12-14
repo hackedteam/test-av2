@@ -23,7 +23,7 @@ def on_answer(vm, success, answer):
             return
 
         logging.warn("We have to PULL images: %s" % answer)
-        dir = "%s/crop" % config.basedir_server
+        dir = "%s/logs/crop" % config.basedir_server
 
         for src in answer:
             try:
