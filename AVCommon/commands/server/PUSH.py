@@ -59,10 +59,17 @@ def execute(vm, args):
 
     """ then upload parsed files """
     logging.debug("All files to copy are:\n%s" % src_files)
-    for src_file in all_src:
+    if not all_src:
+        return False, "Empty file list"
 
+    for src_file in all_src:
         src = os.path.join(src_dir, src_file)
         dst = ntdir(os.path.join(dst_dir, src_file))
+
+        if not os.path.exists(src):
+            return False, "Not existent file: %s" % src
+        else:
+            logging.debug("file exists")
 
         logging.debug("%s copy %s -> %s" % (vm, src, dst))
         r = vm_manager.execute(vm, "copyFileToGuest", src, dst)

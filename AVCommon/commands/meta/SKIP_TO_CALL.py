@@ -8,6 +8,8 @@ import time
 from AVCommon import command
 
 def execute(vm, args):
+
+    protocol, args = args
     assert isinstance(args, bool)
 
     config.skip_to_call = args

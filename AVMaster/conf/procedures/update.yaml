@@ -70,14 +70,15 @@ UPDATE_FAST:
     - STOP_VM
     - REFRESH_SNAPSHOT
 
-UPDATE_DEL_CACHE:
-    - VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
-    - SLEEP: [0, 60]
+UPDATE_DELETE_CACHE:
+    #- VM_ALL
+    - VM: [zenoav, noav]
+    - SKIP_TO_CALL: False
+    - SLEEP: [0, 10]
     - REVERT
     - START_VM
-    - SLEEP: 240
-    - PUSH: [ AVAgent/assets/del_cache.bat ]
-    - EXECUTE_VM: /AVTest/AVAgent/assets/del_cache.bat
-    - SLEEP: 60
+    - PUSH: [ AVAgent/assets/delete_cache.bat ]
+    - EXECUTE_VM: /AVTest/AVAgent/assets/delete_cache.bat
+    - SLEEP: 30
     - STOP_VM
     - REFRESH_SNAPSHOT

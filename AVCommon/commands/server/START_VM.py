@@ -19,7 +19,7 @@ def execute(vm, args):
             if vm_manager.execute(vm, "is_powered_on"):
                 for i in range(12):
                     started = vm_manager.execute(vm, "executeCmd", "c:\\windows\\system32\\ipconfig.exe") == 0
-                    logging.debug("executing ipconfig, ret: %s" % started)
+                    logging.debug("%s, executing ipconfig, ret: %s" % (vm,started))
                     if started:
                         return True, "Started VM"
                     else:
