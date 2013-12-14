@@ -1,17 +1,20 @@
 import os
 import sys
 from AVCommon.logger import logging
+from AVCommon import config
+
 import time
 
 
 def execute(vm, img_path):
     """ server side """
+    # TODO: add Proc name
     from AVMaster import vm_manager
 
     logging.debug("    CS Execute")
     assert vm, "null vm"
 
-    basedir = "screenshots"
+    basedir = "%s/screenshots" % config.basedir_server
 
     if not img_path:
         if not os.path.exists(basedir):

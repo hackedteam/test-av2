@@ -34,7 +34,7 @@ def on_init(protocol, args):
             return True
 
     if not python:
-        raise RuntimeError("Error executing command av_agent")
+        raise RuntimeError("Error executing command av_agent on %s" % vm)
     return False
 
 def on_answer(vm, success, answer):

@@ -85,3 +85,21 @@ TEST_LOG:
     #- START_VM
     - CALL: LOGOUT
     - CALL: AV_GET_LOG
+
+TEST_CROP:
+    - VM: [ noav ]
+    #- CALL: INIT_DISPATCH
+    - CALL: AV_PUSH_AGENT
+    - START_AGENT
+    - CALL: SET_DEFAULTS
+    - CROP: True
+    - PUSH: [ AVAgent/assets/facebook.bat ]
+    - EXECUTE_VM:
+        - C:/AVTest/AVAgent/assets/facebook.bat
+        - []
+        - 10
+        - True
+        - True
+    - SLEEP: 10
+    - CROP: False
+    - STOP_AGENT
