@@ -7,7 +7,6 @@ from time import sleep
 def execute(vm, args):
     from AVMaster import vm_manager
 
-
     """ server side """
     clean = True # VM IS NOT INFECTED!! TEST CAN CONTINUE!!!
 

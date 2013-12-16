@@ -28,6 +28,13 @@ BUILD_ELITE:
     - CALL: SET_DEFAULTS
     - BUILD: [ pull, windows_elite, silent ]
 
+BUILD_WINDOWS:
+    - CALL: SET_DEFAULTS
+    - PUSH: [ AVAgent/assets/avtest.swf ]
+    - PUSH: [ AVAgent/assets/sqlite, AVAgent/assets/sqlite_mod, AVAgent/assets/codec, AVAgent/assets/codec_mod ]
+    - CHECK_STATIC: [ AVAgent/assets/* ]
+    - BUILD: [ pull, windows, silent ]
+
 BUILD_DESKTOP:
     - CALL: SET_DEFAULTS
     - PUSH: [ AVAgent/assets/avtest.swf ]

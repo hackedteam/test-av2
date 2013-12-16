@@ -5,12 +5,12 @@ UPDATE:
     - SKIP_TO_CALL: False
     - INTERNET: False
     - REVERT
-    - SLEEP: [0, 600]
+    - SLEEP: [0, 300]
     - START_VM
-    - SLEEP: 180
-    #- CHECK_INFECTION
+    - CHECK_INFECTION: HALT
+    - SLEEP: 300
     - INTERNET: True
-    - SLEEP: 3600
+    - SLEEP: 600
     - INTERNET: False
     - CALL: UPLOAD_AGENT
     - PUSH: [ AVAgent/assets/shutdown.bat ]

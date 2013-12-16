@@ -68,8 +68,6 @@ VM_PUSH_VIRUS:
         - [ desktop.ini ]
     - STOP_AGENT
 
-
-
 VM_SCOUT:
     - START_AGENT
     - CALL: SET_DEFAULTS
@@ -104,6 +102,12 @@ VM_MELT:
     - STOP_AGENT
     - SCREENSHOT
     - CALL: LOGOUT
+
+VM_STATIC_WINDOWS:
+    - START_AGENT
+    - CROP: True
+    - CALL: BUILD_WINDOWS
+    - STOP_AGENT
 
 VM_STATIC:
     - START_AGENT
@@ -194,3 +198,9 @@ SYSTEM_ELITE:
     - REPORT:
         - VM_ELITE
         #- VM_PUSH_VIRUS
+
+SYSTEM_MANUAL_CHECK:
+    - VM: [avg, avg32]
+    - CALL: INIT_DISPATCH
+    - CALL: VM_STATIC_WINDOWS
+
