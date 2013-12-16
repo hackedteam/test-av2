@@ -5,6 +5,7 @@ core:
     - PUSH and PULL, if agent is up and running, can be faster, using a zipped channel.
     - SHUTDOWN should consider a timeout, after that, proceed with the vmrun
     - commands server_once: [ INTERNET, CLEAN_EVIDENCES ]
+    - elite check: avgscanx.exe
 
 build:
     - logout to speedup elite upgrade

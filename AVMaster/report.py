@@ -164,7 +164,7 @@ def dump():
     f=open("%s/report.%s.%s.log" % (logger.logdir, report.timestamp, report.name), "w+")
     f.write(yaml.dump(report, default_flow_style=False, indent=4))
 
-    r= report.summary()
+    r= summary()
     f=open("%s/summary.%s.%s.log" % (logger.logdir, report.timestamp, report.name), "w+")
     f.write(r)
 

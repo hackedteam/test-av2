@@ -232,8 +232,18 @@ SYSTEM_ELITE:
         #- VM_PUSH_VIRUS
     - CALL: END_DISPATCH
 
-SYSTEM_MANUAL_CHECK:
-    - VM: [avg, avg32]
+SYSTEM_ELITE_BIS:
+    #- VM: [avast,eset,avast32,avg,avg32,avira,kis,kis14,kis32,mcafee,norton,panda,comodo]
+    - VM_ALL: ininfluent
+    - SLEEP: [1,100]
     - CALL: INIT_DISPATCH
-    - CALL: VM_STATIC_WINDOWS
+    - REPORT:
+        - VM_ELITE
+        #- VM_PUSH_VIRUS
+    - CALL: END_DISPATCH
+
+SYSTEM_MANUAL_CHECK:
+    - VM: [mcafee]
+    - CALL: INIT_DISPATCH
+    - CALL: VM_SCOUT
 

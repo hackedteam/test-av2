@@ -29,6 +29,7 @@ def execute(vm, args):
             f = src_file
 
         src = "%s\\%s\\%s" % (src_dir, d, f)
+        src = src.replace('/','\\')
 
         if d == "":
             dst = "%s/%s" % (dst_dir, f)

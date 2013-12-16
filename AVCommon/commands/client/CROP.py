@@ -34,6 +34,7 @@ def on_answer(vm, success, answer):
                     os.makedirs(dst_dir)
                 dst = "%s/%s.png" % (dst_dir, iter)
 
+                src = src.replace('/','\\')
                 logging.debug("PULL: %s -> %s" % (src, dst))
                 vm_manager.execute(vm, "copyFileFromGuest",src ,dst)
             except:
