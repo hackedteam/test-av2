@@ -16,7 +16,7 @@ def test_report_extract():
     logging.debug("dir: %s" % os.getcwd())
     r = report.restore("report.CHECK_ELITE.log")
 
-    s = report.report()
+    s = report.summary()
     logging.debug(s)
 
     assert r.name

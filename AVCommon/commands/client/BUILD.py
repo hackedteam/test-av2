@@ -47,6 +47,11 @@ def execute(vm, args):
 
     results, success, errors = build.build(action, platform, platform_type, kind, param, backend, frontend, blacklist, report)
 
+    try:
+        last_result = results[-1]
+    except:
+        last_result = "NO RESULTS"
+
     return success, results
 
 

@@ -15,15 +15,18 @@ def execute(vm, args):
 
     blacklist = ['BTHSAmpPalService','CyCpIo','CyHidWin','iSCTsysTray','quickset']
 
-    dirs = ['C:/Users/avtest/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup',
+    dirs = ['C:Users/avtest/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup',
             'C:/Documents and Settings/avtest/Start Menu/Programs/Startup', 'C:/Users/avtest/Desktop']
 
     for d in dirs:
-        out = vm_manager.execute(vm, "list_directory", d)
-        logging.debug("list_directory: %s" % out)
+        out = vm_manager.execute(vm, "listDirectoryInGuest", d)
+        #logging.debug("listDirectoryInGuest: %s" % out)
 
-        if out is not None:
-            clean = False
+        for b in blacklist:
+            if b in out:
+                logging.info("%s, found %s in %s" % (vm, b, d))
+                clean = False
+                break
 
     if clean is True:
         return True, "VM is not infected"

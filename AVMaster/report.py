@@ -108,7 +108,7 @@ def set_procedure(vm, proc_name):
     report.current_procedure[vm] = proc_name
     assert vm in report.current_procedure.keys(), "%s not in %s" % (vm, report.current_procedure.keys())
 
-def report():
+def summary():
     report = Report()
     report.vm = {}
 
@@ -128,11 +128,11 @@ def report():
                 if current_proc:
                     if cmd.success == 'False':
                         summary+="    %s\n" % c
-                    elif cmd.name=="BUILD" and cmd.success == 'None':
-                        check = ['+ ERROR','+ FAILED']
-                        errors = any([ s in c for s in check ])
-                        if errors:
-                            summary+="    %s\n" % (c)
+                    elif cmd.name=="BUILD" and cmd.success != 'None':
+                        #check = ['+ ERROR','+ FAILED']
+                        #errors = any([ s in c for s in check ])
+                        #if errors:
+                        summary+="    %s\n" % (c)
     return summary
 
 
@@ -163,6 +163,10 @@ def dump():
 
     f=open("%s/report.%s.%s.log" % (logger.logdir, report.timestamp, report.name), "w+")
     f.write(yaml.dump(report, default_flow_style=False, indent=4))
+
+    r= report.summary()
+    f=open("%s/summary.%s.%s.log" % (logger.logdir, report.timestamp, report.name), "w+")
+    f.write(r)
 
 def restore(file_name):
     #report = Report()

@@ -24,7 +24,6 @@ AV_UPLOAD_SKYPE:
         - updates
         - c:/Users/avtest/Desktop
 
-
 AV_GET_LOG:
     - PULL:
         - ['avmonitor.log']
