@@ -11,7 +11,7 @@ def execute(vm, img_path):
     # TODO: add Proc name
     from AVMaster import vm_manager
 
-    logging.debug("    CS Execute")
+    #logging.debug("    CS Execute")
     assert vm, "null vm"
 
     basedir = "%s/logs/screenshots" % config.basedir_server

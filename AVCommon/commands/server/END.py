@@ -6,7 +6,7 @@ from AVCommon.logger import logging
 
 def execute(vm, args):
     """ server side """
-    logging.debug("    CS Execute")
-    return True, "It's time to die"
+    #logging.debug("    CS Execute")
+    return True, "END"
 
 

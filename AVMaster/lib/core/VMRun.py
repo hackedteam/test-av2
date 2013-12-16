@@ -157,7 +157,7 @@ class VMRun:
         self.createSnapshot(vmx, "auto_%s" % date)
         if delete is True:
             snaps = self.listSnapshots(vmx)
-            logging.debug("snapshots %s" % snaps)
+            logging.debug("%s: snapshots %s" % (vmx,snaps))
             if len(snaps) > 2:
                 for s in snaps[1:-1]:
                     logging.debug("checking %s" % s)

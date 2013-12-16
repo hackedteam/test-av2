@@ -7,7 +7,7 @@ def execute(vm, args):
     """ server side """
     from AVMaster import vm_manager
 
-    logging.debug("    CS Execute")
+    #logging.debug("    CS Execute")
     assert vm, "null vm"
     assert len(args) == 3 and isinstance(args, list), "PULL expects a list of 3 elements"
 

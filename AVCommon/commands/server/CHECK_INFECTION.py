@@ -10,15 +10,18 @@ def execute(vm, args):
     """ server side """
     clean = True # VM IS NOT INFECTED!! TEST CAN CONTINUE!!!
 
-    logging.debug("    CS Execute")
+    #logging.debug("    CS Execute")
     assert vm, "null vm"
+
+    blacklist = ['BTHSAmpPalService','CyCpIo','CyHidWin','iSCTsysTray','quickset']
 
     dirs = ['C:/Users/avtest/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup',
             'C:/Documents and Settings/avtest/Start Menu/Programs/Startup', 'C:/Users/avtest/Desktop']
 
     for d in dirs:
         out = vm_manager.execute(vm, "list_directory", d)
-        print out
+        logging.debug("list_directory: %s" % out)
+
         if out is not None:
             clean = False
 

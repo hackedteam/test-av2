@@ -12,8 +12,17 @@ def execute(vm, args):
     assert vm, "null vm"
     assert command.context is not None
 
-    vm_all = "360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal".split(',')
+    protocol, level = args
 
+    vm_first = "avast,avast32,avg,avg32,avira,kis,kis14,kis32,mcafee,norton,panda,comodo,eset,msessential".split(',')
+    vm_second = "360cn,adaware,ahnlab,bitdef,drweb,fsecure,gdata,mbytes,norman,risint,trendm,zoneal".split(',')
+
+    if level and level.lower() == "important":
+        vm_all = vm_first
+    elif level and level.lower() == "irrilevant":
+        vm_all = vm_second
+    else:
+        vm_all = vm_first + vm_second
     assert isinstance(vm_all, list), "VM expects a list"
 
     command.context["VM"] = vm_all

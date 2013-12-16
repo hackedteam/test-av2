@@ -137,6 +137,33 @@ VM_STATIC_OSX:
     - STOP_AGENT
     #- STOP_VM
 
+BUILD_MELT_FAST:
+    - BUILD: [ pull, windows, melt ]
+
+VM_PACKER_MELT:
+    - VM: [avg, avg32]
+    - CALL: INIT_DISPATCH
+    #- CALL: AV_PUSH_AGENT
+    - START_AGENT
+    - CALL: SET_DEFAULTS
+    - CROP: True
+    - REPORT:
+        - BUILD_MELT_FAST
+        - BUILD_MELT_FAST
+        - BUILD_MELT_FAST
+        - BUILD_MELT_FAST
+        - BUILD_MELT_FAST
+
+        - BUILD_MELT_FAST
+        - BUILD_MELT_FAST
+        - BUILD_MELT_FAST
+        - BUILD_MELT_FAST
+        - BUILD_MELT_FAST
+
+    - CROP: False
+    - STOP_AGENT
+    - STOP_VM
+
 # ------------- SYSTEM COMMANDS -------------- #
 
 
@@ -163,11 +190,17 @@ SYSTEM_STATIC:
     - STOP_AGENT
     - STOP_VM
 
-SYSTEM_REVERT_ALL:
+SYSTEM_REVERT:
     - VM_ALL
     - INTERNET: False
     - SLEEP: [1, 60]
     - REVERT
+
+SYSTEM_START:
+    - VM_ALL
+    - INTERNET: False
+    - SLEEP: [1, 60]
+    - START_VM
 
 SYSTEM_DAILY:
     - VM_ALL
@@ -191,13 +224,14 @@ SYSTEM_POSITIVE:
         - PUSH_VIRUS
 
 SYSTEM_ELITE:
-    #- VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
-    - VM: [avg,avg32,eset,mcafee,avast,gdata,pctools]
+    #- VM: [avast,eset,avast32,avg,avg32,avira,kis,kis14,kis32,mcafee,norton,panda,comodo]
+    - VM_ALL: important
     - SLEEP: [1,100]
     - CALL: INIT_DISPATCH
     - REPORT:
         - VM_ELITE
         #- VM_PUSH_VIRUS
+    - CALL: END_DISPATCH
 
 SYSTEM_MANUAL_CHECK:
     - VM: [avg, avg32]

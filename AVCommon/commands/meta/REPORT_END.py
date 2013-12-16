@@ -19,6 +19,4 @@ def execute(vm, args):
     report.end(vm)
     #if not command.context["report"]:
     #    report.finish()
-
-    logging.debug("    CS Execute")
     return True, vm

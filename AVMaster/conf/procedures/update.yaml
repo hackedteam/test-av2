@@ -2,23 +2,31 @@
 # COMPLETE COMMANDS
 
 UPDATE:
+    - VM_ALL: IMPORTANT
     - SKIP_TO_CALL: False
-    - INTERNET: False
+    - INTERNET: True
     - REVERT
     - SLEEP: [0, 300]
     - START_VM
-    - CHECK_INFECTION: HALT
-    - SLEEP: 300
-    - INTERNET: True
+    #- CHECK_INFECTION: HALT
+    #- SLEEP: 300
+    #- INTERNET: True
     - SLEEP: 600
-    - INTERNET: False
-    - CALL: UPLOAD_AGENT
+    #- INTERNET: False
+    #- CALL: UPLOAD_AGENT
     - PUSH: [ AVAgent/assets/shutdown.bat ]
-    - EXECUTE_VM: AVAgent/assets/shutdown.bat
+    - EXECUTE_VM: /AVTest/AVAgent/assets/shutdown.bat
     - START_VM
     - SLEEP: 180
     - STOP_VM
     - REFRESH_SNAPSHOT
+
+UPDATE_SNAPSHOT:
+    - VM_ALL: IMPORTANT
+    - SKIP_TO_CALL: False
+    - INTERNET: False
+    - REFRESH_SNAPSHOT
+
 
 UPDATE_PYTHON:
     - SKIP_TO_CALL: False

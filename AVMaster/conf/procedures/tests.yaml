@@ -142,29 +142,8 @@ TEST_PACKER_SILENT:
     - STOP_AGENT
     - STOP_VM
 
-BUILD_MELT_FAST:
-    - BUILD: [ pull, windows, melt ]
-
-TEST_PACKER_MELT:
-    - VM: [avg, avg32]
+TEST_INFECTION:
+    - VM: [ahnlab]
     - CALL: INIT_DISPATCH
-    #- CALL: AV_PUSH_AGENT
-    - START_AGENT
-    - CALL: SET_DEFAULTS
-    - CROP: True
-    - REPORT:
-        - BUILD_MELT_FAST
-        - BUILD_MELT_FAST
-        - BUILD_MELT_FAST
-        - BUILD_MELT_FAST
-        - BUILD_MELT_FAST
+    - CHECK_INFECTION
 
-        - BUILD_MELT_FAST
-        - BUILD_MELT_FAST
-        - BUILD_MELT_FAST
-        - BUILD_MELT_FAST
-        - BUILD_MELT_FAST
-
-    - CROP: False
-    - STOP_AGENT
-    - STOP_VM

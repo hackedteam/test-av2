@@ -7,7 +7,7 @@ from AVCommon import command
 
 def execute(vm, args):
     """ server side """
-    logging.debug("    CS Execute")
+    #logging.debug("    CS Execute")
     assert vm, "null self.vm"
     assert isinstance(args, bool), "INTERNET argument must be boolean"
     #        assert ["on","off"] in args and len(args) == 1, "INTERNET accepts on/off as parameter"

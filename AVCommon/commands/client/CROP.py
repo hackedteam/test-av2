@@ -43,15 +43,21 @@ def execute(vm, args):
     from PIL import ImageGrab
     global im1, thread, go_on, found
 
+    if not os.path.exists(config.basedir_crop):
+        os.makedirs(config.basedir_crop)
     if args:
         # starts a crop server
         logging.debug("start a crop server")
-
-        im1 = ImageGrab.grab()
-        thread = threading.Thread(target=grab_loop, args=(vm,))
-        thread.start()
-        logging.debug("exiting")
-        return True, "%s" % args
+        ret = args
+        try:
+            im1 = ImageGrab.grab()
+            thread = threading.Thread(target=grab_loop, args=(vm,))
+            thread.start()
+            logging.debug("exiting")
+        except:
+            ret = "EXCEPTION GRABBING"
+            logging.exception("problem grabbing")
+        return True, "%s" % ret
     else:
         # stops the crop server
         logging.debug("stop grab_loop")
@@ -115,7 +121,7 @@ def crop(iter):
 
     c=im2.crop((l,t,r,b))
     im1 = im2
-    if c.size[0] > 30 and c.size[1] > 30:
+    if c.size[0] > 50 and c.size[1] > 50:
         name = "%s/%s.png" % ( config.basedir_crop, iter)
         logging.debug("actual crop save: %s" % name)
         logging.debug("name: %s size: %s" % ( name, c.size ))

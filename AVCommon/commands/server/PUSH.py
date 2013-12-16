@@ -48,7 +48,7 @@ def execute(vm, args):
     # sorts the parents by length, so that parent is always before its sons
     parents = list(relative_parents)
     parents.sort(lambda x, y: len(x) - len(y))
-    logging.debug("parents: %s" % parents)
+    #logging.debug("parents: %s" % parents)
 
     ntdir = lambda x: x.replace("/", "\\")
 
@@ -69,9 +69,10 @@ def execute(vm, args):
         if not os.path.exists(src):
             return False, "Not existent file: %s" % src
         else:
-            logging.debug("file exists")
+            pass
+            #logging.debug("file exists")
 
-        logging.debug("%s copy %s -> %s" % (vm, src, dst))
+        #logging.debug("%s copy %s -> %s" % (vm, src, dst))
         r = vm_manager.execute(vm, "copyFileToGuest", src, dst)
 
         if r > 0:

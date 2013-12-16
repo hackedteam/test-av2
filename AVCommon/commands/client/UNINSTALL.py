@@ -32,6 +32,8 @@ def close_instance():
     pass
 
 def kill_rcs():
+    blacklist = set(['BTHSAmpPalService','CyCpIo','CyHidWin','iSCTsysTray','quickset'])
+
     pass
 
 def delete_startup():

@@ -8,7 +8,7 @@ def execute(vm, args):
     """ server side """
     from AVMaster import vm_manager
 
-    logging.debug("    CS Execute")
+    #logging.debug("    CS Execute")
     assert vm, "null vm"
 
     if args:

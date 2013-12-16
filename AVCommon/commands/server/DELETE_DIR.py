@@ -6,7 +6,7 @@ from AVCommon.logger import logging
 def execute(vm, args):
     from AVMaster import vm_manager
 
-    logging.debug("    CS Execute")
+    #logging.debug("    CS Execute")
     assert vm, "null vm"
     #assert len(args) == 1 and isinstance(args, str), "Argument must be a string."
     assert isinstance(args, str), "Argument must be single."

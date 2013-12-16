@@ -7,7 +7,7 @@ def execute(vm, args):
     """ server side """
     from AVMaster import vm_manager
 
-    logging.debug("    CS Execute REVERT")
+    #logging.debug("    CS Execute REVERT")
     assert vm, "null vm"
 
     # TODO: check

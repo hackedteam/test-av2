@@ -8,7 +8,7 @@ def execute(vm, args):
     from AVMaster import vm_manager
 
     """ server side """
-    logging.debug("    CS Execute")
+    #logging.debug("    CS Execute")
     assert vm, "null vm"
 
     if vm_manager.execute(vm, "is_powered_off"):
