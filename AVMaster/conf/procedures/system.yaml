@@ -1,0 +1,103 @@
+
+# ------------- SYSTEM COMMANDS -------------- #
+
+
+SYSTEM_WINDOWS:
+    - CALL: INIT_DISPATCH
+    - START_AGENT
+    - CALL: SET_DEFAULTS
+    - BUILD: [ scout, windows, silent ]
+    - BUILD: [ elite, windows, silent ]
+    - BUILD: [ scout, windows, melt ]
+    - STOP_AGENT
+
+SYSTEM_STATIC:
+    - VM_ALL
+    - CALL: INIT_DISPATCH
+    - START_AGENT
+    - CROP: True
+    - REPORT:
+        - BUILD_DESKTOP
+        - BUILD_MOBILE
+        - BUILD_EXPLOIT
+    - CROP: False
+    - STOP_AGENT
+    - STOP_VM
+
+SYSTEM_STATIC_MOBILE:
+    - VM_ALL: IMPORTANT
+    - INTERNET: False
+    - SLEEP: [0, 600]
+    - CALL: INIT_DISPATCH
+    - START_AGENT
+    - CLEAN_EVIDENCES
+    - CROP: True
+    - REPORT:
+        - BUILD_MOBILE
+    - CROP: False
+    - STOP_AGENT
+    - STOP_VM
+
+SYSTEM_REVERT:
+    - VM_ALL
+    - INTERNET: False
+    - SLEEP: [1, 10]
+    - REVERT
+
+SYSTEM_START:
+    - VM_ALL
+    - INTERNET: False
+    - SLEEP: [1, 60]
+    - START_VM
+
+SYSTEM_DAILY:
+    - VM_ALL
+    #- VM: [ahnlab,avast]
+    - ON_ERROR: STOP
+    - SLEEP: [1, 60]
+    - CALL: INIT_DISPATCH
+    - CALL: VM_CLEAN_EVIDENCES
+    - REPORT:
+        - VM_STATIC
+        - VM_ELITE
+        - VM_MELT
+    - UNINSTALL
+    - CALL: END_DISPATCH
+
+SYSTEM_POSITIVE:
+    - VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
+    #- VM: [avast,avira,eset,fsecure]
+    - INTERNET: False
+    - REPORT:
+        - DISPATCH
+        - PUSH_VIRUS
+
+SYSTEM_ELITE:
+    #- VM: [avast,eset,avast32,avg,avg32,avira,kis,kis14,kis32,mcafee,norton,panda,comodo]
+    - VM_ALL: important
+    - SLEEP: [1,100]
+    - CALL: INIT_DISPATCH
+    - REPORT:
+        - VM_ELITE
+        #- VM_PUSH_VIRUS
+    - CALL: END_DISPATCH
+
+SYSTEM_ELITE_BIS:
+    #- VM: [avast,eset,avast32,avg,avg32,avira,kis,kis14,kis32,mcafee,norton,panda,comodo]
+    - VM_ALL: ininfluent
+    - SLEEP: [1,100]
+    - CALL: INIT_DISPATCH
+    - REPORT:
+        - VM_ELITE
+        #- VM_PUSH_VIRUS
+    - CALL: END_DISPATCH
+
+SYSTEM_MANUAL_CHECK:
+    - VM: [kis,360cn]
+    - CALL: INIT_DISPATCH
+    #- CALL: VM_PUSH_AGENT
+    #- CALL: VM_SCOUT
+    - START_AGENT
+    - CALL: SET_DEFAULTS
+    - BUILD: [ pull, windows, melt ]
+    - STOP_AGENT

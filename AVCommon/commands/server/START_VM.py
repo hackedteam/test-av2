@@ -11,7 +11,7 @@ def execute(vm, args):
     #logging.debug("    CS Execute")
     assert vm, "null vm"
 
-    timeout = 12
+    timeout = 300 # 5 * 60
     if args:
         timeout = args / 60
 
