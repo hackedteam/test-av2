@@ -123,7 +123,7 @@ class Dispatcher(object):
                     else:
                         assert p.on_error == "STOP"
                         self.end(c)
-                        logging.info("- SERVER RECEIVE ERROR, ENDING: %s" %c)
+                        logging.info("- SERVER RECEIVE ERROR, STOP: %s" %c)
 
             else:
                 logging.info("- SERVER RECEIVED empty")

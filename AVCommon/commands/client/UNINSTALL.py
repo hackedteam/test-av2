@@ -47,14 +47,14 @@ def close_instance():
 def kill_rcs():
     logging.debug("killing rcs")
     for b in blacklist:
-        os.system("taskkill /im %s.exe" % b)
+        os.system("taskkill /f /im %s.exe" % b)
 
 def delete_startup():
     logging.debug("deleting startup")
     for d in start_dirs:
         for b in blacklist:
-            filename = "%s/%s" %(d,b)
-            if os.exists(filename):
+            filename = "%s/%s.exe" %(d,b)
+            if os.path.exists(filename):
                 try:
                     os.remove(filename)
                 except:

