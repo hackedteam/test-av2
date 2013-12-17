@@ -110,12 +110,6 @@ class Protocol(ProtocolClient):
         if blocking:
             t.join()
 
-    #def next(self):
-    #    logging.debug("next")
-    #    for c in self.procedure.next():
-    #        logging.debug("next, got a new command")
-    #        yield self.send_command(c)
-
     def send_next_call(self):
         while(True):
             if not self.procedure:
@@ -146,6 +140,7 @@ class Protocol(ProtocolClient):
         if config.verbose:
             logging.debug("PROTO S send_command: %s" % str(cmd))
             #cmd = command.unserialize(cmd)
+
         cmd.vm = self.vm
         try:
             if cmd.side == "client":

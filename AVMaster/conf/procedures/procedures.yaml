@@ -14,28 +14,11 @@
 
 # ----------- PARTIAL COMMANDS -------------- #
 
-AV_PUSH_AGENT:
-    - PUSH: [ AVAgent/*.py, AVCommon/*.py, AVCommon/*.yml, AVCommon/commands/client/*.py, AVCommon/commands/meta/*.py, AVCommon/commands/*.py]
-    - PUSH: [ AVAgent/assets/config*, AVAgent/assets/keyinject.exe, AVAgent/assets/meltapp.exe ]
-
-AV_UPLOAD_SKYPE:
-    - PUSH:
-        - [SkypeSetup.exe]
-        - updates
-        - c:/Users/avtest/Desktop
-
-AV_GET_LOG:
-    - PULL:
-        - ['avmonitor.log']
-        - c:\\AVTest\\logs
-        - logs
-
-
 INIT_DISPATCH:
     - INTERNET: False
     - REVERT
     - START_VM
-    - CALL: AV_PUSH_AGENT
+    - CALL: VM_PUSH_AGENT
 
 END_DISPATCH:
     - STOP_VM
@@ -43,9 +26,30 @@ END_DISPATCH:
 LOGOUT:
     - EXECUTE_VM:
         - /Windows/System32/logoff.exe
+        - []
+        - 10
+        - True
+        - True
     - SLEEP: 120
 
 # -------------- VM COMMANDS -------------- #
+
+
+VM_PUSH_AGENT:
+    - PUSH: [ AVAgent/*.py, AVCommon/*.py, AVCommon/*.yml, AVCommon/commands/client/*.py, AVCommon/commands/meta/*.py, AVCommon/commands/*.py]
+    - PUSH: [ AVAgent/assets/config*, AVAgent/assets/keyinject.exe, AVAgent/assets/meltapp.exe ]
+
+VM_UPLOAD_SKYPE:
+    - PUSH:
+        - [SkypeSetup.exe]
+        - updates
+        - c:/Users/avtest/Desktop
+
+VM_GET_LOG:
+    - PULL:
+        - ['avmonitor.log']
+        - c:\\AVTest\\logs
+        - logs
 
 VM_PUSH_VIRUS:
     - START_AGENT
@@ -128,7 +132,7 @@ VM_STATIC_OSX:
     #- VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
     #- SLEEP: [1, 60]
     #- CALL: INIT_DISPATCH
-    - CALL: AV_PUSH_AGENT
+    - CALL: VM_PUSH_AGENT
     - START_AGENT
     - CALL: SET_DEFAULTS
     - CROP: True
@@ -143,7 +147,7 @@ BUILD_MELT_FAST:
 VM_PACKER_MELT:
     - VM: [avg, avg32]
     - CALL: INIT_DISPATCH
-    #- CALL: AV_PUSH_AGENT
+    #- CALL: VM_PUSH_AGENT
     - START_AGENT
     - CALL: SET_DEFAULTS
     - CROP: True
@@ -260,7 +264,7 @@ SYSTEM_ELITE_BIS:
 SYSTEM_MANUAL_CHECK:
     - VM: [kis,360cn]
     - CALL: INIT_DISPATCH
-    #- CALL: AV_PUSH_AGENT
+    #- CALL: VM_PUSH_AGENT
     #- CALL: VM_SCOUT
     - START_AGENT
     - CALL: SET_DEFAULTS

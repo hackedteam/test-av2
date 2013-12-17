@@ -15,7 +15,7 @@ TEST_VM:
 
 TEST_CHAT:
     - CALL: INIT_DISPATCH
-    #- CALL: AV_PUSH_AGENT
+    #- CALL: VM_PUSH_AGENT
     - START_AGENT: 172.20.20.168
     - CALL: SET_DEFAULTS_FUNCTIONAL
     #- CROP: False
@@ -56,17 +56,17 @@ TEST_EMPTY:
 TEST_EVIDENCE:
     - VM: ['funvm']
     #- CALL: INIT_DISPATCH
-    - CALL: AV_PUSH_AGENT
+    - CALL: VM_PUSH_AGENT
     - START_AGENT: 172.20.20.168
     - CALL: SET_SERVER
     - CHECK_EVIDENCES: [device]
     - CHECK_EVIDENCES: [chat,program,facebook]
     - STOP_AGENT
-    - CALL: AV_GET_LOG
+    - CALL: VM_GET_LOG
 
 TEST_ELITE:
     #- VM: ['noav']
-    #- CALL: AV_PUSH_AGENT
+    #- CALL: VM_PUSH_AGENT
     - START_AGENT
     - CALL: BUILD_ELITE
     - STOP_AGENT
@@ -84,12 +84,12 @@ TEST_LOG:
     - VM: ['noav']
     #- START_VM
     - CALL: LOGOUT
-    - CALL: AV_GET_LOG
+    - CALL: VM_GET_LOG
 
 TEST_CROP:
     - VM: [ noav ]
     #- CALL: INIT_DISPATCH
-    - CALL: AV_PUSH_AGENT
+    - CALL: VM_PUSH_AGENT
     - START_AGENT
     - CALL: SET_DEFAULTS
     - CROP: True
@@ -146,7 +146,7 @@ TEST_INFECTION:
     - VM: [noav]
     - ON_ERROR: STOP
     #- CALL: INIT_DISPATCH
-    #- CALL: AV_PUSH_AGENT
+    #- CALL: VM_PUSH_AGENT
     - START_AGENT
     - CALL: SET_DEFAULTS
     - BUILD: [ scout, windows, silent ]
@@ -158,10 +158,18 @@ TEST_INFECTION:
 TEST_UNINSTALL:
     - VM: [noav]
     - ON_ERROR: STOP
-    #- CALL: AV_PUSH_AGENT
+    #- CALL: VM_PUSH_AGENT
     - START_AGENT
     - CALL: SET_SERVERS
     - ON_ERROR: SKIP
     - UNINSTALL
     - CHECK_INFECTION
+    - STOP_AGENT
+
+TEST_INSTALL:
+    - VM: [noav]
+    - ON_ERROR: STOP
+    #- CALL: VM_PUSH_AGENT
+    - INSTALL_AGENT
+    - CALL: LOGOUT
     - STOP_AGENT

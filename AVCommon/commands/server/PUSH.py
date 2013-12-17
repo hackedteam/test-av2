@@ -4,7 +4,6 @@ import glob
 from AVCommon.logger import logging
 from AVCommon import config
 
-
 report_level = 2
 
 

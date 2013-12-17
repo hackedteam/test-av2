@@ -1,4 +1,5 @@
 from AVCommon.logger import logging
+from AVCommon import config
 import time
 
 
@@ -12,7 +13,7 @@ def on_init(protocol, args):
     if args:
         redis = args
     elif mq.host == "localhost":
-        redis = "10.0.20.1"
+        redis = config.redis
     else:
         redis = mq.host
 
