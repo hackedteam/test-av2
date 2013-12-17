@@ -36,7 +36,7 @@ class Dispatcher(object):
             self.start(m)
 
     def start(self, p):
-        logging.debug("- SERVER START: %s" % p)
+        logging.debug("- SERVER START: %s" % p.vm)
         self.mq.clean(p)
         r = p.send_next_command()
         c = p.last_command
@@ -60,7 +60,7 @@ class Dispatcher(object):
         command.context = {}
         procedure.add_begin_end()
 
-        logging.debug("- SERVER len(procedure): %s" % len(procedure))
+        #logging.debug("- SERVER len(procedure): %s" % len(procedure))
         self.num_commands = len(procedure)
 
         report.init(procedure.name)
@@ -89,7 +89,7 @@ class Dispatcher(object):
                 report.received(c, command.unserialize(msg))
 
                 if answer.success == None:
-                    logging.debug("- SERVER IGNORING")
+                    #logging.debug("- SERVER IGNORING")
                     continue
 
                 answered += 1
@@ -123,7 +123,6 @@ class Dispatcher(object):
                     else:
                         self.end(c)
                         logging.info("- SERVER RECEIVE ERROR, ENDING: %s" %c)
-
 
             else:
                 logging.info("- SERVER RECEIVED empty")

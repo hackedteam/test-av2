@@ -18,7 +18,7 @@ UPDATE:
     - EXECUTE_VM: /AVTest/AVAgent/assets/shutdown.bat
     - START_VM
     - SLEEP: 180
-    - STOP_VM
+    - STOP_VM: 300
     - REFRESH_SNAPSHOT
 
 UPDATE_SNAPSHOT:
@@ -63,7 +63,7 @@ UPDATE_REG:
 
 UPDATE_FAST:
 #    - VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
-    - VM: [360cn,avast32]
+    - VM_ALL: IRRILEVANT
     - SKIP_TO_CALL: False
     - INTERNET: True
     - SLEEP: [0, 60]
@@ -72,10 +72,11 @@ UPDATE_FAST:
     - SLEEP: 180
     - PUSH: [ AVAgent/assets/shutdown.bat ]
     - EXECUTE_VM: /AVTest/AVAgent/assets/shutdown.bat
-    - SLEEP: 60
+    - WAIT_SHUTDOWN
     - START_VM
     - SLEEP: 60
-    - STOP_VM
+    - DELETE_DIR: c:\\AVTest
+    - STOP_VM: 300
     - REFRESH_SNAPSHOT
 
 UPDATE_DELETE_CACHE:
@@ -88,5 +89,5 @@ UPDATE_DELETE_CACHE:
     - PUSH: [ AVAgent/assets/delete_cache.bat ]
     - EXECUTE_VM: /AVTest/AVAgent/assets/delete_cache.bat
     - SLEEP: 30
-    - STOP_VM
+    - STOP_VM: 300
     - REFRESH_SNAPSHOT

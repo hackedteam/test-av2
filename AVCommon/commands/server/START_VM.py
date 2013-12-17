@@ -11,13 +11,17 @@ def execute(vm, args):
     #logging.debug("    CS Execute")
     assert vm, "null vm"
 
+    timeout = 12
+    if args:
+        timeout = args / 60
+
     ret = vm_manager.execute(vm, "startup")
     started = False
     if ret:
         for i in range(3):
             sleep(10)
             if vm_manager.execute(vm, "is_powered_on"):
-                for i in range(12):
+                for i in range(timeout):
                     started = vm_manager.execute(vm, "executeCmd", "c:\\windows\\system32\\ipconfig.exe") == 0
                     logging.debug("%s, executing ipconfig, ret: %s" % (vm,started))
                     if started:

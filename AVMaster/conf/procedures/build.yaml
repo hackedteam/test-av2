@@ -46,7 +46,7 @@ BUILD_DESKTOP:
 
 BUILD_MOBILE:
     - CALL: SET_DEFAULTS
-    - BUILD: [ pull, blackberry, silent ]
+   # - BUILD: [ pull, blackberry, silent ]
     - BUILD: [ pull, android, silent ]
     - BUILD: [ pull, ios, silent ]
 

@@ -30,14 +30,6 @@ AV_GET_LOG:
         - c:\\AVTest\\logs
         - logs
 
-AV_SCOUT:
-    #- SLEEP: [1, 60]
-    #- CALL: INIT_DISPATCH
-    - START_AGENT
-    - CALL: SET_DEFAULTS
-    - BUILD: [ scout, windows, silent ]
-    - STOP_AGENT
-
 
 INIT_DISPATCH:
     - INTERNET: False
@@ -67,6 +59,13 @@ VM_PUSH_VIRUS:
         - [ desktop.ini ]
     - STOP_AGENT
 
+VM_PULL_WINDOWS:
+    - START_AGENT
+    - CALL: SET_DEFAULTS
+    - BUILD: [ pull, windows, silent ]
+    - BUILD: [ pull, windows, melt ]
+    - STOP_AGENT
+
 VM_SCOUT:
     - START_AGENT
     - CALL: SET_DEFAULTS
@@ -82,11 +81,11 @@ VM_ELITE:
     - CROP: True
     - BUILD: [ elite, windows, silent ]
     - SLEEP: 30
+    - SCREENSHOT
     - CROP: False
     - CHECK_EMPTY_DIR:
         - [ '/Users/avtest/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup', '/Documents and Settings/avtest/Start Menu/Programs/Startup/']
         - [ desktop.ini ]
-    - SCREENSHOT
     - UNINSTALL
     - STOP_AGENT
     - CALL: LOGOUT
@@ -189,10 +188,24 @@ SYSTEM_STATIC:
     - STOP_AGENT
     - STOP_VM
 
+SYSTEM_STATIC_MOBILE:
+    - VM_ALL: IMPORTANT
+    - INTERNET: False
+    - SLEEP: [0, 600]
+    - CALL: INIT_DISPATCH
+    - START_AGENT
+    - CLEAN_EVIDENCES
+    - CROP: True
+    - REPORT:
+        - BUILD_MOBILE
+    - CROP: False
+    - STOP_AGENT
+    - STOP_VM
+
 SYSTEM_REVERT:
     - VM_ALL
     - INTERNET: False
-    - SLEEP: [1, 60]
+    - SLEEP: [1, 10]
     - REVERT
 
 SYSTEM_START:
@@ -243,7 +256,12 @@ SYSTEM_ELITE_BIS:
     - CALL: END_DISPATCH
 
 SYSTEM_MANUAL_CHECK:
-    - VM: [mcafee]
+    - VM: [kis,360cn]
     - CALL: INIT_DISPATCH
-    - CALL: VM_SCOUT
+    #- CALL: AV_PUSH_AGENT
+    #- CALL: VM_SCOUT
+    - START_AGENT
+    - CALL: SET_DEFAULTS
+    - BUILD: [ pull, windows, melt ]
+    - STOP_AGENT
 

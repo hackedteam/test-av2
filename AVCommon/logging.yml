@@ -10,12 +10,10 @@ handlers:
     formatter: simpleFormatter
     stream: ext://sys.stdout
   file:
-    class: logging.handlers.RotatingFileHandler
+    class: logging.handlers.WatchedFileHandler
     level: DEBUG
     formatter: simpleFormatter
     filename: ../logs/avmonitor.log
-    maxBytes: 0
-    backupCount: 3
 loggers:
   avmonitor:
     level: DEBUG

@@ -9,6 +9,7 @@ import time
 import random
 import uuid
 import ast
+from AVCommon import config
 
 report = None
 from AVCommon.singleton import Singleton
@@ -141,7 +142,8 @@ def sent(av, command):
     report = Report()
 
     assert isinstance( av, str)
-    logging.debug("sent (%s): %s (%s)" % (report.current_procedure.get(av,""), av, command))
+    if config.verbose:
+        logging.debug("sent (%s): %s (%s)" % (report.current_procedure.get(av,""), av, command))
     report.c_sent[av]=str(command)
     dump()
 
@@ -150,8 +152,8 @@ def received(av, command):
     report = Report()
 
     assert isinstance( av, str)
-
-    logging.debug("received (%s): %s (%s)" % (report.current_procedure.get(av,""), av, command))
+    if config.verbose:
+        logging.debug("received (%s): %s (%s)" % (report.current_procedure.get(av,""), av, command))
     if av not in report.c_received:
         report.c_received[av] = []
     report.c_received[av].append(str(command))

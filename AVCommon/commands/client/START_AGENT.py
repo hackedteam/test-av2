@@ -19,7 +19,7 @@ def on_init(protocol, args):
     arg = ["C:\\AVTest\\AVAgent\\av_agent.py", "-m", vm, "-s", mq.session, "-d", redis]
     ret = vm_manager.execute(vm, "executeCmd", cmd, arg, 40, True, True)
 
-    logging.debug("execution: %s" % ret)
+    #logging.debug("execution: %s" % ret)
     python = None
 
     for i in range(5):

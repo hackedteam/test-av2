@@ -23,5 +23,4 @@ def execute(vm, args):
 
     backend = command.context["backend"]
     numtargets = build.clean(backend)
-
     return True, "Cleaned targets: %s" % numtargets

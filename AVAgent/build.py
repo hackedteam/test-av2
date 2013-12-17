@@ -19,6 +19,7 @@ import ctypes
 
 from rcs_client import Rcs_client
 from AVCommon.logger import logging
+from AVCommon import process
 
 MOUSEEVENTF_MOVE = 0x0001  # mouse move
 MOUSEEVENTF_ABSOLUTE = 0x8000  # absolute move
@@ -106,25 +107,6 @@ def check_internet(address, queue):
         ret |= False
 
     queue.put(ret)
-
-
-def wait_timeout(proc, seconds):
-    """Wait for a process to finish, or raise exception after timeout"""
-    start = time.time()
-    end = start + seconds
-    interval = min(seconds / 1000.0, .25)
-
-    logging.debug("DBG wait for: %s sec" % seconds)
-    while True:
-        result = proc.poll()
-        if result is not None:
-            return result
-        if time.time() >= end:
-            proc.kill()
-            logging.debug("DBG Process timed out, killed")
-            break
-        time.sleep(interval)
-
 
 class connection:
     host = ""
@@ -308,7 +290,7 @@ class AgentBuild:
 
     def _trigger_sync(self, timeout=10):
         subp = subprocess.Popen(['assets/keyinject.exe'])
-        wait_timeout(subp, timeout)
+        process.wait_timeout(subp, timeout)
 
     def check_instance(self, ident):
         with connection() as c:
@@ -629,6 +611,73 @@ def execute_agent(args, level, platform):
 
     return True
 
+def check_evidences(backend, type_ev, key, value):
+    connection.host = backend
+    target = get_target_name()
+
+    logging.debug("target: %s, type_ev: %s, filter: %s=%s" % (target, type_ev, key, value))
+    number = 0
+
+    with connection() as client:
+        logging.debug("connected")
+
+        operation_id, group_id = client.operation('AVMonitor')
+        targets = client.targets(operation_id, target)
+        if len(targets) != 1:
+            return False, "not one target: %s" % len(targets)
+
+        target_id = targets[0]
+        instances = client.instances_by_target_id(target_id)
+        logging.debug("found these instances: %s" % instances)
+        if len(instances) != 1:
+            return False, "not one instance: %s" % len(instances)
+
+        instance = instances[0]
+        instance_id = instance['_id']
+        target_id = instance['path'][1]
+
+        evidences = client.evidences(target_id, instance_id, "type", type_ev)
+
+        if key:
+            for ev in evidences:
+                #content = ev['data']['content']
+                logging.debug("got evidence")
+
+                v = ev['data'][key]
+                if v == value:
+                    number+=1
+                    logging.debug( "evidence %s: %s -> %s" %(type_ev, key, value))
+        else:
+            number = len(evidences)
+    return number > 0, number
+
+def uninstall(backend):
+    logging.debug("- Clean Server: %s" % (backend))
+    connection.host = backend
+
+    target = get_target_name()
+    logging.debug("target: %s" % (target))
+
+    with connection() as client:
+        logging.debug("connected")
+
+        operation_id, group_id = client.operation('AVMonitor')
+        targets = client.targets(operation_id, target)
+        if len(targets) != 1:
+            return False, "not one target: %s" % len(targets)
+
+        target_id = targets[0]
+        instances = client.instances_by_target_id(target_id)
+        logging.debug("found these instances: %s" % instances)
+        if len(instances) != 1:
+            logging.warn("more than one instance")
+
+        for instance in instances:
+            instance_id = instance['_id']
+            target_id = instance['path'][1]
+            logging.debug('closing instance: %s' % instance)
+            client.instance_close(instance_id)
+        return True, "Instance closed"
 
 def clean(backend):
     logging.debug("- Clean Server: %s" % (backend))

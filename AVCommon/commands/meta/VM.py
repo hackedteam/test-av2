@@ -7,9 +7,8 @@ from AVCommon import command
 
 def execute(vm, args):
     """ client side, returns (bool,*) """
-    logging.debug("    VM %s" % str(args))
-
     protocol, vms = args
+    logging.debug("    VM %s" % str(vms))
 
     assert vm, "null vm"
     assert command.context is not None

@@ -11,10 +11,11 @@ def execute(vm, args):
     #assert len(args) == 1 and isinstance(args, str), "Argument must be a string."
     assert isinstance(args, str), "Argument must be single."
 
-    logging.debug("Deleting %s from %s" % (args, vm))
-    r = vm_manager.execute(vm, "deleteDirectoryInGuest", args)
+    dirname = args.replace('/','\\')
+    logging.debug("Deleting %s from %s" % (dirname, vm))
+    r = vm_manager.execute(vm, "deleteDirectoryInGuest", dirname)
 
-    return True, "%s deleted" % args
+    return True, "%s deleted" % dirname
 
     # TODO: return True only if directory is deleted for real
 
