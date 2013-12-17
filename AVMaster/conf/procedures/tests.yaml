@@ -143,9 +143,13 @@ TEST_PACKER_SILENT:
     - STOP_VM
 
 TEST_INFECTION:
-    - VM: [mcafee]
+    - VM: [noav]
     #- CALL: INIT_DISPATCH
     - CALL: AV_PUSH_AGENT
-    #- CHECK_INFECTION
-    - CALL: VM_ELITE
+    - BUILD: [ scout, windows, silent ]
+    - ON_ERROR: CONTINUE
+    - CHECK_INFECTION
+    - UNINSTALL
+    - CHECK_INFECTION
+
 

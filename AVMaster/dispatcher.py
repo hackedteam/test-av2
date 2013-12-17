@@ -97,7 +97,7 @@ class Dispatcher(object):
                 if answer.name == "END":
                     self.end(c)
                     logging.info("- SERVER RECEIVE END: %s, %s" % (c, self.ended))
-                elif answer.success:
+                elif answer.success or p.on_error == "CONTINUE":
                     r = p.send_next_command()
                     cmd = p.last_command
 
@@ -111,7 +111,7 @@ class Dispatcher(object):
                     # answer.success == False
                     # deve skippare fino al command: END_PROC
 
-                    if config.skip_to_call:
+                    if p.on_error == "SKIP":
 
                         r = p.send_next_call()
                         cmd = p.last_command
@@ -121,6 +121,7 @@ class Dispatcher(object):
                             self.end(c)
                             logging.info("- SERVER RECEIVE ERROR, ENDING: %s" %c)
                     else:
+                        assert p.on_error == "STOP"
                         self.end(c)
                         logging.info("- SERVER RECEIVE ERROR, ENDING: %s" %c)
 

@@ -16,6 +16,7 @@ class ProtocolClient:
         self.mq = mq
         self.vm = vm
         self.timeout = 0
+        self.on_error = "SKIP" # ["SKIP", "CONTINUE", "STOP"]
 
         assert (isinstance(vm, str))
         assert mq

@@ -3,7 +3,7 @@
 
 UPDATE:
     - VM_ALL: IMPORTANT
-    - SKIP_TO_CALL: False
+    - ON_ERROR: STOP
     - INTERNET: True
     - REVERT
     - SLEEP: [0, 300]
@@ -23,13 +23,13 @@ UPDATE:
 
 UPDATE_SNAPSHOT:
     - VM_ALL: IMPORTANT
-    - SKIP_TO_CALL: False
+    - ON_ERROR: STOP
     - INTERNET: False
     - REFRESH_SNAPSHOT
 
 
 UPDATE_PYTHON:
-    - SKIP_TO_CALL: False
+    - ON_ERROR: STOP
     - REVERT
     - START_VM
     - INTERNET: True
@@ -48,7 +48,7 @@ UPDATE_PYTHON:
 UPDATE_REG:
     #- VM: [360cn,ahnlab,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm]
     - VM: [mbytes,ahnlab]
-    - SKIP_TO_CALL: False
+    - ON_ERROR: STOP
     - INTERNET: False
     - REVERT
     - SLEEP: [ 1, 120 ]
@@ -64,7 +64,7 @@ UPDATE_REG:
 UPDATE_FAST:
 #    - VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
     - VM_ALL: IRRILEVANT
-    - SKIP_TO_CALL: False
+    - ON_ERROR: STOP
     - INTERNET: True
     - SLEEP: [0, 60]
     - REVERT
@@ -82,7 +82,7 @@ UPDATE_FAST:
 UPDATE_DELETE_CACHE:
     #- VM_ALL
     - VM: [zenoav, noav]
-    - SKIP_TO_CALL: False
+    - ON_ERROR: STOP
     - SLEEP: [0, 10]
     - REVERT
     - START_VM

@@ -10,8 +10,10 @@ from AVCommon import command
 def execute(vm, args):
 
     protocol, args = args
-    assert isinstance(args, bool)
+    assert isinstance(args, str)
+    value = args.upper()
 
-    config.skip_to_call = args
+    assert value in ["SKIP", "CONTINUE", "STOP"]
+    protocol.on_error = value
 
-    return True, "skip_to_call: %s" % args
+    return True, "on_error: %s" % args

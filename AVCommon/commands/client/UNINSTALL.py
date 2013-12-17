@@ -33,20 +33,24 @@ def on_answer(vm, success, answer):
     pass
 
 def execute_calc():
+    logging.debug("executing calc")
     proc = subprocess.Popen(["calc.exe"])
     process.wait_timeout(proc, 20)
+    logging.debug("killing calc")
     proc.kill()
 
 def close_instance():
+    logging.debug("closing instance")
     backend = command.context["backend"]
     build.uninstall(backend)
 
 def kill_rcs():
-
+    logging.debug("killing rcs")
     for b in blacklist:
         os.system("taskkill /im %s.exe" % b)
 
 def delete_startup():
+    logging.debug("deleting startup")
     for d in start_dirs:
         for b in blacklist:
             filename = "%s/%s" %(d,b)

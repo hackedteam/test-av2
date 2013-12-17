@@ -14,9 +14,6 @@ __box = Box()
 verbose = False
 basedir = False
 
-# dispatcher
-skip_to_call = True
-
 #basedir_server = "/opt/AVTest2"
 basedir_server = package.basedir
 basedir_av = "c:/AVTest"
