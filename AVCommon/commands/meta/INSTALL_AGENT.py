@@ -9,12 +9,13 @@ import time
 import tempfile
 
 from AVCommon import command
-from AVMaster import vm_manager
 
 vm = None
 
 
 def execute(vm, args):
+    from AVMaster import vm_manager
+
     """ client side, returns (bool,*) """
     logging.debug("    INSTALL_AGENT" )
 

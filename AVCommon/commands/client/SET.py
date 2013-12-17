@@ -4,6 +4,7 @@ from AVCommon.logger import logging
 import time
 
 from AVCommon import command
+from AVCommon import config
 
 
 def on_init(protocol, args):
@@ -16,7 +17,8 @@ def on_init(protocol, args):
     for k, v in args.items():
         command.context[k] = v
 
-    logging.debug("items: %s" % (command.context))
+    if config.verbose:
+        logging.debug("items: %s" % (command.context))
     return True
 
 

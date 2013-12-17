@@ -87,11 +87,10 @@ VM_ELITE:
     - SLEEP: 30
     - SCREENSHOT
     - CROP: False
-    - CHECK_EMPTY_DIR:
-        - [ '/Users/avtest/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup', '/Documents and Settings/avtest/Start Menu/Programs/Startup/']
-        - [ desktop.ini ]
     - UNINSTALL
     - STOP_AGENT
+    - CHECK_INFECTION
+    - INSTALL_AGENT
     - CALL: LOGOUT
 
 VM_MELT:
@@ -103,12 +102,20 @@ VM_MELT:
     - UNINSTALL
     - STOP_AGENT
     - SCREENSHOT
+    - INSTALL_AGENT
     - CALL: LOGOUT
 
 VM_STATIC_WINDOWS:
     - START_AGENT
     - CROP: True
     - CALL: BUILD_WINDOWS
+    - STOP_AGENT
+
+VM_STATIC_MOBILE:
+    - START_AGENT
+    - CROP: True
+    - CALL: BUILD_MOBILE
+    - CROP: False
     - STOP_AGENT
 
 VM_STATIC:
@@ -118,6 +125,7 @@ VM_STATIC:
     - CALL: BUILD_DESKTOP
     - CALL: BUILD_MOBILE
     - CALL: BUILD_EXPLOIT
+    - CROP: False
     - ON_ERROR: SKIP
     - STOP_AGENT
 
@@ -182,7 +190,6 @@ SYSTEM_WINDOWS:
 
 SYSTEM_STATIC:
     - VM_ALL
-    - INTERNET: False
     - CALL: INIT_DISPATCH
     - START_AGENT
     - CROP: True
@@ -223,10 +230,10 @@ SYSTEM_START:
 SYSTEM_DAILY:
     - VM_ALL
     #- VM: [ahnlab,avast]
-
+    - ON_ERROR: STOP
     - SLEEP: [1, 60]
     - CALL: INIT_DISPATCH
-    #- CALL: VM_CLEAN_EVIDENCES
+    - CALL: VM_CLEAN_EVIDENCES
     - REPORT:
         - VM_STATIC
         - VM_ELITE

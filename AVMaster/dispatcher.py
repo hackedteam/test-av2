@@ -112,7 +112,7 @@ class Dispatcher(object):
                     # deve skippare fino al command: END_PROC
 
                     if p.on_error == "SKIP":
-
+                        logging.debug("on_error == SKIP")
                         r = p.send_next_call()
                         cmd = p.last_command
                         if cmd:

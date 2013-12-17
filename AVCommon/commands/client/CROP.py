@@ -2,6 +2,7 @@ __author__ = 'zeno'
 
 import time
 import threading
+import shutil
 from AVCommon.logger import logging
 import os
 
@@ -44,11 +45,16 @@ def execute(vm, args):
     from PIL import ImageGrab
     global im1, thread, go_on, found
 
-    if not os.path.exists(config.basedir_crop):
-        os.makedirs(config.basedir_crop)
+
+    if os.path.exists(config.basedir_crop):
+        shutil.rmtree(config.basedir_crop)
+    os.makedirs(config.basedir_crop)
+
     if args:
         # starts a crop server
         logging.debug("start a crop server")
+
+
         ret = args
         try:
             im1 = ImageGrab.grab()

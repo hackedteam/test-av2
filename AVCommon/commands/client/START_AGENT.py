@@ -12,10 +12,8 @@ def on_init(protocol, args):
 
     if args:
         redis = args
-    elif mq.host == "localhost":
-        redis = config.redis
     else:
-        redis = mq.host
+        redis = config.redis
 
     arg = ["C:\\AVTest\\AVAgent\\av_agent.py", "-m", vm, "-s", mq.session, "-d", redis]
     ret = vm_manager.execute(vm, "executeCmd", cmd, arg, 40, True, True)
@@ -35,7 +33,7 @@ def on_init(protocol, args):
             return True
 
     if not python:
-        raise RuntimeError("Error executing command av_agent on %s" % vm)
+        logging.error("Error executing command av_agent on %s" % vm)
     return False
 
 def on_answer(vm, success, answer):

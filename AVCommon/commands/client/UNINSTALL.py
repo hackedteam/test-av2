@@ -60,8 +60,11 @@ def delete_startup():
                 except:
                     logging.exception("Cannot delete %s" % filename)
 
-def add_agent_startup():
-    pass
+def remove_agent_startup():
+    startup_dir = 'C:/Users/avtest/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup'
+    remote_name = "%s/av_agent.bat" % startup_dir
+    if os.path.exists(remote_name):
+        os.remove(remote_name)
 
 def execute(vm, args):
     # execute "calc.exe"
@@ -73,7 +76,7 @@ def execute(vm, args):
     # delete startup
     delete_startup()
     # add avagent.bat to startup
-    add_agent_startup()
+    remove_agent_startup()
     # sleep 20
 
     return True, "UNINSTALLED";

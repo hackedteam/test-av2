@@ -1,16 +1,16 @@
 core:
     - send procedure and vm in the execute, as first arg
-    - verify why sometimes dispatcher doesn't end correctly, especially when many vms are involved.
-    - logs should be in a different directory
+    -? verify why sometimes dispatcher doesn't end correctly, especially when many vms are involved.
+        +  logs should be in a different directory
     - PUSH and PULL, if agent is up and running, can be faster, using a zipped channel.
-    - SHUTDOWN should consider a timeout, after that, proceed with the vmrun
-    - commands server_once: [ INTERNET, CLEAN_EVIDENCES ]
+        + SHUTDOWN should consider a timeout, after that, proceed with the vmrun
+    -? commands server_once: [ INTERNET, CLEAN_EVIDENCES ]
     - elite check: avgscanx.exe
 
 build:
     - logout to speedup elite upgrade
         DONE- work on CHECK_EVIDENCES
-    - add KILL_AGENT (client, find and kill agent process)
+        + (added UNINSTALL) add KILL_AGENT (client, find and kill agent process)
 
 report:
     - integrate sqlite and alchemy
