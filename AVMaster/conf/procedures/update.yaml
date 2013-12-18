@@ -63,21 +63,22 @@ UPDATE_REG:
 
 UPDATE_FAST:
 #    - VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
-    - VM_ALL: IRRILEVANT
+    - VM_ALL
     - ON_ERROR: STOP
     - INTERNET: True
-    - SLEEP: [0, 600]
+    - SLEEP: [0, 1200]
     - REVERT
     - START_VM: 720
-    - UNINSTALL
-    - SLEEP: 180
+    - CHECK_INFECTION # questo non e' necessario, ma e' meglio assicurarsene
+    - SLEEP: 60
     - PUSH: [ AVAgent/assets/shutdown.bat ]
-    - EXECUTE_VM: /AVTest/AVAgent/assets/shutdown.bat
+    - EXECUTE_VM: /AVTest/AVAgent/assets/shutdown.bat # scarica gli aggiornamenti windows
     - WAIT_SHUTDOWN
     - START_VM
-    - SLEEP: 600
+    - SLEEP: 600 # attesa per gli update degli av
     - DELETE_DIR: c:\\AVTest
-    - STOP_VM: 300
+    - SCREENSHOT
+    - STOP_VM: 300 # cerca di spegnere con shutdown, se non ci riesce, spegne secco
     - REFRESH_SNAPSHOT
 
 UPDATE_DELETE_CACHE:

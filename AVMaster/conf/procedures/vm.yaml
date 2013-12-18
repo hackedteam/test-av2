@@ -60,7 +60,7 @@ VM_ELITE:
     - CALL: LOGOUT
 
 VM_MELT:
-    - START_AGENT
+    #- START_AGENT # se c'e' INSTALL_AGENT+LOGOUT questo non serve
     - CALL: SET_DEFAULTS
     - CROP: True
     - BUILD: [ scout, windows, melt ]

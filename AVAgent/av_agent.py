@@ -4,6 +4,8 @@ import sys, os
 import argparse
 import shutil
 import inspect
+import signal
+import time
 
 inspect_getfile = inspect.getfile(inspect.currentframe())
 cmd_folder = os.path.split(os.path.realpath(os.path.abspath(inspect_getfile)))[0]
@@ -45,7 +47,6 @@ class MQFeedProcedure(object):
     def add_client(self, vm):
         pass
 
-
 class AVAgent(object):
     def __init__(self, vm, redis='localhost', session=None):
         self.vm = vm
@@ -57,18 +58,38 @@ class AVAgent(object):
 
         command.context["report"] = self.report
 
+    def __del__(self):
+        self.remove_running()
+
+    def remove_running(self):
+        filepid = "avagent.%s.running" % self.vm
+        os.remove(filepid)
+
+    def check_running(self):
+        filepid = "avagent.%s.running" % self.vm
+        if os.path.exists(filepid):
+            return True
+
+        f = open(filepid, "w+")
+        f.write(os.getpid())
+        return False
+
     def report(self, message):
         logging.debug("report: %s" % message)
         self.pc.send_answer(command._factory("BUILD", None, None, message, self.vm))
 
     def start_agent(self, mq=None, procedure=None):
+
+        if self.check_running():
+            logging.fatal("already running")
+            exit = True
+            return False
+
         class D:
             pass
         d = D()
         if not mq:
-
             mq = MQStar(self.host, self.session)
-
             d.mq = mq
             self.pc = Protocol(d, self.vm)
         else:
@@ -88,6 +109,8 @@ class AVAgent(object):
                 exit = True
 
         logging.info("stop receiving commands")
+
+        self.remove_running()
 
 
 def start_agent(args):
