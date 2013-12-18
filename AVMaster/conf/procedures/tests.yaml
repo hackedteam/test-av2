@@ -172,8 +172,8 @@ TEST_INSTALL:
     - ON_ERROR: STOP
     #- CALL: VM_PUSH_AGENT
     - INSTALL_AGENT
-    - CALL: LOGOUT
-    - STOP_AGENT
+    - RELOG
+
 
 TEST_RELOG:
     - VM: [noav]

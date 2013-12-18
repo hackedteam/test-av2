@@ -13,7 +13,7 @@ def execute(vm, args):
     protocol, args = args
     mq = protocol.mq
 
-    timeout = 300 # 5 * 60
+    timeout = 5 # 5 * 60
     if args:
         timeout = args / 60
 
