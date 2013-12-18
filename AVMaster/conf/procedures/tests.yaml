@@ -64,11 +64,12 @@ TEST_EVIDENCE:
     - STOP_AGENT
     - CALL: VM_GET_LOG
 
-TEST_ELITE:
-    #- VM: ['noav']
-    #- CALL: VM_PUSH_AGENT
+TEST_ELITE_FAST:
+    - VM: ['noav']
+    - DELETE_DIR: avagent/running
+    - CALL: VM_PUSH_AGENT
     - START_AGENT
-    - CALL: BUILD_ELITE
+    - CALL: VM_ELITE_FAST
     - STOP_AGENT
 
 TEST_CLEAN:
@@ -173,3 +174,7 @@ TEST_INSTALL:
     - INSTALL_AGENT
     - CALL: LOGOUT
     - STOP_AGENT
+
+TEST_RELOG:
+    - VM: [noav]
+    - RELOG

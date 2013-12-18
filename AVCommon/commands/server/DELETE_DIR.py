@@ -1,17 +1,20 @@
 import os
 import sys
 from AVCommon.logger import logging
+from AVCommon import config
 
-
-def execute(vm, args):
+def execute(vm, dirname):
     from AVMaster import vm_manager
 
     #logging.debug("    CS Execute")
     assert vm, "null vm"
     #assert len(args) == 1 and isinstance(args, str), "Argument must be a string."
-    assert isinstance(args, str), "Argument must be single."
+    assert isinstance(dirname, str), "Argument must be single."
 
-    dirname = args.replace('/','\\')
+    if not dirname.startswith("/") and not dirname.startswith("\\"):
+        dirname = "%s/%s" %(config.basedir_av, dirname)
+    dirname = dirname.replace('/','\\')
+
     logging.debug("Deleting %s from %s" % (dirname, vm))
     r = vm_manager.execute(vm, "deleteDirectoryInGuest", dirname)
 

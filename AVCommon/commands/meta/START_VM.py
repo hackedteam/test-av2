@@ -2,7 +2,7 @@ import os
 import sys
 from AVCommon.logger import logging
 from time import sleep
-
+from AVCommon import mq
 
 def execute(vm, args):
     """ server side """
@@ -10,11 +10,14 @@ def execute(vm, args):
 
     #logging.debug("    CS Execute")
     assert vm, "null vm"
+    protocol, args = args
+    mq = protocol.mq
 
     timeout = 300 # 5 * 60
     if args:
         timeout = args / 60
 
+    mq.reset_connection(vm)
     ret = vm_manager.execute(vm, "startup")
     started = False
     if ret:
@@ -22,6 +25,9 @@ def execute(vm, args):
             sleep(10)
             if vm_manager.execute(vm, "is_powered_on"):
                 for i in range(timeout):
+                    if mq.check_connection(vm):
+                        logging.debug("got connection from %s" % vm)
+                        return True, "Started VM"
                     started = vm_manager.execute(vm, "executeCmd", "c:\\windows\\system32\\ipconfig.exe") == 0
                     logging.debug("%s, executing ipconfig, ret: %s" % (vm,started))
                     if started:

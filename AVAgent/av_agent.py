@@ -47,6 +47,25 @@ class MQFeedProcedure(object):
     def add_client(self, vm):
         pass
 
+def remove_running(vm):
+    logging.info("remove running")
+    filepid = "running/avagent.%s.running" % vm
+    logging.debug("filepid: " % filepid)
+    os.remove(filepid)
+
+def check_running(vm):
+    if not os.path.exists("running"):
+        os.mkdir("running")
+
+    filepid = "running/avagent.%s.running" % vm
+    if os.path.exists(filepid):
+        return True
+
+    f = open(filepid, "w+")
+    f.write("%s\r\n" % os.getpid())
+    f.close()
+    return False
+
 class AVAgent(object):
     def __init__(self, vm, redis='localhost', session=None):
         self.vm = vm
@@ -59,20 +78,7 @@ class AVAgent(object):
         command.context["report"] = self.report
 
     def __del__(self):
-        self.remove_running()
-
-    def remove_running(self):
-        filepid = "avagent.%s.running" % self.vm
-        os.remove(filepid)
-
-    def check_running(self):
-        filepid = "avagent.%s.running" % self.vm
-        if os.path.exists(filepid):
-            return True
-
-        f = open(filepid, "w+")
-        f.write(os.getpid())
-        return False
+        remove_running(self.vm)
 
     def report(self, message):
         logging.debug("report: %s" % message)
@@ -80,7 +86,7 @@ class AVAgent(object):
 
     def start_agent(self, mq=None, procedure=None):
 
-        if self.check_running():
+        if check_running(self.vm):
             logging.fatal("already running")
             exit = True
             return False
@@ -98,6 +104,7 @@ class AVAgent(object):
             mq.protocol = self.pc
             logging.debug("mq: %s pc:%s" % (mq.protocol.procedure, self.pc.procedure))
         mq.add_client(self.vm)
+        mq.notify_connection(self.vm)
 
         logging.info("start receiving commands")
         exit = False
@@ -109,8 +116,7 @@ class AVAgent(object):
                 exit = True
 
         logging.info("stop receiving commands")
-
-        self.remove_running()
+        remove_running(self.vm)
 
 
 def start_agent(args):

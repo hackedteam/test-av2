@@ -72,7 +72,7 @@ def main():
                         help="redis host")
     parser.add_argument('-c', '--clean', default=False, action='store_true',
                         help="clean redis mq")
-    parser.add_argument('-s', '--session', default=False,
+    parser.add_argument('-s', '--session', default="dsession",
                         help="session redis mq ")
 
     args = parser.parse_args()

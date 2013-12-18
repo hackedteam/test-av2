@@ -25,7 +25,9 @@ def execute(vm, args):
     assert vm, "null vm"
     assert command.context is not None
 
-    cmd = "cd C:\\AVTest\\AVAgent\r\nc:\\python27\\python.exe"
+    cmd = "rmdir /s /q C:\\AVTest\\AVAgent\\running \r\n"\
+          "cd C:\\AVTest\\AVAgent\r\n" \
+          "c:\\python27\\python.exe"
     arg = ["C:\\AVTest\\AVAgent\\av_agent.py", "-m", vm, "-s", mq.session, "-d", config.redis]
     content = "%s %s\r\n" %( cmd, " ".join(arg) )
     fd, filename = tempfile.mkstemp(".bat")
@@ -34,6 +36,9 @@ def execute(vm, args):
 
     os.write(fd, content)
     os.close(fd)
+
+    dirname = "%s/avagent/running" % config.basedir_av
+    r = vm_manager.execute(vm, "deleteDirectoryInGuest", dirname)
 
     startup_dir = 'C:/Users/avtest/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup'
     remote_name = "%s/av_agent.bat" % startup_dir

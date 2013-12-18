@@ -144,10 +144,12 @@ def eval_safe(attr,  value):
     attr = a
 
 
-def _factory(name, success, args, result,  vm, timestamp=time.time()):
+def _factory(name, success, args, result,  vm, timestamp = None):
     assert name in known_commands.keys(), "Unknown command: %s" % name
 
     m = known_commands[name]
+    if not timestamp:
+        timestamp=time.time()
     c = Command(name, success, args, result, vm, m.side, timestamp)
 
     c.execute = m.execute

@@ -59,6 +59,26 @@ VM_ELITE:
     - INSTALL_AGENT
     - CALL: LOGOUT
 
+
+VM_ELITE_FAST:
+    - START_AGENT
+    - CALL: SET_DEFAULTS
+    - CROP: True
+    - BUILD: [ scout, windows, silent ]
+    - SLEEP: 30
+    - CROP: False
+    - INSTALL_AGENT
+    - CALL: LOGOUT
+    - CALL: SET_DEFAULTS
+    - CROP: True
+    - BUILD: [ elite_fast, windows, silent ]
+    - CROP: False
+    - UNINSTALL
+    - STOP_AGENT
+    - CHECK_INFECTION
+    - INSTALL_AGENT
+    - CALL: LOGOUT
+
 VM_MELT:
     #- START_AGENT # se c'e' INSTALL_AGENT+LOGOUT questo non serve
     - CALL: SET_DEFAULTS

@@ -79,6 +79,7 @@ class VMRun:
         if config.verbose:
             logging.debug("_run_bg")
         subprocess.Popen(pargs, stdout=subprocess.PIPE)
+        return True
 
     def _run_popen(self, pargs, timeout=40):
         if config.verbose:
@@ -96,11 +97,11 @@ class VMRun:
             if tick >= timeout * 3:
                 logging.debug("run_popen timeout")
                 return []
-
-        if p.poll() == 0:
+        poll = p.poll()
+        if  poll:
             return p.communicate()[0]
         else:
-            logging.debug("poll is 0")
+            logging.debug("not poll: %s" % poll)
             return []
 
     def startup(self, vmx):
@@ -116,7 +117,7 @@ class VMRun:
     def shutdownUpgrade(self, vmx):
         #["/s","/t","0"])
         r = self.executeCmd(
-            vmx, "c:\\WINDOWS\\system32\\shutdown.exe", ["/s"], timeout=105)
+            vmx, "c:\\WINDOWS\\system32\\shutdown.exe", ["/s", "/t", "0"], timeout=105)
         if r is False:
             return False
         return True

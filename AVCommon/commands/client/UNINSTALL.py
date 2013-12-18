@@ -67,6 +67,8 @@ def remove_agent_startup():
         os.remove(remote_name)
 
 def execute(vm, args):
+    from AVAgent import av_agent
+
     # execute "calc.exe"
     execute_calc()
     # build.close(instance)

@@ -382,10 +382,15 @@ class AgentBuild:
     def execute_elite(self):
         """ build scout and upgrade it to elite """
         instance_id = self.execute_scout()
+        self.execute_elite_fast(instance_id, False)
+
+    def execute_elite_fast(self, instance_id = None, fast = True):
 
         if not instance_id:
-            logging.debug("- exiting execute_elite because did't sync")
-
+            with connection() as c:
+                instance_id, target_id = get_instance(c)
+        if not instance_id:
+            logging.debug("- exiting execute_elite_fast because did't sync")
             return
 
         logging.debug("- Try upgrade to elite")
@@ -403,16 +408,34 @@ class AgentBuild:
                 add_result("+ FAILED ELITE BLACKLISTED")
                 return
 
-        logging.debug("- Elite, Wait for 25 minutes: %s" % time.ctime())
-        sleep(25 * 60)
+        if fast:
+            logging.debug("- Elite, Wait for 5 minutes: %s" % time.ctime())
+            sleep(5 * 60)
+            # key press
+            for tries in range(1, 10):
+                logging.debug("- Elite, Trigger sync for 30 seconds, try %s" % tries)
+                self._trigger_sync(timeout=30)
 
-        elite = self._check_elite(instance_id)
+                logging.debug("- Elite, wait for 1 minute: %s" % time.ctime())
+                sleep(60 * 1)
+
+                elite = self._check_elite(instance_id)
+                if elite:
+                    break
+
+                for i in range(10):
+                    self._click_mouse(100 + i, 0)
+        else:
+            logging.debug("- Elite, Wait for 25 minutes: %s" % time.ctime())
+            sleep(25 * 60)
+            elite = self._check_elite(instance_id)
+
         if elite:
             add_result("+ SUCCESS ELITE INSTALL")
-            logging.debug("- Elite, wait for 4 minute then uninstall: %s" % time.ctime())
-            sleep(60 * 2)
+            logging.debug("- Elite, wait for 1 minute then uninstall: %s" % time.ctime())
+            sleep(60)
             self.uninstall(instance_id)
-            sleep(60 * 2)
+            sleep(60)
             add_result("+ SUCCESS ELITE UNINSTALLED")
         else:
             output = self._list_processes()
@@ -421,7 +444,6 @@ class AgentBuild:
 
         logging.debug("- Result: %s" % elite)
         logging.debug("- sending Results to Master")
-
 
     def execute_scout(self):
         """ build and execute the  """
@@ -582,10 +604,9 @@ def execute_agent(args, level, platform):
                           platform, args.kind, ftype, args.blacklist, args.param)
 
     """ starts a scout """
-    if socket.gethostname().lower not in ['zanzara.local', 'win7zenoav', 'win7-noav', "paradox", "avtagent"]:
+    if socket.gethostname().lower() not in ['zanzara.local', 'win7zenoav', 'win7-noav', "paradox", "avtagent"]:
         if not internet_checked and internet_on():
             add_result("+ ERROR: I reach Internet")
-
             return False
 
     internet_checked = True
@@ -602,7 +623,7 @@ def execute_agent(args, level, platform):
 
             add_result("+ SUCCESS SERVER CONNECT")
             action = {"elite": vmavtest.execute_elite, "scout":
-                vmavtest.execute_scout, "pull": vmavtest.execute_pull}
+                vmavtest.execute_scout, "pull": vmavtest.execute_pull, "elite_fast": vmavtest.execute_elite_fast }
             sleep(5)
             action[level]()
 
@@ -611,9 +632,28 @@ def execute_agent(args, level, platform):
 
     return True
 
+def get_instance(client):
+    operation_id, group_id = client.operation('AVMonitor')
+    target = get_target_name()
+
+    targets = client.targets(operation_id, target)
+    if len(targets) != 1:
+        return False, "not one target: %s" % len(targets)
+
+    target_id = targets[0]
+    instances = client.instances_by_target_id(target_id)
+    logging.debug("found these instances: %s" % instances)
+    if len(instances) != 1:
+        return False, "not one instance: %s" % len(instances)
+
+    instance = instances[0]
+    instance_id = instance['_id']
+    target_id = instance['path'][1]
+
+    return instance_id, target_id
+
 def check_evidences(backend, type_ev, key, value):
     connection.host = backend
-    target = get_target_name()
 
     logging.debug("target: %s, type_ev: %s, filter: %s=%s" % (target, type_ev, key, value))
     number = 0
@@ -621,20 +661,9 @@ def check_evidences(backend, type_ev, key, value):
     with connection() as client:
         logging.debug("connected")
 
-        operation_id, group_id = client.operation('AVMonitor')
-        targets = client.targets(operation_id, target)
-        if len(targets) != 1:
-            return False, "not one target: %s" % len(targets)
-
-        target_id = targets[0]
-        instances = client.instances_by_target_id(target_id)
-        logging.debug("found these instances: %s" % instances)
-        if len(instances) != 1:
-            return False, "not one instance: %s" % len(instances)
-
-        instance = instances[0]
-        instance_id = instance['_id']
-        target_id = instance['path'][1]
+        instance_id, target_id = get_instance(client)
+        if not instance_id:
+            return False, target_id
 
         evidences = client.evidences(target_id, instance_id, "type", type_ev)
 
@@ -711,7 +740,7 @@ def build(action, platform, platform_type, kind, param, backend, frontend, black
         report_send("+ INIT %s, %s, %s" % (action, platform, kind))
 
     try:
-        if action in ["pull", "scout", "elite"]:
+        if action in ["pull", "scout", "elite", "elite_fast"]:
             execute_agent(args, action, args.platform)
         elif action == "clean":
             clean(args.backend)

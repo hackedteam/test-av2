@@ -1,3 +1,4 @@
+
 core:
     - send procedure and vm in the execute, as first arg
     -? verify why sometimes dispatcher doesn't end correctly, especially when many vms are involved.
@@ -18,6 +19,12 @@ report:
 
 VMWARE
     - vmrun / sdk per sbloccare il login
+    - distinguere i casi:
+        1) macchina spenta
+         2) maccina accesa con vm spento
+         3) macchina accesa con vm acceso
+         4) macchina in accensione con update in corso
+        5) macchina bloccata sulla login
 
 update:
     - monday manual update
