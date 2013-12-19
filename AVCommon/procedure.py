@@ -78,3 +78,33 @@ class Procedure:
     def load_from_file(filename):
         stream = file(filename, 'r')
         return Procedure.load_from_yaml(stream)
+
+    @staticmethod
+    def check():
+        ret = True
+        called = set()
+        system = []
+        for name,p in Procedure.procedures.items():
+            for c in p.command_list:
+                if c.name == "CALL":
+                    call = c.args
+                    called.add(call)
+                    if call not in Procedure.procedures.keys():
+                        logging.error("Error in procedure: %s, call to non existant proc: %s" % (name, call))
+                        ret = False
+        procs = set(Procedure.procedures.keys())
+
+        for p in called:
+            if p.startswith("SYSTEM_"):
+                logging.warn("system proc called: %s" % p)
+
+        for p in procs.difference(called):
+            good_start=["TEST","SYSTEM","UPDATE"]
+            if not any([p.startswith(g) for g in good_start]) :
+                logging.warn("probably unused PROC: %s" % p)
+            else:
+                system.append(p)
+
+        system.sort()
+        logging.info("Callable Procedures: %s" % system)
+        return ret

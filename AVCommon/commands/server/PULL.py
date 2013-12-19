@@ -3,7 +3,7 @@ import sys
 from AVCommon.logger import logging
 from AVCommon import config
 
-def execute(vm, args):
+def execute(vm, protocol, args):
     """ server side """
     from AVMaster import vm_manager
 

@@ -7,7 +7,7 @@ from AVCommon import config
 report_level = 2
 
 
-def execute(vm, args):
+def execute(vm, protocol, args):
     """ server side """
     from AVMaster import vm_manager
 

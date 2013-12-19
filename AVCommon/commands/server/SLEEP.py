@@ -3,7 +3,7 @@ from time import sleep
 import random
 
 
-def execute(vm, args):
+def execute(vm, protocol, args):
     if isinstance(args, int):
         #"Sleep needs only an int as argument"
         #logging.debug("    CS Sleep for %s" % args)

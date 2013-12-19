@@ -4,7 +4,7 @@ from AVCommon.logger import logging
 from time import sleep
 
 
-def execute(vm, args):
+def execute(vm, protocol, args):
     from AVMaster import vm_manager
 
     """ server side """

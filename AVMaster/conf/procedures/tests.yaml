@@ -42,7 +42,6 @@ TEST_CHAT:
     - CALL: END_DISPATCH
 
 TEST_REFRESH:
-    - STOP_VM
     - REFRESH_SNAPSHOT
 
 TEST_EMPTY:
@@ -58,7 +57,7 @@ TEST_EVIDENCE:
     #- CALL: INIT_DISPATCH
     - CALL: VM_PUSH_AGENT
     - START_AGENT: 172.20.20.168
-    - CALL: SET_SERVER
+    - CALL: SET_SERVERS
     - CHECK_EVIDENCES: [device]
     - CHECK_EVIDENCES: [chat,program,facebook]
     - STOP_AGENT
@@ -75,8 +74,9 @@ TEST_CLEAN:
 
 TEST_LOG:
     - VM: ['noav']
-    #- START_VM
-    - CALL: LOGOUT
+    - STOP_VM
+    - START_VM
+    - RELOG
     - CALL: VM_GET_LOG
 
 TEST_CROP:

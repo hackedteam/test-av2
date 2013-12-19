@@ -39,7 +39,7 @@ class ProtocolClient:
     def _meta(self, cmd):
         if config.verbose:
             logging.debug("PROTO S executing meta")
-        ret = cmd.execute(self.vm, (self, cmd.args))
+        ret = cmd.execute(self.vm, self, cmd.args)
         cmd.success, cmd.result = ret
         assert isinstance(cmd.success, bool)
         self.send_answer(cmd)
@@ -102,9 +102,23 @@ class Protocol(ProtocolClient):
             cmd.result = "blocked by on_init with error"
             self.send_answer(cmd)
 
+    def _execute_command_server(self, cmd):
+        try:
+            ret = cmd.execute(self.vm, self, cmd.args)
+            logging.debug("cmd.execute ret: %s" % str(ret))
+            cmd.success, cmd.result = ret
+        except Exception, e:
+            logging.exception("ERROR:_execute_command")
+            cmd.success = False
+            cmd.result = e
+
+        assert isinstance(cmd.success, bool)
+        self.send_answer(cmd)
+        return cmd
+
     def _execute(self, cmd, blocking=False):
         #logging.debug("PROTO S executing server")
-        t = threading.Thread(target=self._execute_command, args=(cmd,))
+        t = threading.Thread(target=self._execute_command_server, args=(cmd,))
         t.start()
 
         if blocking:

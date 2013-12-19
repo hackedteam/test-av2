@@ -3,7 +3,7 @@ import sys
 from AVCommon.logger import logging
 from AVCommon import config
 
-def execute(vm, dirname):
+def execute(vm, protocol, dirname):
     from AVMaster import vm_manager
 
     #logging.debug("    CS Execute")

@@ -26,7 +26,7 @@ def execute(vm_name, cmd, *args):
                      "is_powered_on", "is_powered_off", "get_status",
                      "list_directory", "make_directory", "get_file", "send_file", "list_processes"]
     # vmware tools
-    vmrun_cmds = ["executeCmd", "runTest", "takeScreenshot",
+    vmrun_cmds = ["executeCmd", "runTest", "takeScreenshot", "listProcesses",
                   "mkdirInGuest", "copyFileToGuest", "copyFileFromGuest", "deleteDirectoryInGuest",
                   "listDirectoryInGuest", "refreshSnapshot"]
 

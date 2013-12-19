@@ -181,7 +181,6 @@ class Command(object):
     A command is defined by a name and an implementation class. Each class can be Server, Client or Meta.
 
     """
-    payload = ""
     success = None
 
     side = None

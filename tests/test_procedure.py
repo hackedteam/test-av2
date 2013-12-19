@@ -14,7 +14,7 @@ def test_dispatcher():
     agentFiles = ""
     params = ""
 
-    update = Procedure("UPDATE", ["REVERT", "START_VM", "UPDATE", "STOP_VM"])
+    update = Procedure("UPDATE", ["REVERT", "START_VM", "RELOG", "STOP_VM"])
     dispatch = Procedure("DISPATCH", ["REVERT", "START_VM", ("PUSH", None, agentFiles)])
     scout = Procedure("SCOUT", [
         ("CALL", None, "dispatch"),
@@ -30,7 +30,7 @@ def test_procedure_insert():
     agentFiles = ""
     params = ""
 
-    p1 = Procedure("UPDATE", ["REVERT", "START_VM", "UPDATE", "STOP_VM"])
+    p1 = Procedure("UPDATE", ["REVERT", "START_VM", "RELOG", "STOP_VM"])
     p2 = Procedure("DISPATCH", ["REVERT", "START_VM", ("PUSH", None, agentFiles)])
 
     lp1= len(p1)
@@ -43,7 +43,7 @@ def test_procedure_insert():
     assert len(p1) == lp1 + lp2
 
 def test_procedure_file():
-    procedures = Procedure.load_from_file("../AVMaster/conf/procedures.yaml")
+    procedures = Procedure.load_from_file("../AVMaster/conf/procedures/procedures.yaml")
     assert procedures, "empty procedures"
     logging.debug("procedures: %s" % procedures)
     for p in procedures.values():
@@ -54,13 +54,13 @@ def test_procedure_yaml():
     yaml = """UPDATE:
     - REVERT
     - START_VM
-    - UPDATE
+    - RELOG
     - STOP_VM
 
 DISPATCH:
     - REVERT
     - START_VM
-    - UPDATE
+    - RELOG
     - PUSH:
         - file.sh
         - anotherfile.sh

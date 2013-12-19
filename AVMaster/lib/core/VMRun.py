@@ -98,7 +98,7 @@ class VMRun:
                 logging.debug("run_popen timeout")
                 return []
         poll = p.poll()
-        if  poll:
+        if  poll==0:
             return p.communicate()[0]
         else:
             logging.debug("not poll: %s" % poll)

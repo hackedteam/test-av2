@@ -129,7 +129,7 @@ def test_commandStart():
     assert(c.name == "BEGIN")
 
     #c.on_init("whatever")
-    ret, answer = c.execute("vm", "arguments")
+    ret, answer = c.execute("vm", None, "arguments")
     #c.on_answer("vm", ret, answer)
 
 if __name__ == '__main__':

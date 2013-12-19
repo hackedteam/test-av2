@@ -3,11 +3,10 @@ __author__ = 'zeno'
 from AVCommon.logger import logging
 from AVCommon import command
 
-def execute(vm, args):
+def execute(vm, protocol, args):
     # change the kind for the vm
     from AVMaster import report
 
-    protocol, args = args
     logging.debug("    CS REPORT_KIND:  %s,%s" % (vm,args))
     #assert vm in command.context["report"], "report: %s" % command.context["report"]
 

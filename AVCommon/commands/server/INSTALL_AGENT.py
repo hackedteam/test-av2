@@ -13,13 +13,11 @@ from AVCommon import command
 vm = None
 
 
-def execute(vm, args):
+def execute(vm, protocol, inst_args):
     from AVMaster import vm_manager
 
     """ client side, returns (bool,*) """
     logging.debug("    INSTALL_AGENT" )
-
-    protocol, inst_args = args
     mq = protocol.mq
 
     assert vm, "null vm"

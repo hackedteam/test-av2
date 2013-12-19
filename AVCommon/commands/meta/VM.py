@@ -5,9 +5,9 @@ import time
 
 from AVCommon import command
 
-def execute(vm, args):
+def execute(vm, protocol, vms):
     """ client side, returns (bool,*) """
-    protocol, vms = args
+
     logging.debug("    VM %s" % str(vms))
 
     assert vm, "null vm"

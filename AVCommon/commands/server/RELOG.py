@@ -7,13 +7,12 @@ from AVCommon.logger import logging
 from time import sleep
 from AVCommon import mq
 
-def execute(vm, args):
+def execute(vm, protocol, args):
     """ server side """
     from AVMaster import vm_manager
 
     #logging.debug("    CS Execute")
     assert vm, "null vm"
-    protocol, args = args
     mq = protocol.mq
 
     timeout = 30 # 300

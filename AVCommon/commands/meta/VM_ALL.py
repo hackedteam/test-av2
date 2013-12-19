@@ -5,14 +5,12 @@ import time
 
 from AVCommon import command
 
-def execute(vm, args):
+def execute(vm, protocol, level):
     """ client side, returns (bool,*) """
     logging.debug("    VM_ALL")
 
     assert vm, "null vm"
     assert command.context is not None
-
-    protocol, level = args
 
     vm_first = "avast,avast32,avg,avg32,avira,kis,kis14,kis32,mcafee,norton,panda,comodo,eset,msessential".split(',')
     vm_second = "360cn,adaware,ahnlab,bitdef,drweb,fsecure,gdata,mbytes,norman,risint,trendm,zoneal".split(',')

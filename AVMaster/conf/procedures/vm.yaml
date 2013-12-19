@@ -4,7 +4,7 @@
 VM_PUSH_AGENT:
     - DELETE_DIR: /AVTest/
     - PUSH: [ AVAgent/*.py, AVCommon/*.py, AVCommon/*.yml, AVCommon/commands/client/*.py, AVCommon/commands/meta/*.py, AVCommon/commands/*.py]
-    - PUSH: [ AVAgent/assets/config*, AVAgent/assets/shutdown.bat, AVAgent/assets/keyinject.exe, AVAgent/assets/meltapp.exe ]
+    - PUSH: [ AVAgent/assets/config*, AVAgent/assets/update_system.bat, AVAgent/assets/keyinject.exe, AVAgent/assets/meltapp.exe ]
 
 VM_UPLOAD_SKYPE:
     - PUSH:
@@ -19,7 +19,6 @@ VM_GET_LOG:
         - logs
 
 VM_PUSH_VIRUS:
-    - START_AGENT
     - CROP: True
     - PUSH: [ AVAgent/assets/vira/conficker.dll, AVAgent/assets/vira/eicar.com ]
     - SLEEP: 30
@@ -28,26 +27,20 @@ VM_PUSH_VIRUS:
     - CHECK_EMPTY_DIR:
         - [ '/Users/avtest/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup', '/Documents and Settings/avtest/Start Menu/Programs/Startup/']
         - [ desktop.ini ]
-    - STOP_AGENT
 
 VM_PULL_WINDOWS:
-    - START_AGENT
     - CALL: SET_DEFAULTS
     - BUILD: [ pull, windows, silent ]
     - BUILD: [ pull, windows, melt ]
-    - STOP_AGENT
 
 VM_SCOUT:
-    - START_AGENT
     - CALL: SET_DEFAULTS
     - CROP: True
     - BUILD: [ scout, windows, silent ]
     - CROP: False
     - SCREENSHOT
-    - STOP_AGENT
 
 VM_ELITE:
-    - START_AGENT
     - CALL: SET_DEFAULTS
     - CROP: True
     - BUILD: [ elite, windows, silent ]
@@ -55,14 +48,10 @@ VM_ELITE:
     - SCREENSHOT
     - CROP: False
     - UNINSTALL
-    - STOP_AGENT
     - CHECK_INFECTION
-    - INSTALL_AGENT
-    - CALL: LOGOUT
-
+    - RELOG
 
 VM_ELITE_FAST:
-    #- START_AGENT
     - CALL: SET_DEFAULTS
     - CROP: True
     - BUILD: [ scout, windows, silent ]
@@ -78,32 +67,21 @@ VM_ELITE_FAST:
     - RELOG
 
 VM_MELT:
-    #- START_AGENT # se c'e' INSTALL_AGENT+LOGOUT questo non serve
     - CALL: SET_DEFAULTS
     - CROP: True
     - BUILD: [ scout, windows, melt ]
     - CROP: False
     - UNINSTALL
-    - STOP_AGENT
     - SCREENSHOT
-    - INSTALL_AGENT
-    - CALL: LOGOUT
+    - RELOG
 
-VM_STATIC_WINDOWS:
-    - START_AGENT
-    - CROP: True
-    - CALL: BUILD_WINDOWS
-    - STOP_AGENT
 
 VM_STATIC_MOBILE:
-    - START_AGENT
     - CROP: True
     - CALL: BUILD_MOBILE
     - CROP: False
-    - STOP_AGENT
 
 VM_STATIC:
-    - START_AGENT
     - CROP: True
     - ON_ERROR: CONTINUE
     - CALL: BUILD_DESKTOP
@@ -111,35 +89,15 @@ VM_STATIC:
     - CALL: BUILD_EXPLOIT
     - CROP: False
     - ON_ERROR: SKIP
-    - STOP_AGENT
 
 VM_CLEAN_EVIDENCES:
-    - START_AGENT
     - CALL: SET_SERVERS
     - CLEAN_EVIDENCES
-    - STOP_AGENT
-
-VM_STATIC_OSX:
-    #- VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
-    #- SLEEP: [1, 60]
-    #- CALL: INIT_DISPATCH
-    - CALL: VM_PUSH_AGENT
-    - START_AGENT
-    - CALL: SET_DEFAULTS
-    - CROP: True
-    - BUILD: [ pull, osx, silent ]
-    - CROP: False
-    - STOP_AGENT
-    #- STOP_VM
 
 BUILD_MELT_FAST:
     - BUILD: [ pull, windows, melt ]
 
 VM_PACKER_MELT:
-    - VM: [avg, avg32]
-    - CALL: INIT_DISPATCH
-    #- CALL: VM_PUSH_AGENT
-    - START_AGENT
     - CALL: SET_DEFAULTS
     - CROP: True
     - REPORT:
@@ -156,5 +114,3 @@ VM_PACKER_MELT:
         - BUILD_MELT_FAST
 
     - CROP: False
-    - STOP_AGENT
-    - STOP_VM

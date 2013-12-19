@@ -18,19 +18,8 @@ INIT_DISPATCH:
     - INTERNET: False
     - REVERT
     - START_VM
-    - CALL: VM_PUSH_AGENT
 
 END_DISPATCH:
     - STOP_VM
-
-LOGOUT:
-    - DELETE_DIR: avagent/running
-    - EXECUTE_VM:
-        - /Windows/System32/logoff.exe
-        - []
-        - 10
-        - True
-        - True
-    - SLEEP: 20
 
 

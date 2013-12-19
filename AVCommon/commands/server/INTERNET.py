@@ -5,7 +5,7 @@ from AVCommon.logger import logging
 
 from AVCommon import command
 
-def execute(vm, args):
+def execute(vm, protocol, args):
     """ server side """
     #logging.debug("    CS Execute")
     assert vm, "null self.vm"

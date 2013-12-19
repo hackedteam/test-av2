@@ -1,32 +1,11 @@
 # -------------- UPDATE -------------- #
 # COMPLETE COMMANDS
 
-UPDATE:
-    - VM_ALL: IMPORTANT
-    - ON_ERROR: STOP
-    - INTERNET: True
-    - REVERT
-    - SLEEP: [0, 300]
-    - START_VM: 720
-    #- CHECK_INFECTION: HALT
-    #- SLEEP: 300
-    #- INTERNET: True
-    - SLEEP: 600
-    #- INTERNET: False
-    #- CALL: UPLOAD_AGENT
-    - PUSH: [ AVAgent/assets/shutdown.bat ]
-    - EXECUTE_VM: /AVTest/AVAgent/assets/shutdown.bat
-    - START_VM
-    - SLEEP: 180
-    - STOP_VM: 300
-    - REFRESH_SNAPSHOT
-
 UPDATE_SNAPSHOT:
     - VM_ALL: IMPORTANT
     - ON_ERROR: STOP
     - INTERNET: False
     - REFRESH_SNAPSHOT
-
 
 UPDATE_PYTHON:
     - ON_ERROR: STOP
@@ -64,7 +43,7 @@ UPDATE_REG:
 UPDATE_FAST:
 #    - VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
 #    - VM_ALL
-    #- VM: [trendm,gdata,noav,drweb]
+    - VM: [trendm,gdata,drweb]
     - ON_ERROR: STOP
     - INTERNET: True
     #- SLEEP: [0, 1200]

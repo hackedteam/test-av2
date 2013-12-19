@@ -6,7 +6,7 @@ from AVCommon import config
 import time
 
 
-def execute(vm, img_path):
+def execute(vm, protocol, img_path):
     """ server side """
     # TODO: add Proc name
     from AVMaster import vm_manager

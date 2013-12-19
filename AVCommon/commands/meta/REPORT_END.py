@@ -4,7 +4,7 @@ __author__ = 'zeno'
 from AVCommon import command
 from AVCommon.logger import logging
 
-def execute(vm, args):
+def execute(vm, protocol, args):
     # counts the end, when it's equal to init, finish
     from AVMaster import report
 

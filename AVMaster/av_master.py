@@ -31,6 +31,8 @@ class AVMaster():
         for conf in confs:
             logging.info("Loading conf: %s" % conf)
             Procedure.load_from_file(conf)
+        if not Procedure.check():
+            raise SyntaxError("Errors")
 
     def start(self):
         self.load_procedures()
@@ -40,7 +42,7 @@ class AVMaster():
         # command line vm list overrides procedures.yaml
         if self.vm_names==[''] and proc.command_list and proc.command_list[0].name.startswith("VM"):
             vm_command = proc.command_list.pop(0)
-            self.vm_names = vm_command.execute('server', (None, vm_command.args))[1]
+            self.vm_names = vm_command.execute('server', None, vm_command.args)[1]
             logging.info("VM override: %s" % self.vm_names)
         assert self.vm_names, "No VM specified"
         mq = MQStar(self.args.redis, self.args.session)

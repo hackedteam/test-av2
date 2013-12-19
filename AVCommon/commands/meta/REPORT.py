@@ -6,14 +6,12 @@ import time
 from AVCommon import command
 from AVCommon.procedure import Procedure
 
-def execute(vm, args):
+def execute(vm, protocol, mon_args):
     """ client side, returns (bool,*) """
-    logging.debug("    SET %s" % str(args))
+    logging.debug("    SET %s" % str(mon_args))
 
     assert vm, "null vm"
     assert command.context is not None
-
-    protocol, mon_args = args
 
     assert isinstance(mon_args, list), "VM expects a list"
 

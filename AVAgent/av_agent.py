@@ -159,6 +159,7 @@ if __name__ == "__main__":
         logging.debug("%s" % procs)
         procedure = procs[args.procedure]
         mq = MQFeedProcedure()
+    Procedure.check()
 
     avagent = AVAgent(args.vm, args.redis, args.session)
     avagent.start_agent(mq, procedure)
