@@ -9,7 +9,6 @@ def execute(vm, protocol, args):
     from AVMaster import report
 
     logging.debug("    CS REPORT_KIND: %s,%s" % (vm,args))
-    protocol, args = args
     #assert "report" in command.context.keys()
     #assert vm in command.context["report"]
 

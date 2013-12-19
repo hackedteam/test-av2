@@ -28,6 +28,9 @@ class MQStar():
         else:
             self.session = session
 
+        self.set_session(session)
+
+    def set_session(self, session):
         channel_server = "MQ_%s_to_server" % self.session
         self.channel_to_server = Channel(self.host, channel_server)
 

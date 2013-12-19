@@ -58,10 +58,12 @@ VM_ELITE_FAST:
     - SLEEP: 30
     - CROP: False
     - RELOG
+
     - CALL: SET_DEFAULTS
     - CROP: True
     - BUILD: [ elite_fast, windows, silent ]
     - CROP: False
+
     - UNINSTALL
     - CHECK_INFECTION
     - RELOG

@@ -17,7 +17,7 @@
 INIT_DISPATCH:
     - INTERNET: False
     - REVERT
-    - START_VM
+    - START_VM: AV_AGENT
 
 END_DISPATCH:
     - STOP_VM

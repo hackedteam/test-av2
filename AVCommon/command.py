@@ -149,6 +149,7 @@ def _factory(name, success, args, result,  vm, timestamp = None):
 
     m = known_commands[name]
     if not timestamp:
+        logging.debug("new timestamp required")
         timestamp=time.time()
     c = Command(name, success, args, result, vm, m.side, timestamp)
 
@@ -186,13 +187,16 @@ class Command(object):
     side = None
     vm = None
 
-    def __init__(self, name, success=None, args="", result=None, vm=None, side=None,  timestamp=time.time()):
+    def __init__(self, name, success=None, args="", result=None, vm=None, side=None,  timestamp=None):
         """ A command is constructed with a name, that identifies the derived class """
         self.name = name
         self.success = success
         self.args = args
         self.result = result
-        self.timestamp = timestamp
+        if not timestamp:
+            self.timestamp = time.time()
+        else:
+            self.timestamp = timestamp
         self.vm = vm
         self.side = side
 

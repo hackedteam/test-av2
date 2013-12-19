@@ -78,7 +78,7 @@ def execute(vm, args):
     # delete startup
     delete_startup()
     # add avagent.bat to startup
-    remove_agent_startup()
+    #remove_agent_startup()
     # sleep 20
 
     return True, "UNINSTALLED";

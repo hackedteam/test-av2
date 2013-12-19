@@ -87,4 +87,6 @@ def main():
 if __name__ == '__main__':
 
     #logger=logging.getLogger('root')
+    os.remove("../logs/avmonitor.log")
+    logging.info("AV_MASTER")
     main()
