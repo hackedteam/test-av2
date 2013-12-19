@@ -28,7 +28,7 @@ class Dispatcher(object):
         self.timeout = timeout
 
     def end(self, c):
-        logging.debug("- SERVER END: %s" % c)
+        logging.debug("- END: %s" % c)
         self.ended.add(c)
         if self.pool:
             m = self.pool.pop()
@@ -36,13 +36,13 @@ class Dispatcher(object):
             self.start(m)
 
     def start(self, p):
-        logging.debug("- SERVER START: %s" % p.vm)
+        logging.debug("- START: %s" % p.vm)
         self.mq.clean(p)
         r = p.send_next_command()
         c = p.last_command
 
         report.sent(p.vm, str(c))
-        logging.info("- SERVER SENT: %s" % c)
+        logging.info("- SENT: %s" % c)
 
     def pool_start(self, machines, size):
         logging.debug("pool start, size: %s" % size )
@@ -82,7 +82,7 @@ class Dispatcher(object):
             rec = self.mq.receive_server(blocking=True, timeout=self.timeout)
             if rec is not None:
                 c, msg = rec
-                logging.info("- SERVER RECEIVED %s, %s" % (c, red(command.unserialize(msg))))
+                logging.info("- RECEIVED %s, %s" % (c, red(command.unserialize(msg))))
                 p = av_machines[c]
 
                 answer = p.receive_answer(c, msg)
@@ -96,16 +96,16 @@ class Dispatcher(object):
                 #logging.debug("- SERVER RECEIVED ANSWER: %s" % answer.success)
                 if answer.name == "END":
                     self.end(c)
-                    logging.info("- SERVER RECEIVE END: %s, %s" % (c, self.ended))
+                    logging.info("- RECEIVE END: %s, %s" % (c, self.ended))
                 elif answer.success or p.on_error == "CONTINUE":
                     r = p.send_next_command()
                     cmd = p.last_command
 
                     report.sent(p.vm, str(cmd))
 
-                    logging.info("- SERVER SENT: %s, %s" % (c, cmd))
+                    logging.info("- SENT: %s, %s" % (c, cmd))
                     if not r:
-                        logging.info("- SERVER SENDING ERROR, ENDING: %s" %c)
+                        logging.info("- SENDING ERROR, ENDING: %s" %c)
                         self.end(c)
                 else:
                     # answer.success == False
@@ -119,11 +119,11 @@ class Dispatcher(object):
                             report.sent(p.vm, str(cmd))
                         else:
                             self.end(c)
-                            logging.info("- SERVER RECEIVE ERROR, ENDING: %s" %c)
+                            logging.info("- RECEIVE ERROR, ENDING: %s" %c)
                     else:
                         assert p.on_error == "STOP"
                         self.end(c)
-                        logging.info("- SERVER RECEIVE ERROR, STOP: %s" %c)
+                        logging.info("- RECEIVE ERROR, STOP: %s" %c)
 
             else:
                 logging.info("- SERVER RECEIVED empty")

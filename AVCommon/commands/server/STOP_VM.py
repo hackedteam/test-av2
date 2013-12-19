@@ -22,7 +22,7 @@ def execute(vm, args):
 
         vm_manager.execute(vm, "executeCmd","C:/Windows/System32/shutdown.exe",["/s", "/t", "0"], timeout, False, True)
 
-        for i in range(0,timeout,tick):
+        for i in range(0, timeout, tick):
             sleep(tick)
             if vm_manager.execute(vm, "is_powered_off"):
                 off = True
