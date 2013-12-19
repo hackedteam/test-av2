@@ -10,6 +10,7 @@ import random
 import uuid
 import ast
 from AVCommon import config
+from AVCommon import command
 
 report = None
 from AVCommon.singleton import Singleton
@@ -138,25 +139,29 @@ def summary():
 
 
 # arriva pulito
-def sent(av, command):
+def sent(av, cmd):
     report = Report()
 
-    assert isinstance( av, str)
+    assert isinstance( av, basestring)
+    assert isinstance( cmd, command.Command), "type: %s" % type(cmd)
+
     if config.verbose:
-        logging.debug("sent (%s): %s (%s)" % (report.current_procedure.get(av,""), av, command))
-    report.c_sent[av]=str(command)
+        logging.debug("sent (%s): %s (%s)" % (report.current_procedure.get(av,""), av, cmd))
+    report.c_sent[av]=str(cmd)
     dump()
 
 # arriva pulito
-def received(av, command):
+def received(av, cmd):
     report = Report()
 
-    assert isinstance( av, str)
+    assert isinstance( av, basestring)
+    assert isinstance( cmd, command.Command), "type: %s" % type(cmd)
+
     if config.verbose:
-        logging.debug("received (%s): %s (%s)" % (report.current_procedure.get(av,""), av, command))
+        logging.debug("received (%s): %s (%s)" % (report.current_procedure.get(av,""), av, cmd))
     if av not in report.c_received:
         report.c_received[av] = []
-    report.c_received[av].append(str(command))
+    report.c_received[av].append(str(cmd))
     #db_save(test_id, proc, av, command)
     dump()
 

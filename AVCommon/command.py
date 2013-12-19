@@ -149,7 +149,7 @@ def _factory(name, success, args, result,  vm, timestamp = None):
 
     m = known_commands[name]
     if not timestamp:
-        logging.debug("new timestamp required")
+        #logging.debug("new timestamp required")
         timestamp=time.time()
     c = Command(name, success, args, result, vm, m.side, timestamp)
 
@@ -199,6 +199,10 @@ class Command(object):
             self.timestamp = timestamp
         self.vm = vm
         self.side = side
+
+    def reset(self, vm):
+        self.vm = vm
+        self.timestamp = time.time()
 
     def serialize(self):
         serialized = pickle.dumps(( self.name, self.success, self.args, self.result, self.vm, self.side, self.timestamp ),

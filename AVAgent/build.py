@@ -322,7 +322,7 @@ class AgentBuild:
             if ret:
                 add_result("+ SUCCESS ELITE SYNC")
             else:
-                add_result("+ FAILED ELITE SYNC")
+                add_result("+ NOT YET ELITE SYNC")
 
             return ret
 
@@ -425,6 +425,7 @@ class AgentBuild:
 
                 for i in range(10):
                     self._click_mouse(100 + i, 0)
+
         else:
             logging.debug("- Elite, Wait for 25 minutes: %s" % time.ctime())
             sleep(25 * 60)

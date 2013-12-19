@@ -168,6 +168,7 @@ TEST_INSTALL:
 
 TEST_ELITE_FAST:
     - VM: [noav]
+    - CALL: VM_PUSH_AGENT
     - INSTALL_AGENT
     - RELOG
     - REPORT:

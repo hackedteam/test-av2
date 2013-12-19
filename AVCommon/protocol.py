@@ -155,7 +155,8 @@ class Protocol(ProtocolClient):
             logging.debug("PROTO S send_command: %s" % str(cmd))
             #cmd = command.unserialize(cmd)
 
-        cmd.vm = self.vm
+        cmd.reset(self.vm)
+
         try:
             if cmd.side == "client":
                 self._send_command_mq(cmd)
@@ -178,7 +179,8 @@ class Protocol(ProtocolClient):
         sent_command = self.sent_commands[0]
 
         cmd = command.unserialize(msg)
-        cmd.vm = vm
+        cmd.reset(vm)
+
         if config.verbose:
             logging.debug("PROTO S manage_answer %s: %s" % (vm, cmd))
 

@@ -64,8 +64,9 @@ VM_ELITE_FAST:
     - BUILD: [ elite_fast, windows, silent ]
     - CROP: False
 
-    - UNINSTALL
     - CHECK_INFECTION
+    - UNINSTALL
+
     - RELOG
 
 VM_MELT:

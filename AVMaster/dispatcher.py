@@ -41,7 +41,7 @@ class Dispatcher(object):
         r = p.send_next_command()
         c = p.last_command
 
-        report.sent(p.vm, str(c))
+        report.sent(p.vm, c)
         logging.info("- SENT: %s" % c)
 
     def pool_start(self, machines, size):
@@ -101,7 +101,7 @@ class Dispatcher(object):
                     r = p.send_next_command()
                     cmd = p.last_command
 
-                    report.sent(p.vm, str(cmd))
+                    report.sent(p.vm, cmd)
 
                     logging.info("- SENT: %s, %s" % (c, cmd))
                     if not r:
