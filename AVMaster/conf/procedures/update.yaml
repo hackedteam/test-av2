@@ -56,7 +56,7 @@ UPDATE:
     - STOP_VM: 300
     - WAIT_SHUTDOWN
 
-    - START_VM
+    - START_VM: AV_AGENT
     - CALL: SET_DEFAULTS
     - UNINSTALL
     - SLEEP: 600 # attesa per gli update degli av
