@@ -227,7 +227,7 @@ class VMachine:
             else:
                 return f(*params)
         except Exception as e:
-            logging.error("%s, ERROR: Problem running %s. Reason: %s" % (self.name, func, e))
+            #logging.exception("%s, ERROR: Problem running %s" % (self.name, func))
             raise
 
     def _run_cmd(self, func, *params):

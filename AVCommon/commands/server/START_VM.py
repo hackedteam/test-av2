@@ -32,16 +32,20 @@ def get_status(vm):
         if process["owner"].endswith("avtest"):
             user_logged = True
             if process["name"] == "vmtoolsd.exe":
+                # owner=WIN7-NOAV\avtest, cmd=VMwareTray.exe
                 vm_tools = True
         if process["name"] == "wuauclt.exe" or process["name"] == "TrustedInstaller.exe":
             install = True
+    # explorer, vmware solo se logged in
 
-    if not user_logged:
-        return "LOGGED-OFF"
     if install:
         return "INSTALL"
+    if not user_logged:
+        return "LOGGED-OFF"
     if vm_tools:
         return "LOGGED-IN"
+    else:
+        return "NO-VM-TOOLS"
 
 def execute(vm, protocol, args):
     """ server side """

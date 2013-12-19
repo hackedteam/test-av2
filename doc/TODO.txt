@@ -20,11 +20,11 @@ report:
 VMWARE
     - vmrun / sdk per sbloccare il login
     - distinguere i casi:
-        1) macchina spenta
-         2) maccina accesa con vm spento
-         3) macchina accesa con vm acceso
-         4) macchina in accensione con update in corso
-        5) macchina bloccata sulla login
+        1) POWERED_OFF macchina spenta
+         2) NO-VM-TOOLS maccina accesa con vmtools spento
+         3) LOGGED-IN macchina accesa con vmtools acceso
+         4) INSTALL macchina in accensione con update in corso
+        5) LOGGED_OFF macchina bloccata sulla login
 
 update:
     - monday manual update
