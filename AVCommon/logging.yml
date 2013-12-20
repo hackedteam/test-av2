@@ -9,16 +9,21 @@ handlers:
     level: DEBUG
     formatter: simpleFormatter
     stream: ext://sys.stdout
-  file:
+  filedebug:
     class: logging.handlers.WatchedFileHandler
     level: DEBUG
     formatter: simpleFormatter
     filename: ../logs/avmonitor.log
+  fileinfo:
+    class: logging.FileHandler
+    level: INFO
+    formatter: simpleFormatter
+    filename: ../logs/avmonitor-info.log
 loggers:
   avmonitor:
     level: DEBUG
-    handlers: [console, file]
+    handlers: [console, filedebug, fileinfo]
     propagate: no
 root:
   level: DEBUG
-  handlers: [console, file]
+  handlers: [console, fileinfo, filedebug]

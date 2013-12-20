@@ -11,7 +11,7 @@ class Box:
 
 __box = Box()
 
-verbose = False
+verbose = True
 basedir = False
 
 #basedir_server = "/opt/AVTest2"

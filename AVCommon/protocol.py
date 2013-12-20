@@ -172,27 +172,27 @@ class Protocol(ProtocolClient):
 
             return False
 
-    def receive_answer(self, vm, msg):
+    def receive_answer(self, vm, cmd):
         """ returns a command with name, success and payload """
         #msg = self.mq.receiveClient(self, client)
 
         sent_command = self.sent_commands[0]
 
-        cmd = command.unserialize(msg)
+        #cmd = command.unserialize(msg)
         cmd.reset(vm)
 
         if config.verbose:
             logging.debug("PROTO S manage_answer %s: %s" % (vm, cmd))
 
-        if cmd.success != None and cmd.name == sent_command.name and cmd.timestamp == sent_command.timestamp:
+        if cmd.success != None and cmd.name == sent_command.name:
             if config.verbose:
                 logging.debug("PROTO S we got the expected answer")
             cmd.on_answer(vm, cmd.success, cmd.result)
             self.sent_commands.pop(0)
         else:
             if config.verbose:
-                logging.debug("PROTO S ignoring unexpected answer, success: ")
-                logging.debug("cmd.timestamp == sent_command.timestamp" % cmd.timestamp == sent_command.timestamp)
+                logging.debug("PROTO S ignoring unexpected answer: ")
+                #logging.debug("cmd.timestamp == sent_command.timestamp: %s" % cmd.timestamp == sent_command.timestamp)
             cmd.success = None
 
         return cmd

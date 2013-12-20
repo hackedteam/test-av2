@@ -35,6 +35,8 @@ class Dispatcher(object):
             logging.debug("pool popped: %s, remains: %s" % (m.vm, len(self.pool)))
             self.start(m)
 
+        report.Report.pool = self.pool
+
     def start(self, p):
         logging.debug("- START: %s" % p.vm)
         self.mq.clean(p)
@@ -47,11 +49,14 @@ class Dispatcher(object):
     def pool_start(self, machines, size):
         logging.debug("pool start, size: %s" % size )
         self.pool = machines
+
         for i in range(size):
             if not self.pool:
                 break
             m = self.pool.pop()
             self.start(m)
+
+        report.Report.pool = self.pool
 
     def dispatch(self, procedure, pool=0 ):
         global received
@@ -82,11 +87,12 @@ class Dispatcher(object):
             rec = self.mq.receive_server(blocking=True, timeout=self.timeout)
             if rec is not None:
                 c, msg = rec
-                logging.info("- RECEIVED %s, %s" % (c, red(command.unserialize(msg))))
+                command_unserialize = command.unserialize(msg)
+                logging.info("- RECEIVED %s, %s" % (c, red(command_unserialize)))
                 p = av_machines[c]
 
-                answer = p.receive_answer(c, msg)
-                report.received(c, command.unserialize(msg))
+                answer = p.receive_answer(c, command_unserialize)
+                report.received(c, command_unserialize)
 
                 if answer.success == None:
                     #logging.debug("- SERVER IGNORING")
