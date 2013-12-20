@@ -3,32 +3,7 @@ import sys
 from AVCommon.logger import logging
 from time import sleep
 from AVCommon import mq
-
-def convert_processes(procs):
-    processes = []
-    if not procs:
-        return None
-
-    lines = procs.split("\n")
-    if not lines:
-        return None
-
-    for l in lines[1:]:
-        proc = {}
-        tokens = l.split(", ")
-        for t in tokens:
-            try:
-                k,v = t.split("=")
-                if k == "cmd":
-                    k = "name"
-                proc[k] = v
-            except:
-                pass
-        if proc:
-            processes.append(proc)
-
-    logging.debug("processes: %s" % processes)
-    return processes
+from AVCommon import helper
 
 def get_status(vm):
     from AVMaster import vm_manager
@@ -55,24 +30,27 @@ def get_status(vm):
             logging.debug("trying listProcesses")
             procs = vm_manager.execute(vm, "listProcesses");
             logging.debug("listProcesses: %s" % procs)
-            processes = convert_processes(procs)
+            processes = helper.convert_processes(procs)
         except:
             logging.exception("listProcesses")
 
     if not processes:
         return "NOT-STARTED"
 
-    logging.debug("list_processes: %s" % [ (p["name"],p["owner"]) for p in processes] )
+    try:
+        logging.debug("list_processes: %s" % [ (p["name"],p["owner"]) for p in processes] )
 
-    for process in processes:
-        if process["owner"].endswith("avtest"):
-            user_logged = True
-            if process["name"] == "vmtoolsd.exe":
-                # owner=WIN7-NOAV\avtest, cmd=VMwareTray.exe
-                vm_tools = True
-        if process["name"] == "wuauclt.exe" or process["name"] == "TrustedInstaller.exe":
-            install = True
-    # explorer, vmware solo se logged in
+        for process in processes:
+            if process["owner"].endswith("avtest"):
+                user_logged = True
+                if process["name"] == "vmtoolsd.exe":
+                    # owner=WIN7-NOAV\avtest, cmd=VMwareTray.exe
+                    vm_tools = True
+            if process["name"] == "wuauclt.exe" or process["name"] == "TrustedInstaller.exe":
+                install = True
+        # explorer, vmware solo se logged in
+    except:
+        logging.exception("error")
 
     if vm_tools:
         return "LOGGED-IN"

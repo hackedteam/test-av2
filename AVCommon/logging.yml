@@ -19,10 +19,15 @@ handlers:
     level: INFO
     formatter: simpleFormatter
     filename: ../logs/avmonitor-info.log
+  fileerror:
+    class: logging.FileHandler
+    level: WARN
+    formatter: simpleFormatter
+    filename: ../logs/avmonitor-error.log
 loggers:
   avmonitor:
     level: DEBUG
-    handlers: [console, filedebug, fileinfo]
+    handlers: [console, filedebug, fileinfo, fileerror]
     propagate: no
 root:
   level: DEBUG
