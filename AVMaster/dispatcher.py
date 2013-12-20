@@ -122,7 +122,7 @@ class Dispatcher(object):
                         r = p.send_next_call()
                         cmd = p.last_command
                         if cmd:
-                            report.sent(p.vm, str(cmd))
+                            report.sent(p.vm, cmd)
                         else:
                             self.end(c)
                             logging.info("- RECEIVE ERROR, ENDING: %s" %c)
