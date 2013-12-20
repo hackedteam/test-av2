@@ -43,8 +43,8 @@ UPDATE_REG:
 UPDATE:
     #- VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
     #- VM_ALL: IRRILEVANT
-    - VM_ALL: IMPORTANT
-    #- VM: [bitdef,fsecure,norman,norton,zoneal]
+    # - VM_ALL: IMPORTANT
+    - VM: [avast32, avg32, kis32, msessential, norton, panda]
     - ON_ERROR: STOP
     - INTERNET: True
     - SLEEP: [0, 60]

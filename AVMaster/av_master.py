@@ -68,8 +68,8 @@ def main():
                         help="Verbose")
     parser.add_argument('-r', '--procedure', type=str, default=False, required=True,
                         help="Procedure to execute")
-    parser.add_argument('-p', '--pool', type=int, required=False, default=8,
-                        help="This is the number of parallel process (default 8)")
+    parser.add_argument('-p', '--pool', type=int, required=False, default=6,
+                        help="This is the number of parallel process (default 6)")
     parser.add_argument('-d', '--redis', default="localhost",
                         help="redis host")
     parser.add_argument('-c', '--clean', default=False, action='store_true',

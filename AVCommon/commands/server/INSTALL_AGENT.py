@@ -36,7 +36,14 @@ def execute(vm, protocol, inst_args):
     os.write(fd, agent_bat)
     os.close(fd)
 
-    startup_dir = 'C:/Users/avtest/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup'
+    startup_dir_7 = 'C:/Users/avtest/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup'
+    startup_dir_XP = 'C:/Documents and Settings/avtest/Start Menu/Programs/Startup'
+
+    if vm.endswith("32"):
+        startup_dir = startup_dir_XP
+    else:
+        startup_dir = startup_dir_7
+
     remote_name = "%s/av_agent.bat" % startup_dir
     remote_name= remote_name.replace("/","\\")
     r = vm_manager.execute(vm, "copyFileToGuest", filename, remote_name )
