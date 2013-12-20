@@ -83,7 +83,7 @@ SCOUT:
 
     leninstance = len(procedures.values())
     lenstatic = len(Procedure.procedures)
-    assert leninstance == lenstatic
+    assert leninstance == lenstatic, "different lengths: %s!=%s" %(leninstance, lenstatic)
 
 
 if __name__ == '__main__':

@@ -40,9 +40,12 @@ def execute_calc():
     proc.kill()
 
 def close_instance():
-    logging.debug("closing instance")
-    backend = command.context["backend"]
-    build.uninstall(backend)
+    try:
+        logging.debug("closing instance")
+        backend = command.context["backend"]
+        build.uninstall(backend)
+    except:
+        logging.exception("Cannot close instance")
 
 def kill_rcs():
     logging.debug("killing rcs")

@@ -2,7 +2,7 @@ from AVCommon.logger import logging
 from redis import StrictRedis
 from AVCommon import config
 from redis.exceptions import ConnectionError
-
+import time
 
 class Channel():
     """ Communication Channel, via Redis
@@ -24,7 +24,20 @@ class Channel():
         """ writes a message to the channel. The channel is created automatically """
         if config.verbose:
             logging.debug("  CH write: channel: %s  message: %s" % (str(self.channel), str(message)))
-        self.redis.rpush(self.channel, message)
+
+        while(True):
+            pipe = self.redis.pipeline()
+            l1,ret,l2 = pipe.llen(self.channel).rpush(self.channel, message).llen(self.channel).execute()
+            if not ret:
+                logging.error("not ret: %s" % self.channel)
+                continue
+            if not l2>0:
+                logging.error("not l2>0 %s" % self.channel)
+                continue
+            if l1 and not l2 == l1 +1:
+                logging.error("l1 and not l2 == l1 +1: %s" % self.channel)
+                continue
+            break
 
     def read(self, blocking=False, timeout=0):
         """ reads a message from the underlining channel. This method can be blocking or it could timeout in a while
@@ -33,7 +46,20 @@ class Channel():
         if blocking:
             while True:
                 try:
-                    ret = self.redis.blpop(self.channel, timeout)
+                    pipe = self.redis.pipeline()
+                    retup = pipe.llen(self.channel).blpop(self.channel, timeout).llen(self.channel).execute()
+                    l1,ret,l2 = retup
+
+                    if ret == None:
+                        if config.verbose:
+                            logging.debug("None in blpop: %s" % self.channel)
+                        time.sleep(5)
+                        continue
+                    else:
+                        assert l1>=0
+                        assert l2>=0
+                        assert l1 == l2 + 1, "l1: %s l2: %s" %(l1,l2)
+
                     break;
                 except ConnectionError, e:
                     logging.exception("  CH TIMEOUT server")

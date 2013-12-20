@@ -178,7 +178,6 @@ class Protocol(ProtocolClient):
 
         sent_command = self.sent_commands[0]
 
-        #cmd = command.unserialize(msg)
         cmd.reset(vm)
 
         if config.verbose:

@@ -49,7 +49,7 @@ def test_avagent_create():
 def test_avagent_get_set():
     host = "localhost"
 
-    vms = [ "testvm_%d" % i for i in range(10) ]
+    vms = [ "testvm_%d" % i for i in range(100) ]
 
     #command_client={   'COMMAND_CLIENT': [{   'SET': [   'windows'                                 'whatever']}]}
 
