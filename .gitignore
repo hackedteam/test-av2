@@ -55,3 +55,9 @@ results.txt
 /AVAgent/running/
 
 /remote_logs/
+
+/AVMaster/networking_log.txt
+
+/AVMaster/dump.rdb
+
+/logs/
