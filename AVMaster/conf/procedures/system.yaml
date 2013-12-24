@@ -91,3 +91,42 @@ SYSTEM_MANUAL_CHECK:
     - CALL: SET_DEFAULTS
     - BUILD: [ pull, windows, silent ]
     - STOP_AGENT
+
+VM_FUNCTIONAL_CHAT_FB:
+    - CHECK_EVIDENCES: [device]
+    - CHECK_EVIDENCES: [chat, program, facebook]
+
+VM_FUNCTIONAL_ADDRESSBOOK_FB:
+    - CHECK_EVIDENCES: [addressbook, program, facebook]
+
+VM_FUNCTIONAL_ADDRESSBOOK_SKYPE:
+    - CHECK_EVIDENCES: [addressbook, program, skype]
+
+SYSTEM_FUNCTIONAL:
+    #- CALL: INIT_DISPATCH
+    - REVERT
+    - START_VM
+    - CALL: VM_PUSH_AGENT
+    - START_AGENT: 172.20.20.168
+    - CALL: SET_DEFAULTS_FUNCTIONAL
+    #- CROP: False
+    - BUILD: [ pull, windows_elite, silent ]
+    - EXECUTE_VM:
+        - C:/AVTest/AVAgent/build/windows_elite/agent.exe
+        - []
+        - 40
+        - True
+        - True
+    - SLEEP: 100
+    - PUSH: [ AVAgent/assets/facebook.bat ]
+    - EXECUTE_VM:
+        - C:/AVTest/AVAgent/assets/facebook.bat
+        - []
+        - 40
+        - True
+        - True
+    - SLEEP: 120
+    - REPORT:
+        - VM_FUNCTIONAL_CHAT_FB
+        - VM_FUNCTIONAL_ADDRESSBOOK_FB
+    - CALL: END_DISPATCH

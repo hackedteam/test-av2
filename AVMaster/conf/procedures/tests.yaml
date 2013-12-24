@@ -13,34 +13,6 @@ TEST_VM:
         - c:\\Avtest\\AVAgent\\assets\\exec_admin.lnk
         - []
 
-TEST_CHAT:
-    - CALL: INIT_DISPATCH
-    #- CALL: VM_PUSH_AGENT
-    - START_AGENT: 172.20.20.168
-    - CALL: SET_DEFAULTS_FUNCTIONAL
-    #- CROP: False
-    - BUILD: [ pull, windows_elite, silent ]
-    - EXECUTE_VM:
-        - C:/AVTest/AVAgent/build/windows_elite/agent.exe
-        - []
-        - 40
-        - True
-        - True
-    - SLEEP: 100
-    - PUSH: [ AVAgent/assets/facebook.bat ]
-    - EXECUTE_VM:
-        - C:/AVTest/AVAgent/assets/facebook.bat
-        - []
-        - 40
-        - True
-        - True
-    - SLEEP: 120
-    - CHECK_EVIDENCES: [device]
-    - CHECK_EVIDENCES: [chat, program, facebook]
-    - CHECK_EVIDENCES: [addressbook, program, facebook]
-    - CHECK_EVIDENCES: [addressbook, program, skype]
-    - CALL: END_DISPATCH
-
 TEST_REFRESH:
     - REFRESH_SNAPSHOT
 
