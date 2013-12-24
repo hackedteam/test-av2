@@ -132,6 +132,7 @@ def crop(iter):
         name = "%s/%s.png" % ( config.basedir_crop, iter)
         logging.debug("actual crop save: %s" % name)
         logging.debug("name: %s size: %s" % ( name, c.size ))
+        name = name.replace('/','\\')
         c.save(name)
         return iter
 

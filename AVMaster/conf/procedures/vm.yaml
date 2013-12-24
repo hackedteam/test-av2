@@ -54,10 +54,10 @@ VM_ELITE:
 
 VM_ELITE_FAST:
     - CALL: SET_DEFAULTS
-    - CROP: True
+    #- CROP: True
     - BUILD: [ scout, windows, silent ]
     - SLEEP: 30
-    - CROP: False
+    #- CROP: False
     - RELOG
 
     - CALL: SET_DEFAULTS
@@ -65,7 +65,9 @@ VM_ELITE_FAST:
     - BUILD: [ elite_fast, windows, silent ]
     - CROP: False
 
+    - ON_ERROR: CONTINUE
     - CHECK_INFECTION
+    - ON_ERROR: SKIP
     - UNINSTALL
 
     - RELOG
