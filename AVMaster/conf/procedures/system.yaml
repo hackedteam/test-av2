@@ -38,7 +38,7 @@ SYSTEM_STATIC_MOBILE:
     - STOP_AGENT
     - STOP_VM
 
-SYSTEM_REVERT:
+REVERT:
     - VM_ALL
     - INTERNET: False
     - SLEEP: [1, 10]
@@ -58,8 +58,8 @@ SYSTEM_DAILY:
     - CALL: INIT_DISPATCH
     - CALL: VM_CLEAN_EVIDENCES
     - REPORT:
-        - VM_STATIC
-        - VM_ELITE
+        #- VM_STATIC
+        - VM_ELITE_FAST
         - VM_MELT
     - UNINSTALL
     - CALL: END_DISPATCH

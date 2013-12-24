@@ -35,7 +35,7 @@ class Dispatcher(object):
             logging.debug("pool popped: %s, remains: %s" % (m.vm, len(self.pool)))
             self.start(m)
 
-        report.Report.pool = self.pool
+        report.Report.pool = [ p.vm for p in self.pool]
 
     def start(self, p):
         logging.debug("- START: %s" % p.vm)
@@ -56,7 +56,7 @@ class Dispatcher(object):
             m = self.pool.pop()
             self.start(m)
 
-        report.Report.pool = self.pool
+        report.Report.pool = [ p.vm for p in self.pool]
 
     def dispatch(self, procedure, pool=0 ):
         global received
@@ -89,6 +89,10 @@ class Dispatcher(object):
                 c, msg = rec
                 command_unserialize = command.unserialize(msg)
                 logging.info("- RECEIVED %s, %s" % (c, red(command_unserialize)))
+                if c not in av_machines.keys():
+                    logging.warn("A message for %c probably belongs to another test!" % c)
+                    continue
+
                 p = av_machines[c]
 
                 answer = p.receive_answer(c, command_unserialize)

@@ -54,13 +54,14 @@ UPDATE:
     - CALL: VM_PUSH_AGENT
     - INSTALL_AGENT
     - EXECUTE_VM: /AVTest/AVAgent/assets/update_system.bat # scarica gli aggiornamenti windows
+    - SLEEP: 30
     - STOP_VM: 300
     - WAIT_SHUTDOWN
 
     - START_VM: AV_AGENT
     - CALL: SET_DEFAULTS
     - UNINSTALL
-    - SLEEP: 600 # attesa per gli update degli av
+    - SLEEP: 1800 # attesa per gli update degli av
     - SCREENSHOT
     - STOP_VM: 300 # cerca di spegnere con shutdown, se non ci riesce, spegne secco
     - WAIT_SHUTDOWN
