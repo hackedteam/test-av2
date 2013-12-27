@@ -71,6 +71,9 @@ class Protocol(ProtocolClient):
     procedure = None
     last_command = None
 
+    counter = 0
+    pool = 0
+
     def __init__(self, dispatcher, vm, procedure=None, timeout=0):
         ProtocolClient.__init__(self, dispatcher.mq, vm, timeout)
         self.dispatcher = dispatcher
@@ -80,6 +83,8 @@ class Protocol(ProtocolClient):
         assert (isinstance(vm, str))
         assert dispatcher
         self.add_vm(vm)
+        self.id = Protocol.counter
+        Protocol.counter += 1
 
     def add_vm(self, vm):
         self.mq.add_client(vm)
@@ -175,6 +180,9 @@ class Protocol(ProtocolClient):
     def receive_answer(self, vm, cmd):
         """ returns a command with name, success and payload """
         #msg = self.mq.receiveClient(self, client)
+
+        if not self.sent_commands:
+            raise RuntimeError("no sent commands")
 
         sent_command = self.sent_commands[0]
 

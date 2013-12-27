@@ -79,6 +79,8 @@ class Dispatcher(object):
 
         if pool == 0:
             pool = len(self.vms)
+
+        Protocol.pool = pool
         self.pool_start(av_machines.values(), pool)
 
         self.ended = set()
@@ -90,7 +92,7 @@ class Dispatcher(object):
                 command_unserialize = command.unserialize(msg)
                 logging.info("- RECEIVED %s, %s" % (c, red(command_unserialize)))
                 if c not in av_machines.keys():
-                    logging.warn("A message for %c probably belongs to another test!" % c)
+                    logging.warn("A message for %s probably belongs to another test!" % c)
                     continue
 
                 p = av_machines[c]

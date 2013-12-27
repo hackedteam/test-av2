@@ -36,6 +36,8 @@ class AVMaster():
 
     def start(self):
         self.load_procedures()
+        if not self.procedure in Procedure.procedures:
+            raise RuntimeError("not existent procedure: %s" % self.procedure )
         proc = Procedure.procedures[self.procedure]
         assert proc, "cannot find the specified procedure: %s" % self.procedure
 
