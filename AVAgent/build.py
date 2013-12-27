@@ -656,7 +656,7 @@ def get_instance(client):
 def check_evidences(backend, type_ev, key, value):
     connection.host = backend
 
-    logging.debug("target: %s, type_ev: %s, filter: %s=%s" % (target, type_ev, key, value))
+    logging.debug("type_ev: %s, filter: %s=%s" % (type_ev, key, value))
     number = 0
 
     with connection() as client:
@@ -671,7 +671,7 @@ def check_evidences(backend, type_ev, key, value):
         if key:
             for ev in evidences:
                 #content = ev['data']['content']
-                logging.debug("got evidence")
+                logging.debug("got evidence: %s" % ev)
 
                 v = ev['data'][key]
                 if v == value:
