@@ -96,4 +96,7 @@ if __name__ == '__main__':
     except:
         pass
     logging.info("AV_MASTER")
-    main()
+    try:
+        main()
+    except:
+        logging.exception("FATAL")

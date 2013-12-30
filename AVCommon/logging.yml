@@ -31,4 +31,4 @@ loggers:
     propagate: no
 root:
   level: DEBUG
-  handlers: [console, fileinfo, filedebug]
+  handlers: [console, fileinfo, filedebug, fileerror]

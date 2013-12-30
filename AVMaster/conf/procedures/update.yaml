@@ -53,6 +53,7 @@ UPDATE:
     - START_VM
     - CHECK_INFECTION # questo non e' necessario, ma e' meglio assicurarsene
     - CALL: VM_PUSH_AGENT
+    - PUSH: [assets/update_reg.bat]
     - INSTALL_AGENT
     - EXECUTE_VM: /AVTest/AVAgent/assets/update_system.bat # scarica gli aggiornamenti windows
     - SLEEP: 30
