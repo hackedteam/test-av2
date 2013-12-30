@@ -16,9 +16,13 @@ def execute(vm, protocol, args):
         #logging.debug("    CS Sleep for random %s,%s" % (min, max))
         assert protocol.id >= 0
 
-        n = 0
+        n = min
+
         if protocol.id < Protocol.pool:
-            n = min +  (max - min) * protocol.id
+            n = min +  (float(max - min)  * protocol.id) / (Protocol.pool - 1 )
+
+        n = int(n)
+        logging.debug("%s  protocol.id: %s Protocol.pool: %s n: %s" %( vm, protocol.id, Protocol.pool, n))
 
         sleep(n)
         return True, "slept for %s" % n

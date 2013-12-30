@@ -1,7 +1,7 @@
 version: 1
 formatters:
   simpleFormatter:
-    format: '%(asctime)s %(levelname)7s %(filename)18s:%(lineno)3d|   %(message)s'
+    format: '%(asctime)s %(levelname)7s %(filename)14s:%(lineno)3d| %(message)s'
     datefmt: '%Y%m%d %H%M%S'
 handlers:
   console:

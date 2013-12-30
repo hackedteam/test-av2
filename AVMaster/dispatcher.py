@@ -1,5 +1,6 @@
 import os
 import sys
+from collections import OrderedDict
 from AVCommon.logger import logging
 
 sys.path.append(os.path.split(os.getcwd())[0])
@@ -10,12 +11,12 @@ from AVCommon import command
 from AVCommon import config
 from AVMaster import report
 
-def red(msg, max_len=50):
+def red(msg, max_len=70):
     s = str(msg)
     if len(s) < max_len:
         return s
 
-    return "%s ..." %  s[:50]
+    return "%s ..." %  s[:max_len]
 
 class Dispatcher(object):
     """docstring for Dispatcher"""
@@ -73,9 +74,11 @@ class Dispatcher(object):
         assert self.vms
         assert self.vms[0], "please specify at least one VM"
         logging.debug("self.vms: %s" % self.vms)
-        av_machines = {}
+        av_machines = OrderedDict()
+        p_id = 0
         for vm in self.vms:
-            av_machines[vm] = Protocol(self, vm, procedure)
+            av_machines[vm] = Protocol(self, vm, procedure, id = p_id)
+            p_id += 1
 
         if pool == 0:
             pool = len(self.vms)
@@ -115,7 +118,7 @@ class Dispatcher(object):
 
                     report.sent(p.vm, cmd)
 
-                    logging.info("- SENT: %s, %s" % (c, cmd))
+                    logging.info("- SENT: %s, %s" % (c, red(cmd)))
                     if not r:
                         logging.info("- SENDING ERROR, ENDING: %s" %c)
                         self.end(c)

@@ -70,11 +70,9 @@ class Protocol(ProtocolClient):
     """ A protocol implements the server behavior."""
     procedure = None
     last_command = None
-
-    counter = 0
     pool = 0
 
-    def __init__(self, dispatcher, vm, procedure=None, timeout=0):
+    def __init__(self, dispatcher, vm, procedure=None, timeout=0, id=0):
         ProtocolClient.__init__(self, dispatcher.mq, vm, timeout)
         self.dispatcher = dispatcher
         self.vm = vm
@@ -83,8 +81,7 @@ class Protocol(ProtocolClient):
         assert (isinstance(vm, str))
         assert dispatcher
         self.add_vm(vm)
-        self.id = Protocol.counter
-        Protocol.counter += 1
+        self.id = id
 
     def add_vm(self, vm):
         self.mq.add_client(vm)
@@ -110,7 +107,7 @@ class Protocol(ProtocolClient):
     def _execute_command_server(self, cmd):
         try:
             ret = cmd.execute(self.vm, self, cmd.args)
-            logging.debug("cmd.execute ret: %s" % str(ret))
+            logging.debug("%s, cmd.execute ret: %s" % (self.vm, str(ret)))
             cmd.success, cmd.result = ret
         except Exception, e:
             logging.exception("ERROR:_execute_command")
