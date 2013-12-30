@@ -7,6 +7,7 @@ import os
 import time
 
 logdir = "../logs"
+
 if not os.path.exists(logdir):
     os.mkdir(logdir)
 

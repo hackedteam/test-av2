@@ -37,7 +37,7 @@ def on_answer(vm, success, answer):
 
                 src = src.replace('/','\\')
                 logging.debug("PULL: %s -> %s" % (src, dst))
-                vm_manager.execute(vm, "copyFileFromGuest",src ,dst)
+                vm_manager.execute(vm, "copyFileFromGuest", src ,dst)
             except:
                 logging.exception("Cannot get image %s" % src)
 
@@ -45,10 +45,9 @@ def execute(vm, args):
     from PIL import ImageGrab
     global im1, thread, go_on, found
 
-
-    if os.path.exists(config.basedir_crop):
-        shutil.rmtree(config.basedir_crop)
-    os.makedirs(config.basedir_crop)
+    if not os.path.exists(config.basedir_crop):
+    #    shutil.rmtree(config.basedir_crop)
+        os.makedirs(config.basedir_crop)
 
     if args:
         # starts a crop server

@@ -31,7 +31,7 @@ class Dispatcher(object):
         logging.debug("- END: %s" % c)
         self.ended.add(c)
         if self.pool:
-            m = self.pool.pop()
+            m = self.pool.pop(0)
             logging.debug("pool popped: %s, remains: %s" % (m.vm, len(self.pool)))
             self.start(m)
 
@@ -53,7 +53,7 @@ class Dispatcher(object):
         for i in range(size):
             if not self.pool:
                 break
-            m = self.pool.pop()
+            m = self.pool.pop(0)
             self.start(m)
 
         report.Report.pool = [ p.vm for p in self.pool]

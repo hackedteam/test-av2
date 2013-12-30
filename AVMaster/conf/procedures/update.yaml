@@ -48,7 +48,7 @@ UPDATE:
     - VM_ALL
     - ON_ERROR: STOP
     - INTERNET: True
-    - SLEEP: [0, 3600]
+    - SLEEP: [0, 600]
     - REVERT
     - START_VM
     - CHECK_INFECTION # questo non e' necessario, ma e' meglio assicurarsene

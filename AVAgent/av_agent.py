@@ -24,6 +24,7 @@ from AVCommon.mq import MQStar
 from AVCommon.protocol import Protocol
 from AVCommon import command
 from AVCommon.procedure import Procedure
+from AVCommon import config
 
 class MQFeedProcedure(object):
     protocol = None
@@ -73,6 +74,8 @@ class AVAgent(object):
         self.session = session
         command.init()
         shutil.rmtree('build', ignore_errors=True)
+        if not os.path.exists(config.basedir_crop):
+            shutil.rmtree(config.basedir_crop)
         logging.debug("vm: %s host: %s session: %s" % (self.vm, self.host, session))
 
         command.context["report"] = self.report

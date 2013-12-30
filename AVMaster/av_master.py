@@ -89,6 +89,11 @@ def main():
 if __name__ == '__main__':
 
     #logger=logging.getLogger('root')
-    os.remove("../logs/avmonitor.log")
+    try:
+        os.remove("../logs/avmonitor.log")
+        os.remove("../logs/avmonitor-info.log")
+        os.remove("../logs/avmonitor-errors.log")
+    except:
+        pass
     logging.info("AV_MASTER")
     main()
