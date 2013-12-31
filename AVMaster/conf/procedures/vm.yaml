@@ -23,11 +23,10 @@ VM_PUSH_VIRUS:
     - CROP: True
     - PUSH: [ AVAgent/assets/vira/conficker.dll, AVAgent/assets/vira/eicar.com ]
     - SLEEP: 30
-    - CROP: False
     - CHECK_STATIC: [ AVAgent/assets/vira/conficker.dll, AVAgent/assets/vira/eicar.com ]
-    - CHECK_EMPTY_DIR:
-        - [ '/Users/avtest/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup', '/Documents and Settings/avtest/Start Menu/Programs/Startup/']
-        - [ desktop.ini ]
+    - SLEEP: 10
+    - CROP: False
+    - SCREENSHOT
 
 VM_PULL_WINDOWS:
     - CALL: SET_DEFAULTS

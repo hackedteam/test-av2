@@ -54,7 +54,7 @@ SYSTEM_DAILY:
     - VM_ALL
     #- VM: [ahnlab,avast]
     - ON_ERROR: STOP
-    - SLEEP: [1, 600]
+    - SLEEP: [10, 600]
     - CALL: INIT_DISPATCH
     - CALL: VM_CLEAN_EVIDENCES
     - REPORT:
@@ -65,12 +65,17 @@ SYSTEM_DAILY:
     - CALL: END_DISPATCH
 
 SYSTEM_POSITIVE:
-    - VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
-    #- VM: [avast,avira,eset,fsecure]
-    - INTERNET: False
+    - VM_ALL
+    - ON_ERROR: STOP
+    - SLEEP: [10, 600]
+    - CALL: INIT_DISPATCH
+    - CALL: VM_PUSH_AGENT
+    - INSTALL_AGENT
+    - RELOG
+    - CALL: VM_CLEAN_EVIDENCES
     - REPORT:
-        - DISPATCH
-        - PUSH_VIRUS
+        - VM_PUSH_VIRUS
+    - CALL: END_DISPATCH
 
 SYSTEM_FAST:
     - VM: ['360cn', 'drweb', 'fsecure', 'kis14', 'kis32', 'panda', 'zoneal']
@@ -111,13 +116,12 @@ SYSTEM_FUNCTIONAL_FAST:
 
 SYSTEM_FUNCTIONAL:
     #- CALL: INIT_DISPATCH
-    - VM: [ funvm ]
+    - VM: [ funie, funch, funff ]
     - REVERT
     - START_VM
     - CALL: VM_PUSH_AGENT
     - START_AGENT: 172.20.20.168
     - CALL: SET_DEFAULTS_FUNCTIONAL
-    #- CROP: False
     - BUILD: [ pull, windows_elite, silent ]
     - EXECUTE_VM:
         - C:/AVTest/AVAgent/build/windows_elite/agent.exe

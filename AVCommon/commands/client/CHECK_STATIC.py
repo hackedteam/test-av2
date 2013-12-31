@@ -19,8 +19,11 @@ def on_answer(vm, success, answer):
 def execute(vm, args):
     logging.debug("Checking files: %s" % args)
     files = [ glob.glob(f) for f in args ]
+    if [] in files:
+        return False, files
+
     flat = [ item for sublist in files for item in sublist ]
-    logging.debug("Expanded files: %s" % flat)
+    logging.debug("files: %s, expanded files: %s" % (files, flat))
     failed = build.check_static(flat, command.context["report"])
 
     return failed==[], failed

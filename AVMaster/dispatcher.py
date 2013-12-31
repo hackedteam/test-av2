@@ -10,13 +10,8 @@ from AVCommon.protocol import Protocol
 from AVCommon import command
 from AVCommon import config
 from AVMaster import report
+from AVCommon.helper import red
 
-def red(msg, max_len=70):
-    s = str(msg)
-    if len(s) < max_len:
-        return s
-
-    return "%s ..." %  s[:max_len]
 
 class Dispatcher(object):
     """docstring for Dispatcher"""

@@ -210,6 +210,10 @@ class Command(object):
         #logging.debug("pickle.dumps(%s)" % serialized)
         return base64.b64encode(serialized)
 
+    def basic_string(self):
+        ts = time.strftime("%y%m%d-%H%M%S", time.localtime(self.timestamp))
+        return "%s, %s, %s, %s" % (self.name, self.success, ts, self.args)
+
     def __str__(self):
         ts = time.strftime("%y%m%d-%H%M%S", time.localtime(self.timestamp))
         return "%s, %s, %s, %s, %s" % (self.name, self.success, ts, self.args, self.result)
