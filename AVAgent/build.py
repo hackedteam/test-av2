@@ -225,7 +225,7 @@ class AgentBuild:
                     os.remove(filename)
 
                 if kind=="melt" and melt:
-                    logging.debug("- Melt build with: ", melt)
+                    logging.debug("- Melt build with: %s" % melt)
                     appname = "exp_%s" % self.hostname
                     self.param['melt']['appname'] = appname
                     self.param['melt']['url'] = "http://%s/%s/" % (c.host, appname)

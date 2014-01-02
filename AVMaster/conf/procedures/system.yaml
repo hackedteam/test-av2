@@ -89,7 +89,7 @@ SYSTEM_FAST:
 
 SYSTEM_MANUAL_CHECK:
     - VM: ['360cn', 'drweb', 'fsecure', 'kis14', 'kis32', 'panda', 'zoneal']
-    - CALL: INIT_DISPATCH
+    #- CALL: INIT_DISPATCH
     #- CALL: VM_PUSH_AGENT
     #- CALL: VM_SCOUT
     #- START_AGENT

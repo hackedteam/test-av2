@@ -141,13 +141,12 @@ def dump():
     f=open("%s/report.%s.%s.log" % (logger.logdir, report.timestamp, report.name), "w+")
     for vm in report.c_received.keys():
         f.write("\n%s:\n" % vm)
-        f.write("   SENT: %s\n" % report.c_sent[vm])
         for v in report.c_received[vm]:
             mark = "  "
             if v.success == False:
                 mark = "- "
             f.write("    %s%s\n" % (mark, red(str(v))))
-
+        f.write("   SENT: %s\n" % report.c_sent[vm])
     f.close()
 
     r= summary()
