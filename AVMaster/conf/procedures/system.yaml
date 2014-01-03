@@ -61,6 +61,7 @@ SYSTEM_DAILY:
         - VM_STATIC
         - VM_ELITE_FAST
         - VM_MELT
+        - VM_PUSH_VIRUS
     - UNINSTALL
     - CALL: END_DISPATCH
 

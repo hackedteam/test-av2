@@ -41,6 +41,7 @@ class ProtocolClient:
             logging.debug("PROTO S executing meta")
         ret = cmd.execute(self.vm, self, cmd.args)
         cmd.success, cmd.result = ret
+        logging.debug("PROTO S error: %s" % self.error)
         assert isinstance(cmd.success, bool)
         self.send_answer(cmd)
         return cmd
@@ -82,6 +83,7 @@ class Protocol(ProtocolClient):
         assert dispatcher
         self.add_vm(vm)
         self.id = id
+        self.error = False
 
     def add_vm(self, vm):
         self.mq.add_client(vm)
@@ -191,6 +193,8 @@ class Protocol(ProtocolClient):
         if cmd.success != None and cmd.name == sent_command.name:
             if config.verbose:
                 logging.debug("PROTO S we got the expected answer")
+            if cmd.success == False:
+                self.error = True
             cmd.on_answer(vm, cmd.success, cmd.result)
             self.sent_commands.pop(0)
         else:

@@ -173,13 +173,32 @@ TEST_SLEEP:
     - VM_ALL
     - SLEEP: [10,100]
 
+
 TEST_MELT:
     - VM: [zenoav]
     #- START_VM
-    #- CALL: VM_PUSH_AGENT
-    #- INSTALL_AGENT
+    - CALL: VM_PUSH_AGENT
+    - INSTALL_AGENT
 
     - CALL: SET_DEFAULTS
     - CLEAN_EVIDENCES
     - BUILD: [ scout, windows, melt ]
 
+# ----------------------
+
+TST_ERROR:
+    - START_VM
+    - START_VM
+
+TST_GOOD:
+    - SLEEP: 1
+
+TST_GOOD_2:
+    - SLEEP: 2
+
+TEST_REPORT:
+    - VM: [noav]
+    - REPORT:
+        - TST_GOOD
+        - TST_ERROR
+        - TST_GOOD_2

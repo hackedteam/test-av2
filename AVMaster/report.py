@@ -89,19 +89,20 @@ def summary():
         for cmd in report.c_received[vm]:
             #cmd = Cmd(c)
 
-            if cmd.name == "REPORT_KIND":
+            if cmd.name == "REPORT_KIND_END":
                 current_proc = cmd.args
                 report.vm[vm].append(current_proc)
-                summary += "  %s\n" % current_proc
+                success = "" if cmd.success else "ERROR"
+                summary += "  %s %s\n" % (current_proc, success)
             else:
                 if current_proc:
                     if cmd.success == 'False':
-                        summary+="    %s\n" % red(str(cmd))
+                        summary+="    %s\n" % (red(str(cmd)))
                     elif cmd.name=="BUILD" and cmd.success != 'None':
                         #check = ['+ ERROR','+ FAILED']
                         #errors = any([ s in c for s in check ])
                         #if errors:
-                        summary+="    %s\n" % red(str(cmd))
+                        summary+="    %s\n" % (red(str(cmd)))
     return summary
 
 # arriva pulito
@@ -141,11 +142,16 @@ def dump():
     f=open("%s/report.%s.%s.log" % (logger.logdir, report.timestamp, report.name), "w+")
     for vm in report.c_received.keys():
         f.write("\n%s:\n" % vm)
+        indent = ""
         for v in report.c_received[vm]:
             mark = "  "
+            if v.name == "REPORT_KIND_INIT":
+                indent = "    "
+            elif v.name == "REPORT_KIND_END":
+                indent = ""
             if v.success == False:
                 mark = "- "
-            f.write("    %s%s\n" % (mark, red(str(v))))
+            f.write("%s    %s%s\n" % (indent, mark, red(str(v))))
         f.write("   SENT: %s\n" % report.c_sent[vm])
     f.close()
 

@@ -40,13 +40,9 @@ UPDATE_REG:
     - STOP_VM
     - REFRESH_SNAPSHOT
 
-UPDATE:
-    - VM: [360cn5,avira,comodo,eset,fsecure,kis,mcafee,msessential,trendm]
-    #- VM_ALL: IRRILEVANT
-    #- VM_ALL: IMPORTANT
-    #- VM: [avast32, avg32, kis32, msessential, norton, panda]
-    - VM_ALL
-    - ON_ERROR: STOP
+# ---------------------------
+
+UPD_INSTALL_AGENT:
     - INTERNET: True
     - SLEEP: [10, 600]
     - REVERT
@@ -60,6 +56,7 @@ UPDATE:
     - STOP_VM: 300
     - WAIT_SHUTDOWN
 
+UPD_WAIT:
     - START_VM: AV_AGENT
     - CALL: SET_DEFAULTS
     - UNINSTALL
@@ -69,49 +66,42 @@ UPDATE:
     - STOP_VM: 300 # cerca di spegnere con shutdown, se non ci riesce, spegne secco
     - WAIT_SHUTDOWN
 
-    - REPORT_INIT
-    - REPORT_KIND: UPDATE
+UPD_REFRESH:
     - START_VM: AV_AGENT
-    - REPORT_END
-
     - STOP_VM
     - WAIT_SHUTDOWN
 
     - REFRESH_SNAPSHOT
 
-
-UPDATE_FAST:
+UPDATE_FULL:
     - VM_ALL
     - ON_ERROR: STOP
-    - INTERNET: True
-    #- SLEEP: [0, 60]
-    - REVERT
-    - START_VM
-    - CHECK_INFECTION # questo non e' necessario, ma e' meglio assicurarsene
-    - CALL: VM_PUSH_AGENT
-    - INSTALL_AGENT
-    - EXECUTE_VM: /AVTest/AVAgent/assets/update_system.bat # scarica gli aggiornamenti windows
-    - SLEEP: 30
-    - STOP_VM: 300
-    - WAIT_SHUTDOWN
+    - REPORT:
+        - UPD_INSTALL_AGENT
+        - UPD_WAIT
+        - UPD_REFRESH
 
+# ---------------------------
+
+UPD_WAIT_FAST:
     - START_VM: AV_AGENT
     - CALL: SET_DEFAULTS
     - UNINSTALL
-    - SLEEP: 300 # attesa per gli update degli av
+    - CLEAN_EVIDENCES
+    - SLEEP: 600 # attesa per gli update degli av
     - SCREENSHOT
     - STOP_VM: 300 # cerca di spegnere con shutdown, se non ci riesce, spegne secco
     - WAIT_SHUTDOWN
 
-    - REPORT_INIT
-    - REPORT_KIND: UPDATE
-    - START_VM: AV_AGENT
-    - REPORT_END
+UPDATE_FAST:
+    - VM_ALL
+    - ON_ERROR: STOP
+    - REPORT:
+        - UPD_INSTALL_AGENT
+        - UPD_WAIT_FAST
+        - UPD_REFRESH
 
-    - STOP_VM
-    - WAIT_SHUTDOWN
-
-    - REFRESH_SNAPSHOT
+# ---------------------------
 
 UPDATE_DELETE_CACHE:
     #- VM_ALL
