@@ -73,9 +73,9 @@ VM_ELITE_FAST:
 
 VM_MELT:
     - CALL: SET_DEFAULTS
-    - CROP: True
+    #- CROP: True
     - BUILD: [ scout, windows, melt ]
-    - CROP: False
+    #- CROP: False
     - UNINSTALL
     - SCREENSHOT
     - RELOG
