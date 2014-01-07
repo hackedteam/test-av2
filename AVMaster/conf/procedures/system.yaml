@@ -92,12 +92,17 @@ SYSTEM_MANUAL_CHECK:
     - BUILD: [ pull, windows, melt ]
     - STOP_AGENT
 
-VM_FUNCTIONAL_CHAT_FB:
+VM_FUNCTIONAL_DEVICE:
     - CHECK_EVIDENCES: [device]
+
+VM_FUNCTIONAL_CHAT_FB:
     - CHECK_EVIDENCES: [chat, program, facebook]
 
 VM_FUNCTIONAL_ADDRESSBOOK_FB:
     - CHECK_EVIDENCES: [addressbook, program, facebook]
+
+VM_FUNCTIONAL_CHAT_SKYPE:
+    - CHECK_EVIDENCES: [chat, program, skype]
 
 VM_FUNCTIONAL_ADDRESSBOOK_SKYPE:
     - CHECK_EVIDENCES: [addressbook, program, skype]
@@ -127,6 +132,7 @@ SYSTEM_FUNCTIONAL:
         - True
     - SLEEP: 120
     - REPORT:
+        - VM_FUNCTIONAL_DEVICe
         - VM_FUNCTIONAL_CHAT_FB
         - VM_FUNCTIONAL_ADDRESSBOOK_FB
     - CALL: END_DISPATCH
