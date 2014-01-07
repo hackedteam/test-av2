@@ -16,14 +16,6 @@ TEST_VM:
 TEST_REFRESH:
     - REFRESH_SNAPSHOT
 
-TEST_EMPTY:
-    - VM: ['noav']
-    - START_AGENT
-    - CHECK_EMPTY_DIR:
-        - [ '/Users/avtest/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup', '/Documents and Settings/avtest/Start Menu/Programs/Startup/']
-        - [ desktop.ini ]
-    - STOP_AGENT
-
 TEST_EVIDENCE:
     - VM: ['funvm']
     #- CALL: INIT_DISPATCH
@@ -176,3 +168,37 @@ TEST_UPDATE:
     - WAIT_SHUTDOWN
 
     - REFRESH_SNAPSHOT
+
+TEST_SLEEP:
+    - VM_ALL
+    - SLEEP: [10,100]
+
+
+TEST_MELT:
+    - VM: [zenoav]
+    #- START_VM
+    - CALL: VM_PUSH_AGENT
+    - INSTALL_AGENT
+
+    - CALL: SET_DEFAULTS
+    - CLEAN_EVIDENCES
+    - BUILD: [ scout, windows, melt ]
+
+# ----------------------
+
+TST_ERROR:
+    - START_VM
+    - START_VM
+
+TST_GOOD:
+    - SLEEP: 1
+
+TST_GOOD_2:
+    - SLEEP: 2
+
+TEST_REPORT:
+    - VM: [noav]
+    - REPORT:
+        - TST_GOOD
+        - TST_ERROR
+        - TST_GOOD_2

@@ -1,5 +1,6 @@
 import os
 import sys
+from collections import OrderedDict
 from AVCommon.logger import logging
 
 sys.path.append(os.path.split(os.getcwd())[0])
@@ -9,13 +10,8 @@ from AVCommon.protocol import Protocol
 from AVCommon import command
 from AVCommon import config
 from AVMaster import report
+from AVCommon.helper import red
 
-def red(msg, max_len=50):
-    s = str(msg)
-    if len(s) < max_len:
-        return s
-
-    return "%s ..." %  s[:50]
 
 class Dispatcher(object):
     """docstring for Dispatcher"""
@@ -31,11 +27,11 @@ class Dispatcher(object):
         logging.debug("- END: %s" % c)
         self.ended.add(c)
         if self.pool:
-            m = self.pool.pop()
+            m = self.pool.pop(0)
             logging.debug("pool popped: %s, remains: %s" % (m.vm, len(self.pool)))
             self.start(m)
 
-        report.Report.pool = self.pool
+        report.Report.pool = [ p.vm for p in self.pool]
 
     def start(self, p):
         logging.debug("- START: %s" % p.vm)
@@ -53,10 +49,10 @@ class Dispatcher(object):
         for i in range(size):
             if not self.pool:
                 break
-            m = self.pool.pop()
+            m = self.pool.pop(0)
             self.start(m)
 
-        report.Report.pool = self.pool
+        report.Report.pool = [ p.vm for p in self.pool]
 
     def dispatch(self, procedure, pool=0 ):
         global received
@@ -73,12 +69,16 @@ class Dispatcher(object):
         assert self.vms
         assert self.vms[0], "please specify at least one VM"
         logging.debug("self.vms: %s" % self.vms)
-        av_machines = {}
+        av_machines = OrderedDict()
+        p_id = 0
         for vm in self.vms:
-            av_machines[vm] = Protocol(self, vm, procedure)
+            av_machines[vm] = Protocol(self, vm, procedure, id = p_id)
+            p_id += 1
 
         if pool == 0:
             pool = len(self.vms)
+
+        Protocol.pool = pool
         self.pool_start(av_machines.values(), pool)
 
         self.ended = set()
@@ -89,6 +89,10 @@ class Dispatcher(object):
                 c, msg = rec
                 command_unserialize = command.unserialize(msg)
                 logging.info("- RECEIVED %s, %s" % (c, red(command_unserialize)))
+                if c not in av_machines.keys():
+                    logging.warn("A message for %s probably belongs to another test!" % c)
+                    continue
+
                 p = av_machines[c]
 
                 answer = p.receive_answer(c, command_unserialize)
@@ -109,7 +113,7 @@ class Dispatcher(object):
 
                     report.sent(p.vm, cmd)
 
-                    logging.info("- SENT: %s, %s" % (c, cmd))
+                    logging.info("- SENT: %s, %s" % (c, red(cmd)))
                     if not r:
                         logging.info("- SENDING ERROR, ENDING: %s" %c)
                         self.end(c)

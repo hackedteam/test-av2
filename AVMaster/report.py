@@ -11,14 +11,11 @@ import uuid
 import ast
 from AVCommon import config
 from AVCommon import command
+from collections import OrderedDict
+from AVCommon.helper import red
 
 report = None
 from AVCommon.singleton import Singleton
-
-class Cmd:
-    def __init__(self, cmd):
-        res = [ s.strip() for s in cmd.split(',', 4)]
-        self.name, self.success, self.ts, self.args, self.result = res
 
 @Singleton
 class Report:
@@ -35,8 +32,8 @@ class Report:
         self.name = o.name
 
     def __init__(self):
-        self.c_sent = {}
-        self.c_received = {}
+        self.c_sent = OrderedDict()
+        self.c_received = OrderedDict()
 
         self.test_id = str(uuid.uuid1())
 
@@ -59,7 +56,6 @@ def clean():
 
 def end(vm):
     report = Report()
-    #
     logging.debug("setting end to %s" % vm)
     set_procedure(vm, None)
     dump()
@@ -68,28 +64,6 @@ def finish():
     logging.debug("report finish")
     #dump()
 
-def is_success(cmd):
-
-    c = Cmd(cmd)
-    return c.success
-
-def get_result(received, sent):
-    report = Report()
-
-    if not is_success(sent):
-        return [ False, sent ]
-
-    builds = [ b for b in received if b.startswith("BUILD")]
-    failed = [ b for b in builds if   "+ ERROR" in b or "+ FAILED" in b ]
-    if failed:
-        return [False, failed[-1]]
-    if builds:
-        last = builds[-1]
-        return [True, last]
-    else:
-        last = received[-1]
-        return [is_success(last), last]
-
 def set_procedure(vm, proc_name):
     report = Report()
 
@@ -97,13 +71,6 @@ def set_procedure(vm, proc_name):
 
     if vm in report.current_procedure.keys():
         proc = report.current_procedure[vm]
-        #if proc not in report.reports.keys():
-        #    report.reports[proc]=[]
-
-        #res = get_result(report.c_received[vm], report.c_sent[vm])
-        #logging.debug("adding %s/%s: %s" % (proc, vm, str(res)))
-
-        #report.reports[proc].append({ vm: res })
 
         # qui si deve salvare il record: t_id = report.test_id, name = vm,  kind = proc, result = res
 
@@ -119,24 +86,24 @@ def summary():
         report.vm[vm] = []
         current_proc = None
         summary += "%s\n" % vm
-        for c in report.c_received[vm]:
-            cmd = Cmd(c)
+        for cmd in report.c_received[vm]:
+            #cmd = Cmd(c)
 
-            if cmd.name == "REPORT_KIND":
+            if cmd.name == "REPORT_KIND_END":
                 current_proc = cmd.args
                 report.vm[vm].append(current_proc)
-                summary += "  %s\n" % current_proc
+                success = "" if cmd.success else "ERROR"
+                summary += "  %s %s\n" % (current_proc, success)
             else:
                 if current_proc:
                     if cmd.success == 'False':
-                        summary+="    %s\n" % c
+                        summary+="    %s\n" % (red(str(cmd)))
                     elif cmd.name=="BUILD" and cmd.success != 'None':
                         #check = ['+ ERROR','+ FAILED']
                         #errors = any([ s in c for s in check ])
                         #if errors:
-                        summary+="    %s\n" % (c)
+                        summary+="    %s\n" % (red(str(cmd)))
     return summary
-
 
 # arriva pulito
 def sent(av, cmd):
@@ -147,7 +114,7 @@ def sent(av, cmd):
 
     if config.verbose:
         logging.debug("sent (%s): %s (%s)" % (report.current_procedure.get(av,""), av, cmd))
-    report.c_sent[av]=str(cmd)
+    report.c_sent[av]=cmd
     dump()
 
 # arriva pulito
@@ -159,17 +126,34 @@ def received(av, cmd):
 
     if config.verbose:
         logging.debug("received (%s): %s (%s)" % (report.current_procedure.get(av,""), av, cmd))
-    if av not in report.c_received:
+    if av not in report.c_received.keys():
         report.c_received[av] = []
-    report.c_received[av].append(str(cmd))
+    report.c_received[av].append(cmd)
     #db_save(test_id, proc, av, command)
     dump()
 
 def dump():
     report = Report()
 
-    f=open("%s/report.%s.%s.log" % (logger.logdir, report.timestamp, report.name), "w+")
+    f=open("%s/report.%s.%s.yaml" % (logger.logdir, report.timestamp, report.name), "w+")
     f.write(yaml.dump(report, default_flow_style=False, indent=4))
+    f.close()
+
+    f=open("%s/report.%s.%s.log" % (logger.logdir, report.timestamp, report.name), "w+")
+    for vm in report.c_received.keys():
+        f.write("\n%s:\n" % vm)
+        indent = ""
+        for v in report.c_received[vm]:
+            mark = "  "
+            if v.name == "REPORT_KIND_INIT":
+                indent = "    "
+            elif v.name == "REPORT_KIND_END":
+                indent = ""
+            if v.success == False:
+                mark = "- "
+            f.write("%s    %s%s\n" % (indent, mark, red(str(v))))
+        f.write("   SENT: %s\n" % report.c_sent[vm])
+    f.close()
 
     r= summary()
     f=open("%s/summary.%s.%s.log" % (logger.logdir, report.timestamp, report.name), "w+")

@@ -31,3 +31,10 @@ def convert_processes(procs):
 
     logging.debug("processes: %s" % processes)
     return processes
+
+def red(msg, max_len=70):
+    s = str(msg)
+    if len(s) < max_len:
+        return s
+
+    return "%s ..." %  s[:max_len]

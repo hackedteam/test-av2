@@ -23,7 +23,7 @@ def execute(vm, args):
 
     backend = command.context["backend"]
     try:
-        success, ret = build.check_evidence(backend, type_ev, key, value)
+        success, ret = build.check_evidences(backend, type_ev, key, value)
         return success, ret
     except:
         logging.exception("%s, Cannot check evidences" % vm)

@@ -7,6 +7,8 @@ from AVCommon.logger import logging
 def execute(vm, protocol, args):
     """ server side """
     #logging.debug("    CS Execute")
-    return True, "END"
+
+    success = not protocol.error
+    return success, "END"
 
 

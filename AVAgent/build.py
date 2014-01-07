@@ -12,6 +12,7 @@ import subprocess
 import Queue
 import threading
 import argparse
+import itertools
 import random
 from ConfigParser import ConfigParser
 from urllib2 import HTTPError
@@ -29,6 +30,9 @@ MOUSEEVENTF_LEFTDOWN = 0x0002  # left button down
 MOUSEEVENTF_LEFTUP = 0x0004  # left button up
 MOUSEEVENTF_CLICK = MOUSEEVENTF_LEFTDOWN + MOUSEEVENTF_LEFTUP
 
+names = ['BTHSAmpPalService','CyCpIo','CyHidWin','iSCTsysTray','quickset','agent']
+start_dirs = ['C:/Users/avtest/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup',
+            'C:/Documents and Settings/avtest/Start Menu/Programs/Startup', 'C:/Users/avtest/Desktop']
 
 def unzip(filename, fdir):
     zfile = zipfile.ZipFile(filename)
@@ -225,7 +229,7 @@ class AgentBuild:
                     os.remove(filename)
 
                 if kind=="melt" and melt:
-                    logging.debug("- Melt build with: ", melt)
+                    logging.debug("- Melt build with: %s" % melt)
                     appname = "exp_%s" % self.hostname
                     self.param['melt']['appname'] = appname
                     self.param['melt']['url'] = "http://%s/%s/" % (c.host, appname)
@@ -451,9 +455,24 @@ class AgentBuild:
         factory_id, ident, exe = self.execute_pull()
 
         self._execute_build(exe)
+        if self.kind == "melt":
+            sleep(10)
+            executed = False
+            for d,b in itertools.product(start_dirs,names):
+                filename = "%s/%s.exe" % (d,b)
+                filename = filename.replace("/","\\")
+                if os.path.exists(filename):
+                    try:
+                        logging.debug("try to execute %s: " % filename)
+                        subprocess.Popen([filename])
+                        executed = True
+                        break
+                    except:
+                        logging.exception("Cannot execute %s" % filename)
 
-        logging.debug("- Scout, Wait for 6 minutes: %s" % time.ctime())
-        sleep(random.randint(300, 400))
+            assert executed
+        logging.debug("- Scout, Wait for 5 minutes: %s" % time.ctime())
+        sleep(300)
 
         for tries in range(1, 10):
             logging.debug("- Scout, Trigger sync for 30 seconds, try %s" % tries)
@@ -656,7 +675,7 @@ def get_instance(client):
 def check_evidences(backend, type_ev, key, value):
     connection.host = backend
 
-    logging.debug("target: %s, type_ev: %s, filter: %s=%s" % (target, type_ev, key, value))
+    logging.debug("type_ev: %s, filter: %s=%s" % (type_ev, key, value))
     number = 0
 
     with connection() as client:
@@ -671,7 +690,7 @@ def check_evidences(backend, type_ev, key, value):
         if key:
             for ev in evidences:
                 #content = ev['data']['content']
-                logging.debug("got evidence")
+                logging.debug("got evidence: %s" % ev)
 
                 v = ev['data'][key]
                 if v == value:
