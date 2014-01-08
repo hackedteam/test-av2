@@ -32,17 +32,25 @@ class Report:
         self.name = o.name
 
     def __init__(self):
+        # key is av, value is a command
         self.c_sent = OrderedDict()
+        # key is av, value is a command list
         self.c_received = OrderedDict()
 
+        # unique id
         self.test_id = str(uuid.uuid1())
 
         self.timestamp = time.strftime("%y%m%d-%H%M%S", time.localtime(time.time()))
 
         #self.timestamp = int(time.time())
 
-        self.reports = {} # proc is the key
-        self.current_procedure = {} # vm is the key
+        # proc is the key
+        self.reports = {}
+
+        # vm is the key, represents the current REPORT_KIND
+        self.current_procedure = {}
+
+        # list of all the REPORT_KIND
         self.procedures = []
         self.name = ""
 
@@ -106,6 +114,8 @@ def summary():
     return summary
 
 # arriva pulito
+# report si ricorda di un solo comando, per ogni av
+# c_sent e' un comando
 def sent(av, cmd):
     report = Report()
 
@@ -114,10 +124,12 @@ def sent(av, cmd):
 
     if config.verbose:
         logging.debug("sent (%s): %s (%s)" % (report.current_procedure.get(av,""), av, cmd))
-    report.c_sent[av]=cmd
+    report.c_sent[av] = cmd
     dump()
 
 # arriva pulito
+# report si ricorda tutti i comandi ricevuti
+# c_received e' una lista di comandi
 def received(av, cmd):
     report = Report()
 
@@ -132,31 +144,32 @@ def received(av, cmd):
     #db_save(test_id, proc, av, command)
     dump()
 
+# genera un report.log e un summary log
 def dump():
     report = Report()
 
-    f=open("%s/report.%s.%s.yaml" % (logger.logdir, report.timestamp, report.name), "w+")
-    f.write(yaml.dump(report, default_flow_style=False, indent=4))
-    f.close()
+    #f=open("%s/report.%s.%s.yaml" % (logger.logdir, report.timestamp, report.name), "w+")
+    #f.write(yaml.dump(report, default_flow_style=False, indent=4))
+    #f.close()
 
-    f=open("%s/report.%s.%s.log" % (logger.logdir, report.timestamp, report.name), "w+")
+    f = open("%s/report.%s.%s.log" % (logger.logdir, report.timestamp, report.name), "w+")
     for vm in report.c_received.keys():
         f.write("\n%s:\n" % vm)
         indent = ""
-        for v in report.c_received[vm]:
+        for cmd in report.c_received[vm]:
             mark = "  "
-            if v.name == "REPORT_KIND_INIT":
+            if cmd.name == "REPORT_KIND_INIT":
                 indent = "    "
-            elif v.name == "REPORT_KIND_END":
+            elif cmd.name == "REPORT_KIND_END":
                 indent = ""
-            if v.success == False:
+            if cmd.success == False:
                 mark = "- "
-            f.write("%s    %s%s\n" % (indent, mark, red(str(v))))
+            f.write("%s    %s%s\n" % (indent, mark, red(str(cmd))))
         f.write("   SENT: %s\n" % report.c_sent[vm])
     f.close()
 
-    r= summary()
-    f=open("%s/summary.%s.%s.log" % (logger.logdir, report.timestamp, report.name), "w+")
+    r = summary()
+    f = open("%s/summary.%s.%s.log" % (logger.logdir, report.timestamp, report.name), "w+")
     f.write(r)
 
 def restore(file_name):
