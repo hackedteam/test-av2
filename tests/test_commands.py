@@ -65,7 +65,7 @@ pid=2064, owner=, cmd=dllhost.exe"""
         assert "owner" in p.keys()
         assert "name" in p.keys()
 
-def test_commands():
+def test_command_SET():
     #command.context = {}
 
     s = command.factory("SET")
@@ -85,6 +85,27 @@ def test_commands():
 
     logging.debug(command.context)
 
+
+def test_command_SLEEP():
+    #command.context = {}
+
+    s = command.factory("SLEEP")
+    s.vm = "vm"
+
+    s.execute("vm", {"ciao":"mondo"})
+    logging.debug(command.context)
+
+    assert "ciao" in command.context
+    assert command.context["ciao"] == "mondo"
+
+    s = command.factory("SET")
+    s.vm = "vm"
+    s.execute( s.vm, {"pippo":"franco", "hello":"world", "number":"123"})
+    assert "ciao" in command.context
+    assert command.context["ciao"] == "mondo"
+
+    logging.debug(command.context)
+
 if __name__ == '__main__':
     test_START_VM()
-    test_commands()
+    test_command_SET()

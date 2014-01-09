@@ -13,8 +13,8 @@ def execute(vm, protocol, level):
     assert command.context is not None
 
     vm_first = "avast,avast32,avg,avg32,avira,kis,kis14,kis32,mcafee,norton,panda,comodo,eset,msessential".split(',')
-    vm_second = "360cn,adaware,ahnlab,bitdef,fsecure,gdata,mbytes,norman,risint,trendm,zoneal".split(',')
-    vm_ignored = "drweb"
+    vm_second = "drweb,360cn,360cn5,adaware,ahnlab,bitdef,fsecure,gdata,iobit,mbytes,norman,risint,trendm,zoneal".split(',')
+    vm_ignored = ""
 
     if level and level.lower() == "important":
         vm_all = vm_first
@@ -26,5 +26,5 @@ def execute(vm, protocol, level):
 
     command.context["VM"] = vm_all
 
-    logging.debug("items: %s" % (command.context))
+    logging.debug("vm_all items: %s" % (vm_all))
     return True, vm_all

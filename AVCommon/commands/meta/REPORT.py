@@ -25,8 +25,9 @@ def execute(vm, protocol, mon_args):
     command_list.append("REPORT_INIT")
     for proc_name in mon_args:
         logging.debug("insert report kind: %s" % (proc_name))
-        command_list.append(["REPORT_KIND", None, (proc_name)])
+        command_list.append(["REPORT_KIND_INIT", None, (proc_name)])
         command_list.append(["CALL", None, (proc_name)])
+        command_list.append(["REPORT_KIND_END", None, (proc_name)])
 
     command_list.append("REPORT_END")
 

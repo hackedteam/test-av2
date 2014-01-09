@@ -15,7 +15,11 @@ def execute(vm, protocol, args):
     #command.context["report"].remove(vm)
     #if not command.context["report"]:
     #    logging.info("report end: %s" % vm)
+
+    protocol.error = False
     report.end(vm)
     #if not command.context["report"]:
     #    report.finish()
+
+
     return True, vm

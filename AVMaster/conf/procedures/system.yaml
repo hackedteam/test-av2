@@ -38,7 +38,7 @@ SYSTEM_STATIC_MOBILE:
     - STOP_AGENT
     - STOP_VM
 
-SYSTEM_REVERT:
+REVERT:
     - VM_ALL
     - INTERNET: False
     - SLEEP: [1, 10]
@@ -54,40 +54,99 @@ SYSTEM_DAILY:
     - VM_ALL
     #- VM: [ahnlab,avast]
     - ON_ERROR: STOP
-    - SLEEP: [1, 60]
+    - SLEEP: [10, 600]
     - CALL: INIT_DISPATCH
     - CALL: VM_CLEAN_EVIDENCES
     - REPORT:
         - VM_STATIC
-        - VM_ELITE
+        - VM_ELITE_FAST
         - VM_MELT
+        - VM_PUSH_VIRUS
     - UNINSTALL
     - CALL: END_DISPATCH
 
 SYSTEM_POSITIVE:
-    - VM: [360cn,adaware,ahnlab,avast,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm,zoneal]
-    #- VM: [avast,avira,eset,fsecure]
-    - INTERNET: False
+    - VM_ALL
+    - ON_ERROR: STOP
+    - SLEEP: [10, 600]
+    #- CALL: INIT_DISPATCH
+    #- CALL: VM_PUSH_AGENT
+    #- INSTALL_AGENT
+    #- RELOG
+    #- CALL: VM_CLEAN_EVIDENCES
+    - START_VM
     - REPORT:
-        - DISPATCH
-        - PUSH_VIRUS
-
-SYSTEM_ELITE:
-    #- VM: [avast,eset,avast32,avg,avg32,avira,kis,kis14,kis32,mcafee,norton,panda,comodo]
-    - VM_ALL: important
-    - SLEEP: [1,100]
-    - CALL: INIT_DISPATCH
-    - REPORT:
-        - VM_ELITE
-        #- VM_PUSH_VIRUS
+        - VM_PUSH_VIRUS
     - CALL: END_DISPATCH
 
+SYSTEM_FAST:
+    - VM: ['360cn', 'drweb', 'fsecure', 'kis14', 'kis32', 'panda', 'zoneal']
+    #- VM_ALL: important
+    #- STOP_AGENT
+    #- CALL: VM_PUSH_AGENT
+    #- INSTALL_AGENT
+    #- START_AGENT
+    #- SLEEP: [1,30]
+    - CALL: VM_ELITE_FAST
+
 SYSTEM_MANUAL_CHECK:
-    - VM: [kis,360cn]
-    - CALL: INIT_DISPATCH
+    - VM: ['360cn', 'drweb', 'fsecure', 'kis14', 'kis32', 'panda', 'zoneal']
+    #- CALL: INIT_DISPATCH
     #- CALL: VM_PUSH_AGENT
     #- CALL: VM_SCOUT
-    - START_AGENT
+    #- START_AGENT
     - CALL: SET_DEFAULTS
-    - BUILD: [ pull, windows, melt ]
+    - BUILD: [ pull, windows, silent ]
     - STOP_AGENT
+
+VM_FUNCTIONAL_DEVICE:
+    - CHECK_EVIDENCES: [device]
+
+VM_FUNCTIONAL_CHAT_FB:
+    - CHECK_EVIDENCES: [chat, program, facebook]
+
+VM_FUNCTIONAL_ADDRESSBOOK_FB:
+    - CHECK_EVIDENCES: [addressbook, program, facebook]
+
+VM_FUNCTIONAL_CHAT_SKYPE:
+    - CHECK_EVIDENCES: [chat, program, skype]
+
+VM_FUNCTIONAL_ADDRESSBOOK_SKYPE:
+    - CHECK_EVIDENCES: [addressbook, program, skype]
+
+SYSTEM_FUNCTIONAL_FAST:
+    #- START_AGENT: 172.20.20.168
+    #- CALL: SET_DEFAULTS_FUNCTIONAL
+    - REPORT:
+        - VM_FUNCTIONAL_CHAT_FB
+        - VM_FUNCTIONAL_ADDRESSBOOK_FB
+
+SYSTEM_FUNCTIONAL:
+    #- CALL: INIT_DISPATCH
+    - VM: [ funie, funch, funff ]
+    - REVERT
+    - START_VM
+    - CALL: VM_PUSH_AGENT
+    - START_AGENT: 172.20.20.168
+    - CALL: SET_DEFAULTS_FUNCTIONAL
+    - BUILD: [ pull, windows_elite, silent ]
+    - EXECUTE_VM:
+        - C:/AVTest/AVAgent/build/windows_elite/agent.exe
+        - []
+        - 40
+        - True
+        - True
+    - SLEEP: 100
+    - PUSH: [ AVAgent/assets/facebook.bat ]
+    - EXECUTE_VM:
+        - C:/AVTest/AVAgent/assets/facebook.bat
+        - []
+        - 40
+        - True
+        - True
+    - SLEEP: 120
+    - REPORT:
+        - VM_FUNCTIONAL_DEVICe
+        - VM_FUNCTIONAL_CHAT_FB
+        - VM_FUNCTIONAL_ADDRESSBOOK_FB
+    - CALL: END_DISPATCH

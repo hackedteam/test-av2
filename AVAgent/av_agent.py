@@ -24,6 +24,7 @@ from AVCommon.mq import MQStar
 from AVCommon.protocol import Protocol
 from AVCommon import command
 from AVCommon.procedure import Procedure
+from AVCommon import config
 
 class MQFeedProcedure(object):
     protocol = None
@@ -73,6 +74,8 @@ class AVAgent(object):
         self.session = session
         command.init()
         shutil.rmtree('build', ignore_errors=True)
+        if os.path.exists(config.basedir_crop):
+            shutil.rmtree(config.basedir_crop)
         logging.debug("vm: %s host: %s session: %s" % (self.vm, self.host, session))
 
         command.context["report"] = self.report
@@ -94,6 +97,7 @@ class AVAgent(object):
         class D:
             pass
         d = D()
+
         if not mq:
             mq = MQStar(self.host, self.session)
             d.mq = mq
@@ -103,6 +107,7 @@ class AVAgent(object):
             self.pc = Protocol(d, self.vm, procedure=procedure)
             mq.protocol = self.pc
             logging.debug("mq: %s pc:%s" % (mq.protocol.procedure, self.pc.procedure))
+
         mq.add_client(self.vm)
         mq.notify_connection(self.vm)
 
@@ -161,5 +166,8 @@ if __name__ == "__main__":
         mq = MQFeedProcedure()
     Procedure.check()
 
-    avagent = AVAgent(args.vm, args.redis, args.session)
-    avagent.start_agent(mq, procedure)
+    try:
+        avagent = AVAgent(args.vm, args.redis, args.session)
+        avagent.start_agent(mq, procedure)
+    except:
+        logging.exception("FATAL")
