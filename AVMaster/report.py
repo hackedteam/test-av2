@@ -98,7 +98,7 @@ def summary():
             #cmd = Cmd(c)
 
             if cmd.name == "REPORT_KIND_END":
-                current_proc = cmd.args
+                current_proc, report_args = cmd.args
                 report.vm[vm].append(current_proc)
                 success = "" if cmd.success else "ERROR"
                 summary += "  %s %s\n" % (current_proc, success)
