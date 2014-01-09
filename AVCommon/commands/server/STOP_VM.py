@@ -18,7 +18,7 @@ def execute(vm, protocol, args):
         off = False
         tick = 15
 
-        logging.info("%s, shutting down with timeout %s." % (vm,timeout))
+        logging.debug("%s, shutting down with timeout %s." % (vm,timeout))
 
         vm_manager.execute(vm, "executeCmd","C:/Windows/System32/shutdown.exe",["/s", "/t", "0"], timeout, False, True)
 
