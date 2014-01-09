@@ -36,8 +36,6 @@ class AVMaster():
 
     def start(self):
         self.load_procedures()
-        if not self.procedure in Procedure.procedures:
-            raise RuntimeError("not existent procedure: %s" % self.procedure )
         proc = Procedure.procedures[self.procedure]
         assert proc, "cannot find the specified procedure: %s" % self.procedure
 
@@ -89,14 +87,8 @@ def main():
 if __name__ == '__main__':
 
     #logger=logging.getLogger('root')
-    try:
-        os.remove("../logs/avmonitor.log")
-        os.remove("../logs/avmonitor-info.log")
-        os.remove("../logs/avmonitor-errors.log")
-    except:
-        pass
+    os.remove("../logs/avmonitor.log")
+    os.remove("../logs/avmonitor-info.log")
+    os.remove("../logs/avmonitor-error.log")
     logging.info("AV_MASTER")
-    try:
-        main()
-    except:
-        logging.exception("FATAL")
+    main()
