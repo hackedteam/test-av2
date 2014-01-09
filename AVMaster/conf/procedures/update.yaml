@@ -72,25 +72,13 @@ UPD_WAIT:
 UPD_REFRESH:
     - REFRESH_SNAPSHOT
 
-UPD_PUSH_VIRUS:
-    - START_VM: AV_AGENT
-    - CROP: True
-    - PUSH: [ AVAgent/assets/vira/conficker.dll, AVAgent/assets/vira/eicar.com ]
-    - SLEEP: 30
-    - CHECK_STATIC: [ AVAgent/assets/vira/conficker.dll, AVAgent/assets/vira/eicar.com ]
-    - SLEEP: 10
-    - CROP: False
-    - SCREENSHOT
-    - STOP_VM
-
 UPDATE_FULL:
     - VM_ALL
     - ON_ERROR: STOP
     - REPORT:
         - UPD_WAIT: ['AVM Update', 'Update AV']
         - UPD_REFRESH
-        - UPD_PUSH_VIRUS: ['AVM Update', 'Positive static check', INVERSE]
-
+    - CALL: END_DISPATCH
 # ---------------------------
 
 UPD_WAIT_FAST:

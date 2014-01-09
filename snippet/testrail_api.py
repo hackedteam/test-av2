@@ -73,8 +73,13 @@ def rerun_plan(project_id,plan_id):
     plan = get_plan(project_id, plan_id)
     runs =  get_runs(project_id, plan_id)
 
+    for r in runs:
+        pprint.pprint(r)
+        break
+    #return
+
     new_plan = {}
-    new_plan["name"] = plan["name"] + " AUTO"
+    new_plan["name"] = plan["name"] + " AUTO re-config"
     #new_plan["entries"] = runs
     new_plan["description"] = "automatic plan"
     new_plan["milestone_id"] = plan["milestone_id"]
@@ -83,6 +88,7 @@ def rerun_plan(project_id,plan_id):
     new_plan_id = new_plan_ret["id"]
     print new_plan_id
     for r in runs:
+        r["name"] = "%s [%s]" % (r["name"], r["config"])
         add_plan_entry(new_plan_id, r)
 
     #close_plan(plan_id)

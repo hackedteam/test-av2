@@ -90,6 +90,7 @@ def summary():
     report.vm = {}
 
     summary = ""
+    important_commands = ["BUILD", "CHECK_STATIC"]
     for vm in report.c_received.keys():
         report.vm[vm] = []
         current_proc = None
@@ -100,13 +101,13 @@ def summary():
             if cmd.name == "REPORT_KIND_END":
                 current_proc, report_args = cmd.args
                 report.vm[vm].append(current_proc)
-                success = "" if cmd.success else "ERROR"
+                success = "SUCCESS" if cmd.success else "FAILED"
                 summary += "  %s %s\n" % (current_proc, success)
             else:
                 if current_proc:
                     if cmd.success == 'False':
-                        summary+="    %s\n" % (red(str(cmd), 80))
-                    elif cmd.name=="BUILD" and cmd.success:
+                        summary+="    %s\n" % (red(str(cmd), 120))
+                    elif cmd.name in important_commands and cmd.success:
                         #check = ['+ ERROR','+ FAILED']
                         #errors = any([ s in c for s in check ])
                         #if errors:

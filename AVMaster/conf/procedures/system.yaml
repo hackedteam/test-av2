@@ -105,18 +105,26 @@ SYSTEM_DAILY:
 
 # ------------  #
 
+
+SYS_PUSH_VIRUS:
+    - START_VM: AV_AGENT
+    - ON_ERROR: CONTINUE
+    - CROP: True
+    - PUSH: [ AVAgent/assets/vira/conficker.dll, AVAgent/assets/vira/eicar.com ]
+    - SLEEP: 30
+    - CHECK_STATIC: [ AVAgent/assets/vira/conficker.dll, AVAgent/assets/vira/eicar.com ]
+    - SLEEP: 10
+    - CROP: False
+    - SCREENSHOT
+    - STOP_VM
+
 SYSTEM_POSITIVE:
     - VM_ALL
-    - ON_ERROR: STOP
+    - ON_ERROR: SKIP
     - SLEEP: [10, 600]
-    #- CALL: INIT_DISPATCH
-    #- CALL: VM_PUSH_AGENT
-    #- INSTALL_AGENT
-    #- RELOG
-    #- CALL: VM_CLEAN_EVIDENCES
     - START_VM
     - REPORT:
-        - VM_PUSH_VIRUS
+        - SYS_PUSH_VIRUS: ['AVM Update', 'Positive static check', INVERSE]
     - CALL: END_DISPATCH
 
 SYSTEM_FAST:
