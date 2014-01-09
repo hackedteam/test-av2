@@ -51,7 +51,7 @@ class MQFeedProcedure(object):
 def remove_running(vm):
     logging.info("remove running")
     filepid = "running/avagent.%s.running" % vm
-    logging.debug("filepid: " % filepid)
+    logging.debug("filepid: %s" % filepid)
     os.remove(filepid)
 
 def check_running(vm):
@@ -87,9 +87,9 @@ class AVAgent(object):
         logging.debug("report: %s" % message)
         self.pc.send_answer(command._factory("BUILD", None, None, message, self.vm))
 
-    def start_agent(self, mq=None, procedure=None):
+    def start_agent(self, mq=None, procedure=None, force=False):
 
-        if check_running(self.vm):
+        if not force and check_running(self.vm):
             logging.fatal("already running")
             exit = True
             return False
@@ -124,15 +124,15 @@ class AVAgent(object):
         remove_running(self.vm)
 
 
-def start_agent(args):
+def start_agent(args, force=False):
     vm, redis, session = args
     avagent = AVAgent(vm, redis, session)
-    avagent.start_agent()
+    avagent.start_agent(force=force)
 
 
-def start_agent_args(vm, redis, session):
+def start_agent_args(vm, redis, session, force=False):
     avagent = AVAgent(vm, redis, session)
-    avagent.start_agent()
+    avagent.start_agent(force=force)
 
 
 if __name__ == "__main__":

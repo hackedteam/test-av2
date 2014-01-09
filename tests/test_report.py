@@ -53,8 +53,8 @@ P3:
 TEST_REPORT:
     - VM: [noav,zenoav]
     - REPORT:
-        - P1
-        - P2
+        - P1: ["AVtest", "MyCase"]
+        - P2: ["AVtest", "MyOtherCase", INVERSE ]
         - P3
 """
     procedures = Procedure.load_from_yaml(yaml)
@@ -78,13 +78,17 @@ TEST_REPORT:
     assert len(r.c_received) == len(vms)
     assert len(r.c_sent) == len(vms)
     assert len(r.current_procedure) == len(vms)
-    assert len(r.reports) == 3
+    assert len(r.c_received) == len(vms), len(r.c_received)
+    for vm in vms:
+        assert vm in r.c_received
+        assert len(r.c_received[vm]) == 18
+
 
     #logging.debug("Report: %s" % r )
 
 
 if __name__=="__main__":
 
-    test_report_extract()
+    #test_report_extract()
     #test_report_load()
-    #test_report_meta()
+    test_report_meta()

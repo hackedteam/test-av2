@@ -70,6 +70,8 @@ SCOUT:
     - START_AGENT
     - BUILD
 """
+
+    init_proc_number = len(Procedure.procedures)
     procedures = Procedure.load_from_yaml(yaml)
     assert procedures, "empty procedures"
     logging.debug("procedures: %s" % procedures)
@@ -83,8 +85,10 @@ SCOUT:
 
     leninstance = len(procedures.values())
     lenstatic = len(Procedure.procedures)
-    assert leninstance == lenstatic, "different lengths: %s!=%s" %(leninstance, lenstatic)
 
+    logging.debug("Procedure.procedures: %s" % Procedure.procedures)
+
+    assert leninstance + init_proc_number == lenstatic, "different lengths: %s!=%s" %(leninstance, lenstatic)
 
 if __name__ == '__main__':
 

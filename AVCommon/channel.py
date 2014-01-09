@@ -43,6 +43,7 @@ class Channel():
         """ reads a message from the underlining channel. This method can be blocking or it could timeout in a while
         """
         ret = None
+        time_start = time.time()
         if blocking:
             while True:
                 try:
@@ -53,7 +54,12 @@ class Channel():
                     if ret == None:
                         if config.verbose:
                             logging.debug("None in blpop: %s" % self.channel)
+
+                        if timeout and (time.time() - time_start) > timeout:
+                            logging.exception("  CH TIMEOUT server explicit")
+                            return None
                         time.sleep(5)
+
                         continue
                     else:
                         assert l1>=0

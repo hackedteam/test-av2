@@ -23,11 +23,22 @@ def execute(vm, protocol, mon_args):
     command_list = []
 
     command_list.append("REPORT_INIT")
-    for proc_name in mon_args:
-        logging.debug("insert report kind: %s" % (proc_name))
+    for proc_token in mon_args:
+
+        report_args = []
+        if isinstance(proc_token, basestring):
+            proc_name = proc_token
+        elif isinstance(proc_token, dict):
+            assert len(proc_token.keys()) == 1
+            proc_name = proc_token.keys()[0]
+            report_args = proc_token[proc_name]
+        else:
+            return False, "Error parsing"
+
+        logging.debug("insert report kind: %s args: %s" % (proc_name, report_args))
         command_list.append(["REPORT_KIND_INIT", None, (proc_name)])
         command_list.append(["CALL", None, (proc_name)])
-        command_list.append(["REPORT_KIND_END", None, (proc_name)])
+        command_list.append(["REPORT_KIND_END", None, (proc_name, report_args)])
 
     command_list.append("REPORT_END")
 

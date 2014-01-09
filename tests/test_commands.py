@@ -92,7 +92,7 @@ def test_command_SLEEP():
     s = command.factory("SLEEP")
     s.vm = "vm"
 
-    s.execute("vm", {"ciao":"mondo"})
+    s.execute("vm", "protocol", {"ciao":"mondo"})
     logging.debug(command.context)
 
     assert "ciao" in command.context

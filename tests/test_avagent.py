@@ -96,7 +96,7 @@ TEST:
     #r.get() #notare che i results dei client non ci interessano, viaggia tutto su channel/command.
 
     for v in vms:
-        t = threading.Thread(target=av_agent.start_agent_args,  args=(v, host, mq.session)  )
+        t = threading.Thread(target=av_agent.start_agent_args,  args=(v, host, mq.session, True)  )
         t.start()
         #p = Process(target=av_agent.start_agent, args=( tuple([v, host, mq.session,])))
         #p.start()

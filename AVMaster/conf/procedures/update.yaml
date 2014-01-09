@@ -42,7 +42,7 @@ UPDATE_REG:
 
 # ---------------------------
 
-UPD_INSTALL_AGENT:
+UPD_WAIT:
     - INTERNET: True
     - SLEEP: [10, 600]
     - REVERT
@@ -56,7 +56,6 @@ UPD_INSTALL_AGENT:
     - STOP_VM: 300
     - WAIT_SHUTDOWN
 
-UPD_WAIT:
     - START_VM: AV_AGENT
     - CALL: SET_DEFAULTS
     - UNINSTALL
@@ -66,20 +65,31 @@ UPD_WAIT:
     - STOP_VM: 300 # cerca di spegnere con shutdown, se non ci riesce, spegne secco
     - WAIT_SHUTDOWN
 
-UPD_REFRESH:
     - START_VM: AV_AGENT
     - STOP_VM
     - WAIT_SHUTDOWN
 
+UPD_REFRESH:
     - REFRESH_SNAPSHOT
+
+UPD_PUSH_VIRUS:
+    - START_VM: AV_AGENT
+    - CROP: True
+    - PUSH: [ AVAgent/assets/vira/conficker.dll, AVAgent/assets/vira/eicar.com ]
+    - SLEEP: 30
+    - CHECK_STATIC: [ AVAgent/assets/vira/conficker.dll, AVAgent/assets/vira/eicar.com ]
+    - SLEEP: 10
+    - CROP: False
+    - SCREENSHOT
+    - STOP_VM
 
 UPDATE_FULL:
     - VM_ALL
     - ON_ERROR: STOP
     - REPORT:
-        - UPD_INSTALL_AGENT
-        - UPD_WAIT
+        - UPD_WAIT: ['AVM Update', 'Update AV']
         - UPD_REFRESH
+        - UPD_PUSH_VIRUS: ['AVM Update', 'Positive static check', INVERSE]
 
 # ---------------------------
 

@@ -19,14 +19,6 @@ VM_GET_LOG:
         - c:\\AVTest\\logs
         - logs
 
-VM_PUSH_VIRUS:
-    - CROP: True
-    - PUSH: [ AVAgent/assets/vira/conficker.dll, AVAgent/assets/vira/eicar.com ]
-    - SLEEP: 30
-    - CHECK_STATIC: [ AVAgent/assets/vira/conficker.dll, AVAgent/assets/vira/eicar.com ]
-    - SLEEP: 10
-    - CROP: False
-    - SCREENSHOT
 
 VM_PULL_WINDOWS:
     - CALL: SET_DEFAULTS
@@ -51,49 +43,11 @@ VM_ELITE:
     - CHECK_INFECTION
     - RELOG
 
-VM_ELITE_FAST:
-    - CALL: SET_DEFAULTS
-    #- CROP: True
-    - BUILD: [ scout, windows, silent ]
-    - SLEEP: 30
-    #- CROP: False
-    - RELOG
-
-    - CALL: SET_DEFAULTS
-    - CROP: True
-    - BUILD: [ elite_fast, windows, silent ]
-    - CROP: False
-
-    - ON_ERROR: CONTINUE
-    - CHECK_INFECTION
-    - ON_ERROR: SKIP
-    - UNINSTALL
-
-    - RELOG
-
-VM_MELT:
-    - CALL: SET_DEFAULTS
-    #- CROP: True
-    - BUILD: [ scout, windows, melt ]
-    #- CROP: False
-    - UNINSTALL
-    - SCREENSHOT
-    - RELOG
-
 
 VM_STATIC_MOBILE:
     - CROP: True
     - CALL: BUILD_MOBILE
     - CROP: False
-
-VM_STATIC:
-    - CROP: True
-    - ON_ERROR: CONTINUE
-    - CALL: BUILD_DESKTOP
-    - CALL: BUILD_MOBILE
-    - CALL: BUILD_EXPLOIT
-    - CROP: False
-    - ON_ERROR: SKIP
 
 VM_CLEAN_EVIDENCES:
     - CALL: SET_SERVERS

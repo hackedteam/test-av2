@@ -105,12 +105,12 @@ def summary():
             else:
                 if current_proc:
                     if cmd.success == 'False':
-                        summary+="    %s\n" % (red(str(cmd)))
-                    elif cmd.name=="BUILD" and cmd.success != 'None':
+                        summary+="    %s\n" % (red(str(cmd), 80))
+                    elif cmd.name=="BUILD" and cmd.success:
                         #check = ['+ ERROR','+ FAILED']
                         #errors = any([ s in c for s in check ])
                         #if errors:
-                        summary+="    %s\n" % (red(str(cmd)))
+                        summary+="    %s\n" % (red(str(cmd), 80))
     return summary
 
 # arriva pulito
@@ -158,13 +158,13 @@ def dump():
         indent = ""
         for cmd in report.c_received[vm]:
             mark = "  "
-            if cmd.name == "REPORT_KIND_INIT":
-                indent = "    "
-            elif cmd.name == "REPORT_KIND_END":
+            if cmd.name == "REPORT_KIND_END":
                 indent = ""
             if cmd.success == False:
                 mark = "- "
             f.write("%s    %s%s\n" % (indent, mark, red(str(cmd))))
+            if cmd.name == "REPORT_KIND_INIT":
+                indent = "    "
         f.write("   SENT: %s\n" % report.c_sent[vm])
     f.close()
 

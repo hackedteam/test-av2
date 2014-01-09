@@ -32,14 +32,14 @@ BUILD_WINDOWS:
     - CALL: SET_DEFAULTS
     - PUSH: [ AVAgent/assets/avtest.swf ]
     - PUSH: [ AVAgent/assets/sqlite, AVAgent/assets/sqlite_mod, AVAgent/assets/codec, AVAgent/assets/codec_mod ]
-    - CHECK_STATIC: [ AVAgent/assets/* ]
+    - CHECK_STATIC: [ assets/* ]
     - BUILD: [ pull, windows, silent ]
 
 BUILD_DESKTOP:
     - CALL: SET_DEFAULTS
     - PUSH: [ AVAgent/assets/avtest.swf ]
     - PUSH: [ AVAgent/assets/sqlite, AVAgent/assets/sqlite_mod, AVAgent/assets/codec, AVAgent/assets/codec_mod ]
-    - CHECK_STATIC: [ AVAgent/assets/* ]
+    - CHECK_STATIC: [ assets/* ]
     - ON_ERROR: CONTINUE
     - BUILD: [ pull, windows, silent ]
     - BUILD: [ pull, osx, silent ]

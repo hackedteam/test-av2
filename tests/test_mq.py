@@ -16,7 +16,7 @@ def server(mq):
     exit = False
     print "SERVER"
     while not exit:
-        rec = mq.receive_server(blocking=True, timeout=2)
+        rec = mq.receive_server(blocking=True, timeout=15)
         if rec is not None:
             logging.debug("%s %s" % (rec, type(rec)))
             c, m = rec
@@ -50,7 +50,7 @@ def test_blockingMQ():
 
     time.sleep(1)
     print "RECEIVED: ", received
-    assert len(received) == 3
+    assert len(received) == 3, "len: %s" % len(received)
 
 
 def test_MultipleMQ():
