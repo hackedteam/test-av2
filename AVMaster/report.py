@@ -68,9 +68,37 @@ def end(vm):
     set_procedure(vm, None)
     dump()
 
+def mail_summary(mail_recipients, mail_server = "mail.hackingteam.com"):
+    # Import smtplib for the actual sending function
+    import smtplib
+
+    # Import the email modules we'll need
+    from email.mime.text import MIMEText
+
+    report = Report()
+    # Open a plain text file for reading.  For this example, assume that
+    # the text file contains only ASCII characters.
+
+    # Create a text/plain message
+    msg = MIMEText(summary())
+
+    for recipient in mail_recipients:
+        # me == the sender's email address
+        # you == the recipient's email address
+        msg['Subject'] = 'Report: %s' % report.timestamp
+        msg['From'] = "avtest@hackingteam.com"
+        msg['To'] = recipient
+
+        # Send the message via our own SMTP server, but don't include the
+        # envelope header.
+        s = smtplib.SMTP(mail_server)
+        s.sendmail(msg['From'], [msg['To']], msg.as_string())
+        s.quit()
+
 def finish():
     logging.debug("report finish")
-    #dump()
+    dump_yaml()
+    mail_summary(["zeno@hackingteam.com"])
 
 def set_procedure(vm, proc_name):
     report = Report()
@@ -89,7 +117,8 @@ def summary():
     report = Report()
     report.vm = {}
 
-    summary = ""
+    summary = "SUMMARY %s\n" % report.timestamp
+    failed = ""
     important_commands = ["BUILD", "CHECK_STATIC"]
     for vm in report.c_received.keys():
         report.vm[vm] = []
@@ -102,6 +131,8 @@ def summary():
                 current_proc, report_args = cmd.args
                 report.vm[vm].append(current_proc)
                 success = "SUCCESS" if cmd.success else "FAILED"
+                if not success:
+                    failed += "%s %s\n" % (vm, current_proc)
                 summary += "  %s %s\n" % (current_proc, success)
             else:
                 if current_proc:
@@ -112,6 +143,9 @@ def summary():
                         #errors = any([ s in c for s in check ])
                         #if errors:
                         summary+="    %s\n" % (red(str(cmd), 80))
+
+    if failed:
+        return "FAILED:\n%s\n%s" % (failed, summary)
     return summary
 
 # arriva pulito
@@ -145,6 +179,13 @@ def received(av, cmd):
     #db_save(test_id, proc, av, command)
     dump()
 
+def dump_yaml():
+    report = Report()
+
+    f=open("%s/report.%s.%s.yaml" % (logger.logdir, report.timestamp, report.name), "w+")
+    f.write(yaml.dump(report, default_flow_style=False, indent=4))
+    f.close()
+
 # genera un report.log e un summary log
 def dump():
     report = Report()
@@ -153,7 +194,10 @@ def dump():
     #f.write(yaml.dump(report, default_flow_style=False, indent=4))
     #f.close()
 
-    f = open("%s/report.%s.%s.log" % (logger.logdir, report.timestamp, report.name), "w+")
+    report_name = "%s/report.%s.%s.log" % (logger.logdir, report.timestamp, report.name)
+    sym_rep_name = "%s/last.report.%s.log" % (logger.logdir, report.name)
+
+    f = open(report_name, "w+")
     for vm in report.c_received.keys():
         f.write("\n%s:\n" % vm)
         indent = ""
@@ -170,8 +214,19 @@ def dump():
     f.close()
 
     r = summary()
-    f = open("%s/summary.%s.%s.log" % (logger.logdir, report.timestamp, report.name), "w+")
+    summary_name = "%s/summary.%s.%s.log" % (logger.logdir, report.timestamp, report.name)
+    sym_sum_name = "%s/last.summary.%s.log" % (logger.logdir, report.name)
+
+    f = open(summary_name, "w+")
     f.write(r)
+
+    if os.path.exists(sym_rep_name):
+        os.remove(sym_rep_name)
+    os.symlink(report_name, sym_rep_name)
+
+    if os.path.exists(sym_sum_name):
+        os.remove(sym_sum_name)
+    os.symlink(summary_name, sym_sum_name)
 
 def restore(file_name):
     #report = Report()

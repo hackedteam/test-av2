@@ -139,9 +139,7 @@ class Dispatcher(object):
                 logging.info("- SERVER RECEIVED empty")
                 exit = True
 
-
-        #if self.report:
-        #    self.report.dump()
+        report.finish()
 
         logging.debug("answered: %s, ended: %s, num_commands: %s" % ( answered, len(self.ended), self.num_commands))
         assert len(self.ended) == len(self.vms), "answered: %s, ended: %s, num_commands: %s" % ( answered, len(self.ended), len(self.vms))

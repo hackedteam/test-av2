@@ -73,6 +73,7 @@ TEST_REPORT:
     logging.info("STOPPING TEST REPORT")
 
     r = report.Report()
+    report.finish()
 
     assert r
     assert len(r.c_received) == len(vms)

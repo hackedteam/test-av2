@@ -65,11 +65,10 @@ VM_ELITE_FAST:
     - BUILD: [ elite_fast, windows, silent ]
     - CROP: False
 
-    - ON_ERROR: CONTINUE
-    - CHECK_INFECTION
-    - ON_ERROR: SKIP
+    #- ON_ERROR: CONTINUE
+    #- CHECK_INFECTION
+    #- ON_ERROR: SKIP
     - UNINSTALL
-
     - RELOG
 
 VM_MELT:
