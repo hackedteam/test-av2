@@ -187,8 +187,8 @@ TEST_MELT:
 # ----------------------
 
 TST_ERROR:
-    - START_VM
-    - START_VM
+    - STOP_VM
+    - STOP_VM
 
 TST_GOOD:
     - SLEEP: 1
@@ -196,9 +196,13 @@ TST_GOOD:
 TST_GOOD_2:
     - SLEEP: 2
 
+TST_GOOD_3:
+    - SLEEP: 3
+
 TEST_REPORT:
-    - VM: [noav]
+    - VM_ALL
     - REPORT:
-        - TST_GOOD
-        - TST_ERROR
-        - TST_GOOD_2
+        - TST_GOOD: ['AV Invisibility Static', 'Static check on builds']
+        - TST_ERROR: ['AV Invisibility', 'Elite']
+        - TST_GOOD_2: ['AV Invisibility', 'Melt']
+        - TST_GOOD_3: ['AVM Update', 'Update AV', INVERT]

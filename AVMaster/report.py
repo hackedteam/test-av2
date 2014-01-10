@@ -131,7 +131,7 @@ def summary():
                 current_proc, report_args = cmd.args
                 report.vm[vm].append(current_proc)
                 success = "SUCCESS" if cmd.success else "FAILED"
-                if not success:
+                if not cmd.success:
                     failed += "%s %s\n" % (vm, current_proc)
                 summary += "  %s %s\n" % (current_proc, success)
             else:

@@ -41,7 +41,7 @@ class ProtocolClient:
             logging.debug("PROTO S executing meta")
         ret = cmd.execute(self.vm, self, cmd.args)
         cmd.success, cmd.result = ret
-        logging.debug("PROTO S error: %s" % self.error)
+        #logging.debug("PROTO S error: %s" % self.error)
         assert isinstance(cmd.success, bool)
         self.send_answer(cmd)
         return cmd
