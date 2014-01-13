@@ -200,9 +200,25 @@ TST_GOOD_3:
     - SLEEP: 3
 
 TEST_REPORT:
-    - VM_ALL
+    - VM_ALL: IMPORTANT
+    - SET_SERVER:
+        mail_recipients: [zeno@hackingteam.it, seppia@hackingteam.it]
     - REPORT:
         - TST_GOOD: ['AV Invisibility Static', 'Static check on builds']
         - TST_ERROR: ['AV Invisibility', 'Elite']
         - TST_GOOD_2: ['AV Invisibility', 'Melt']
         - TST_GOOD_3: ['AVM Update', 'Update AV', INVERT]
+
+TEST_EXPLOIT:
+    - VM: [avast]
+    #- START_VM
+    #- CALL: VM_PUSH_AGENT
+    #- INSTALL_AGENT
+    #- RELOG
+
+    - CALL: SET_DEFAULTS
+    #- CLEAN_EVIDENCES
+    - SET_SERVER:
+        mail_recipients: [zeno@hackingteam.it]
+    - REPORT:
+        - VM_EXPLOIT

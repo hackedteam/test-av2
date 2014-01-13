@@ -470,7 +470,7 @@ class AgentBuild:
                     except:
                         logging.exception("Cannot execute %s" % filename)
 
-            assert executed
+            #assert executed
         logging.debug("- Scout, Wait for 5 minutes: %s" % time.ctime())
         sleep(300)
 
@@ -700,6 +700,14 @@ def check_evidences(backend, type_ev, key, value):
             number = len(evidences)
     return number > 0, number
 
+def check_blacklist(blacklist):
+    with connection() as client:
+        logging.debug("connected")
+        blacklist_server = client.blacklist()
+        logging.info("blacklist from server: %s" % blacklist_server)
+        logging.info("blacklist from conf: %s" % blacklist)
+        report_send("+ BLACKLIST: %s" % blacklist_server)
+
 def uninstall(backend):
     logging.debug("- Clean Server: %s" % (backend))
     connection.host = backend
@@ -760,14 +768,17 @@ def build(action, platform, platform_type, kind, param, backend, frontend, black
         report_send("+ INIT %s, %s, %s" % (action, platform, kind))
 
     try:
+        #check_blacklist(blacklist)
+
         if action in ["pull", "scout", "elite", "elite_fast"]:
             execute_agent(args, action, args.platform)
         elif action == "clean":
             clean(args.backend)
         else:
             add_result("+ ERROR, Unknown action %s, %s, %s" % (action, platform, kind))
-    except Exception, ex:
-        add_result("+ ERROR: %s" % ex)
+    except Exception as ex:
+        logging.exception("executing agent: %s" % action)
+        add_result("+ ERROR: %s" % str(ex))
 
     errors =  [ b for b in results if b.startswith("+ ERROR") or b.startswith("+ FAILED")]
     success = not any(errors)

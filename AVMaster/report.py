@@ -236,13 +236,19 @@ def dump():
 
     f = open(summary_name, "w+")
     f.write(r)
+    f.close()
 
+    return
     if os.path.exists(sym_rep_name):
+        logging.debug("removing: %s" % sym_rep_name)
         os.remove(sym_rep_name)
+    logging.debug("ln -s %s %s" % (report_name, sym_rep_name))
     os.symlink(report_name, sym_rep_name)
 
     if os.path.exists(sym_sum_name):
+        logging.debug("removing: %s" % sym_sum_name)
         os.remove(sym_sum_name)
+    logging.debug("ln -s %s %s" % (summary_name, sym_sum_name))
     os.symlink(summary_name, sym_sum_name)
 
 def restore(file_name):
