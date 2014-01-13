@@ -1,7 +1,7 @@
 import os
 import sys
 from collections import OrderedDict
-from AVCommon.logger import logging
+
 
 sys.path.append(os.path.split(os.getcwd())[0])
 sys.path.append(os.getcwd())
@@ -11,7 +11,7 @@ from AVCommon import command
 from AVCommon import config
 from AVMaster import report
 from AVCommon.helper import red
-
+from AVCommon.logger import logging
 
 class Dispatcher(object):
     """docstring for Dispatcher"""
@@ -33,7 +33,8 @@ class Dispatcher(object):
         else:
             logging.info("pool is empty")
 
-        report.Report.pool = [ p.vm for p in self.pool]
+        report.Report().pool = [ p.vm for p in self.pool]
+        logging.debug("- pool: %s" % report.Report().pool)
 
     def start(self, p):
         logging.debug("- START: %s" % p.vm)
@@ -109,6 +110,8 @@ class Dispatcher(object):
                 if answer.name == "END":
                     self.end(c)
                     logging.info("- RECEIVE END: %s, %s" % (c, self.ended))
+                    logging.debug("self.ended: (%s/%s) %s" % (len(self.ended), len(self.vms), self.ended))
+
                 elif answer.success or p.on_error == "CONTINUE":
                     r = p.send_next_command()
                     cmd = p.last_command
@@ -119,6 +122,8 @@ class Dispatcher(object):
                     if not r:
                         logging.info("- SENDING ERROR, ENDING: %s" %c)
                         self.end(c)
+                        logging.debug("self.ended: (%s/%s) %s" % (len(self.ended), len(self.vms), self.ended))
+
                 else:
                     # answer.success == False
                     # deve skippare fino al command: END_PROC
@@ -130,7 +135,6 @@ class Dispatcher(object):
                         if cmd:
                             report.sent(p.vm, cmd)
                         else:
-
                             logging.info("- RECEIVE ERROR, ENDING: %s" %c)
                             self.end(c)
                             logging.debug("self.ended: (%s/%s) %s" % (len(self.ended), len(self.vms), self.ended))

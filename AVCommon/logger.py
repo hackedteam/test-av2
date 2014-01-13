@@ -16,7 +16,8 @@ if not os.path.exists(logdir):
 #    logging.config.dictConfig(yaml.load(o))
 
 def init(report = ""):
-    print "init"
+    print "init report: %s" % report
+    global logdir
 
     if report:
         logdir = "%s/%s" % (logdir_base, report)
@@ -63,13 +64,13 @@ def setFileLogger(report_dir):
     file_handler.setLevel(l.DEBUG)
     file_handler.setFormatter(formatter)
 
-    handler = l.StreamHandler()
-    handler.setFormatter(formatter)
+    #handler = l.StreamHandler()
+    #handler.setFormatter(formatter)
 
     logger = l.getLogger('AVM')
     logger.setLevel(l.DEBUG)
 
-    logger.addHandler(handler)
+    #logger.addHandler(handler)
     logger.addHandler(file_handler)
 
     logger.info("START")
