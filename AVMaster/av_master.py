@@ -13,6 +13,7 @@ from dispatcher import Dispatcher
 from AVCommon.mq import MQStar
 from AVCommon import command
 import report
+import time
 
 class AVMaster():
     """docstring for Master"""
@@ -81,7 +82,12 @@ def main():
 
     args = parser.parse_args()
 
-    logger.init(args.report)
+    if args.report:
+        report=args.report
+    else:
+        report =  time.strftime("%y%m%d", time.localtime(time.time()))
+
+    logger.init(report)
 
     from AVCommon.logger import logging
     globals()['logging']=logging
