@@ -56,6 +56,8 @@ P4:
 
 TEST_REPORT:
     - VM: [noav,zenoav]
+    - SET_SERVER:
+        mail_recipients: [zeno@hackingteam.it]
     - REPORT:
         - P1: ["AVtest", "MyCase"]
         - P2: ["AVtest", "MyOtherCase", INVERSE ]
@@ -94,7 +96,7 @@ TEST_REPORT:
 
 
 if __name__=="__main__":
-
     #test_report_extract()
     #test_report_load()
+    #logging.init()
     test_report_meta()

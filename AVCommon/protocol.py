@@ -84,6 +84,7 @@ class Protocol(ProtocolClient):
         self.add_vm(vm)
         self.id = id
         self.error = False
+        self.errors = []
 
     def add_vm(self, vm):
         self.mq.add_client(vm)

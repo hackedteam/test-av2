@@ -14,6 +14,7 @@ def on_init(protocol, args):
     return True
 
 from AVCommon import config
+from AVCommon import logger
 
 def on_answer(vm, success, answer):
     from AVMaster import vm_manager
@@ -24,7 +25,7 @@ def on_answer(vm, success, answer):
             return
 
         logging.warn("We have to PULL images: %s" % answer)
-        dir = "%s/logs/crop" % config.basedir_server
+        dir = "%s/crop" % logger.logdir
 
         for iter in answer:
             try:
@@ -52,7 +53,6 @@ def execute(vm, args):
     if args:
         # starts a crop server
         logging.debug("start a crop server")
-
 
         ret = args
         try:

@@ -80,6 +80,18 @@ VM_MELT:
     - SCREENSHOT
     - RELOG
 
+VM_EXPLOIT:
+    - PUSH: [ AVAgent/assets/avtest.swf, AVAgent/assets/melt*, AVAgent/assets/PMIEFuck-WinWord.dll ]
+    - PUSH: [ AVAgent/assets/sqlite, AVAgent/assets/sqlite_mod, AVAgent/assets/codec, AVAgent/assets/codec_mod ]
+    - CALL: SET_DEFAULTS
+    - CALL: SET_BUILD_PARAMS_EXPLOIT
+    - BUILD: [ scout, exploit, melt ]
+    - UNINSTALL
+    - RELOG
+    - BUILD: [ scout, exploit_docx, melt ]
+    - UNINSTALL
+    - RELOG
+
 VM_STATIC:
     - CROP: True
     - ON_ERROR: CONTINUE
@@ -95,10 +107,13 @@ SYSTEM_DAILY:
     - SLEEP: [10, 600]
     - CALL: INIT_DISPATCH
     - CALL: VM_CLEAN_EVIDENCES
+    - SET_SERVER:
+        mail_recipients: [zeno@hackingteam.it, seppia@hackingteam.it]
     - REPORT:
         - VM_STATIC: ['AV Invisibility Static', 'Static check on builds']
         - VM_ELITE_FAST: ['AV Invisibility', 'Elite']
         - VM_MELT: ['AV Invisibility', 'Melt']
+        - VM_EXPLOIT: ['AV Invisibility', 'Exploit']
     - UNINSTALL
     - CALL: END_DISPATCH
 

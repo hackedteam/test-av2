@@ -18,7 +18,7 @@ class Dispatcher(object):
 
     vms = []
 
-    def __init__(self, mq, vms, timeout=0):
+    def __init__(self, mq, vms, timeout=4000):
         self.vms = vms
         self.mq = mq
         self.timeout = timeout
@@ -133,11 +133,13 @@ class Dispatcher(object):
 
                             logging.info("- RECEIVE ERROR, ENDING: %s" %c)
                             self.end(c)
+                            logging.debug("self.ended: (%s/%s) %s" % (len(self.ended), len(self.vms), self.ended))
                     else:
                         assert p.on_error == "STOP"
 
                         logging.info("- RECEIVE ERROR, STOP: %s" %c)
                         self.end(c)
+                        logging.debug("self.ended: (%s/%s) %s" % (len(self.ended), len(self.vms), self.ended))
 
             else:
                 logging.info("- SERVER RECEIVED empty")

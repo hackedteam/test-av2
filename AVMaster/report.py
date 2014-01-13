@@ -69,6 +69,8 @@ def end(vm):
     dump()
 
 def mail_summary(mail_recipients, mail_server = "mail.hackingteam.com"):
+
+    logging.info("sending mail to %s" % mail_recipients)
     # Import smtplib for the actual sending function
     import smtplib
 
@@ -98,7 +100,11 @@ def mail_summary(mail_recipients, mail_server = "mail.hackingteam.com"):
 def finish():
     logging.debug("report finish")
     dump_yaml()
-    mail_summary(["zeno@hackingteam.com"])
+
+    logging.debug("context: %s" % command.context)
+    mail_recipients = command.context.get("mail_recipients", [])
+    if mail_recipients:
+        mail_summary(mail_recipients)
 
 def set_procedure(vm, proc_name):
     report = Report()

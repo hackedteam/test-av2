@@ -75,6 +75,8 @@ UPD_REFRESH:
 UPDATE_FULL:
     - VM_ALL
     - ON_ERROR: STOP
+    - SET_SERVER:
+        mail_recipients: [zeno@hackingteam.it]
     - REPORT:
         - UPD_WAIT: ['AVM Update', 'Update AV']
         - UPD_REFRESH

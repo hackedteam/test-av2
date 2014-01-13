@@ -1,7 +1,7 @@
 import os
 import sys
 from AVCommon.logger import logging
-from AVCommon import config
+from AVCommon import logger
 
 import time
 
@@ -14,7 +14,7 @@ def execute(vm, protocol, img_path):
     #logging.debug("    CS Execute")
     assert vm, "null vm"
 
-    basedir = "%s/logs/screenshots" % config.basedir_server
+    basedir = "%s/screenshots" % logger.logdir
 
     if not img_path:
         if not os.path.exists(basedir):

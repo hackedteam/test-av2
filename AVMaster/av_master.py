@@ -5,7 +5,8 @@ import glob
 
 sys.path.append(os.path.split(os.getcwd())[0])
 
-from AVCommon.logger import logging
+#from AVCommon.logger import logging
+from AVCommon import logger
 
 from AVCommon.procedure import Procedure
 from dispatcher import Dispatcher
@@ -76,8 +77,14 @@ def main():
                         help="clean redis mq")
     parser.add_argument('-s', '--session', default="dsession",
                         help="session redis mq ")
+    parser.add_argument('-e', '--report', type=str, default="")
 
     args = parser.parse_args()
+
+    logger.init(args.report)
+
+    from AVCommon.logger import logging
+    globals()['logging']=logging
 
     logging.debug(args)
     master = AVMaster(args)
@@ -87,8 +94,10 @@ def main():
 if __name__ == '__main__':
 
     #logger=logging.getLogger('root')
-    os.remove("../logs/avmonitor.log")
-    os.remove("../logs/avmonitor-info.log")
-    os.remove("../logs/avmonitor-error.log")
-    logging.info("AV_MASTER")
+    try:
+        os.remove("../logs/avmonitor.log")
+        os.remove("../logs/avmonitor-info.log")
+        os.remove("../logs/avmonitor-error.log")
+    except:
+        pass
     main()
