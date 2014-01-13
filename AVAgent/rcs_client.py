@@ -304,6 +304,9 @@ class Rcs_client:
         return self._call('agent/destroy', data)
         # logging.debug(resp)
 
+    def blacklist(self):
+        return self._call('agent/blacklist')
+
     def _evidences(self, target):
         pass
 
