@@ -22,26 +22,28 @@ def execute(vm, protocol, args):
     try:
         # ['AV Invisibility', 'Melt']
         # ['AV Invisibility', 'Melt', INVERT]
-        run_name = report_args.pop(0)
-        test_case = report_args.pop(0)
 
-        proj_id = 1
-        plan_name = "Continuous Testing"
+        if report_args:
+            run_name = report_args.pop(0)
+            test_case = report_args.pop(0)
 
-        if success and not "INVERT" in report_args:
-            result = 'passed'
-        else:
-            result = 'failed'
+            proj_id = 1
+            plan_name = "Continuous Testing"
 
-        configs={ 'AV Invisibility': "%s, Windows" % vm}
+            if success and not "INVERT" in report_args:
+                result = 'passed'
+            else:
+                result = 'failed'
 
-        config = configs.get(run_name, vm)
+            configs={ 'AV Invisibility': "%s, Windows" % vm}
 
+            config = configs.get(run_name, vm)
 
-        plan = testrail_api.get_plan(proj_id, plan_name=plan_name)
-        plan_id = plan["id"]
+            plan = testrail_api.get_plan(proj_id, plan_name=plan_name)
+            plan_id = plan["id"]
 
-        testrail_api.add_plan_result(proj_id, plan_id, config, run_name, test_case, result, int(elapsed))
+            errors = "\n".join(protocol.errors)
+            testrail_api.add_plan_result(proj_id, plan_id, config, run_name, test_case, result, int(elapsed), errors)
 
     except:
         logging.exception("error testrail")

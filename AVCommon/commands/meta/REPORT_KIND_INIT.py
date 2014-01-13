@@ -12,6 +12,7 @@ def execute(vm, protocol, args):
     #assert vm in command.context["report"], "report: %s" % command.context["report"]
     protocol.error = False
     protocol.elapsed = time.time()
+    protocol.errors = []
 
     report.set_procedure(vm, args)
     return True, "%s| %s" % (vm, args)

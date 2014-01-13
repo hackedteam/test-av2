@@ -195,6 +195,7 @@ class Protocol(ProtocolClient):
                 logging.debug("PROTO S we got the expected answer")
             if cmd.success == False:
                 self.error = True
+                self.errors.append(str(cmd))
             cmd.on_answer(vm, cmd.success, cmd.result)
             self.sent_commands.pop(0)
         else:

@@ -80,7 +80,9 @@ def add_plan_entry(plan_id, plan_entry):
 
 def add_result(test_id, result, comment="", elapsed=0, defects="", version=0 ):
 
-    res = { "status_id": result, "elapsed": elapsed, "comment": comment }
+    res = { "status_id": result,
+            "elapsed": elapsed,
+            "comment": comment }
     add_result_url = "%s/v2/add_result/%d" % (base_url, test_id)
     return send_post(add_result_url, res)
 
@@ -109,8 +111,8 @@ def rerun_plan(project_id,plan_id):
     #close_plan(plan_id)
     return new_plan_id
 
-def add_plan_result(proj_id, plan_id, config, run_name, test_case, result, elapsed = 0, defects=""):
-    logging.debug("adding plan result: %s, %s, %s, %s" % (config, run_name, test_case, result))
+def add_plan_result(proj_id, plan_id, config, run_name, test_case, result, elapsed = 0, comment="avg"):
+    logging.debug("adding plan result: %s, %s, %s, %s, %s" % (config, run_name, test_case, result, comment))
     statuses = get_statuses()
 
     results = dict([ (s['name'],s['id']) for s in statuses])
@@ -127,7 +129,7 @@ def add_plan_result(proj_id, plan_id, config, run_name, test_case, result, elaps
         for t in get_tests(r["id"]):
             if test_case in  t["title"]:
                 logging.debug("adding result for test: %s" % t["id"])
-                add_result(t["id"], results[result], "avm", elapsed, defects)
+                add_result(t["id"], results[result], comment, elapsed)
                 return r["id"]
     logging.error("cannot find correct test case")
 

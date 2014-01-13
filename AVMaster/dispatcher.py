@@ -30,6 +30,8 @@ class Dispatcher(object):
             m = self.pool.pop(0)
             logging.debug("pool popped: %s, remains: %s" % (m.vm, len(self.pool)))
             self.start(m)
+        else:
+            logging.info("pool is empty")
 
         report.Report.pool = [ p.vm for p in self.pool]
 
@@ -128,12 +130,14 @@ class Dispatcher(object):
                         if cmd:
                             report.sent(p.vm, cmd)
                         else:
-                            self.end(c)
+
                             logging.info("- RECEIVE ERROR, ENDING: %s" %c)
+                            self.end(c)
                     else:
                         assert p.on_error == "STOP"
-                        self.end(c)
+
                         logging.info("- RECEIVE ERROR, STOP: %s" %c)
+                        self.end(c)
 
             else:
                 logging.info("- SERVER RECEIVED empty")

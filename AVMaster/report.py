@@ -117,23 +117,27 @@ def summary():
     report = Report()
     report.vm = {}
 
-    summary = "SUMMARY %s\n" % report.timestamp
-    failed = ""
+    summary_header = "SUMMARY %s %s\n" % (report.name, report.timestamp)
+    summary = "\n"
+    failed = OrderedDict()
     important_commands = ["BUILD", "CHECK_STATIC"]
     for vm in report.c_received.keys():
         report.vm[vm] = []
         current_proc = None
         summary += "%s\n" % vm
+        one_report = False
         for cmd in report.c_received[vm]:
             #cmd = Cmd(c)
-
             if cmd.name == "REPORT_KIND_END":
                 current_proc, report_args = cmd.args
                 report.vm[vm].append(current_proc)
                 success = "SUCCESS" if cmd.success else "FAILED"
                 if not cmd.success:
-                    failed += "%s %s\n" % (vm, current_proc)
+                    if vm not in failed:
+                        failed[vm] = []
+                    failed[vm].append(current_proc)
                 summary += "  %s %s\n" % (current_proc, success)
+                one_report = True
             else:
                 if current_proc:
                     if cmd.success == 'False':
@@ -143,10 +147,17 @@ def summary():
                         #errors = any([ s in c for s in check ])
                         #if errors:
                         summary+="    %s\n" % (red(str(cmd), 80))
+        if not one_report:
+            if vm not in failed:
+                failed[vm] = []
+            failed[vm].append("NO REPORT")
 
     if failed:
-        return "FAILED:\n%s\n%s" % (failed, summary)
-    return summary
+        fail_err = "\nFAILED:\n"
+        for vm, err in failed.items():
+            fail_err += "%s %s\n" % (vm, err)
+        return summary_header + fail_err + summary
+    return summary_header + summary
 
 # arriva pulito
 # report si ricorda di un solo comando, per ogni av

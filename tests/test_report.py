@@ -45,10 +45,14 @@ P1:
     - SLEEP: 1
 
 P2:
-    - SLEEP: 2
+    - SLEEP
 
 P3:
-    - SLEEP: 3
+    - SLEEP: 2
+
+P4:
+    - SLEEP
+
 
 TEST_REPORT:
     - VM: [noav,zenoav]
@@ -56,6 +60,7 @@ TEST_REPORT:
         - P1: ["AVtest", "MyCase"]
         - P2: ["AVtest", "MyOtherCase", INVERSE ]
         - P3
+        - P4
 """
     procedures = Procedure.load_from_yaml(yaml)
 
@@ -73,7 +78,7 @@ TEST_REPORT:
     logging.info("STOPPING TEST REPORT")
 
     r = report.Report()
-    report.finish()
+    #report.finish()
 
     assert r
     assert len(r.c_received) == len(vms)
@@ -82,7 +87,7 @@ TEST_REPORT:
     assert len(r.c_received) == len(vms), len(r.c_received)
     for vm in vms:
         assert vm in r.c_received
-        assert len(r.c_received[vm]) == 18
+        assert len(r.c_received[vm]) >= 18
 
 
     #logging.debug("Report: %s" % r )

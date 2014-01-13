@@ -123,7 +123,7 @@ SYSTEM_POSITIVE:
     - SLEEP: [10, 600]
     - START_VM
     - REPORT:
-        - SYS_PUSH_VIRUS: ['AVM Update', 'Positive static check', INVERSE]
+        - SYS_PUSH_VIRUS: ['AVM Update', 'Positive static check', INVERT]
     - CALL: END_DISPATCH
 
 SYSTEM_FAST:
