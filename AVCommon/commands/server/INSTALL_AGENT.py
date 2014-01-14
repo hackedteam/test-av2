@@ -23,10 +23,15 @@ def execute(vm, protocol, inst_args):
     assert vm, "null vm"
     assert command.context is not None
 
+    if inst_args:
+        redis = inst_args
+    else:
+        redis = config.redis
+
     cmd = "rmdir /s /q C:\\AVTest\\AVAgent\\running \r\n"\
           "cd C:\\AVTest\\AVAgent\r\n" \
           "c:\\python27\\python.exe"
-    arg = ["C:\\AVTest\\AVAgent\\av_agent.py", "-m", vm, "-s", mq.session, "-d", config.redis]
+    arg = ["C:\\AVTest\\AVAgent\\av_agent.py", "-m", vm, "-s", mq.session, "-d", redis]
     start_bat = "%s %s\r\n" %( cmd, " ".join(arg) )
 
     agent_bat = "start /min C:\\AVTest\\AVAgent\\start.bat ^& exit\r\n"
