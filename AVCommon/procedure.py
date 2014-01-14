@@ -84,27 +84,47 @@ class Procedure:
         ret = True
         called = set()
         system = []
-        for name,p in Procedure.procedures.items():
-            for c in p.command_list:
-                if c.name == "CALL":
-                    call = c.args
-                    called.add(call)
-                    if call not in Procedure.procedures.keys():
-                        logging.error("Error in procedure: %s, call to non existant proc: %s" % (name, call))
-                        ret = False
-        procs = set(Procedure.procedures.keys())
+        try:
+            for name,p in Procedure.procedures.items():
+                for c in p.command_list:
+                    if c.name == "CALL":
+                        call = c.args
+                        called.add(call)
+                        if call not in Procedure.procedures.keys():
+                            logging.error("Error in procedure: %s, call to non existant proc: %s" % (name, call))
+                            ret = False
+                    if c.name == "REPORT":
+                        calls = c.args
+                        for c in calls:
+                            call = None
+                            if isinstance(c, basestring):
+                                call = c
+                            elif isinstance(c, dict):
+                                call = c.keys()[0]
+                            else:
+                                logging.error("Error in procedure: %s, call to non compliant proc: %s" % (name, call))
 
-        for p in called:
-            if p.startswith("SYSTEM_"):
-                logging.warn("system proc called: %s" % p)
+                            if call:
+                                called.add(call)
+                                if call not in Procedure.procedures.keys():
+                                    logging.error("Error in procedure: %s, call to non existant proc: %s" % (name, call))
+                                    ret = False
 
-        for p in procs.difference(called):
-            good_start=["TEST","SYSTEM","UPDATE"]
-            if not any([p.startswith(g) for g in good_start]) :
-                logging.warn("probably unused PROC: %s" % p)
-            else:
-                system.append(p)
+            procs = set(Procedure.procedures.keys())
 
-        system.sort()
-        logging.info("Callable Procedures: %s" % system)
-        return ret
+            for p in called:
+                if p.startswith("SYSTEM_"):
+                    logging.warn("system proc called: %s" % p)
+
+            for p in procs.difference(called):
+                good_start=["TEST","SYSTEM","UPDATE"]
+                if not any([p.startswith(g) for g in good_start]) :
+                    logging.warn("probably unused PROC: %s" % p)
+                else:
+                    system.append(p)
+
+            system.sort()
+            logging.info("Callable Procedures: %s" % system)
+            return ret
+        except:
+            logging.exception("Check")

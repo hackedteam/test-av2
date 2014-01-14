@@ -121,6 +121,7 @@ SYSTEM_DAILY:
 SYS_PUSH_VIRUS:
     - START_VM: AV_AGENT
     - ON_ERROR: CONTINUE
+    - SLEEP: 30
     - CROP: True
     - PUSH: [ AVAgent/assets/vira/conficker.dll, AVAgent/assets/vira/eicar.com ]
     - SLEEP: 30

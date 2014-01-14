@@ -19,7 +19,6 @@ VM_GET_LOG:
         - c:\\AVTest\\logs
         - logs
 
-
 VM_PULL_WINDOWS:
     - CALL: SET_DEFAULTS
     - BUILD: [ pull, windows, silent ]
@@ -42,7 +41,6 @@ VM_ELITE:
     - UNINSTALL
     - CHECK_INFECTION
     - RELOG
-
 
 VM_STATIC_MOBILE:
     - CROP: True
