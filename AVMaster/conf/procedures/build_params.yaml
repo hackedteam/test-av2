@@ -31,6 +31,12 @@ SET_BUILD_PARAMS:
                   meltfile: assets/meltapp.exe
                   sign: {}
                   package: {}
+                winphone:
+                  platform_type: desktop
+                  binary: {admin: true, demo: false}
+                  melt: {}
+                  platform: winphone
+                  package: {}
                 android:
                   platform_type: mobile
                   binary: {admin: false, demo: false}

@@ -106,7 +106,7 @@ SYSTEM_DAILY:
     - CALL: INIT_DISPATCH
     - CALL: VM_CLEAN_EVIDENCES
     - SET_SERVER:
-        mail_recipients: [zeno@hackingteam.it, seppia@hackingteam.it]
+        mail_recipients: [zeno@hackingteam.com, seppia@hackingteam.com]
     - REPORT:
         - VM_STATIC: ['AV Invisibility Static', 'Static check on builds']
         - VM_ELITE_FAST: ['AV Invisibility', 'Elite']
@@ -115,11 +115,27 @@ SYSTEM_DAILY:
     - UNINSTALL
     - CALL: END_DISPATCH
 
+SYSTEM_DAILY_POSITIVE:
+    - VM_ALL
+    - ON_ERROR: SKIP
+    - SLEEP: [10, 600]
+    - CALL: INIT_DISPATCH
+    - CALL: VM_CLEAN_EVIDENCES
+    - SET_SERVER:
+        mail_recipients: [zeno@hackingteam.com, seppia@hackingteam.com]
+    - REPORT:
+        - VM_STATIC: ['AV Invisibility Static', 'Static check on builds']
+        - VM_ELITE_FAST: ['AV Invisibility', 'Elite']
+        - VM_MELT: ['AV Invisibility', 'Melt']
+        - VM_EXPLOIT: ['AV Invisibility', 'Exploit']
+        - SYS_PUSH_VIRUS: ['AVM Update', 'Positive static check', INVERT]
+    - UNINSTALL
+    - CALL: END_DISPATCH
+
 # ------------  #
 
-
 SYS_PUSH_VIRUS:
-    - START_VM: AV_AGENT
+    #- START_VM: AV_AGENT
     - ON_ERROR: CONTINUE
     - SLEEP: 30
     - CROP: True
@@ -128,8 +144,8 @@ SYS_PUSH_VIRUS:
     - CHECK_STATIC: [ AVAgent/assets/vira/conficker.dll, AVAgent/assets/vira/eicar.com ]
     - SLEEP: 10
     - CROP: False
-    - SCREENSHOT
-    - STOP_VM
+    #- SCREENSHOT
+    #- STOP_VM
 
 SYSTEM_POSITIVE:
     - VM_ALL
@@ -192,6 +208,7 @@ SYSTEM_FUNCTIONAL:
     - CALL: VM_PUSH_AGENT
     - START_AGENT: 172.20.20.168
     - CALL: SET_DEFAULTS_FUNCTIONAL
+    - SLEEP: [5, 60]
     - BUILD: [ pull, windows_elite, silent ]
     - EXECUTE_VM:
         - C:/AVTest/AVAgent/build/windows_elite/agent.exe
@@ -207,9 +224,11 @@ SYSTEM_FUNCTIONAL:
         - 40
         - True
         - True
-    - SLEEP: 120
+    - SLEEP: 240
+    - CALL: SET_MAIL
     - REPORT:
-        - VM_FUNCTIONAL_DEVICE
-        - VM_FUNCTIONAL_CHAT_FB
-        - VM_FUNCTIONAL_ADDRESSBOOK_FB
-    - CALL: END_DISPATCH
+        - VM_FUNCTIONAL_DEVICE: ['Functional testing', 'Device']
+        - VM_FUNCTIONAL_CHAT_FB: ['Functional testing', 'Social Chat']
+        - VM_FUNCTIONAL_ADDRESSBOOK_FB: ['Functional testing', 'Social Addressbook']
+        - VM_FUNCTIONAL_ADDRESSBOOK_SKYPE: ['Functional testing', 'Skype Chat']
+    #- CALL: END_DISPATCH

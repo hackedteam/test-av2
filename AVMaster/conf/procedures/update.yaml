@@ -40,6 +40,25 @@ UPDATE_REG:
     - STOP_VM
     - REFRESH_SNAPSHOT
 
+UPDATE_AGENT:
+    - ON_ERROR: STOP
+    - INTERNET: True
+    - SLEEP: [10, 600]
+    - REVERT
+    - START_VM
+    - CHECK_INFECTION # questo non e' necessario, ma e' meglio assicurarsene
+    - CALL: VM_PUSH_AGENT
+    - PUSH: [assets/update_reg.bat]
+    - INSTALL_AGENT
+    - EXECUTE_VM: /AVTest/AVAgent/assets/update_system.bat # scarica gli aggiornamenti windows
+    - SLEEP: 30
+    - STOP_VM: 300
+    - WAIT_SHUTDOWN
+    - START_VM: AV_AGENT
+    - STOP_VM
+    - WAIT_SHUTDOWN
+    - REFRESH_SNAPSHOT
+
 # ---------------------------
 
 UPD_WAIT:
@@ -75,8 +94,7 @@ UPD_REFRESH:
 UPDATE_FULL:
     - VM_ALL
     - ON_ERROR: STOP
-    - SET_SERVER:
-        mail_recipients: [zeno@hackingteam.it]
+    - CALL: SET_MAIL
     - REPORT:
         - UPD_WAIT: ['AVM Update', 'Update AV']
         - UPD_REFRESH
@@ -113,8 +131,7 @@ UPD_WAIT_FAST:
 UPDATE_FAST:
     - VM_ALL
     - ON_ERROR: STOP
-    - SET_SERVER:
-        mail_recipients: [zeno@hackingteam.it]
+    - CALL: SET_MAIL
     - REPORT:
         - UPD_WAIT_FAST: ['AVM Update', 'Update AV']
         - UPD_REFRESH

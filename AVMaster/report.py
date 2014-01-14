@@ -81,10 +81,10 @@ def mail_summary(mail_recipients, mail_server = "mail.hackingteam.com"):
     # Open a plain text file for reading.  For this example, assume that
     # the text file contains only ASCII characters.
 
+    s = summary()
     # Create a text/plain message
-    msg = MIMEText(summary())
-
     for recipient in mail_recipients:
+        msg = MIMEText(s)
         # me == the sender's email address
         # you == the recipient's email address
         msg['Subject'] = 'Report: %s' % report.timestamp

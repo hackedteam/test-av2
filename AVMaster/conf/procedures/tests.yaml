@@ -184,3 +184,12 @@ TEST_EXPLOIT:
         mail_recipients: [zeno@hackingteam.it]
     - REPORT:
         - VM_EXPLOIT
+
+TEST_WINPHONE:
+    - VM: [noav]
+    #- START_VM
+    #- CALL: VM_PUSH_AGENT
+    #- INSTALL_AGENT
+    #- RELOG
+    - CALL: SET_DEFAULTS
+    - BUILD: [ pull, winphone, silent ]

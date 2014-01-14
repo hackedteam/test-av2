@@ -627,7 +627,7 @@ def execute_agent(args, level, platform):
                           platform, args.kind, ftype, args.blacklist, args.param)
 
     """ starts a scout """
-    if socket.gethostname().lower() not in ['zanzara.local', 'win7zenoav', 'win7-noav', "paradox", "avtagent"]:
+    if socket.gethostname().lower() not in ['zanzara.local', 'win7zenoav', 'win7-noav', "paradox", "avtagent", "funff", "funie", "funch"]:
         if not internet_checked and internet_on():
             add_result("+ ERROR: I reach Internet")
             return False

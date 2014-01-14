@@ -21,6 +21,10 @@ SET_DEFAULTS_FUNCTIONAL:
         backend: 192.168.100.201
         frontend: 192.168.100.204
 
+SET_MAIL:
+    - SET_SERVER:
+        mail_recipients: [zeno@hackingteam.com, seppia@hackingteam.com]
+
 # -------------- BUILD -------------- #
 # Requires: START_AGENT
 
@@ -52,6 +56,7 @@ BUILD_MOBILE:
     - BUILD: [ pull, blackberry, silent ]
     - BUILD: [ pull, android, silent ]
     - BUILD: [ pull, ios, silent ]
+    - BUILD: [ pull, winphone, silent ]
     - ON_ERROR: SKIP
 
 BUILD_EXPLOIT:
