@@ -81,16 +81,17 @@ def mail_summary(mail_recipients, mail_server = "mail.hackingteam.com"):
     # Open a plain text file for reading.  For this example, assume that
     # the text file contains only ASCII characters.
 
-    s = summary()
+    sum = summary()
     # Create a text/plain message
     for recipient in mail_recipients:
-        msg = MIMEText(s)
+        msg = MIMEText(sum)
         # me == the sender's email address
         # you == the recipient's email address
         msg['Subject'] = 'Report: %s' % report.timestamp
         msg['From'] = "avtest@hackingteam.com"
         msg['To'] = recipient
 
+        logging.debug("    msg to: %s" % msg['To'])
         # Send the message via our own SMTP server, but don't include the
         # envelope header.
         s = smtplib.SMTP(mail_server)

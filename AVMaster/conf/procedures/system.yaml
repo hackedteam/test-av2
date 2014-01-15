@@ -1,15 +1,6 @@
 
 # ------------- SYSTEM COMMANDS -------------- #
 
-SYSTEM_WINDOWS:
-    - CALL: INIT_DISPATCH
-    - START_AGENT
-    - CALL: SET_DEFAULTS
-    - BUILD: [ scout, windows, silent ]
-    - BUILD: [ elite, windows, silent ]
-    - BUILD: [ scout, windows, melt ]
-    - STOP_AGENT
-
 SYSTEM_STATIC:
     - VM_ALL
     - CALL: INIT_DISPATCH
@@ -156,25 +147,13 @@ SYSTEM_POSITIVE:
         - SYS_PUSH_VIRUS: ['AVM Update', 'Positive static check', INVERT]
     - CALL: END_DISPATCH
 
-SYSTEM_FAST:
-    - VM: ['360cn', 'drweb', 'fsecure', 'kis14', 'kis32', 'panda', 'zoneal']
-    #- VM_ALL: important
-    #- STOP_AGENT
-    #- CALL: VM_PUSH_AGENT
-    #- INSTALL_AGENT
-    #- START_AGENT
-    #- SLEEP: [1,30]
-    - CALL: VM_ELITE_FAST
-
-SYSTEM_MANUAL_CHECK:
-    - VM: ['360cn', 'drweb', 'fsecure', 'kis14', 'kis32', 'panda', 'zoneal']
-    #- CALL: INIT_DISPATCH
-    #- CALL: VM_PUSH_AGENT
-    #- CALL: VM_SCOUT
-    #- START_AGENT
+SYSTEM_MANUAL:
+    - START_VM: AV_AGENT
     - CALL: SET_DEFAULTS
-    - BUILD: [ pull, windows, silent ]
-    - STOP_AGENT
+
+    - BUILD: [ pull, windows, melt ]
+    - BUILD: [ pull, exploit, melt ]
+    - BUILD: [ scout, windows, silent ]
 
 # ---------------- #
 

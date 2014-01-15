@@ -127,7 +127,7 @@ def add_plan_result(proj_id, plan_id, config, run_name, test_case, result, elaps
             continue
 
         for t in get_tests(r["id"]):
-            if test_case in  t["title"]:
+            if test_case in t["title"]:
                 logging.debug("adding result for test: %s" % t["id"])
                 add_result(t["id"], results[result], comment, elapsed)
                 return r["id"]
