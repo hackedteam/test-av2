@@ -33,9 +33,9 @@ def main():
     args = parser.parse_args()
 
     if args.report:
-        report=args.report
+        report = args.report
     else:
-        report =  time.strftime("%y%m%d", time.localtime(time.time()))
+        report = time.strftime("%y%m%d", time.localtime(time.time()))
 
     logger.init(report)
 

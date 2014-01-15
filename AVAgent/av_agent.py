@@ -17,8 +17,7 @@ parent = os.path.split(cmd_folder)[0]
 if parent not in sys.path:
     sys.path.insert(0, parent)
 
-from AVCommon.logger import logging
-
+from AVCommon import logger
 
 from AVCommon.mq import MQStar
 from AVCommon.protocol import Protocol
@@ -153,6 +152,11 @@ if __name__ == "__main__":
                         help="procedure file to read ")
 
     args = parser.parse_args()
+
+    report = time.strftime("%y%m%d", time.localtime(time.time()))
+    logger.init(report)
+    from AVCommon.logger import logging
+    globals()['logging']=logging
     logging.debug(args)
 
     mq = None

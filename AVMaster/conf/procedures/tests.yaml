@@ -61,44 +61,6 @@ TEST_CROP:
     - CROP: False
     - STOP_AGENT
 
-TEST_PACKER_SILENT:
-    - CALL: INIT_DISPATCH
-    - START_AGENT
-    - CALL: SET_DEFAULTS
-    - CROP: True
-    - REPORT:
-        - BUILD: [ pull, windows, silent ]
-        - CHECK_STATIC: [ AVAgent/build/windows/agent.exe ]
-
-        - BUILD: [ pull, windows, silent ]
-        - CHECK_STATIC: [ AVAgent/build/windows/agent.exe ]
-
-        - BUILD: [ pull, windows, silent ]
-        - CHECK_STATIC: [ AVAgent/build/windows/agent.exe ]
-
-        - BUILD: [ pull, windows, silent ]
-        - CHECK_STATIC: [ AVAgent/build/windows/agent.exe ]
-
-        - BUILD: [ pull, windows, silent ]
-        - CHECK_STATIC: [ AVAgent/build/windows/agent.exe ]
-
-        - BUILD: [ pull, windows, silent ]
-        - CHECK_STATIC: [ AVAgent/build/windows/agent.exe ]
-
-        - BUILD: [ pull, windows, silent ]
-        - CHECK_STATIC: [ AVAgent/build/windows/agent.exe ]
-
-        - BUILD: [ pull, windows, silent ]
-        - CHECK_STATIC: [ AVAgent/build/windows/agent.exe ]
-
-        - BUILD: [ pull, windows, silent ]
-        - CHECK_STATIC: [ AVAgent/build/windows/agent.exe ]
-
-        - BUILD: [ pull, windows, silent ]
-        - CHECK_STATIC: [ AVAgent/build/windows/agent.exe ]
-    - STOP_AGENT
-    - STOP_VM
-
 TEST_INFECTION:
     - VM: [noav]
     - ON_ERROR: STOP
@@ -211,10 +173,10 @@ TEST_REPORT:
 
 TEST_EXPLOIT:
     - VM: [avast]
-    #- START_VM
-    #- CALL: VM_PUSH_AGENT
-    #- INSTALL_AGENT
-    #- RELOG
+    - START_VM
+    - CALL: VM_PUSH_AGENT
+    - INSTALL_AGENT
+    - RELOG
 
     - CALL: SET_DEFAULTS
     #- CLEAN_EVIDENCES
@@ -222,3 +184,12 @@ TEST_EXPLOIT:
         mail_recipients: [zeno@hackingteam.it]
     - REPORT:
         - VM_EXPLOIT
+
+TEST_WINPHONE:
+    - VM: [noav]
+    #- START_VM
+    #- CALL: VM_PUSH_AGENT
+    #- INSTALL_AGENT
+    #- RELOG
+    - CALL: SET_DEFAULTS
+    - BUILD: [ pull, winphone, silent ]

@@ -30,10 +30,10 @@ def execute(vm, protocol, args):
             proj_id = 1
             plan_name = "Continuous Testing"
 
-            if success and not "INVERT" in report_args:
-                result = 'passed'
+            if  "INVERT" in report_args:
+                result = 'failed' if success else 'passed'
             else:
-                result = 'failed'
+                result = 'passed' if success else 'failed'
 
             configs={ 'AV Invisibility': "%s, Windows" % vm}
 

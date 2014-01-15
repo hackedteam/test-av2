@@ -35,7 +35,7 @@ class AVMaster():
             logging.info("Loading conf: %s" % conf)
             Procedure.load_from_file(conf)
         if not Procedure.check():
-            raise SyntaxError("Errors")
+            raise SyntaxError("Errors in procedures")
 
     def start(self):
         self.load_procedures()

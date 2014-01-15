@@ -456,7 +456,7 @@ class AgentBuild:
 
         self._execute_build(exe)
         if self.kind == "melt":
-            sleep(10)
+            sleep(60)
             executed = False
             for d,b in itertools.product(start_dirs,names):
                 filename = "%s/%s.exe" % (d,b)
@@ -470,7 +470,10 @@ class AgentBuild:
                     except:
                         logging.exception("Cannot execute %s" % filename)
 
-            #assert executed
+            if not executed:
+                logging.warn("did'n executed")
+                add_result("+ FAILED did not drop startup")
+
         logging.debug("- Scout, Wait for 5 minutes: %s" % time.ctime())
         sleep(300)
 
@@ -624,7 +627,7 @@ def execute_agent(args, level, platform):
                           platform, args.kind, ftype, args.blacklist, args.param)
 
     """ starts a scout """
-    if socket.gethostname().lower() not in ['zanzara.local', 'win7zenoav', 'win7-noav', "paradox", "avtagent"]:
+    if socket.gethostname().lower() not in ['zanzara.local', 'win7zenoav', 'win7-noav', "paradox", "avtagent", "funff", "funie", "funch"]:
         if not internet_checked and internet_on():
             add_result("+ ERROR: I reach Internet")
             return False
