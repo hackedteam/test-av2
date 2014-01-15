@@ -150,12 +150,13 @@ SYSTEM_POSITIVE:
 SYSTEM_MANUAL:
     - START_VM: AV_AGENT
     - PUSH: [ AVAgent/assets/sqlite, AVAgent/assets/sqlite_mod, AVAgent/assets/codec, AVAgent/assets/codec_mod ]
-    - CALL: SET_DEFAULTS
-    - CALL: SET_BUILD_PARAMS_EXPLOIT
 
-    - BUILD: [ pull, windows, melt ]
+    - CALL: SET_BUILD_PARAMS_EXPLOIT
     - BUILD: [ pull, exploit, melt ]
-#    - BUILD: [ scout, windows, silent ]
+    
+    - CALL: SET_DEFAULTS
+    - BUILD: [ pull, windows, melt ]
+    - BUILD: [ scout, windows, silent ]
 
 # ---------------- #
 
