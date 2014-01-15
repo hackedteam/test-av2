@@ -7,7 +7,7 @@ UPDATE_SNAPSHOT:
     - INTERNET: False
     - REFRESH_SNAPSHOT
 
-UPDATE_PYTHON:
+UPDATE_PYTHON_7:
     - ON_ERROR: STOP
     - REVERT
     - START_VM
@@ -23,6 +23,24 @@ UPDATE_PYTHON:
     - INTERNET: False
     - STOP_VM
 #    - REFRESH_SNAPSHOT
+
+UPDATE_PYTHON_XP:
+    - ON_ERROR: STOP
+    - REVERT
+    - START_VM
+    - INTERNET: True
+    - PUSH:
+        - [active_py.msi, active_inst.bat]
+        - updates
+        - c:/Documents and Settings/avtest/Desktop
+#        - c:/Documents and Settings/avtest/Desktop
+    - DELETE_DIR: C:/Python27/Lib/site-packages
+    - EXECUTE_VM: /Documents and Settings/avtest/Desktop/active_inst.bat
+#    - EXECUTE_VM: /active_inst.bat
+#    - INTERNET: False
+#    - STOP_VM
+#    - REFRESH_SNAPSHOT
+
 
 UPDATE_REG:
     #- VM: [360cn,ahnlab,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm]
