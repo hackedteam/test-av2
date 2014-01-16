@@ -149,6 +149,7 @@ SYSTEM_POSITIVE:
 
 SYSTEM_MANUAL:
     - START_VM: AV_AGENT
+    - SLEEP: [30, 120]
     - PUSH: [ AVAgent/assets/sqlite, AVAgent/assets/sqlite_mod, AVAgent/assets/codec, AVAgent/assets/codec_mod, AVAgent/assets/meltexploit.txt ]
 
     - CALL: SET_BUILD_PARAMS_EXPLOIT
