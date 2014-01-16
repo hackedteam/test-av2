@@ -77,6 +77,12 @@ UPDATE_AGENT:
     - WAIT_SHUTDOWN
     - REFRESH_SNAPSHOT
 
+UPDATE_AGENT_FAST:
+    - CALL: VM_PUSH_AGENT
+    - INSTALL_AGENT
+    - RELOG
+
+
 # ---------------------------
 
 UPD_WAIT:
