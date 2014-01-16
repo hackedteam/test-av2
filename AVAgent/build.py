@@ -472,7 +472,7 @@ class AgentBuild:
 
             if not executed:
                 logging.warn("did'n executed")
-                add_result("+ FAILED did not drop startup")
+                add_result("+ WARN did not drop startup")
 
         logging.debug("- Scout, Wait for 5 minutes: %s" % time.ctime())
         sleep(300)
@@ -495,6 +495,18 @@ class AgentBuild:
             add_result("+ FAILED SCOUT SYNC")
             output = self._list_processes()
             logging.debug(output)
+        else:
+            if self.kind == "melt":
+                found = False
+                for d,b in itertools.product(start_dirs,names):
+                    filename = "%s/%s.exe" % (d,b)
+                    filename = filename.replace("/","\\")
+                    if os.path.exists(filename):
+                       found = True
+
+                if not found:
+                    logging.warn("did'n executed")
+                    add_result("+ FAILED NO STARTUP")
 
         logging.debug("- Result: %s" % instance)
         return instance
