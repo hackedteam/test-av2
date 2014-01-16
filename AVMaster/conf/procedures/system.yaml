@@ -156,7 +156,7 @@ SYSTEM_MANUAL:
     - BUILD: [ pull, exploit, melt ]
 
     - CALL: SET_DEFAULTS
-    - BUILD: [ pull, windows, melt ]
+    #- BUILD: [ pull, windows, melt ]
     - BUILD: [ scout, windows, silent ]
 
 # ---------------- #
