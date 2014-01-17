@@ -137,10 +137,7 @@ TEST_SLEEP:
 
 
 TEST_MELT:
-    - VM: [zenoav]
-    #- START_VM
-    - CALL: VM_PUSH_AGENT
-    - INSTALL_AGENT
+    - VM: [funvm]
 
     - CALL: SET_DEFAULTS
     - CLEAN_EVIDENCES
