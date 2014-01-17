@@ -1,6 +1,10 @@
 # -------------- UPDATE -------------- #
 # COMPLETE COMMANDS
 
+UPDATE_DISABLE_UPD:
+    - PUSH: [assets/elevate.exe, assets/disable_autoupd.bat]
+    - EXECUTE_VM: /AVTest/assets/disable_autoupd.bat
+
 UPDATE_SNAPSHOT:
     - VM_ALL: IMPORTANT
     - ON_ERROR: STOP
@@ -66,7 +70,8 @@ UPDATE_AGENT:
     - START_VM
     - CHECK_INFECTION # questo non e' necessario, ma e' meglio assicurarsene
     - CALL: VM_PUSH_AGENT
-    - PUSH: [assets/update_reg.bat]
+    - PUSH: [assets/update_system.bat]
+    - PUSH: [assets/elevate.exe, assets/disable_autoupd.bat]
     - INSTALL_AGENT
     - EXECUTE_VM: /AVTest/AVAgent/assets/update_system.bat # scarica gli aggiornamenti windows
     - SLEEP: 30
