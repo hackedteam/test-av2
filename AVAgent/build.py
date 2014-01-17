@@ -455,7 +455,7 @@ class AgentBuild:
         factory_id, ident, exe = self.execute_pull()
 
         self._execute_build(exe)
-        if self.kind == "melt":
+        if self.kind == "melt": # and not exploit
             sleep(60)
             executed = False
             for d,b in itertools.product(start_dirs,names):
@@ -497,16 +497,19 @@ class AgentBuild:
             logging.debug(output)
         else:
             if self.kind == "melt":
-                found = False
-                for d,b in itertools.product(start_dirs,names):
-                    filename = "%s/%s.exe" % (d,b)
-                    filename = filename.replace("/","\\")
-                    if os.path.exists(filename):
-                       found = True
+                try:
+                    found = False
+                    for d,b in itertools.product(start_dirs,names):
+                        filename = "%s/%s.exe" % (d,b)
+                        filename = filename.replace("/","\\")
+                        if os.path.exists(filename):
+                           found = True
 
-                if not found:
-                    logging.warn("did'n executed")
-                    add_result("+ FAILED NO STARTUP")
+                    if not found:
+                        logging.warn("did'n executed")
+                        add_result("+ FAILED NO STARTUP")
+                except:
+                    pass
 
         logging.debug("- Result: %s" % instance)
         return instance

@@ -16,6 +16,17 @@ TEST_VM:
 TEST_REFRESH:
     - REFRESH_SNAPSHOT
 
+TEST_STOP:
+    - EXECUTE_VM: /AVTest/AVAgent/assets/update_system.bat # scarica gli aggiornamenti windows
+    - SLEEP: 30
+    - START_VM: AV_AGENT
+    - STOP_VM
+    - WAIT_SHUTDOWN
+    - REFRESH_SNAPSHOT
+
+TEST_WUA:
+    - PUSH: [ AVAgent/assets/wusforceupdate.vbs, AVAgent/assets/update_system.bat, AVAgent/assets/WUInstall.exe, AVAgent/assets/PsExec.exe  ]
+
 TEST_EVIDENCE:
     - VM: ['funvm']
     #- CALL: INIT_DISPATCH
