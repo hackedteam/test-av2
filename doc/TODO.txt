@@ -1,33 +1,12 @@
 
+avagent:
+    - default set file, can be overridden by SET: blacklist, server, ...
+    - no session in receive channel, so that the "session" represents the server side and it can be changed by command
+
+
 core:
-    - send procedure and vm in the execute, as first arg
-    -? verify why sometimes dispatcher doesn't end correctly, especially when many vms are involved.
-        +  logs should be in a different directory
     - PUSH and PULL, if agent is up and running, can be faster, using a zipped channel.
         + SHUTDOWN should consider a timeout, after that, proceed with the vmrun
-    -? commands server_once: [ INTERNET, CLEAN_EVIDENCES ]
     - elite check: avgscanx.exe
 
-build:
-    - logout to speedup elite upgrade
-        DONE- work on CHECK_EVIDENCES
-        + (added UNINSTALL) add KILL_AGENT (client, find and kill agent process)
-
-report:
-    - integrate sqlite and alchemy
-    - download crop with its procedure in the name
-
-VMWARE
-    - vmrun / sdk per sbloccare il login
-    - distinguere i casi:
-        1) POWERED_OFF macchina spenta
-         2) NO-VM-TOOLS maccina accesa con vmtools spento
-         3) LOGGED-IN macchina accesa con vmtools acceso
-         4) INSTALL macchina in accensione con update in corso
-        5) LOGGED_OFF macchina bloccata sulla login
-
-update:
-    - monday manual update
-    - disable system autoupdate ?
-    - autoupdate only on sunday night.
 

@@ -2,8 +2,9 @@
 # COMPLETE COMMANDS
 
 UPDATE_DISABLE_UPD:
-    - PUSH: [assets/elevate.exe, assets/disable_autoupd.bat]
-    - EXECUTE_VM: /AVTest/assets/disable_autoupd.bat
+    - PUSH: [assets/elevate.exe, assets/disable_autoupd.bat, assets/update_system.bat]
+    #- EXECUTE_VM: /AVTest/assets/disable_autoupd.bat
+    - EXECUTE_VM: /AVTest/assets/update_system.bat
 
 UPDATE_SNAPSHOT:
     - VM_ALL: IMPORTANT
@@ -73,7 +74,7 @@ UPDATE_AGENT:
     - PUSH: [assets/update_system.bat]
     - PUSH: [assets/elevate.exe, assets/disable_autoupd.bat]
     - INSTALL_AGENT
-    - EXECUTE_VM: /AVTest/AVAgent/assets/update_system.bat # scarica gli aggiornamenti windows
+    - EXECUTE_VM: /AVTest/assets/update_system.bat # scarica gli aggiornamenti windows
     - SLEEP: 30
     - STOP_VM: 300
     - WAIT_SHUTDOWN
@@ -97,9 +98,9 @@ UPD_WAIT:
     - START_VM
     - CHECK_INFECTION # questo non e' necessario, ma e' meglio assicurarsene
     - CALL: VM_PUSH_AGENT
-    - PUSH: [assets/update_reg.bat]
+    - PUSH: [assets/update_system.bat]
     - INSTALL_AGENT
-    - EXECUTE_VM: /AVTest/AVAgent/assets/update_system.bat # scarica gli aggiornamenti windows
+    - EXECUTE_VM: /AVTest/assets/update_system.bat # scarica gli aggiornamenti windows
     - SLEEP: 30
     - STOP_VM: 300
     - WAIT_SHUTDOWN
@@ -137,9 +138,9 @@ UPD_WAIT_FAST:
     - START_VM
     - CHECK_INFECTION # questo non e' necessario, ma e' meglio assicurarsene
     - CALL: VM_PUSH_AGENT
-    - PUSH: [assets/update_reg.bat]
+    - PUSH: [assets/update_system.bat]
     - INSTALL_AGENT
-    - EXECUTE_VM: /AVTest/AVAgent/assets/update_system.bat # scarica gli aggiornamenti windows
+    - EXECUTE_VM: /AVTest/assets/update_system.bat # scarica gli aggiornamenti windows
     - SLEEP: 30
     - STOP_VM: 300
     - WAIT_SHUTDOWN

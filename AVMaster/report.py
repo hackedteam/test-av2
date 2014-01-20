@@ -147,7 +147,7 @@ def summary():
                 one_report = True
             else:
                 if current_proc:
-                    if cmd.success == 'False':
+                    if cmd.success == False:
                         summary+="    %s\n" % (red(str(cmd), 120))
                     elif cmd.name in important_commands and cmd.success:
                         #check = ['+ ERROR','+ FAILED']

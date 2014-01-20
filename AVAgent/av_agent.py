@@ -75,6 +75,11 @@ class AVAgent(object):
         shutil.rmtree('build', ignore_errors=True)
         if os.path.exists(config.basedir_crop):
             shutil.rmtree(config.basedir_crop)
+
+        if 'logging' not in globals():
+            from AVCommon.logger import logging
+            globals()['logging']=logging
+
         logging.debug("vm: %s host: %s session: %s" % (self.vm, self.host, session))
 
         command.context["report"] = self.report

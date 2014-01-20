@@ -4,11 +4,16 @@ sys.path.append(os.getcwd())
 
 from unittest import TestCase
 
-from AVCommon.logger import logging
 import logging_child
 
 class TestChannel(TestCase):
     def test_formatter(selfs):
+
+        from AVCommon import logger
+        logger.init()
+        from AVCommon.logger import logging
+        globals()['logging']=logging
+
         formatter = logging.Formatter('%(asctime)s -%(levelname)s- %(filename)s:%(lineno)s   %(message)s')
         stdout_handler = logging.StreamHandler(sys.stdout)
         stdout_handler.setFormatter(formatter)

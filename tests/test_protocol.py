@@ -9,6 +9,7 @@ from AVCommon.procedure import Procedure
 from AVCommon.mq import MQStar
 
 from AVCommon.logger import logging
+from AVCommon import command
 
 def server_procedure(mq, clients, procedure):
     global received
@@ -75,7 +76,9 @@ def test_ProtocolEval():
         if rec is not None:
             logging.debug("- SERVER RECEIVED %s %s" % (rec, type(rec)))
             c, msg = rec
-            answer = p.receive_answer(c, msg)
+            command_unserialize = command.unserialize(msg)
+
+            answer = p.receive_answer(c, command_unserialize)
             logging.debug("- SERVER RECEIVED ANSWER: %s" % answer.success)
             if answer.name == "END" or not answer.success:
                 logging.debug("- SERVER RECEIVE END")
@@ -130,7 +133,8 @@ CALLER:
         if rec is not None:
             logging.debug("- SERVER RECEIVED %s %s" % (rec, type(rec)))
             c, msg = rec
-            answer = p.receive_answer(c, msg)
+            command_unserialize = command.unserialize(msg)
+            answer = p.receive_answer(c, command_unserialize)
             logging.debug("- SERVER RECEIVED ANSWER: %s" % answer.success)
             if answer.success:
                 answers += 1

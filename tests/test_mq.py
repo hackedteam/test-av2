@@ -48,7 +48,7 @@ def test_blockingMQ():
     time.sleep(1)
     mq2.send_server(c, "STOP")
 
-    time.sleep(1)
+    time.sleep(6)
     print "RECEIVED: ", received
     assert len(received) == 3, "len: %s" % len(received)
 

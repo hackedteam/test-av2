@@ -4,15 +4,12 @@
 SYSTEM_STATIC:
     - VM_ALL
     - CALL: INIT_DISPATCH
-    - START_AGENT
     - CROP: True
     - REPORT:
         - BUILD_DESKTOP
         - BUILD_MOBILE
         - BUILD_EXPLOIT
     - CROP: False
-    - STOP_AGENT
-    - STOP_VM
 
 SYSTEM_STATIC_MOBILE:
     - VM_ALL: IMPORTANT
@@ -213,5 +210,11 @@ SYSTEM_FUNCTIONAL:
         - VM_FUNCTIONAL_DEVICE: ['Functional testing', 'Device']
         - VM_FUNCTIONAL_CHAT_FB: ['Functional testing', 'Social Chat']
         - VM_FUNCTIONAL_ADDRESSBOOK_FB: ['Functional testing', 'Social Addressbook']
-        - VM_FUNCTIONAL_ADDRESSBOOK_SKYPE: ['Functional testing', 'Skype Chat']
+
     #- CALL: END_DISPATCH
+
+SYSTEM_FUNCTIONAL_SKYPE:
+    - VM: [ funie ]
+    - CALL: SET_MAIL
+    - REPORT:
+        - VM_FUNCTIONAL_ADDRESSBOOK_SKYPE: ['Functional testing', 'Skype Chat']

@@ -3,6 +3,7 @@ __author__ = 'zeno'
 import time
 import threading
 import shutil
+from AVCommon import command
 from AVCommon.logger import logging
 import os
 
@@ -18,6 +19,9 @@ from AVCommon import logger
 
 def on_answer(vm, success, answer):
     from AVMaster import vm_manager
+
+    assert command.context, "Null context"
+
     logging.debug("CROP answer: %s|%s" % (success, answer))
     # answer = [1,5,7]
     if not success:
@@ -46,6 +50,9 @@ def execute(vm, args):
     from PIL import ImageGrab
     global im1, thread, go_on, found
 
+    crop_whitelist = command.context["crop_whitelist"]
+    logging.debug("crop_whitelist: %s" % crop_whitelist)
+
     if not os.path.exists(config.basedir_crop):
     #    shutil.rmtree(config.basedir_crop)
         os.makedirs(config.basedir_crop)
@@ -71,7 +78,11 @@ def execute(vm, args):
         if thread:
             thread.join()
         logging.debug("exiting, returning %s" % found)
-        success = len(found) == 0
+
+        if vm in crop_whitelist:
+            return True, found
+        else:
+            success = len(found) == 0
         return success, found
 
 def grab_loop(vm):

@@ -47,6 +47,7 @@ class Channel():
         if blocking:
             while True:
                 try:
+                    # set a pipe that performs on a channel: len, pop, len.
                     pipe = self.redis.pipeline()
                     retup = pipe.llen(self.channel).blpop(self.channel, timeout).llen(self.channel).execute()
                     l1,ret,l2 = retup

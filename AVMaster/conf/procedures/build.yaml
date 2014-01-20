@@ -3,6 +3,7 @@
 SET_BLACKLIST:
     - SET:
         blacklist: [bitdef,comodo,gdata,drweb,emsisoft,sophos,360cn,360cn5,kis32,avg,avg32,iobit32]
+        crop_whiltelist: [kis,kis32]
 
 SET_SERVERS:
     - SET:
