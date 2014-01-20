@@ -30,7 +30,8 @@ def get_status(vm):
             sleep(60)
             logging.debug("trying listProcesses")
             procs = vm_manager.execute(vm, "listProcesses");
-            logging.debug("listProcesses: %s" % procs)
+            if config.verbose:
+                logging.debug("listProcesses: %s" % procs)
             processes = helper.convert_processes(procs)
         except:
             logging.exception("listProcesses")
@@ -70,7 +71,6 @@ def execute(vm, protocol, args):
     #logging.debug("    CS Execute")
     assert vm, "null vm"
     mq = protocol.mq
-
 
     check_avagent = (args == "AV_AGENT")
 

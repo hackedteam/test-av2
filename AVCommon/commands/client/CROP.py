@@ -24,9 +24,8 @@ def on_answer(vm, success, answer):
 
     logging.debug("CROP answer: %s|%s" % (success, answer))
     # answer = [1,5,7]
-    if not success:
-        if not answer or not isinstance(answer, list) :
-            return
+
+    if answer and isinstance(answer, list):
 
         logging.warn("We have to PULL images: %s" % answer)
         dir = "%s/crop" % logger.logdir
@@ -50,9 +49,6 @@ def execute(vm, args):
     from PIL import ImageGrab
     global im1, thread, go_on, found
 
-    crop_whitelist = command.context["crop_whitelist"]
-    logging.debug("crop_whitelist: %s" % crop_whitelist)
-
     if not os.path.exists(config.basedir_crop):
     #    shutil.rmtree(config.basedir_crop)
         os.makedirs(config.basedir_crop)
@@ -72,6 +68,9 @@ def execute(vm, args):
             logging.exception("problem grabbing")
         return True, "%s" % ret
     else:
+        crop_whitelist = command.context.get("crop_whitelist",[])
+        logging.debug("crop_whitelist: %s" % crop_whitelist)
+
         # stops the crop server
         logging.debug("stop grab_loop")
         go_on = False
@@ -79,7 +78,7 @@ def execute(vm, args):
             thread.join()
         logging.debug("exiting, returning %s" % found)
 
-        if vm in crop_whitelist:
+        if crop_whitelist and vm in crop_whitelist:
             return True, found
         else:
             success = len(found) == 0

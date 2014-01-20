@@ -85,6 +85,10 @@ class AVAgent(object):
 
         command.context["report"] = self.report
 
+        # TODO
+        # load default.yaml as a default SET command.
+
+
     def __del__(self):
         remove_running(self.vm)
 

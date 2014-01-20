@@ -14,6 +14,8 @@ SYSTEM_STATIC:
 
 SYSTEM_STATIC_WINDOWS:
     - VM_ALL
+    - INTERNET: False
+    - SLEEP: [10, 120]
     - CALL: INIT_DISPATCH
     - CROP: True
     - CALL: SET_MAIL

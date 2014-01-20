@@ -4,7 +4,7 @@ import os
 import sys
 from AVCommon.logger import logging
 from time import sleep
-from AVCommon import mq
+from AVCommon import config
 
 def convert_processes(procs):
     processes = []
@@ -29,7 +29,8 @@ def convert_processes(procs):
         if proc:
             processes.append(proc)
 
-    logging.debug("processes: %s" % processes)
+    if config.verbose:
+        logging.debug("processes: %s" % processes)
     return processes
 
 def red(msg, max_len=70):

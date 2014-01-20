@@ -65,21 +65,13 @@ UPDATE_REG:
 
 UPDATE_AGENT:
     - ON_ERROR: STOP
-    - INTERNET: True
+    - INTERNET: False
     - SLEEP: [10, 600]
     - REVERT
     - START_VM
-    - CHECK_INFECTION # questo non e' necessario, ma e' meglio assicurarsene
     - CALL: VM_PUSH_AGENT
-    - PUSH: [assets/update_system.bat]
-    - PUSH: [assets/elevate.exe, assets/disable_autoupd.bat]
     - INSTALL_AGENT
-    - EXECUTE_VM: /AVTest/assets/update_system.bat # scarica gli aggiornamenti windows
-    - SLEEP: 30
     - STOP_VM: 300
-    - WAIT_SHUTDOWN
-    - START_VM: AV_AGENT
-    - STOP_VM
     - WAIT_SHUTDOWN
     - REFRESH_SNAPSHOT
 
