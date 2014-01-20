@@ -66,6 +66,8 @@ def execute(vm, protocol, inst_args):
     dirname = "%s/avagent/running" % config.basedir_av
     r = vm_manager.execute(vm, "deleteDirectoryInGuest", dirname)
 
+    dirname = "%s/logs" % config.basedir_av
+    r = vm_manager.execute(vm, "deleteDirectoryInGuest", dirname)
 
     if r > 0:
         return False, "Cant Copy %s on VM" % filename

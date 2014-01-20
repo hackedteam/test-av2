@@ -169,6 +169,25 @@ UPDATE_FAST:
 
 # ---------------------------
 
+UPDATE_MANUAL:
+    - VM_ALL
+    - INTERNET: True
+    - SLEEP: [10, 60]
+    - REVERT
+    - START_VM
+    - CHECK_INFECTION # questo non e' necessario, ma e' meglio assicurarsene
+    - CALL: VM_PUSH_AGENT
+    - PUSH: [assets/update_system_manual.bat]
+    - INSTALL_AGENT
+    - EXECUTE_VM: /AVTest/assets/update_system_manual.bat # scarica gli aggiornamenti windows
+
+    - WAIT_SHUTDOWN
+    - START_VM: AV_AGENT
+    - STOP_VM
+    - WAIT_SHUTDOWN
+    - REFRESH_SNAPSHOT
+
+# ---------------------------
 UPDATE_DELETE_CACHE:
     #- VM_ALL
     - VM: [zenoav, noav]

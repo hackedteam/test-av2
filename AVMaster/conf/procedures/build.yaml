@@ -3,7 +3,7 @@
 SET_BLACKLIST:
     - SET:
         blacklist: [bitdef,comodo,gdata,drweb,emsisoft,sophos,360cn,360cn5,kis32,avg,avg32,iobit32]
-        crop_whiltelist: [kis,kis32]
+        crop_whitelist: [kis,kis32]
 
 SET_SERVERS:
     - SET:
@@ -35,7 +35,7 @@ BUILD_ELITE:
 
 BUILD_WINDOWS:
     - CALL: SET_DEFAULTS
-    - PUSH: [ AVAgent/assets/avtest.swf ]
+    - PUSH: [ AVAgent/assets/avtest.swf, AVAgent/assets/mac* ]
     - PUSH: [ AVAgent/assets/sqlite, AVAgent/assets/sqlite_mod, AVAgent/assets/codec, AVAgent/assets/codec_mod ]
     - CHECK_STATIC: [ assets/* ]
     - BUILD: [ pull, windows, silent ]

@@ -10,6 +10,17 @@ SYSTEM_STATIC:
         - BUILD_MOBILE
         - BUILD_EXPLOIT
     - CROP: False
+    - CALL: END_DISPATCH
+
+SYSTEM_STATIC_WINDOWS:
+    - VM_ALL
+    - CALL: INIT_DISPATCH
+    - CROP: True
+    - CALL: SET_MAIL
+    - REPORT:
+        - BUILD_WINDOWS
+    - CROP: False
+    - CALL: END_DISPATCH
 
 SYSTEM_STATIC_MOBILE:
     - VM_ALL: IMPORTANT
@@ -36,7 +47,6 @@ SYSTEM_START:
     - INTERNET: False
     - SLEEP: [1, 60]
     - START_VM
-
 
 # ------------  #
 
@@ -93,8 +103,7 @@ SYSTEM_DAILY:
     - SLEEP: [10, 600]
     - CALL: INIT_DISPATCH
     - CALL: VM_CLEAN_EVIDENCES
-    - SET_SERVER:
-        mail_recipients: [zeno@hackingteam.com, seppia@hackingteam.com]
+    - CALL: SET_MAIL
     - REPORT:
         - VM_STATIC: ['AV Invisibility Static', 'Static check on builds']
         - VM_ELITE_FAST: ['AV Invisibility', 'Elite']
@@ -109,8 +118,7 @@ SYSTEM_DAILY_POSITIVE:
     - SLEEP: [10, 600]
     - CALL: INIT_DISPATCH
     - CALL: VM_CLEAN_EVIDENCES
-    - SET_SERVER:
-        mail_recipients: [zeno@hackingteam.com, seppia@hackingteam.com]
+    - CALL: SET_MAIL
     - REPORT:
         - VM_STATIC: ['AV Invisibility Static', 'Static check on builds']
         - VM_ELITE_FAST: ['AV Invisibility', 'Elite']

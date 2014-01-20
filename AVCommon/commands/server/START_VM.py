@@ -4,6 +4,7 @@ from AVCommon.logger import logging
 from time import sleep
 from AVCommon import mq
 from AVCommon import helper
+from AVCommon import config
 
 def get_status(vm):
     from AVMaster import vm_manager
@@ -38,7 +39,8 @@ def get_status(vm):
         return "NOT-STARTED"
 
     try:
-        logging.debug("%s, list_processes: %s" % (vm, [ (p["name"],p["owner"]) for p in processes] ))
+        if config.verbose:
+            logging.debug("%s, list_processes: %s" % (vm, [ (p["name"],p["owner"]) for p in processes] ))
 
         for process in processes:
             if process["owner"].endswith("avtest"):
