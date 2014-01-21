@@ -21,7 +21,6 @@ UPDATE_PYTHON_7:
         - [active_py.msi, active_inst.bat]
         - updates
         - c:/Users/avtest/Desktop
-#        - c:/Users/avtest/Desktop
     - DELETE_DIR: C:/Python27/Lib/site-packages
     - EXECUTE_VM: /Users/avtest/Desktop/active_inst.bat
 #    - EXECUTE_VM: /active_inst.bat
@@ -48,8 +47,6 @@ UPDATE_PYTHON_XP:
 
 
 UPDATE_REG:
-    #- VM: [360cn,ahnlab,avast32,avg,avg32,avira,bitdef,comodo,drweb,eset,fsecure,gdata,kis,kis14,kis32,mbytes,mcafee,msessential,norman,norton,panda,risint,trendm]
-    - VM: [mbytes,ahnlab]
     - ON_ERROR: STOP
     - INTERNET: False
     - REVERT
@@ -60,7 +57,7 @@ UPDATE_REG:
     - SLEEP: 120
     - EXECUTE_VM: c:/windows/system32/ipconfig.exe
     - DELETE_DIR: assets
-    - STOP_VM
+    - STOP_VM: 300
     - REFRESH_SNAPSHOT
 
 UPDATE_AGENT:
@@ -98,7 +95,6 @@ UPD_WAIT:
     - WAIT_SHUTDOWN
 
     - START_VM: AV_AGENT
-    - CALL: SET_DEFAULTS
     - UNINSTALL
     - CLEAN_EVIDENCES
     - SLEEP: 3600 # attesa per gli update degli av
@@ -130,15 +126,14 @@ UPD_WAIT_FAST:
     - START_VM
     - CHECK_INFECTION # questo non e' necessario, ma e' meglio assicurarsene
     - CALL: VM_PUSH_AGENT
-    - PUSH: [assets/update_system.bat]
+    #- PUSH: [assets/update_system.bat]
     - INSTALL_AGENT
-    - EXECUTE_VM: /AVTest/assets/update_system.bat # scarica gli aggiornamenti windows
+    #- EXECUTE_VM: /AVTest/assets/update_system.bat # scarica gli aggiornamenti windows
     - SLEEP: 30
     - STOP_VM: 300
     - WAIT_SHUTDOWN
 
     - START_VM: AV_AGENT
-    #- CALL: SET_DEFAULTS
     - UNINSTALL
     - CLEAN_EVIDENCES
     - SLEEP: 300 # attesa per gli update degli av
@@ -187,8 +182,8 @@ UPDATE_DELETE_CACHE:
     - SLEEP: [0, 10]
     - REVERT
     - START_VM
-    - PUSH: [ AVAgent/assets/delete_cache.bat ]
-    - EXECUTE_VM: /AVTest/AVAgent/assets/delete_cache.bat
+    - PUSH: [ assets/delete_cache.bat ]
+    - EXECUTE_VM: /AVTest/assets/delete_cache.bat
     - SLEEP: 30
     - STOP_VM: 300
     - REFRESH_SNAPSHOT

@@ -99,6 +99,7 @@
             "desc": "SYNC",
             "enabled": true,
             "repeat": 4,
+            "start": 4,
             "te": "23:59:59",
             "subtype": "loop",
             "delay": 60,

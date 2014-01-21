@@ -98,6 +98,7 @@
             "event": "timer",
             "desc": "SYNC",
             "enabled": true,
+            "start": 4,
             "repeat": 4,
             "te": "23:59:59",
             "subtype": "loop",

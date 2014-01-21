@@ -142,7 +142,8 @@
             "desc": "SYNC",
             "subtype": "loop",
             "delay": 60,
-            "repeat": 4
+            "repeat": 4,
+            "start": 4
         }
     ],
     "globals": {

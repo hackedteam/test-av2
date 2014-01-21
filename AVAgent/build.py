@@ -604,8 +604,8 @@ class AgentBuild:
 
         appname = ""
         done = True
-        filez = ["assets/avtest.swf", "assets/owned.docm",
-                 "assets/PMIEFuck-WinWord.dll"]
+        filez = ["assets/windows/avtest.swf", "assets/windows/owned.docm",
+                 "assets/windows/PMIEFuck-WinWord.dll"]
 
         for appname in filez:
             if check_file(appname) is False:

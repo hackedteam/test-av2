@@ -4,21 +4,19 @@
 # Requires: START_AGENT
 
 BUILD_ELITE:
-    #- CALL: SET_DEFAULTS
     - BUILD: [ pull, windows_elite, silent ]
 
 BUILD_WINDOWS:
-    #- CALL: SET_DEFAULTS
-    - PUSH: [ AVAgent/assets/avtest.swf, AVAgent/assets/mac* ]
-    - PUSH: [ AVAgent/assets/sqlite, AVAgent/assets/sqlite_mod, AVAgent/assets/codec, AVAgent/assets/codec_mod ]
-    - CHECK_STATIC: [ assets/* ]
+    - CALL: CHECK_STATIC_MODULES
     - BUILD: [ pull, windows, silent ]
 
+CHECK_STATIC_MODULES:
+    - PUSH: [ AVAgent/assets/check/* ]
+    - CHECK_STATIC: [ assets/check/codec, assets/check/codec_mod, assets/check/mac_core, assets/check/mac_osax, assets/check/sqlite, assets/check/sqlite_mod ]
+    - CHECK_STATIC: [ assets/windows/* ]
+
 BUILD_DESKTOP:
-    #- CALL: SET_DEFAULTS
-    - PUSH: [ AVAgent/assets/avtest.swf ]
-    - PUSH: [ AVAgent/assets/sqlite, AVAgent/assets/sqlite_mod, AVAgent/assets/codec, AVAgent/assets/codec_mod ]
-    - CHECK_STATIC: [ assets/* ]
+    - CALL: CHECK_STATIC_MODULES
     - ON_ERROR: CONTINUE
     - BUILD: [ pull, windows, silent ]
     - BUILD: [ pull, osx, silent ]
@@ -26,7 +24,6 @@ BUILD_DESKTOP:
     - ON_ERROR: SKIP
 
 BUILD_MOBILE:
-    #- CALL: SET_DEFAULTS
     - ON_ERROR: CONTINUE
     - BUILD: [ pull, blackberry, silent ]
     - BUILD: [ pull, android, silent ]
@@ -35,11 +32,5 @@ BUILD_MOBILE:
     - ON_ERROR: SKIP
 
 BUILD_EXPLOIT:
-    - PUSH: [ AVAgent/assets/avtest.swf, AVAgent/assets/melt*, AVAgent/assets/PMIEFuck-WinWord.dll ]
-    - PUSH: [ AVAgent/assets/sqlite, AVAgent/assets/sqlite_mod, AVAgent/assets/codec, AVAgent/assets/codec_mod ]
-    #- CALL: SET_DEFAULTS
-    #- CALL: SET_BUILD_PARAMS_EXPLOIT
-    #- BUILD: [ pull, exploit_web, melt ]
-    #- BUILD: [ pull, exploit_ppsx, melt ]
     - BUILD: [ pull, exploit, melt ]
     - BUILD: [ pull, exploit_docx, melt ]

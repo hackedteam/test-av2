@@ -24,7 +24,7 @@ TEST_EVIDENCE:
     #- CALL: INIT_DISPATCH
     - CALL: VM_PUSH_AGENT
     - START_AGENT: 172.20.20.168
-    - CALL: SET_SERVERS
+    #- CALL: SET_SERVERS
     - CHECK_EVIDENCES: [device]
     - CHECK_EVIDENCES: [chat,program,facebook]
     - STOP_AGENT
@@ -34,7 +34,7 @@ TEST_CLEAN:
     - VM: ['noav','kis']
     #- CALL: INIT_DISPATCH
     - START_AGENT
-    - CALL: SET_SERVERS
+    #- CALL: SET_SERVERS
     - CLEAN_EVIDENCES
     - STOP_AGENT
     #- CALL: END_DISPATCH
@@ -51,7 +51,7 @@ TEST_CROP:
     #- CALL: INIT_DISPATCH
     - CALL: VM_PUSH_AGENT
     - START_AGENT
-    - CALL: SET_DEFAULTS
+    #- CALL: SET_DEFAULTS
     - CROP: True
     - PUSH: [ AVAgent/assets/facebook.bat ]
     - EXECUTE_VM:
@@ -70,7 +70,7 @@ TEST_INFECTION:
     #- CALL: INIT_DISPATCH
     #- CALL: VM_PUSH_AGENT
     - START_AGENT
-    - CALL: SET_DEFAULTS
+    #- CALL: SET_DEFAULTS
     - BUILD: [ scout, windows, silent ]
     - ON_ERROR: CONTINUE
     - CHECK_INFECTION
@@ -82,7 +82,7 @@ TEST_UNINSTALL:
     - ON_ERROR: STOP
     #- CALL: VM_PUSH_AGENT
     - START_AGENT
-    - CALL: SET_SERVERS
+    #- CALL: SET_SERVERS
     - ON_ERROR: SKIP
     - UNINSTALL
     - CHECK_INFECTION
@@ -121,7 +121,7 @@ TEST_UPDATE:
     - WAIT_SHUTDOWN
 
     - START_VM
-    - CALL: SET_DEFAULTS
+    #- CALL: SET_DEFAULTS
     - UNINSTALL
     - SLEEP: 6 # attesa per gli update degli av
     - SCREENSHOT
@@ -142,7 +142,7 @@ TEST_SLEEP:
 TEST_MELT:
     - VM: [funvm]
 
-    - CALL: SET_DEFAULTS
+    #- CALL: SET_DEFAULTS
     - CLEAN_EVIDENCES
     - BUILD: [ scout, windows, melt ]
 
@@ -178,7 +178,7 @@ TEST_EXPLOIT:
     - INSTALL_AGENT
     - RELOG
 
-    - CALL: SET_DEFAULTS
+    #- CALL: SET_DEFAULTS
     #- CLEAN_EVIDENCES
     - SET_SERVER:
         mail_recipients: [zeno@hackingteam.it]
@@ -191,5 +191,5 @@ TEST_WINPHONE:
     #- CALL: VM_PUSH_AGENT
     #- INSTALL_AGENT
     #- RELOG
-    - CALL: SET_DEFAULTS
+    #- CALL: SET_DEFAULTS
     - BUILD: [ pull, winphone, silent ]

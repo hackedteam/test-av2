@@ -92,7 +92,7 @@ class AVAgent(object):
         y = yaml.load(f)
         for k,v in y.items():
             command.context[k] = v
-        logging.debug("default: %s" % command.context)
+        logging.debug("command.context size: %s" % len(command.context))
 
 
     def __del__(self):

@@ -1,11 +1,10 @@
 # -------------- VM COMMANDS -------------- #
 
-
 VM_PUSH_AGENT:
     - DELETE_DIR: /AVTest/
     - DELETE_DIR: /Users/avtest/Desktop/AVTest/
     - PUSH: [ AVAgent/*.py, AVAgent/*.yaml, AVCommon/*.py, AVCommon/*.yml, AVCommon/commands/client/*.py, AVCommon/commands/meta/*.py, AVCommon/commands/*.py]
-    - PUSH: [ AVAgent/assets/config*, AVAgent/assets/update_system.bat, AVAgent/assets/keyinject.exe, AVAgent/assets/meltapp.exe ]
+    - PUSH: [ AVAgent/assets/config*, AVAgent/assets/keyinject.exe, AVAgent/assets/windows/*  ]
 
 VM_UPLOAD_SKYPE:
     - PUSH:
@@ -20,19 +19,16 @@ VM_GET_LOG:
         - logs
 
 VM_PULL_WINDOWS:
-    - CALL: SET_DEFAULTS
     - BUILD: [ pull, windows, silent ]
     - BUILD: [ pull, windows, melt ]
 
 VM_SCOUT:
-    - CALL: SET_DEFAULTS
     - CROP: True
     - BUILD: [ scout, windows, silent ]
     - CROP: False
     - SCREENSHOT
 
 VM_ELITE:
-    - CALL: SET_DEFAULTS
     - CROP: True
     - BUILD: [ elite, windows, silent ]
     - SLEEP: 30
@@ -48,14 +44,12 @@ VM_STATIC_MOBILE:
     - CROP: False
 
 VM_CLEAN_EVIDENCES:
-    - CALL: SET_SERVERS
     - CLEAN_EVIDENCES
 
 BUILD_MELT_FAST:
     - BUILD: [ pull, windows, melt ]
 
 VM_PACKER_MELT:
-    - CALL: SET_DEFAULTS
     - CROP: True
     - REPORT:
         - BUILD_MELT_FAST
