@@ -53,14 +53,14 @@ SYSTEM_START:
 # ------------  #
 
 VM_ELITE_FAST:
-    - CALL: SET_DEFAULTS
+    #- CALL: SET_DEFAULTS
     #- CROP: True
     - BUILD: [ scout, windows, silent ]
     - SLEEP: 30
     #- CROP: False
     - RELOG
 
-    - CALL: SET_DEFAULTS
+    #- CALL: SET_DEFAULTS
     - CROP: True
     - BUILD: [ elite_fast, windows, silent ]
     - CROP: False
@@ -72,7 +72,7 @@ VM_ELITE_FAST:
     - RELOG
 
 VM_MELT:
-    - CALL: SET_DEFAULTS
+    #- CALL: SET_DEFAULTS
     #- CROP: True
     - BUILD: [ scout, windows, melt ]
     #- CROP: False
@@ -83,8 +83,8 @@ VM_MELT:
 VM_EXPLOIT:
     - PUSH: [ AVAgent/assets/avtest.swf, AVAgent/assets/melt*, AVAgent/assets/PMIEFuck-WinWord.dll ]
     - PUSH: [ AVAgent/assets/sqlite, AVAgent/assets/sqlite_mod, AVAgent/assets/codec, AVAgent/assets/codec_mod ]
-    - CALL: SET_DEFAULTS
-    - CALL: SET_BUILD_PARAMS_EXPLOIT
+    #- CALL: SET_DEFAULTS
+    #- CALL: SET_BUILD_PARAMS_EXPLOIT
     - BUILD: [ pull, exploit_docx, melt ]
     - BUILD: [ scout, exploit, melt ]
     - UNINSTALL

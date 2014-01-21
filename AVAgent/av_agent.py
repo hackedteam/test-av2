@@ -24,6 +24,7 @@ from AVCommon.protocol import Protocol
 from AVCommon import command
 from AVCommon.procedure import Procedure
 from AVCommon import config
+import yaml
 
 class MQFeedProcedure(object):
     protocol = None
@@ -87,6 +88,11 @@ class AVAgent(object):
 
         # TODO
         # load default.yaml as a default SET command.
+        f = open("default.yaml")
+        y = yaml.load(f)
+        for k,v in y.items():
+            command.context[k] = v
+        logging.debug("default: %s" % command.context)
 
 
     def __del__(self):

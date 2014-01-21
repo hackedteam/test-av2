@@ -833,7 +833,7 @@ def main():
     platform_mobile = ["android", "blackberry", "ios"]
 
 
-    blacklist = "bitdef,comodo,gdata,drweb,emsisoft,sophos,360cn,kis32,avg,avg32".split(',')
+    blacklist = "bitdef,comodo,gdata,drweb,emsisoft,sophos,360cn,kis32,avg,avg32,iobit32".split(',')
     demo = False
 
     params = {}

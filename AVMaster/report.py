@@ -131,7 +131,7 @@ def summary():
     for vm in report.c_received.keys():
         report.vm[vm] = []
         current_proc = None
-        summary += "%s\n" % vm
+        summary += "\n[ %s ]\n" % vm
         one_report = False
         for cmd in report.c_received[vm]:
             #cmd = Cmd(c)
@@ -143,17 +143,17 @@ def summary():
                     if vm not in failed:
                         failed[vm] = []
                     failed[vm].append(current_proc)
-                summary += "  %s %s\n" % (current_proc, success)
+                summary += "    %s: %s\n" % (current_proc, success)
                 one_report = True
             else:
                 if current_proc:
                     if cmd.success == False:
-                        summary+="    %s\n" % (red(str(cmd), 120))
+                        summary+="        %s\n" % (str(cmd))
                     elif cmd.name in important_commands and cmd.success:
                         #check = ['+ ERROR','+ FAILED']
                         #errors = any([ s in c for s in check ])
                         #if errors:
-                        summary+="    %s\n" % (red(str(cmd), 80))
+                        summary+="        %s\n" % (red(str(cmd), 80))
         if not one_report:
             if vm not in failed:
                 failed[vm] = []

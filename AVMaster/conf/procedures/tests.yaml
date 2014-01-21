@@ -17,12 +17,7 @@ TEST_REFRESH:
     - REFRESH_SNAPSHOT
 
 TEST_STOP:
-    - EXECUTE_VM: /AVTest/assets/update_system.bat # scarica gli aggiornamenti windows
-    - SLEEP: 30
-    - START_VM: AV_AGENT
     - STOP_VM
-    - WAIT_SHUTDOWN
-    - REFRESH_SNAPSHOT
 
 TEST_EVIDENCE:
     - VM: ['funvm']

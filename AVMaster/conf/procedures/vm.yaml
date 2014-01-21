@@ -4,7 +4,7 @@
 VM_PUSH_AGENT:
     - DELETE_DIR: /AVTest/
     - DELETE_DIR: /Users/avtest/Desktop/AVTest/
-    - PUSH: [ AVAgent/*.py, AVCommon/*.py, AVCommon/*.yml, AVCommon/commands/client/*.py, AVCommon/commands/meta/*.py, AVCommon/commands/*.py]
+    - PUSH: [ AVAgent/*.py, AVAgent/*.yaml, AVCommon/*.py, AVCommon/*.yml, AVCommon/commands/client/*.py, AVCommon/commands/meta/*.py, AVCommon/commands/*.py]
     - PUSH: [ AVAgent/assets/config*, AVAgent/assets/update_system.bat, AVAgent/assets/keyinject.exe, AVAgent/assets/meltapp.exe ]
 
 VM_UPLOAD_SKYPE:
