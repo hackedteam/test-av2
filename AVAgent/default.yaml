@@ -1,11 +1,9 @@
 
-blacklist: [bitdef,comodo,gdata,drweb,emsisoft,sophos,360cn,360cn5,kis32,avg,avg32,iobit32]
+blacklist: [iobit32,bitdef,comodo,gdata,drweb,emsisoft,sophos,360cn,360cn5,kis32,avg,avg32]
 crop_whitelist: [kis,kis32]
 
 backend: 192.168.100.201
 frontend: 172.20.100.204
-
-mail_recipients: [zeno@hackingteam.com, seppia@hackingteam.com]
 
 build_parameters:
         linux:
