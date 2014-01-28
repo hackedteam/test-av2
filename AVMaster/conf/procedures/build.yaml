@@ -34,3 +34,71 @@ BUILD_MOBILE:
 BUILD_EXPLOIT:
     - BUILD: [ pull, exploit, melt ]
     - BUILD: [ pull, exploit_docx, melt ]
+
+# -------------- VM COMMANDS -------------- #
+
+VM_PUSH_AGENT:
+    - DELETE_DIR: /AVTest/
+    - DELETE_DIR: /Users/avtest/Desktop/AVTest/
+    - PUSH: [ AVAgent/*.py, AVAgent/*.yaml, AVCommon/*.py, AVCommon/*.yml, AVCommon/commands/client/*.py, AVCommon/commands/meta/*.py, AVCommon/commands/*.py]
+    - PUSH: [ AVAgent/assets/config*, AVAgent/assets/keyinject.exe, AVAgent/assets/windows/*  ]
+
+VM_UPLOAD_SKYPE:
+    - PUSH:
+        - [SkypeSetup.exe]
+        - updates
+        - c:/Users/avtest/Desktop
+
+VM_GET_LOG:
+    - PULL:
+        - ['avmonitor.log']
+        - c:\\AVTest\\logs
+        - logs
+
+VM_PULL_WINDOWS:
+    - BUILD: [ pull, windows, silent ]
+    - BUILD: [ pull, windows, melt ]
+
+VM_SCOUT:
+    - CROP: True
+    - BUILD: [ scout, windows, silent ]
+    - CROP: False
+    - SCREENSHOT
+
+VM_ELITE:
+    - CROP: True
+    - BUILD: [ elite, windows, silent ]
+    - SLEEP: 30
+    - SCREENSHOT
+    - CROP: False
+    - UNINSTALL
+    - CHECK_INFECTION
+    - RELOG
+
+VM_STATIC_MOBILE:
+    - CROP: True
+    - CALL: BUILD_MOBILE
+    - CROP: False
+
+VM_CLEAN_EVIDENCES:
+    - CLEAN_EVIDENCES
+
+BUILD_MELT_FAST:
+    - BUILD: [ pull, windows, melt ]
+
+VM_PACKER_MELT:
+    - CROP: True
+    - REPORT:
+        - BUILD_MELT_FAST
+        - BUILD_MELT_FAST
+        - BUILD_MELT_FAST
+        - BUILD_MELT_FAST
+        - BUILD_MELT_FAST
+
+        - BUILD_MELT_FAST
+        - BUILD_MELT_FAST
+        - BUILD_MELT_FAST
+        - BUILD_MELT_FAST
+        - BUILD_MELT_FAST
+
+    - CROP: False

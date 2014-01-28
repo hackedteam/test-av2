@@ -1,3 +1,32 @@
+# ------------ FOGLIO DI STILE -------------- #
+
+# 3 livelli: SYSTEM, VM, AGENT
+# SYSTEM: // opzionale START_VM + STOP_VM
+#    - INIT_
+#    - END_
+#    - SYSTEM_
+# VM: // no START_VM, si' opzionale: START_AGENT + STOP_AGENT
+#   - VM
+# AGENT: // no START_VM, no START_AGENT
+#   - AG_
+#   - CHECK_
+#   - *
+
+# ----------- PARTIAL COMMANDS -------------- #
+
+INIT_DISPATCH:
+    - INTERNET: False
+    - REVERT
+    - START_VM: AV_AGENT
+
+END_DISPATCH:
+    - STOP_VM: 60
+
+# -------------- SERVER SET -------------- #
+
+SET_MAIL:
+    - SET_SERVER:
+        mail_recipients: [zeno@hackingteam.com, seppia@hackingteam.com]
 
 # ------------- SYSTEM COMMANDS -------------- #
 
@@ -135,9 +164,11 @@ SYSTEM_POSITIVE:
     - VM_ALL
     - ON_ERROR: SKIP
     - SLEEP: [10, 600]
-    - START_VM
+    - CALL: INIT_DISPATCH
+    - CALL: SET_MAIL
     - REPORT:
         - SYS_PUSH_VIRUS: ['AVM Update', 'Positive static check', INVERT]
+    - UNINSTALL
     - CALL: END_DISPATCH
 
 SYSTEM_MANUAL:
@@ -196,7 +227,6 @@ SYSTEM_FUNCTIONAL:
         - VM_FUNCTIONAL_EV: ['Functional testing', 'Device']
         - VM_FUNCTIONAL_CHAT_FB: ['Functional testing', 'Social Chat']
         - VM_FUNCTIONAL_ADDRESSBOOK_FB: ['Functional testing', 'Social Addressbook']
-
 
 
 SYSTEM_FUNCTIONAL_SKYPE:
