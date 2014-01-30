@@ -276,7 +276,7 @@ class AgentBuild:
                 exe = new_exe
 
             logging.debug("- Execute: " + exe)
-            subp = subprocess.Popen([exe], shell=True)
+            subp = subprocess.Popen([exe]) #, shell=True)
             add_result("+ SUCCESS SCOUT EXECUTE")
         except Exception, e:
             logging.debug("DBG trace %s" % traceback.format_exc())
