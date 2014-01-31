@@ -42,7 +42,7 @@ def execute(vm, args):
     platform_type = param['platform_type']
 
     assert kind in ['silent', 'melt'], "kind: %s" % kind
-    assert action in ['scout', 'elite', 'elite_fast', 'internet', 'test', 'clean', 'pull'], "action: %s" % action
+    assert action in ['scout', 'elite', 'elite_fast', 'soldier_fast', 'internet', 'test', 'clean', 'pull'], "action: %s" % action
     assert platform_type in ['desktop', 'mobile'], "platform_type: %s" % platform_type
 
     results, success, errors = build.build(action, platform, platform_type, kind, param, backend, frontend, blacklist, report)

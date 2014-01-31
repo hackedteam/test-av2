@@ -39,7 +39,7 @@ VM_EXEC_SOLDIER:
     - CROP: False
 
 
-SYSTEM_SOLDIER:
+SYSTEM_SOLDIER_BASIC:
     - VM_ALL
     - INTERNET: False
     - SLEEP: [10, 60]
@@ -120,6 +120,18 @@ VM_ELITE_FAST:
     - UNINSTALL
     - RELOG
 
+VM_SOLDIER:
+    - BUILD: [ scout, windows, silent ]
+    - SLEEP: 30
+    - RELOG
+
+    - CROP: True
+    - BUILD: [ soldier_fast, windows, silent ]
+    - CROP: False
+
+    - UNINSTALL
+    - RELOG
+
 VM_MELT:
     - BUILD: [ scout, windows, melt ]
     - UNINSTALL
@@ -151,6 +163,7 @@ SYSTEM_DAILY:
     - REPORT:
         - VM_STATIC: ['AV Invisibility Static', 'Static check on builds']
         - VM_ELITE_FAST: ['AV Invisibility', 'Elite']
+        - VM_SOLDIER: ['AV Invisibility', 'Soldier']
         - VM_MELT: ['AV Invisibility', 'Melt']
         - VM_EXPLOIT: ['AV Invisibility', 'Exploit']
     - UNINSTALL

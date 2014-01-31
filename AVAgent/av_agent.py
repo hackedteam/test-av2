@@ -176,9 +176,11 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     report = time.strftime("%y%m%d", time.localtime(time.time()))
+
     logger.init(report)
     from AVCommon.logger import logging
     globals()['logging']=logging
+
     logging.debug(args)
 
     mq = None

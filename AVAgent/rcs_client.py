@@ -6,7 +6,14 @@ import traceback
 from time import sleep
 from StringIO import StringIO
 import gzip
+
+import os
+import sys
+import inspect
+
 #pp = pprint.PrettyPrinter(indent=4)
+if ".." not in sys.path:
+    sys.path.insert(0, "..")
 
 from AVCommon.logger import logging
 
@@ -17,6 +24,10 @@ class Rcs_client:
         self.host = host
         self.user = user
         self.passwd = passwd
+
+        if 'logging' not in globals():
+            from AVCommon.logger import logging
+            globals()['logging']=logging
         #self.cookie = self.do_login
 
     def _get_response(self, link, cookies=None):
@@ -185,7 +196,7 @@ class Rcs_client:
         """ gets the instances id of an operation, matching the ident """
         logging.debug("lookin for instances with target: %s" % target_id)
         agents = self._call_get('agent')
-        logging.debug("agents: %s" % agents)
+        #logging.debug("agents: %s" % agents)
         #pp.pprint(agents)
         ret = [op for op in agents if target_id in op['path'] and op['_kind'] == 'agent']
         return ret
@@ -278,9 +289,9 @@ class Rcs_client:
             logging.error(e)
             return False
 
-    def instance_upgrade(self, instance_id, forcesoldier = False):
+    def instance_upgrade(self, instance_id, force_soldier = False):
         params = {'_id': instance_id}
-        if forcesoldier:
+        if force_soldier:
             params["force"] = "soldier"
 
         try:
@@ -295,6 +306,7 @@ class Rcs_client:
             value = self._call_get('agent/can_upgrade', params)
             return value
         except:
+            logging.exception("cannot get can_upgrade")
             return False
 
     def instance_level(self, instance_id):

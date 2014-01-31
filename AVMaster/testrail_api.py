@@ -45,6 +45,10 @@ def get_plans(p_id):
     get_plans_url = "%s/v2/get_plans/%s" % (base_url,p_id)
     return send_get(get_plans_url)
 
+def _get_plan(plan_id):
+    get_plans_url = "%s/v2/get_plan/%s" % (base_url,plan_id)
+    return send_get(get_plans_url)
+
 def get_runs(proj_id, plan_id):
     get_runs_url = "%s/v2/get_runs/%s" % (base_url,proj_id)
     runs = send_get(get_runs_url)
@@ -54,12 +58,12 @@ def get_tests(run_id):
     get_tests_url = "%s/v2/get_tests/%d" % (base_url, run_id)
     return send_get(get_tests_url)
 
-def get_plan(proj_id, plan_id=-1, plan_name=""):
+def search_plan(proj_id, plan_id=-1, plan_name=""):
     for p in get_plans(proj_id):
         if p["is_completed"]:
             continue
         if p["id"] == plan_id or p["name"] == plan_name:
-            return p
+            return _get_plan(p["id"])
 
 def get_run(proj_id, plan_id, run_id=-1, run_name=""):
     for r in get_runs(proj_id, plan_id):
@@ -87,7 +91,7 @@ def add_result(test_id, result, comment="", elapsed=0, defects="", version=0 ):
     return send_post(add_result_url, res)
 
 def rerun_plan(project_id,plan_id):
-    plan = get_plan(project_id, plan_id)
+    plan = search_plan(project_id, plan_id)
     runs =  get_runs(project_id, plan_id)
 
     for r in runs:
@@ -116,36 +120,41 @@ def add_plan_result(proj_id, plan_id, config, run_name, test_case, result, elaps
     statuses = get_statuses()
 
     results = dict([ (s['name'],s['id']) for s in statuses])
-    runs = get_runs(proj_id, plan_id)
-    for r in runs:
-        if r["name"] != run_name:
-            continue
-        logging.debug("run: %s" % r)
-        #pprint.pprint(r)
-        #break
 
-        if r["config"] != config:
-            continue
+    plan = search_plan(proj_id, plan_id)
 
-        for t in get_tests(r["id"]):
-            if test_case in t["title"]:
-                logging.debug("adding result for test: %s" % t["id"])
-                add_result(t["id"], results[result], comment, elapsed)
-                return r["id"]
+    entries = plan["entries"]
+    for entry in entries:
+        runs = entry["runs"]
+        for r in runs:
+            if r["name"] != run_name:
+                continue
+            logging.debug("run: %s" % r)
+            #pprint.pprint(r)
+            #break
+
+            if r["config"] != config:
+                continue
+
+            for t in get_tests(r["id"]):
+                if test_case in t["title"]:
+                    logging.debug("adding result for test: %s" % t["id"])
+                    add_result(t["id"], results[result], comment, elapsed)
+                    return r["id"]
     logging.error("cannot find correct test case")
 
 def main():
     proj_id = 1
     plan_name = "Continuous Testing"
     run_name = "AV Invisibility"
-    test_case = "Scout"
+    test_case = "Soldier"
     #test_case_id = 1
     result = "retest"
     config = "360cn5, Windows"
 
     #plan_id = 55
     #plan = get_plan(project_id, plan_id)
-    plan = get_plan(proj_id, plan_name=plan_name)
+    plan = search_plan(proj_id, plan_name=plan_name)
     plan_id = plan["id"]
 
     add_plan_result(proj_id, plan_id, config, run_name, test_case, result, 60.1)

@@ -104,6 +104,15 @@ TEST_ELITE_FAST:
         - VM_ELITE_FAST
     - UNINSTALL
 
+TEST_SOLDIER:
+    - VM: [noav]
+    - CALL: VM_PUSH_AGENT
+    - INSTALL_AGENT
+    - RELOG
+    - REPORT:
+        - VM_SOLDIER
+    - UNINSTALL
+
 TEST_RELOG:
     - VM: [noav]
     - RELOG
