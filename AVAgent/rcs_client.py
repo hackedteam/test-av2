@@ -301,9 +301,8 @@ class Rcs_client:
             return False
 
     def instance_can_upgrade(self, instance_id):
-        params = {'_id': instance_id}
         try:
-            value = self._call_get('agent/can_upgrade', params)
+            value = self._call_get('agent/can_upgrade/%s' % instance_id)
             return value
         except:
             logging.exception("cannot get can_upgrade")

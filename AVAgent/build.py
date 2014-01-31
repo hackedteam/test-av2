@@ -424,13 +424,13 @@ class AgentBuild:
         level = self.get_can_upgrade(instance_id)
         if level not in ["elite", "soldier"]:
             add_result("+ FAILED CAN UPGRADE: %s" % level)
-            return
+            #return TODO rimettere
 
         logging.debug("- Try upgrade to soldier" % level)
         upgradable = self._upgrade_elite(instance_id, force_soldier=True)
         if not upgradable:
             add_result("+ FAILED UPGRADE")
-            return
+            #return TODO rimettere
 
         return self.check_upgraded(instance_id, level, fast)
 
@@ -446,13 +446,13 @@ class AgentBuild:
         level = self.get_can_upgrade(instance_id)
         if level not in ["elite", "soldier"]:
             add_result("+ FAILED CAN UPGRADE: %s" % level)
-            return
+            #return TODO rimettere
 
         logging.debug("- Try upgrade to %s" % level)
         upgradable = self._upgrade_elite(instance_id)
         if not upgradable:
             add_result("+ FAILED UPGRADE")
-            return
+            #return TODO rimettere
 
         logging.debug("DBG %s in %s" % (self.hostname, self.blacklist))
         if level == "soldier":
@@ -460,11 +460,11 @@ class AgentBuild:
                 add_result("+ SUCCESS ELITE BLACKLISTED")
             else:
                 add_result("+ FAILED ELITE UPGRADE")
-            return
+            # return TODO rimettere
         else:
             if self.hostname in self.blacklist:
                 add_result("+ FAILED ELITE BLACKLISTED")
-                return
+                #return TODO rimettere
 
         return self.check_upgraded(instance_id, level, fast)
 
