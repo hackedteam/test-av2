@@ -172,10 +172,11 @@ SYSTEM_POSITIVE:
     - CALL: END_DISPATCH
 
 SYSTEM_MANUAL:
-    - START_VM: AV_AGENT
-    - SLEEP: [30, 120]
+    #- START_VM: AV_AGENT
+    #- SLEEP: [30, 120]
     - BUILD: [ pull, exploit, melt ]
     - BUILD: [ pull, windows, melt ]
+    - RELOG
     - BUILD: [ scout, windows, silent ]
 
 # ---------------- #

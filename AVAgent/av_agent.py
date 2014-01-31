@@ -48,6 +48,9 @@ class MQFeedProcedure(object):
     def add_client(self, vm):
         pass
 
+    def notify_connection(self, vm):
+        pass
+
 def remove_running(vm):
     logging.info("remove running")
     filepid = "running/avagent.%s.running" % vm
@@ -119,6 +122,7 @@ class AVAgent(object):
             self.pc = Protocol(d, self.vm)
         else:
             assert procedure
+            d.mq = mq
             self.pc = Protocol(d, self.vm, procedure=procedure)
             mq.protocol = self.pc
             logging.debug("mq: %s pc:%s" % (mq.protocol.procedure, self.pc.procedure))
@@ -164,8 +168,10 @@ if __name__ == "__main__":
                         help="session redis mq ")
     parser.add_argument('-r', '--procedure', default=False,
                         help="procedure to call ")
-    parser.add_argument('-f', '--procedure_file', default=False,
+    parser.add_argument('-p', '--procedure_file', default="assets/procedures.yaml",
                         help="procedure file to read ")
+    parser.add_argument('-f', '--force', action='store_true', default=False,
+                        help="force ")
 
     args = parser.parse_args()
 
@@ -179,6 +185,7 @@ if __name__ == "__main__":
     procedure = None
     if args.procedure and args.procedure_file:
         logging.info("Procedure %s" % args.procedure)
+        logging.debug("pwd: %s" % os.getcwd())
         path = os.getcwd()
         procs = Procedure.load_from_file(args.procedure_file)
         logging.debug("%s" % procs)
@@ -188,6 +195,6 @@ if __name__ == "__main__":
 
     try:
         avagent = AVAgent(args.vm, args.redis, args.session)
-        avagent.start_agent(mq, procedure)
+        avagent.start_agent(mq, procedure, force=args.force)
     except:
         logging.exception("FATAL")
