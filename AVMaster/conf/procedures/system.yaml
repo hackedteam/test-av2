@@ -30,6 +30,31 @@ SET_MAIL:
 
 # ------------- SYSTEM COMMANDS -------------- #
 
+VM_EXEC_SOLDIER:
+    - CROP: True
+    - CALL: BUILD_SOLDIER
+    - EXECUTE_VM: [ /AVTest/AVAgent/build/windows_elite/agent.exe, [], 40, True, True ]
+    - SLEEP: 60
+    #- CHECK_INFECTION: INVERT
+    - CROP: False
+
+
+SYSTEM_SOLDIER:
+    - VM_ALL
+    - INTERNET: False
+    - SLEEP: [10, 60]
+    - START_VM
+    - CALL: VM_PUSH_AGENT
+    - INSTALL_AGENT
+    - SLEEP: 10
+    - RELOG
+
+    - CALL: SET_MAIL
+    - REPORT:
+        - VM_EXEC_SOLDIER: ['AV Invisibility', 'Soldier']
+    - UNINSTALL
+    - STOP_VM: 60
+
 SYSTEM_STATIC:
     - VM_ALL
     - CALL: INIT_DISPATCH

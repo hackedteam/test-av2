@@ -6,6 +6,9 @@
 BUILD_ELITE:
     - BUILD: [ pull, windows_elite, silent ]
 
+BUILD_SOLDIER:
+    - BUILD: [ pull, windows_soldier, silent ]
+
 BUILD_WINDOWS:
     - CALL: CHECK_STATIC_MODULES
     - BUILD: [ pull, windows, silent ]

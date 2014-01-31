@@ -296,6 +296,21 @@ class AgentBuild:
         subp = subprocess.Popen(['assets/keyinject.exe'])
         process.wait_timeout(subp, timeout)
 
+    def get_can_upgrade(self, instance):
+        with connection() as c:
+            level = c.instance_level(instance)
+            logging.debug("level: %s" % (level))
+            return level
+
+    def check_level(self, instance, expected):
+        with connection() as c:
+            level = c.instance_level(instance)
+            logging.debug("level, expected: %s got: %s" % (expected, level))
+            if not level == expected:
+                add_result("+ NO %s LEVEL" % level.upper())
+            else:
+                add_result("+ SUCCESS %s LEVEL" % level.upper())
+
     def check_instance(self, ident):
         with connection() as c:
             instances = c.instances(ident)
@@ -317,6 +332,7 @@ class AgentBuild:
             # self._
             return None
 
+    @DeprecationWarning
     def _check_elite(self, instance_id):
         with connection() as c:
             info = c.instance_info(instance_id)
@@ -327,6 +343,19 @@ class AgentBuild:
                 add_result("+ SUCCESS ELITE SYNC")
             else:
                 add_result("+ NOT YET ELITE SYNC")
+
+            return ret
+
+    def _check_upgraded(self, instance_id):
+        with connection() as c:
+            info = c.instance_info(instance_id)
+            logging.debug('DBG _check_elite %s' % info)
+            ret = info['upgradable'] is False and info['scout'] is False
+
+            if ret:
+                add_result("+ SUCCESS UPGRADED SYNC")
+            else:
+                add_result("+ NOT YET UPGRADED SYNC")
 
             return ret
 
@@ -397,11 +426,19 @@ class AgentBuild:
             logging.debug("- exiting execute_elite_fast because did't sync")
             return
 
-        logging.debug("- Try upgrade to elite")
+        level = self.get_can_upgrade(instance_id)
+        if level not in ["elite", "soldier"]:
+            add_result("+ FAILED CAN UPGRADE: %s" % level)
+            return
+
+        logging.debug("- Try upgrade to %s" % level)
         upgradable = self._upgrade_elite(instance_id)
+        if not upgradable:
+            add_result("+ FAILED UPGRADE")
+            return
 
         logging.debug("DBG %s in %s" % (self.hostname, self.blacklist))
-        if not upgradable:
+        if level == "soldier":
             if self.hostname in self.blacklist:
                 add_result("+ SUCCESS ELITE BLACKLISTED")
             else:
@@ -413,41 +450,41 @@ class AgentBuild:
                 return
 
         if fast:
-            logging.debug("- Elite, Wait for 5 minutes: %s" % time.ctime())
+            logging.debug("- Upgrade, Wait for 5 minutes: %s" % time.ctime())
             sleep(5 * 60)
             # key press
             for tries in range(1, 10):
-                logging.debug("- Elite, Trigger sync for 30 seconds, try %s" % tries)
+                logging.debug("- Upgrade, Trigger sync for 30 seconds, try %s" % tries)
                 self._trigger_sync(timeout=30)
 
-                logging.debug("- Elite, wait for 1 minute: %s" % time.ctime())
+                logging.debug("- Upgrade, wait for 1 minute: %s" % time.ctime())
                 sleep(60 * 1)
 
-                elite = self._check_elite(instance_id)
-                if elite:
+                upgraded = self._check_upgraded(instance_id)
+                if upgraded:
                     break
 
                 for i in range(10):
                     self._click_mouse(100 + i, 0)
 
         else:
-            logging.debug("- Elite, Wait for 25 minutes: %s" % time.ctime())
+            logging.debug("- %s, Wait for 25 minutes: %s" % (level, time.ctime()))
             sleep(25 * 60)
-            elite = self._check_elite(instance_id)
+            upgraded = self.check_level(instance_id, level)
 
-        if elite:
-            add_result("+ SUCCESS ELITE INSTALL")
-            logging.debug("- Elite, wait for 1 minute then uninstall: %s" % time.ctime())
+        if upgraded:
+            add_result("+ SUCCESS UPGRADE INSTALL %s" % level.upper())
+            logging.debug("- %s, wait for 1 minute then uninstall: %s" % (level, time.ctime()))
             sleep(60)
             self.uninstall(instance_id)
             sleep(60)
-            add_result("+ SUCCESS ELITE UNINSTALLED")
+            add_result("+ SUCCESS %s UNINSTALLED" % level.upper())
         else:
             output = self._list_processes()
             logging.debug(output)
-            add_result("+ FAILED ELITE INSTALL")
+            add_result("+ FAILED %s INSTALL" % level.upper())
 
-        logging.debug("- Result: %s" % elite)
+        logging.debug("- Result: %s" % upgraded)
         logging.debug("- sending Results to Master")
 
     def execute_scout(self):
@@ -496,6 +533,7 @@ class AgentBuild:
             output = self._list_processes()
             logging.debug(output)
         else:
+            self.check_level("scout")
             if self.kind == "melt":
                 try:
                     found = False

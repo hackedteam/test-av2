@@ -34,6 +34,14 @@ build_parameters:
           meltfile: assets/windows/meltapp.exe
           sign: {}
           package: {}
+        windows_soldier:
+          platform_type: desktop
+          binary: {admin: false, demo: false}
+          melt: {admin: false, bit64: true, codec: true, scout: false, soldier: true}
+          platform: windows
+          meltfile: assets/windows/meltapp.exe
+          sign: {}
+          package: {}
         winphone:
           platform_type: desktop
           binary: {admin: true, demo: false}

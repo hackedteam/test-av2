@@ -66,7 +66,7 @@ class Rcs_client:
             logging.error("ERROR: processing %s: %s, %s" % (link, e, e.read()))
             raise e
 
-    def _call(self, api_name, data={}, binary=False, argjson=True):
+    def _call_post(self, api_name, data={}, binary=False, argjson=True):
         link = 'https://%s/%s' % (self.host, api_name)
         logging.debug("_call: %s" % link)
         #logging.debug("binary %s, argjson %s" % (binary, argjson))
@@ -125,7 +125,7 @@ class Rcs_client:
         @param session cookie
         @return True/False
         """
-        self._call('auth/logout')
+        self._call_post('auth/logout')
         return True
 
     def server_status(self):
@@ -215,7 +215,7 @@ class Rcs_client:
         try:
             data = {'name': name, 'pass': password, 'group_ids':
                 [group_id], 'privs': privs, 'enabled': True}
-            user = self._call('user/create', data)
+            user = self._call_post('user/create', data)
             return user['_id']
             # return True
         except HTTPError as e:
@@ -226,25 +226,25 @@ class Rcs_client:
 
     def target_delete(self, target_id):
         """ Delete a given target """
-        return self._call('target/destroy', {'_id': target_id})
+        return self._call_post('target/destroy', {'_id': target_id})
 
     def target_create(self, operation_id, name, desc):
         """ Create a given target """
         data = {'name': name, 'desc': desc, 'operation': operation_id}
-        target = self._call('target/create', data)
+        target = self._call_post('target/create', data)
         return target['_id']
 
     def factory_create(self, operation_id, target_id, ftype, name, desc):
         """ Create a factory """
         data = {'name': name, 'desc': desc, 'operation':
             operation_id, 'target': target_id, 'type': ftype}
-        factory = self._call('agent/create', data)
+        factory = self._call_post('agent/create', data)
         return factory['_id'], factory['ident']
 
     def factory_add_config(self, factory_id, config):
         """ adds a config to a factory """
         data = {'_id': factory_id, 'config': config}
-        return self._call('agent/add_config', data)
+        return self._call_post('agent/add_config', data)
 
     def update_conf(self, conf_file, factory):
         """ Update sync configuration
@@ -278,11 +278,30 @@ class Rcs_client:
             logging.error(e)
             return False
 
-    def instance_upgrade(self, instance_id):
+    def instance_upgrade(self, instance_id, forcesoldier = False):
+        params = {'_id': instance_id}
+        if forcesoldier:
+            params["force"] = "soldier"
+
+        try:
+            self._call_post('agent/upgrade', params)
+            return True
+        except:
+            return False
+
+    def instance_can_upgrade(self, instance_id):
         params = {'_id': instance_id}
         try:
-            self._call('agent/upgrade', params)
-            return True
+            value = self._call_get('agent/can_upgrade', params)
+            return value
+        except:
+            return False
+
+    def instance_level(self, instance_id):
+        params = {'_id': instance_id}
+        try:
+            info = self.instance_info(instance_id)
+            return info["level"]
         except:
             return False
 
@@ -294,18 +313,18 @@ class Rcs_client:
 
     def instance_close(self, instance_id):
         params = {'_id': instance_id, 'status': 'closed'}
-        self._call('agent/update', params)
+        self._call_post('agent/update', params)
 
     def instance_delete(self, instance_id):
         """ Delete a given instance
         @param instance
         """
         data = {'_id': instance_id, 'permanent': True}
-        return self._call('agent/destroy', data)
+        return self._call_post('agent/destroy', data)
         # logging.debug(resp)
 
     def blacklist(self):
-        return self._call('agent/blacklist')
+        return self._call_post('agent/blacklist')
 
     def _evidences(self, target):
         pass
@@ -348,7 +367,7 @@ class Rcs_client:
         params['factory'] = {"_id": "%s" % factory}
         # logging.debug("+ Build params: \n%s" % params)
 
-        resp = self._call('build', params, binary=True)
+        resp = self._call_post('build', params, binary=True)
 
         out = open(out_file, 'wb')
         out.write(resp)
@@ -367,7 +386,7 @@ class Rcs_client:
         f = open(melt_file, "rb")
         payload = f.read()
         logging.debug("DBG payload size: %s file:  %s" % ( len(payload), melt_file))
-        melt_id = self._call('upload', payload, binary=True, argjson=False)
+        melt_id = self._call_post('upload', payload, binary=True, argjson=False)
         logging.debug("DBG uploaded:  %s" % melt_id)
 
         params['melt']['input'] = melt_id
@@ -376,7 +395,7 @@ class Rcs_client:
         logging.debug("DBG Build melt params: \n%s" % params)
         #link  = 'https://%s/build' % self.host
         #resp = self.post_response(link, json.dumps(params))
-        resp = self._call('build', params, binary=True)
+        resp = self._call_post('build', params, binary=True)
 
         out = open(out_file, 'wb')
         out.write(resp)
