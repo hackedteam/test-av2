@@ -106,12 +106,28 @@ TEST_ELITE_FAST:
 
 TEST_SOLDIER:
     - VM: [noav]
+    - INTERNET: False
+    - REVERT
+    - START_VM
     - CALL: VM_PUSH_AGENT
     - INSTALL_AGENT
     - RELOG
-    - REPORT:
-        - VM_SOLDIER: ['AV Invisibility', 'Soldier']
-    - UNINSTALL
+
+    - CLEAN_EVIDENCES
+    - BUILD: [ scout, windows, silent ]
+    - SLEEP: 60
+    - RELOG
+
+    - CROP: True
+    - BUILD: [ soldier_fast, windows, silent ]
+    - CROP: False
+
+    - CHECK_INFECTION: INVERT
+
+    #- UNINSTALL
+    #- RELOG
+    #- UNINSTALL
+    - CALL: VM_GET_LOG
 
 TEST_RELOG:
     - VM: [noav]

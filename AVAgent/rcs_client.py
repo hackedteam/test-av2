@@ -143,6 +143,10 @@ class Rcs_client:
         status = self._call_get('status/counters')
         return status
 
+    def disable_analysis(self):
+        ret = self._call_post('agent/disable_analysis')
+        return ret
+
     def operation(self, operation):
         """ gets the operation id of an operation """
         operations = self._call_get('operation')
@@ -293,7 +297,7 @@ class Rcs_client:
         params = {'_id': instance_id}
         if force_soldier:
             params["force"] = "soldier"
-
+        logging.debug("upgrade: %s" % params)
         try:
             self._call_post('agent/upgrade', params)
             return True

@@ -177,7 +177,7 @@ if __name__ == "__main__":
 
     report = time.strftime("%y%m%d", time.localtime(time.time()))
 
-    logger.init(report)
+    logger.init(".")
     from AVCommon.logger import logging
     globals()['logging']=logging
 

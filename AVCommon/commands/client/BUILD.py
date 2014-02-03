@@ -32,6 +32,7 @@ def execute(vm, args):
     frontend = command.context["frontend"]
     params = command.context["build_parameters"]
     blacklist = command.context["blacklist"]
+    soldierlist = command.context["soldierlist"]
 
     report = command.context["report"]
 
@@ -45,7 +46,7 @@ def execute(vm, args):
     assert action in ['scout', 'elite', 'elite_fast', 'soldier_fast', 'internet', 'test', 'clean', 'pull'], "action: %s" % action
     assert platform_type in ['desktop', 'mobile'], "platform_type: %s" % platform_type
 
-    results, success, errors = build.build(action, platform, platform_type, kind, param, backend, frontend, blacklist, report)
+    results, success, errors = build.build(action, platform, platform_type, kind, param, backend, frontend, blacklist, soldierlist, report)
 
     try:
         last_result = results[-1]
