@@ -110,7 +110,7 @@ TEST_SOLDIER:
     - INSTALL_AGENT
     - RELOG
     - REPORT:
-        - VM_SOLDIER
+        - VM_SOLDIER: ['AV Invisibility', 'Soldier']
     - UNINSTALL
 
 TEST_RELOG:

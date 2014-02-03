@@ -13,7 +13,7 @@ def execute(vm, protocol, args):
     #logging.debug("    CS Execute")
     assert vm, "null vm"
 
-    invert = "INVERT" in args
+    invert = "INVERT" in args if args else False
 
     blacklist = ['BTHSAmpPalService','CyCpIo','CyHidWin','iSCTsysTray','quickset']
 
