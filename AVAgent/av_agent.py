@@ -177,7 +177,7 @@ if __name__ == "__main__":
 
     report = time.strftime("%y%m%d", time.localtime(time.time()))
 
-    logger.init(".")
+    logger.init(".", "avagent.log")
     from AVCommon.logger import logging
     globals()['logging']=logging
 

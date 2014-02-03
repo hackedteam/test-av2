@@ -30,9 +30,9 @@ def execute(vm, args):
 
     backend = command.context["backend"]
     frontend = command.context["frontend"]
-    params = command.context["build_parameters"]
-    blacklist = command.context["blacklist"]
-    soldierlist = command.context["soldierlist"]
+    params = command.context["build_parameters"].copy()
+    blacklist = command.context["blacklist"][:]
+    soldierlist = command.context["soldierlist"][:]
 
     report = command.context["report"]
 

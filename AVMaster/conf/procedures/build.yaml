@@ -54,9 +54,9 @@ VM_UPLOAD_SKYPE:
 
 VM_GET_LOG:
     - PULL:
-        - ['avmonitor.log']
+        - ['avagent.log']
         - c:\\AVTest\\logs
-        - logs
+        - ../logs
 
 VM_PULL_WINDOWS:
     - BUILD: [ pull, windows, silent ]
