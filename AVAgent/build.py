@@ -426,7 +426,7 @@ class AgentBuild:
             add_result("+ FAILED CAN UPGRADE: %s" % level)
             #return TODO rimettere
 
-        logging.debug("- Try upgrade to soldier" % level)
+        logging.debug("- Try upgrade to soldier")
         upgradable = self._upgrade_elite(instance_id, force_soldier=True)
         if not upgradable:
             add_result("+ FAILED UPGRADE")
