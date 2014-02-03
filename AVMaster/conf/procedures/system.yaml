@@ -179,6 +179,7 @@ SYSTEM_DAILY:
         - VM_MELT: ['AV Invisibility', 'Melt']
         - VM_EXPLOIT: ['AV Invisibility', 'Exploit']
     - UNINSTALL
+    - CALL: VM_GET_LOG
     - CALL: END_DISPATCH
 
 SYSTEM_DAILY_POSITIVE:
@@ -208,7 +209,6 @@ SYS_PUSH_VIRUS:
     - CHECK_STATIC: [ AVAgent/assets/vira/conficker.dll, AVAgent/assets/vira/eicar.com ]
     - SLEEP: 10
     - CROP: False
-
 
 SYSTEM_POSITIVE:
     - VM_ALL
