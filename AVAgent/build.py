@@ -303,6 +303,11 @@ class AgentBuild:
         subp = subprocess.Popen(['assets/keyinject.exe'])
         process.wait_timeout(subp, timeout)
 
+        p = subprocess.Popen(['assets/getusertime.exe'], stdout=subprocess.PIPE)
+        out, err = p.communicate()
+        logging.debug("get usertime: %s" % out)
+
+
     def get_can_upgrade(self, instance):
         with connection() as c:
             level = str(c.instance_can_upgrade(instance))
