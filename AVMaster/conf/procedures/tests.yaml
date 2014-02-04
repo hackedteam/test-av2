@@ -119,9 +119,9 @@ TEST_SOLDIER:
     - SLEEP: 60
     - RELOG
 
-    - CROP: True
+    #- CROP: True
     - BUILD: [ soldier_fast, windows, silent ]
-    - CROP: False
+    #- CROP: False
 
     - CHECK_INFECTION
 

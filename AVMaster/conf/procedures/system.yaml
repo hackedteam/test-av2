@@ -174,8 +174,25 @@ SYSTEM_DAILY:
     - CALL: SET_MAIL
     - REPORT:
         - VM_STATIC: ['AV Invisibility Static', 'Static check on builds']
-        - VM_ELITE_FAST: ['AV Invisibility', 'Elite']
         - VM_SOLDIER: ['AV Invisibility', 'Soldier']
+        - VM_ELITE_FAST: ['AV Invisibility', 'Elite']
+        - VM_MELT: ['AV Invisibility', 'Melt']
+        - VM_EXPLOIT: ['AV Invisibility', 'Exploit']
+    - UNINSTALL
+    - CALL: VM_GET_LOG
+    - CALL: END_DISPATCH
+
+SYSTEM_DAILY_FAST:
+    - VM_ALL
+    - ON_ERROR: SKIP
+    - SLEEP: [10, 600]
+    - CALL: INIT_DISPATCH
+    - CALL: VM_CLEAN_EVIDENCES
+    - CALL: SET_MAIL
+    - REPORT:
+        #- VM_STATIC: ['AV Invisibility Static', 'Static check on builds']
+        - VM_SOLDIER: ['AV Invisibility', 'Soldier']
+        - VM_ELITE_FAST: ['AV Invisibility', 'Elite']
         - VM_MELT: ['AV Invisibility', 'Melt']
         - VM_EXPLOIT: ['AV Invisibility', 'Exploit']
     - UNINSTALL
