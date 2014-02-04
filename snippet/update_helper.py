@@ -1,7 +1,8 @@
 from stat import S_ISREG, S_ISDIR, ST_CTIME, ST_MODE
 from socket import gethostname
-import os, sys, time
 
+import os, sys, time
+import subprocess
 
 class UpdateHelper():
     updir = {}
@@ -13,6 +14,11 @@ class UpdateHelper():
     updir['mcafee'] = ( "C:\\ProgramData\McAfee\\MSC\\Updates", "Download" )
     updir['norton'] = ( "C:\\Program Files (x86)\\Norton Internet Security\\NortonData", "21.1.0.18" )
     updir['panda']  = ( "C:\\Program Files (x86)\\Panda Security\\Panda Antivirus Pro 2014", "Downloads" )
+
+    forop = {}
+    forop["kav"]    = ('"C:\\Program Files (x86)\\Kaspersky Lab\\Kaspersky Internet Security 14.0.0\\avp.exe"', 'update')
+    forop["avira"]  = ('"C:\\Program Files (x86)\\Avira\\AntiVir Desktop\\avcenter.exe"','/STARTUPDATE')
+    forop["comodo"] = ('"C:\\Program Files\\COMODO\\COMODO Internet Security\\CIS.exe"', '--updateUI')
 
     def __init__(self, vm_name):
         self.av = vm_name
@@ -32,6 +38,7 @@ class UpdateHelper():
 
     def forceUpdate(self):
         print "forcing update!"
+        subprocess.Popen(self.forop[self.av])
 
 if __name__ == "__main__":
 
@@ -50,7 +57,7 @@ if __name__ == "__main__":
 
     #then check for date on the associated file
     try:
-        u.getUpdateDate()
+        print u.getUpdateDate()["time"]
 #        v.getUpdateDate()
     except KeyError as ke:
         print "Antivirus %s not found" % ke
