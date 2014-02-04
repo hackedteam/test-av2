@@ -6,6 +6,9 @@
 BUILD_ELITE:
     - BUILD: [ pull, windows_elite, silent ]
 
+BUILD_SOLDIER:
+    - BUILD: [ pull, windows_soldier, silent ]
+
 BUILD_WINDOWS:
     - CALL: CHECK_STATIC_MODULES
     - BUILD: [ pull, windows, silent ]
@@ -51,9 +54,9 @@ VM_UPLOAD_SKYPE:
 
 VM_GET_LOG:
     - PULL:
-        - ['avmonitor.log']
+        - ['avagent.log']
         - c:\\AVTest\\logs
-        - logs
+        - ../logs
 
 VM_PULL_WINDOWS:
     - BUILD: [ pull, windows, silent ]

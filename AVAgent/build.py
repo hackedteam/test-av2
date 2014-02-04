@@ -143,17 +143,19 @@ def get_hostname():
 
 class AgentBuild:
     def __init__(self, backend, frontend=None, platform='windows', kind='silent',
-                 ftype='desktop', blacklist=[], param=None):
+                 ftype='desktop', blacklist=[], soldierlist=[], param=None):
         self.kind = kind
         self.host = (backend, frontend)
 
         self.hostname = get_hostname()
 
         self.blacklist = blacklist
+        self.soldierlist = soldierlist
         self.platform = platform
         self.ftype = ftype
         self.param = param
         logging.debug("DBG blacklist: %s" % self.blacklist)
+        logging.debug("DBG soldierlist: %s" % self.soldierlist)
         logging.debug("DBG hostname: %s" % self.hostname)
 
     def _delete_targets(self, operation):
@@ -167,6 +169,11 @@ class AgentBuild:
                 c.target_delete(t_id)
                 numtarget += 1
         return numtarget
+
+    def _disable_analysis(self):
+        with connection() as c:
+            c.disable_analysis()
+        return True
 
     def _create_new_factory(self, operation, target, factory, config):
         with connection() as c:
@@ -276,7 +283,11 @@ class AgentBuild:
                 exe = new_exe
 
             logging.debug("- Execute: " + exe)
+<<<<<<< HEAD
             subp = subprocess.Popen([exe]) #, shell=True)
+=======
+            subp = subprocess.Popen([exe])
+>>>>>>> feb39b519498693f004d4807ae15b85b94885130
             add_result("+ SUCCESS SCOUT EXECUTE")
         except Exception, e:
             logging.debug("DBG trace %s" % traceback.format_exc())
@@ -295,6 +306,21 @@ class AgentBuild:
     def _trigger_sync(self, timeout=10):
         subp = subprocess.Popen(['assets/keyinject.exe'])
         process.wait_timeout(subp, timeout)
+
+    def get_can_upgrade(self, instance):
+        with connection() as c:
+            level = str(c.instance_can_upgrade(instance))
+            logging.debug("level: %s" % (level))
+            return level
+
+    def check_level(self, instance, expected):
+        with connection() as c:
+            level = str(c.instance_level(instance))
+            logging.debug("level, expected: %s got: %s" % (expected, level))
+            if not level == expected:
+                add_result("+ NO %s LEVEL" % level.upper())
+            else:
+                add_result("+ SUCCESS %s LEVEL" % level.upper())
 
     def check_instance(self, ident):
         with connection() as c:
@@ -317,6 +343,7 @@ class AgentBuild:
             # self._
             return None
 
+    @DeprecationWarning
     def _check_elite(self, instance_id):
         with connection() as c:
             info = c.instance_info(instance_id)
@@ -330,21 +357,29 @@ class AgentBuild:
 
             return ret
 
+    def _check_upgraded(self, instance_id):
+        with connection() as c:
+            info = c.instance_info(instance_id)
+            logging.debug('DBG _check_elite: %s' % info['level'])
+            ret = info['level'] is not 'scout'
+
+            if ret:
+                add_result("+ SUCCESS UPGRADED SYNC")
+            else:
+                add_result("+ NOT YET UPGRADED SYNC")
+
+            return ret, info['level']
+
     def uninstall(self, instance_id):
         with connection() as c:
             c.instance_close(instance_id)
 
-    def _upgrade_elite(self, instance_id):
+    def _upgrade(self, instance_id, force_soldier = False):
         with connection() as c:
-            ret = c.instance_upgrade(instance_id)
-            logging.debug("DBG _upgrade_elite: %s" % ret)
+            ret = c.instance_upgrade(instance_id, force_soldier)
+            logging.debug("DBG _upgrade: %s" % ret)
             info = c.instance_info(instance_id)
-            if ret:
-                #assert info['upgradable'] == True
-                assert info['scout'] is True
-            else:
-                #assert info['upgradable'] == False
-                assert info['scout'] is True
+            logging.debug("DBG info['level']: %s" % info['level'])
             return ret
 
     def _list_processes(self):
@@ -388,6 +423,38 @@ class AgentBuild:
         instance_id = self.execute_scout()
         self.execute_elite_fast(instance_id, False)
 
+    def execute_soldier(self, instance_id = None, fast = True):
+        instance_id = self.execute_scout()
+        self.execute_soldier_fast(instance_id, False)
+
+    def execute_soldier_fast(self, instance_id = None, fast = True):
+
+        if not instance_id:
+            with connection() as c:
+                instance_id, target_id = get_instance(c)
+        if not instance_id:
+            logging.debug("- exiting execute_soldier because did't sync")
+            return
+
+        level = self.get_can_upgrade(instance_id)
+        if level not in ["elite", "soldier"]:
+            if self.hostname in self.blacklist:
+                add_result("+ SUCCESS BLACKLIST: %s" % level)
+            else:
+                add_result("+ FAILED CAN UPGRADE: %s" % level)
+            return #TODO rimettere
+
+        logging.debug("- Try upgrade to soldier")
+        upgradable = self._upgrade(instance_id, force_soldier=True)
+        if not upgradable:
+            if self.hostname in self.blacklist:
+                add_result("+ FAILED UPGRADE BLACKLISTED")
+            else:
+                add_result("+ FAILED CAN UPGRADE: %s" % level)
+            return
+
+        return self.check_upgraded(instance_id, "soldier", fast)
+
     def execute_elite_fast(self, instance_id = None, fast = True):
 
         if not instance_id:
@@ -397,58 +464,110 @@ class AgentBuild:
             logging.debug("- exiting execute_elite_fast because did't sync")
             return
 
-        logging.debug("- Try upgrade to elite")
-        upgradable = self._upgrade_elite(instance_id)
-
-        logging.debug("DBG %s in %s" % (self.hostname, self.blacklist))
-        if not upgradable:
+        level = self.get_can_upgrade(instance_id)
+        if level in ["elite", "soldier"]:
             if self.hostname in self.blacklist:
-                add_result("+ SUCCESS ELITE BLACKLISTED")
+                add_result("+ FAILED ALLOW BLACKLISTED")
+                return
+        else: #error
+            if self.hostname in self.blacklist:
+                add_result("+ SUCCESS UPGRADE BLACKLISTED")
+            else:
+                add_result("+ FAILED CAN UPGRADE: %s" % level)
+            return
+
+        logging.debug("- Try upgrade to %s" % level)
+        upgradable = self._upgrade(instance_id)
+        if not upgradable:
+            add_result("+ FAILED UPGRADE")
+            return
+
+        logging.debug("DBG %s in %s and %s" % (self.hostname, self.blacklist, self.soldierlist))
+
+        if level == "soldier":
+            if self.hostname in self.soldierlist:
+                add_result("+ SUCCESS SOLDIER BLACKLISTED")
             else:
                 add_result("+ FAILED ELITE UPGRADE")
             return
         else:
-            if self.hostname in self.blacklist:
-                add_result("+ FAILED ELITE BLACKLISTED")
+            if self.hostname in self.soldierlist:
+                add_result("+ FAILED SOLDIER BLACKLISTED")
                 return
 
+        return self.check_upgraded(instance_id, level, fast)
+
+    def check_upgraded(self, instance_id, level, fast = True):
+
         if fast:
-            logging.debug("- Elite, Wait for 5 minutes: %s" % time.ctime())
+            logging.debug("- Upgrade, Wait for 5 minutes: %s" % time.ctime())
             sleep(5 * 60)
             # key press
             for tries in range(1, 10):
-                logging.debug("- Elite, Trigger sync for 30 seconds, try %s" % tries)
+                logging.debug("- Upgrade, Trigger sync for 30 seconds, try %s" % tries)
                 self._trigger_sync(timeout=30)
 
-                logging.debug("- Elite, wait for 1 minute: %s" % time.ctime())
+                logging.debug("- Upgrade, wait for 1 minute: %s" % time.ctime())
                 sleep(60 * 1)
 
-                elite = self._check_elite(instance_id)
-                if elite:
+                upgraded, got_level = self._check_upgraded(instance_id)
+                if upgraded:
                     break
 
                 for i in range(10):
                     self._click_mouse(100 + i, 0)
 
         else:
-            logging.debug("- Elite, Wait for 25 minutes: %s" % time.ctime())
+            logging.debug("- %s, Wait for 25 minutes: %s" % (level, time.ctime()))
             sleep(25 * 60)
-            elite = self._check_elite(instance_id)
+            upgraded = self.check_level(instance_id, level)
 
-        if elite:
-            add_result("+ SUCCESS ELITE INSTALL")
-            logging.debug("- Elite, wait for 1 minute then uninstall: %s" % time.ctime())
+        if upgraded:
+            if got_level != level:
+                add_result("+ FAILED LEVEL: %s" % level)
+
+            add_result("+ SUCCESS UPGRADE INSTALL %s" % got_level.upper())
+            if level == "soldier":
+
+                sleep(60)
+                executed = self.execute_agent_startup();
+                if not executed:
+                    add_result("+ FAILED EXECUTE %s" % level.upper())
+                else:
+                    sleep(30)
+                    self._trigger_sync(timeout=30)
+                    for i in range(10):
+                        self._click_mouse(100 + i, 0)
+
+                    self.check_level(instance_id, "soldier")
+
+            logging.debug("- %s, wait for 1 minute then uninstall: %s" % (level, time.ctime()))
             sleep(60)
             self.uninstall(instance_id)
             sleep(60)
-            add_result("+ SUCCESS ELITE UNINSTALLED")
+            add_result("+ SUCCESS %s UNINSTALLED" % level.upper())
         else:
             output = self._list_processes()
             logging.debug(output)
-            add_result("+ FAILED ELITE INSTALL")
+            add_result("+ FAILED %s INSTALL" % level.upper())
 
-        logging.debug("- Result: %s" % elite)
+        logging.debug("- Result: %s" % upgraded)
         logging.debug("- sending Results to Master")
+
+    def execute_agent_startup(self):
+        executed = False
+        for d, b in itertools.product(start_dirs, names):
+            filename = "%s/%s.exe" % (d, b)
+            filename = filename.replace("/", "\\")
+            if os.path.exists(filename):
+                try:
+                    logging.debug("try to execute %s: " % filename)
+                    subprocess.Popen([filename])
+                    executed = True
+                    break
+                except:
+                    logging.exception("Cannot execute %s" % filename)
+        return executed
 
     def execute_scout(self):
         """ build and execute the  """
@@ -457,18 +576,7 @@ class AgentBuild:
         self._execute_build(exe)
         if self.kind == "melt": # and not exploit
             sleep(60)
-            executed = False
-            for d,b in itertools.product(start_dirs,names):
-                filename = "%s/%s.exe" % (d,b)
-                filename = filename.replace("/","\\")
-                if os.path.exists(filename):
-                    try:
-                        logging.debug("try to execute %s: " % filename)
-                        subprocess.Popen([filename])
-                        executed = True
-                        break
-                    except:
-                        logging.exception("Cannot execute %s" % filename)
+            executed = self.execute_agent_startup()
 
             if not executed:
                 logging.warn("did'n executed")
@@ -484,18 +592,19 @@ class AgentBuild:
             logging.debug("- Scout, wait for 1 minute: %s" % time.ctime())
             sleep(60 * 1)
 
-            instance = self.check_instance(ident)
-            if instance:
+            instance_id = self.check_instance(ident)
+            if instance_id:
                 break
 
             for i in range(10):
                 self._click_mouse(100 + i, 0)
 
-        if not instance:
+        if not instance_id:
             add_result("+ FAILED SCOUT SYNC")
             output = self._list_processes()
             logging.debug(output)
         else:
+            self.check_level(instance_id, "scout")
             if self.kind == "melt":
                 try:
                     found = False
@@ -511,8 +620,8 @@ class AgentBuild:
                 except:
                     pass
 
-        logging.debug("- Result: %s" % instance)
-        return instance
+        logging.debug("- Result: %s" % instance_id)
+        return instance_id
 
     def execute_pull(self):
         """ build and execute the  """
@@ -536,10 +645,7 @@ class AgentBuild:
 
         logging.debug("- Built, rcs: %s" % str(connection.rcs))
 
-        #        add_result("+ platfoooorm %s" % self.platform)
-        #        add_result("+ kiiiiiiiind %s" % self.kind)
-
-        meltfile = self.param.get('meltfile',None)
+        meltfile = self.param.get('meltfile', None)
         exe = self._build_agent(factory_id, melt=meltfile, kind=self.kind)
 
         if "exploit_" in self.platform:
@@ -616,7 +722,6 @@ class AgentBuild:
         else:
             add_result("+ FAILED EXPLOIT SAVE")
 
-
 results = []
 report_send = None
 
@@ -625,8 +730,8 @@ def add_result(result):
     logging.debug(result)
     results.append(result)
     if report_send:
+        logging.debug("report_send")
         report_send(result)
-
 
 internet_checked = False
 
@@ -639,7 +744,7 @@ def execute_agent(args, level, platform):
     logging.debug("DBG ftype: %s" % ftype)
 
     vmavtest = AgentBuild(args.backend, args.frontend,
-                          platform, args.kind, ftype, args.blacklist, args.param)
+                          platform, args.kind, ftype, args.blacklist, args.soldierlist, args.param)
 
     """ starts a scout """
     if socket.gethostname().lower() not in ['zanzara.local', 'win7zenoav', 'win7-noav', "paradox", "avtagent", "funff", "funie", "funch"]:
@@ -660,8 +765,9 @@ def execute_agent(args, level, platform):
                 add_result("+ WARN SERVER ERRORS")
 
             add_result("+ SUCCESS SERVER CONNECT")
-            action = {"elite": vmavtest.execute_elite, "scout":
-                vmavtest.execute_scout, "pull": vmavtest.execute_pull, "elite_fast": vmavtest.execute_elite_fast }
+            action = {"elite": vmavtest.execute_elite, "scout": vmavtest.execute_scout,
+                      "pull": vmavtest.execute_pull, "elite_fast": vmavtest.execute_elite_fast,
+                      "soldier_fast": vmavtest.execute_soldier_fast, "soldier": vmavtest.execute_soldier }
             sleep(5)
             action[level]()
 
@@ -760,8 +866,13 @@ def clean(backend):
     vmavtest = AgentBuild(backend)
     return vmavtest._delete_targets(connection.operation)
 
+def disable_analysis(backend):
+    logging.debug("- Disable Analysis: %s" % (backend))
+    connection.host = backend
+    vmavtest = AgentBuild(backend)
+    return vmavtest._disable_analysis()
 
-def build(action, platform, platform_type, kind, param, backend, frontend, blacklist, report):
+def build(action, platform, platform_type, kind, param, backend, frontend, blacklist, soldierlist, report):
     global results, report_send
     results = []
 
@@ -777,6 +888,7 @@ def build(action, platform, platform_type, kind, param, backend, frontend, black
     args.frontend = frontend
     args.param = param
     args.blacklist = blacklist
+    args.soldierlist = soldierlist
     args.platform_type = platform_type
     report_send = report
 
@@ -787,8 +899,7 @@ def build(action, platform, platform_type, kind, param, backend, frontend, black
 
     try:
         #check_blacklist(blacklist)
-
-        if action in ["pull", "scout", "elite", "elite_fast"]:
+        if action in ["pull", "scout", "elite", "elite_fast", "soldier", "soldier_fast"]:
             execute_agent(args, action, args.platform)
         elif action == "clean":
             clean(args.backend)
@@ -833,7 +944,8 @@ def main():
     platform_mobile = ["android", "blackberry", "ios"]
 
 
-    blacklist = "bitdef,comodo,gdata,drweb,emsisoft,sophos,360cn,kis32,avg,avg32,iobit32".split(',')
+    soldierlist = "bitdef,comodo,gdata,drweb,360cn,kis32,avg,avg32,iobit32".split(',')
+    blacklist = "emsisoft,sophos".split(',')
     demo = False
 
     params = {}
@@ -911,7 +1023,7 @@ def main():
         p_t = "mobile"
     build(args.action, args.platform, p_t, args.kind,
           params[args.platform], args.backend,
-          args.frontend, blacklist, None)
+          args.frontend, blacklist, soldierlist, None)
 
 
 if __name__ == "__main__":

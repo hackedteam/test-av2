@@ -26,10 +26,6 @@ def on_answer(vm, success, answer):
     arg = []
     ret = vm_manager.execute(vm, "executeCmd", cmd, arg, 40, True, True)
 
-    #   logout
-
-    pass
-
 def execute_calc():
     logging.debug("executing calc")
     proc = subprocess.Popen(["calc.exe"])

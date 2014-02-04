@@ -8,6 +8,7 @@ import time
 
 logdir_base = "../logs"
 logdir = logdir_base
+logname = "avmonitor.log"
 
 if not os.path.exists(logdir):
     os.mkdir(logdir)
@@ -15,13 +16,14 @@ if not os.path.exists(logdir):
 #with open("../AVCommon/logging.yml") as o:
 #    logging.config.dictConfig(yaml.load(o))
 
-def init(report = ""):
+def init(report = "", logname_arg = "avmonitor.log"):
     print "init report: %s" % report
-    global logdir
+    global logdir, logname
 
     if report:
         logdir = "%s/%s" % (logdir_base, report)
-        logging = setFileLogger(logdir)
+        logname = logname_arg
+        logging = setFileLogger(logdir, logname_arg)
     else:
         logging = setStreamLogger()
 
@@ -45,8 +47,7 @@ def setStreamLogger():
 
     return logger
 
-def setFileLogger(report_dir):
-    # TODO
+def setFileLogger(report_dir, logname_arg):
     ts = time.strftime("%y%m%d-%H%M%S", time.localtime(time.time()))
 
     FORMAT= '%(asctime)s %(levelname)7s %(filename)14s:%(lineno)3d| %(message)s'
@@ -59,7 +60,7 @@ def setFileLogger(report_dir):
         os.mkdir(report_dir)
 
     #filename  = "%s/avmonitor-%s.log" % (report_dir, ts)
-    filename  = "%s/avmonitor.log" % (report_dir)
+    filename  = "%s/%s" % (report_dir, logname_arg)
     file_handler = l.FileHandler(filename)
     file_handler.setLevel(l.DEBUG)
     file_handler.setFormatter(formatter)

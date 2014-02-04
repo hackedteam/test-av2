@@ -2,7 +2,7 @@ import os
 import sys
 from AVCommon.logger import logging
 from time import sleep
-
+from operator import xor
 
 def execute(vm, protocol, args):
     from AVMaster import vm_manager
@@ -12,6 +12,8 @@ def execute(vm, protocol, args):
 
     #logging.debug("    CS Execute")
     assert vm, "null vm"
+
+    invert = "INVERT" in args if args else False
 
     blacklist = ['BTHSAmpPalService','CyCpIo','CyHidWin','iSCTsysTray','quickset']
 
@@ -28,7 +30,8 @@ def execute(vm, protocol, args):
                 clean = False
                 break
 
+    ret = xor(clean is True, invert)
     if clean is True:
-        return True, "VM is not infected"
+        return ret, "VM is not infected"
     else:
-        return False, "VM is INFECTED"
+        return ret, "VM is INFECTED"

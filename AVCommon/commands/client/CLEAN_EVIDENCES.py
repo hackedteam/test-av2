@@ -22,5 +22,8 @@ def execute(vm, args):
     from AVAgent import build
 
     backend = command.context["backend"]
+
+    build.disable_analysis(backend)
     numtargets = build.clean(backend)
+
     return True, "Cleaned targets: %s" % numtargets

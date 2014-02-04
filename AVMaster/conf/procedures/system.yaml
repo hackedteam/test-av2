@@ -30,6 +30,31 @@ SET_MAIL:
 
 # ------------- SYSTEM COMMANDS -------------- #
 
+VM_EXEC_SOLDIER:
+    - CROP: True
+    - CALL: BUILD_SOLDIER
+    - EXECUTE_VM: [ /AVTest/AVAgent/build/windows_elite/agent.exe, [], 40, True, True ]
+    - SLEEP: 60
+    #- CHECK_INFECTION: INVERT
+    - CROP: False
+
+
+SYSTEM_SOLDIER_BASIC:
+    - VM_ALL
+    - INTERNET: False
+    - SLEEP: [10, 60]
+    - START_VM
+    - CALL: VM_PUSH_AGENT
+    - INSTALL_AGENT
+    - SLEEP: 10
+    - RELOG
+
+    - CALL: SET_MAIL
+    - REPORT:
+        - VM_EXEC_SOLDIER: ['AV Invisibility', 'Soldier']
+    - UNINSTALL
+    - STOP_VM: 60
+
 SYSTEM_STATIC:
     - VM_ALL
     - CALL: INIT_DISPATCH
@@ -95,6 +120,18 @@ VM_ELITE_FAST:
     - UNINSTALL
     - RELOG
 
+VM_SOLDIER:
+    - BUILD: [ scout, windows, silent ]
+    - SLEEP: 30
+    - RELOG
+
+    - CROP: True
+    - BUILD: [ soldier_fast, windows, silent ]
+    - CROP: False
+
+    - UNINSTALL
+    - RELOG
+
 VM_MELT:
     - BUILD: [ scout, windows, melt ]
     - UNINSTALL
@@ -116,6 +153,18 @@ VM_STATIC:
     - CROP: False
     - ON_ERROR: SKIP
 
+SYSTEM_SOLDIER:
+    - VM_ALL
+    - ON_ERROR: SKIP
+    - SLEEP: [10, 600]
+    - CALL: INIT_DISPATCH
+    - CALL: VM_CLEAN_EVIDENCES
+    - CALL: SET_MAIL
+    - REPORT:
+        - VM_SOLDIER: ['AV Invisibility', 'Soldier']
+    - UNINSTALL
+    - CALL: END_DISPATCH
+
 SYSTEM_DAILY:
     - VM_ALL
     - ON_ERROR: SKIP
@@ -126,6 +175,7 @@ SYSTEM_DAILY:
     - REPORT:
         - VM_STATIC: ['AV Invisibility Static', 'Static check on builds']
         - VM_ELITE_FAST: ['AV Invisibility', 'Elite']
+        - VM_SOLDIER: ['AV Invisibility', 'Soldier']
         - VM_MELT: ['AV Invisibility', 'Melt']
         - VM_EXPLOIT: ['AV Invisibility', 'Exploit']
     - UNINSTALL
@@ -172,10 +222,11 @@ SYSTEM_POSITIVE:
     - CALL: END_DISPATCH
 
 SYSTEM_MANUAL:
-    - START_VM: AV_AGENT
-    - SLEEP: [30, 120]
+    #- START_VM: AV_AGENT
+    #- SLEEP: [30, 120]
     - BUILD: [ pull, exploit, melt ]
     - BUILD: [ pull, windows, melt ]
+    - RELOG
     - BUILD: [ scout, windows, silent ]
 
 # ---------------- #
