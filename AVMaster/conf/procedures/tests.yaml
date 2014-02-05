@@ -97,24 +97,31 @@ TEST_INSTALL:
 
 TEST_ELITE_FAST:
     - VM: [noav]
-    - CALL: VM_PUSH_AGENT
-    - INSTALL_AGENT
+    #- CALL: VM_PUSH_AGENT
+    #- INSTALL_AGENT
+    #- RELOG
+    - BUILD: [ scout, windows, silent ]
+    - SLEEP: 30
     - RELOG
-    - REPORT:
-        - VM_ELITE_FAST
-    - UNINSTALL
+
+    #- CROP: True
+    - BUILD: [ elite_fast, windows, silent ]
+    #- CROP: False
+
+    #- UNINSTALL
+    #- RELOG
 
 TEST_SOLDIER:
     - VM: [noav]
     #- INTERNET: False
     #- REVERT
     #- START_VM
-    - CALL: VM_PUSH_AGENT
-    - INSTALL_AGENT
+    #- CALL: VM_PUSH_AGENT
+    #- INSTALL_AGENT
     #- START_AGENT
-    - RELOG
+    #- RELOG
 
-    - CLEAN_EVIDENCES
+    #- CLEAN_EVIDENCES
     - BUILD: [ scout, windows, silent ]
     - SLEEP: 60
     - RELOG
