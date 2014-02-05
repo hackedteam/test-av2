@@ -7,13 +7,13 @@ import subprocess
 class UpdateHelper():
     updir = {}
     updir['avast']  = ( "C:\\Program Files\\AVAST Software\\Avast", "defs" )
-    updir['avg']    = ( "C:\\ProgramData\\AVG2014", "DB" )
-    updir['avira']  = ( "C:\\ProgramData\\Avira\\AntiVir Desktop", "UPDATE" )
-    updir['comodo'] = ( "C:\\ProgramData\\COMODO\\Cis\\cmc2", "local_trees" )
-    updir['kav']    = ( "C:\ProgramData\Kaspersky Lab\AVP14.0.0\Data\updater\supd_b90b2edf", "updater.xml" )
-    updir['mcafee'] = ( "C:\\ProgramData\McAfee\\MSC\\Updates", "Download" )
-    updir['norton'] = ( "C:\\Program Files (x86)\\Norton Internet Security\\NortonData", "21.1.0.18" )
-    updir['panda']  = ( "C:\\Program Files (x86)\\Panda Security\\Panda Antivirus Pro 2014", "Downloads" )
+    updir['avg']    = ( "C:\\ProgramData\\AVG2013", "DB" )
+    updir['avira']  = ( "C:\\ProgramData\\Avira\\AntiVir Desktop", "LOGFILES" )
+    updir['comodo'] = ( "C:\\ProgramData\\COMODO\\Cis", "wpTemp" )
+    updir['kis14']    = ( "C:\ProgramData\Kaspersky Lab\AVP14.0.0\Data\updater\supd_b90b2edf", "updater.xml" )
+    updir['mcafee'] = ( "C:\\ProgramData\McAfee\\MSC", "Updates" )
+    updir['norton'] = ( "C:\\Program Files (x86)\\Norton Internet Security\\NortonData\\21.1.0.18\\Definitions", "VirusDefs" )
+    updir['panda']  = ( "C:\\Program Files (x86)\\Panda Security\\Panda Internet Security 2013", "Downloads" )
 
     forop = {}
     forop["kav"]    = ('"C:\\Program Files (x86)\\Kaspersky Lab\\Kaspersky Internet Security 14.0.0\\avp.exe"', 'update')
@@ -25,10 +25,9 @@ class UpdateHelper():
 
     def getUpdateDate(self):
         update = {}
-        entries = (os.path.join(self.updir[self.av][0], fn))
         entries = (os.path.join(self.updir[self.av][0], fn) for fn in os.listdir(self.updir[self.av][0]))
         entries = ((os.stat(path), path) for path in entries)
-        entries = ((stat[ST_CTIME], path) for stat, path in entries if self.updir[self.av][1] in path)
+        entries = ((stat.st_mtime, path) for stat, path in entries if self.updir[self.av][1] in path)
 
         for cdate, path in sorted(entries):
             print time.ctime(cdate), os.path.basename(path)
