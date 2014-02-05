@@ -73,7 +73,7 @@ TEST_INFECTION:
     #- CALL: SET_DEFAULTS
     - BUILD: [ scout, windows, silent ]
     - ON_ERROR: CONTINUE
-    - CHECK_INFECTION
+    - CHECK_INFECTION: STOP_IF_CLEAN
     - UNINSTALL
     - CHECK_INFECTION
 
@@ -106,9 +106,9 @@ TEST_ELITE_FAST:
 
 TEST_SOLDIER:
     - VM: [noav]
-    - INTERNET: False
-    - REVERT
-    - START_VM
+    #- INTERNET: False
+    #- REVERT
+    #- START_VM
     - CALL: VM_PUSH_AGENT
     - INSTALL_AGENT
     #- START_AGENT
@@ -119,11 +119,37 @@ TEST_SOLDIER:
     - SLEEP: 60
     - RELOG
 
-    - CROP: True
+    #- CROP: True
     - BUILD: [ soldier_fast, windows, silent ]
-    - CROP: False
+    #- CROP: False
 
-    - CHECK_INFECTION: INVERT
+    - CHECK_INFECTION
+
+    #- UNINSTALL
+    #- RELOG
+    #- UNINSTALL
+    - CALL: VM_GET_LOG
+
+TEST_ELITE:
+    - VM: [noav]
+    #- INTERNET: False
+    #- REVERT
+    #- START_VM
+    - CALL: VM_PUSH_AGENT
+    - INSTALL_AGENT
+    #- START_AGENT
+    - RELOG
+
+    - CLEAN_EVIDENCES
+    - BUILD: [ scout, windows, silent ]
+    - SLEEP: 60
+    - RELOG
+
+    #- CROP: True
+    - BUILD: [ elite_fast, windows, silent ]
+    #- CROP: False
+
+    - CHECK_INFECTION
 
     #- UNINSTALL
     #- RELOG
@@ -219,3 +245,22 @@ TEST_WINPHONE:
     #- RELOG
     #- CALL: SET_DEFAULTS
     - BUILD: [ pull, winphone, silent ]
+
+
+UPDATE_MANUAL_PART:
+    #- VM_ALL
+    #- INTERNET: True
+    - SLEEP: [10, 60]
+    #- REVERT
+    #- START_VM
+    #- CHECK_INFECTION # questo non e' necessario, ma e' meglio assicurarsene
+    - CALL: VM_PUSH_AGENT
+    - PUSH: [assets/update_system_manual.bat]
+    - INSTALL_AGENT
+    - EXECUTE_VM: /AVTest/assets/update_system_manual.bat # scarica gli aggiornamenti windows
+
+    - WAIT_SHUTDOWN
+    - START_VM: AV_AGENT
+    - STOP_VM: 300
+    - WAIT_SHUTDOWN
+    - REFRESH_SNAPSHOT

@@ -35,7 +35,7 @@ VM_EXEC_SOLDIER:
     - CALL: BUILD_SOLDIER
     - EXECUTE_VM: [ /AVTest/AVAgent/build/windows_elite/agent.exe, [], 40, True, True ]
     - SLEEP: 60
-    #- CHECK_INFECTION: INVERT
+    #- CHECK_INFECTION: STOP_IF_CLEAN
     - CROP: False
 
 
@@ -174,11 +174,29 @@ SYSTEM_DAILY:
     - CALL: SET_MAIL
     - REPORT:
         - VM_STATIC: ['AV Invisibility Static', 'Static check on builds']
-        - VM_ELITE_FAST: ['AV Invisibility', 'Elite']
         - VM_SOLDIER: ['AV Invisibility', 'Soldier']
+        - VM_ELITE_FAST: ['AV Invisibility', 'Elite']
         - VM_MELT: ['AV Invisibility', 'Melt']
         - VM_EXPLOIT: ['AV Invisibility', 'Exploit']
     - UNINSTALL
+    - CALL: VM_GET_LOG
+    - CALL: END_DISPATCH
+
+SYSTEM_DAILY_FAST:
+    - VM_ALL
+    - ON_ERROR: SKIP
+    - SLEEP: [10, 600]
+    - CALL: INIT_DISPATCH
+    - CALL: VM_CLEAN_EVIDENCES
+    - CALL: SET_MAIL
+    - REPORT:
+        #- VM_STATIC: ['AV Invisibility Static', 'Static check on builds']
+        - VM_SOLDIER: ['AV Invisibility', 'Soldier']
+        - VM_ELITE_FAST: ['AV Invisibility', 'Elite']
+        - VM_MELT: ['AV Invisibility', 'Melt']
+        - VM_EXPLOIT: ['AV Invisibility', 'Exploit']
+    - UNINSTALL
+    - CALL: VM_GET_LOG
     - CALL: END_DISPATCH
 
 SYSTEM_DAILY_POSITIVE:
@@ -208,7 +226,6 @@ SYS_PUSH_VIRUS:
     - CHECK_STATIC: [ AVAgent/assets/vira/conficker.dll, AVAgent/assets/vira/eicar.com ]
     - SLEEP: 10
     - CROP: False
-
 
 SYSTEM_POSITIVE:
     - VM_ALL

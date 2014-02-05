@@ -283,11 +283,7 @@ class AgentBuild:
                 exe = new_exe
 
             logging.debug("- Execute: " + exe)
-<<<<<<< HEAD
             subp = subprocess.Popen([exe]) #, shell=True)
-=======
-            subp = subprocess.Popen([exe])
->>>>>>> feb39b519498693f004d4807ae15b85b94885130
             add_result("+ SUCCESS SCOUT EXECUTE")
         except Exception, e:
             logging.debug("DBG trace %s" % traceback.format_exc())
@@ -306,6 +302,14 @@ class AgentBuild:
     def _trigger_sync(self, timeout=10):
         subp = subprocess.Popen(['assets/keyinject.exe'])
         process.wait_timeout(subp, timeout)
+
+        try:
+            p = subprocess.Popen(['assets/getusertime.exe'], stdout=subprocess.PIPE)
+            out, err = p.communicate()
+            logging.debug("get usertime: %s" % out)
+        except:
+            logging.exception("cannot get usertime")
+
 
     def get_can_upgrade(self, instance):
         with connection() as c:
@@ -361,12 +365,12 @@ class AgentBuild:
         with connection() as c:
             info = c.instance_info(instance_id)
             logging.debug('DBG _check_elite: %s' % info['level'])
-            ret = info['level'] is not 'scout'
+            ret = info['upgradable'] is False
 
             if ret:
                 add_result("+ SUCCESS UPGRADED SYNC")
             else:
-                add_result("+ NOT YET UPGRADED SYNC")
+                add_result("+ NOT YET UPGRADED SYNC: %s" % info['level'])
 
             return ret, info['level']
 
@@ -452,6 +456,8 @@ class AgentBuild:
             else:
                 add_result("+ FAILED CAN UPGRADE: %s" % level)
             return
+        else:
+            logging.debug("upgraded correctly")
 
         return self.check_upgraded(instance_id, "soldier", fast)
 
@@ -498,6 +504,7 @@ class AgentBuild:
         return self.check_upgraded(instance_id, level, fast)
 
     def check_upgraded(self, instance_id, level, fast = True):
+        logging.debug("check_upgraded")
 
         if fast:
             logging.debug("- Upgrade, Wait for 5 minutes: %s" % time.ctime())
@@ -523,13 +530,12 @@ class AgentBuild:
             upgraded = self.check_level(instance_id, level)
 
         if upgraded:
-            if got_level != level:
-                add_result("+ FAILED LEVEL: %s" % level)
-
-            add_result("+ SUCCESS UPGRADE INSTALL %s" % got_level.upper())
+            #if got_level != level:
+            #    add_result("+ FAILED LEVEL: %s" % level)
+            sleep(60)
+            #add_result("+ SUCCESS UPGRADE INSTALL %s" % got_level.upper())
             if level == "soldier":
 
-                sleep(60)
                 executed = self.execute_agent_startup();
                 if not executed:
                     add_result("+ FAILED EXECUTE %s" % level.upper())
@@ -540,9 +546,11 @@ class AgentBuild:
                         self._click_mouse(100 + i, 0)
 
                     self.check_level(instance_id, "soldier")
+            else:
+                self.check_level(instance_id, "elite")
 
-            logging.debug("- %s, wait for 1 minute then uninstall: %s" % (level, time.ctime()))
-            sleep(60)
+            logging.debug("- %s, uninstall: %s" % (level, time.ctime()))
+            #sleep(60)
             self.uninstall(instance_id)
             sleep(60)
             add_result("+ SUCCESS %s UNINSTALLED" % level.upper())
@@ -760,11 +768,12 @@ def execute_agent(args, level, platform):
         vmavtest.execute_web_expl(args.frontend)
     else:
         if vmavtest.create_user_machine():
-            add_result("+ SUCCESS USER CONNECT")
+            #add_result("+ SUCCESS USER CONNECT")
             if vmavtest.server_errors():
-                add_result("+ WARN SERVER ERRORS")
+                #add_result("+ WARN SERVER ERRORS")
+                logging.warn("Server errors")
 
-            add_result("+ SUCCESS SERVER CONNECT")
+            #add_result("+ SUCCESS SERVER CONNECT")
             action = {"elite": vmavtest.execute_elite, "scout": vmavtest.execute_scout,
                       "pull": vmavtest.execute_pull, "elite_fast": vmavtest.execute_elite_fast,
                       "soldier_fast": vmavtest.execute_soldier_fast, "soldier": vmavtest.execute_soldier }
