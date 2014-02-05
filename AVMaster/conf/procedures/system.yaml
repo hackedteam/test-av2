@@ -153,6 +153,30 @@ VM_STATIC:
     - CROP: False
     - ON_ERROR: SKIP
 
+SYSTEM_MELT:
+    - VM_ALL
+    - ON_ERROR: SKIP
+    - SLEEP: [10, 600]
+    - CALL: INIT_DISPATCH
+    - CALL: VM_CLEAN_EVIDENCES
+    - CALL: SET_MAIL
+    - REPORT:
+        - VM_MELT: ['AV Invisibility', 'Melt']
+    - UNINSTALL
+    - CALL: END_DISPATCH
+
+SYSTEM_ELITE:
+    - VM_ALL
+    - ON_ERROR: SKIP
+    - SLEEP: [10, 600]
+    - CALL: INIT_DISPATCH
+    - CALL: VM_CLEAN_EVIDENCES
+    - CALL: SET_MAIL
+    - REPORT:
+        - VM_ELITE_FAST: ['AV Invisibility', 'Elite']
+    - UNINSTALL
+    - CALL: END_DISPATCH
+
 SYSTEM_SOLDIER:
     - VM_ALL
     - ON_ERROR: SKIP
