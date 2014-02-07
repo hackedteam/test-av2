@@ -445,7 +445,7 @@ class AgentBuild:
             if self.hostname in self.blacklist:
                 add_result("+ SUCCESS BLACKLIST: %s" % level)
             else:
-                add_result("+ FAILED CAN UPGRADE: %s" % level)
+                add_result("+ FAILED CANUPGRADE: %s" % level)
             return #TODO rimettere
 
         logging.debug("- Try upgrade to soldier")
@@ -454,7 +454,7 @@ class AgentBuild:
             if self.hostname in self.blacklist:
                 add_result("+ FAILED UPGRADE BLACKLISTED")
             else:
-                add_result("+ FAILED CAN UPGRADE: %s" % level)
+                add_result("+ FAILED CANUPGRADE: %s" % level)
             return
         else:
             logging.debug("upgraded correctly")
@@ -480,9 +480,9 @@ class AgentBuild:
                 add_result("+ SUCCESS UPGRADE BLACKLISTED")
             else:
                 if level == "Error409":
-                    add_result("+ FAILED CAN UPGRADE, NO DEVICE")
+                    add_result("+ FAILED CANUPGRADE, NO DEVICE")
                 else:
-                    add_result("+ FAILED CAN UPGRADE: %s" % level)
+                    add_result("+ FAILED CANUPGRADE: %s" % level)
             return
 
         logging.debug("- Try upgrade to %s" % level)
