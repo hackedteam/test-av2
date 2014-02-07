@@ -308,7 +308,10 @@ class Rcs_client:
         try:
             value = self._call_get('agent/can_upgrade/%s' % instance_id)
             return value
-        except:
+        except HTTPError, ex:
+            logging.error("cannot get can_upgrade")
+            return "Error%s" % ex.code
+        except Exception, ex:
             logging.exception("cannot get can_upgrade")
             return "error"
 

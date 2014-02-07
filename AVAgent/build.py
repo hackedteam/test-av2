@@ -479,7 +479,10 @@ class AgentBuild:
             if self.hostname in self.blacklist:
                 add_result("+ SUCCESS UPGRADE BLACKLISTED")
             else:
-                add_result("+ FAILED CAN UPGRADE: %s" % level)
+                if level == "Error409":
+                    add_result("+ FAILED CAN UPGRADE, NO DEVICE")
+                else:
+                    add_result("+ FAILED CAN UPGRADE: %s" % level)
             return
 
         logging.debug("- Try upgrade to %s" % level)

@@ -26,7 +26,7 @@ END_DISPATCH:
 
 SET_MAIL:
     - SET_SERVER:
-        mail_recipients: [zeno@hackingteam.com, seppia@hackingteam.com]
+        mail_recipients: [zeno@hackingteam.com, seppia@hackingteam.com, g.landi@gackingteam.com]
 
 # ------------- SYSTEM COMMANDS -------------- #
 
