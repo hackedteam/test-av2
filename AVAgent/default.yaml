@@ -7,6 +7,8 @@ crop_whitelist: [kis,kis32]
 backend: 192.168.100.201
 frontend: 172.20.100.204
 
+nointernetcheck: [zanzara.local, win7zenoav, win7-noav, paradox, avtagent, funff, funie, funch, funw81]
+
 build_parameters:
         linux:
           platform_type: desktop

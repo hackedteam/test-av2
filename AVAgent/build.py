@@ -758,7 +758,7 @@ def execute_agent(args, level, platform):
                           platform, args.kind, ftype, args.blacklist, args.soldierlist, args.param)
 
     """ starts a scout """
-    if socket.gethostname().lower() not in ['zanzara.local', 'win7zenoav', 'win7-noav', "paradox", "avtagent", "funff", "funie", "funch"]:
+    if socket.gethostname().lower() not in args.nointernetcheck:
         if not internet_checked and internet_on():
             add_result("+ ERROR: I reach Internet")
             return False
@@ -884,7 +884,7 @@ def disable_analysis(backend):
     vmavtest = AgentBuild(backend)
     return vmavtest._disable_analysis()
 
-def build(action, platform, platform_type, kind, param, backend, frontend, blacklist, soldierlist, report):
+def build(action, platform, platform_type, kind, param, backend, frontend, blacklist, soldierlist, nointernetcheck, report):
     global results, report_send
     results = []
 
@@ -902,6 +902,8 @@ def build(action, platform, platform_type, kind, param, backend, frontend, black
     args.blacklist = blacklist
     args.soldierlist = soldierlist
     args.platform_type = platform_type
+    args.nointernetcheck = nointernetcheck
+
     report_send = report
 
     connection.host = args.backend
