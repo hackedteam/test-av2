@@ -888,7 +888,7 @@ def disable_analysis(backend):
     vmavtest = AgentBuild(backend)
     return vmavtest._disable_analysis()
 
-def build(action, platform, platform_type, kind, param, backend, frontend, blacklist, soldierlist, nointernetcheck, report):
+def build(action, platform, platform_type, kind, param, operation, backend, frontend, blacklist, soldierlist, nointernetcheck, report):
     global results, report_send
     results = []
 
@@ -907,10 +907,12 @@ def build(action, platform, platform_type, kind, param, backend, frontend, black
     args.soldierlist = soldierlist
     args.platform_type = platform_type
     args.nointernetcheck = nointernetcheck
+    args.operation = operation
 
     report_send = report
 
     connection.host = args.backend
+    connection.operation = args.operation
 
     if report_send:
         report_send("+ INIT %s, %s, %s" % (action, platform, kind))

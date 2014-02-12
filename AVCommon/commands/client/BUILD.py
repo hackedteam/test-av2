@@ -2,6 +2,7 @@ __author__ = 'fabrizio'
 
 from AVCommon.logger import logging
 import time
+import socket
 
 from AVCommon import command
 from AVAgent import build
@@ -11,6 +12,7 @@ report_level = 1
 
 def on_init(protocol, args):
     """ server side """
+    command.context["operation"] = socket.gethostname()
     return True
 
 
@@ -34,6 +36,7 @@ def execute(vm, args):
     blacklist = command.context["blacklist"][:]
     soldierlist = command.context["soldierlist"][:]
     nointernetcheck = command.context["nointernetcheck"][:]
+    operation = command.context["operation"]
 
     report = command.context["report"]
 
@@ -47,7 +50,7 @@ def execute(vm, args):
     assert action in ['scout', 'elite', 'elite_fast', 'soldier_fast', 'internet', 'test', 'clean', 'pull'], "action: %s" % action
     assert platform_type in ['desktop', 'mobile'], "platform_type: %s" % platform_type
 
-    results, success, errors = build.build(action, platform, platform_type, kind, param, backend, frontend, blacklist, soldierlist, nointernetcheck, report)
+    results, success, errors = build.build(action, platform, platform_type, kind, param, operation, backend, frontend, blacklist, soldierlist, nointernetcheck, report)
 
     try:
         last_result = results[-1]
