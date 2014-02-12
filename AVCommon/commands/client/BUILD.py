@@ -12,7 +12,8 @@ report_level = 1
 
 def on_init(protocol, args):
     """ server side """
-    args.append(socket.gethostname())
+    operation = "AOP_%s" % socket.gethostname()
+    args.append()
     return True
 
 

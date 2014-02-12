@@ -296,9 +296,9 @@ TEST_STATIC_WINDOWS:
 TEST_AVG:
     - VM: [avg]
     #- ON_ERROR: SKIP
-    #- CALL: VM_PUSH_AGENT
-    #- INSTALL_AGENT
-    #- RELOG
+    - CALL: VM_PUSH_AGENT
+    - INSTALL_AGENT
+    - RELOG
     - SET:
         nointernetcheck: [avg, win7avg]
     - BUILD: [ scout, windows, silent ]
