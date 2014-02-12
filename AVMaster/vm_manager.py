@@ -14,7 +14,7 @@ prev = os.path.join(os.getcwd(), "..")
 if not prev in sys.path:
     sys.path.append(prev)
 
-vm_conf_file = "../AVMaster/conf/vms.cfg" #os.path.join("conf", "vms.cfg")
+vm_conf_file = "AVMaster/conf/vms.cfg" #os.path.join("conf", "vms.cfg")
 
 
 def execute(vm_name, cmd, *args):

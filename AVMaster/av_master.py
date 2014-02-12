@@ -27,10 +27,10 @@ class AVMaster():
         command.init()
 
     def load_procedures(self):
-        if os.path.exists("conf/procedures.yaml"):
-            Procedure.load_from_file("conf/procedures.yaml")
+        if os.path.exists("AVMaster/conf/procedures.yaml"):
+            Procedure.load_from_file("AVMaster/conf/procedures.yaml")
 
-        confs = glob.glob("conf/procedures/*.yaml")
+        confs = glob.glob("AVMaster/conf/procedures/*.yaml")
         for conf in confs:
             logging.info("Loading conf: %s" % conf)
             Procedure.load_from_file(conf)

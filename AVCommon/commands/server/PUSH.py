@@ -3,6 +3,7 @@ import sys
 import glob
 from AVCommon.logger import logging
 from AVCommon import config
+from AVCommon import package
 
 report_level = 2
 
@@ -13,7 +14,6 @@ def execute(vm, protocol, args):
 
     logging.debug("    CS PUSH: %s" % str(args))
     assert vm, "null self.vm"
-
     assert isinstance(args, list)
 
     if isinstance(args[0], list):
@@ -38,6 +38,9 @@ def execute(vm, protocol, args):
             s = f.replace("%s/" % src_dir, "")
             all_src.append(s)
 
+            assert os.path.exists(f), "%s %s" % (f, os.getcwd())
+            assert os.path.exists(s), "%s %s" % (s, os.getcwd())
+
             # add all the parents to the relative_parents set, to avoid repetitions
             p = os.path.split(s)[0]
             while p and p != src_dir:
@@ -47,7 +50,7 @@ def execute(vm, protocol, args):
     # sorts the parents by length, so that parent is always before its sons
     parents = list(relative_parents)
     parents.sort(lambda x, y: len(x) - len(y))
-    #logging.debug("parents: %s" % parents)
+    logging.debug("parents: %s" % parents)
 
     ntdir = lambda x: x.replace("/", "\\")
 
