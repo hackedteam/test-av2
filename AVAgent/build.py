@@ -271,7 +271,7 @@ class AgentBuild:
                     add_result("+ ERROR SCOUT BUILD AFTER %s BUILDS" % tries)
                     raise err
             except Exception, e:
-                logging.debug("DBG trace %s" % traceback.format_exc())subprocess.Popen
+                logging.debug("DBG trace %s" % traceback.format_exc())
                 add_result("+ ERROR SCOUT BUILD EXCEPTION RETRIEVED")
 
                 raise e

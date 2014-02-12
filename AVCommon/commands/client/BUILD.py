@@ -12,7 +12,7 @@ report_level = 1
 
 def on_init(protocol, args):
     """ server side """
-    command.context["operation"] = socket.gethostname()
+    args.append(socket.gethostname())
     return True
 
 
@@ -41,7 +41,7 @@ def execute(vm, args):
     report = command.context["report"]
 
     logging.debug("args: %s", args)
-    action, platform, kind = args
+    action, platform, kind, operation = args
 
     param = params[platform]
     platform_type = param['platform_type']
