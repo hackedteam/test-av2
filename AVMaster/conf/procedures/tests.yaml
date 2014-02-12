@@ -282,18 +282,37 @@ TEST_SAMPLE:
     - CHECK_STATIC: [ assets/vira/TOTEST_unsigned.exe ]
     - ON_ERROR: SKIP
 
+TEST_PDF:
+    - ON_ERROR: CONTINUE
+    - PUSH: [ AVAgent/assets/vira/clean.exe ]
+    - PUSH: [ AVAgent/assets/vira/TOTEST_pdf.exe ]
+    - CHECK_STATIC: [ assets/vira/TOTEST_pdf.exe ]
+    - CHECK_STATIC: [ assets/vira/clean.exe ]
+    - ON_ERROR: SKIP
+
 TEST_STATIC_WINDOWS:
     - BUILD: [ pull, windows, silent ]
 
+TEST_AVG:
+    - VM: [avg]
+    #- ON_ERROR: SKIP
+    #- CALL: VM_PUSH_AGENT
+    #- INSTALL_AGENT
+    #- RELOG
+    - SET:
+        nointernetcheck: [avg, win7avg]
+    - BUILD: [ scout, windows, silent ]
+
 TEST_INSA:
-    - VM: [avast,drweb,gdata,kis,panda,trendm,emsisoft,norman]
+    #- VM: [avast,drweb,gdata,kis,panda,trendm,emsisoft,norman]
+    - VM_ALL
     - ON_ERROR: SKIP
-    #- SLEEP: [10, 600]
-    #- CALL: INIT_DISPATCH
+    - SLEEP: [1, 600]
+    - CALL: INIT_DISPATCH
     #- CALL: VM_CLEAN_EVIDENCES
     #- CALL: SET_MAIL
     - REPORT:
-        - TEST_SAMPLE
+        - TEST_PDF
         #- TEST_STATIC_WINDOWS
     - UNINSTALL
     #- CALL: END_DISPATCH

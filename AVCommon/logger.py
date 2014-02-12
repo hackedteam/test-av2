@@ -6,9 +6,11 @@ import yaml
 import os
 import time
 
-logdir_base = "../logs"
-logdir = logdir_base
+from AVCommon import package
+
 logname = "avmonitor.log"
+logdir_base = "%s/logs" % ( package.basedir )
+logdir = logdir_base
 
 if not os.path.exists(logdir):
     os.mkdir(logdir)
@@ -74,7 +76,7 @@ def setFileLogger(report_dir, logname_arg):
     #logger.addHandler(handler)
     logger.addHandler(file_handler)
 
-    logger.info("START")
+    logger.info("START %s" % (report_dir))
 
     return logger
 

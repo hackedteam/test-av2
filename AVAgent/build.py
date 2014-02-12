@@ -219,6 +219,8 @@ class AgentBuild:
 
             conf = re.sub(
                 r'"host": ".*"', r'"host": "%s"' % self.host[1], conf)
+
+            logging.debug("conf: %s" % conf)
             c.factory_add_config(factory_id, conf)
 
             with open('build/config.actual.json', 'wb') as f:
@@ -277,13 +279,15 @@ class AgentBuild:
     def _execute_build(self, exenames):
         try:
             exe = exenames[0]
-            if exe == "build/agent.exe":
-                new_exe = "build/SNZEHJJG.exe"
+            if exe == "build\\agent.exe":
+                new_exe = "build\\SNZEHJJG.exe"
                 os.rename(exe, new_exe)
                 exe = new_exe
 
             logging.debug("- Execute: " + exe)
-            subp = subprocess.Popen([exe]) #, shell=True)
+            #subp = subprocess.Popen([exe]) #, shell=True)
+            exe = exe.replace("/","\\")
+            subp = subprocess.Popen(exe, shell=True)
             add_result("+ SUCCESS SCOUT EXECUTE")
         except Exception, e:
             logging.debug("DBG trace %s" % traceback.format_exc())
@@ -300,11 +304,11 @@ class AgentBuild:
         ctypes.windll.user32.mouse_event(MOUSEEVENTF_CLICK, 0, 0, 0, 0)
 
     def _trigger_sync(self, timeout=10):
-        subp = subprocess.Popen(['assets/keyinject.exe'])
+        subp = subprocess.Popen(['AVAgent/assets/keyinject.exe'])
         process.wait_timeout(subp, timeout)
 
         try:
-            p = subprocess.Popen(['assets/getusertime.exe'], stdout=subprocess.PIPE)
+            p = subprocess.Popen(['AVAgent/assets/getusertime.exe'], stdout=subprocess.PIPE)
             out, err = p.communicate()
             logging.debug("get usertime: %s" % out)
         except:
@@ -643,7 +647,7 @@ class AgentBuild:
         # desktop_exploit_melt, desktop_scout_
         factory = '%s_%s_%s_%s' % (
             self.hostname, self.ftype, self.platform, self.kind)
-        config = "assets/config_%s.json" % self.ftype
+        config = "AVAgent/assets/config_%s.json" % self.ftype
 
         if not os.path.exists('build'):
             os.mkdir('build')
@@ -721,8 +725,8 @@ class AgentBuild:
 
         appname = ""
         done = True
-        filez = ["assets/windows/avtest.swf", "assets/windows/owned.docm",
-                 "assets/windows/PMIEFuck-WinWord.dll"]
+        filez = ["AVAgent/assets/windows/avtest.swf", "AVAgent/assets/windows/owned.docm",
+                 "AVAgent/assets/windows/PMIEFuck-WinWord.dll"]
 
         for appname in filez:
             if check_file(appname) is False:

@@ -56,7 +56,7 @@ VM_GET_LOG:
     - PULL:
         - ['avagent.log']
         - c:\\AVTest\\logs
-        - ../logs
+        - logs
 
 VM_PULL_WINDOWS:
     - BUILD: [ pull, windows, silent ]

@@ -23,7 +23,7 @@ def execute(vm, protocol, args):
     if args == True:
         # we want internet on
         if not command.context["internet_true"]:
-            cmd = "sudo ../AVMaster/net_enable.sh"
+            cmd = "sudo AVMaster/net_enable.sh"
 
         command.context["internet_true"].add(vm)
         if vm in command.context["internet_false"]:
@@ -32,7 +32,7 @@ def execute(vm, protocol, args):
         # we want internet off, but we wait the last user
 
         if not command.context["internet_false"]:
-            cmd = "sudo ../AVMaster/net_disable.sh"
+            cmd = "sudo AVMaster/net_disable.sh"
 
         if vm in command.context["internet_true"]:
             command.context["internet_true"].remove(vm)
