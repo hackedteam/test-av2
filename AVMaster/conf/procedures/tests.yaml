@@ -271,3 +271,29 @@ UPDATE_MANUAL_PART:
     - STOP_VM: 300
     - WAIT_SHUTDOWN
     - REFRESH_SNAPSHOT
+
+TEST_SAMPLE:
+    - ON_ERROR: CONTINUE
+    - PUSH: [ AVAgent/assets/vira/clean.exe ]
+    - PUSH: [ AVAgent/assets/vira/TOTEST_signed.exe ]
+    - PUSH: [ AVAgent/assets/vira/TOTEST_unsigned.exe ]
+    - CHECK_STATIC: [ assets/vira/clean.exe ]
+    - CHECK_STATIC: [ assets/vira/TOTEST_signed.exe ]
+    - CHECK_STATIC: [ assets/vira/TOTEST_unsigned.exe ]
+    - ON_ERROR: SKIP
+
+TEST_STATIC_WINDOWS:
+    - BUILD: [ pull, windows, silent ]
+
+TEST_INSA:
+    - VM: [avast,drweb,gdata,kis,panda,trendm,emsisoft,norman]
+    - ON_ERROR: SKIP
+    #- SLEEP: [10, 600]
+    #- CALL: INIT_DISPATCH
+    #- CALL: VM_CLEAN_EVIDENCES
+    #- CALL: SET_MAIL
+    - REPORT:
+        - TEST_SAMPLE
+        #- TEST_STATIC_WINDOWS
+    - UNINSTALL
+    #- CALL: END_DISPATCH
