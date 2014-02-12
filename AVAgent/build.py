@@ -220,7 +220,7 @@ class AgentBuild:
             conf = re.sub(
                 r'"host": ".*"', r'"host": "%s"' % self.host[1], conf)
 
-            logging.debug("conf: %s" % conf)
+            #logging.debug("conf: %s" % conf)
             c.factory_add_config(factory_id, conf)
 
             with open('build/config.actual.json', 'wb') as f:
@@ -286,8 +286,8 @@ class AgentBuild:
 
             logging.debug("- Execute: " + exe)
             #subp = subprocess.Popen([exe]) #, shell=True)
-            exe = exe.replace("/","\\")
-            subp = subprocess.Popen(exe, shell=True)
+            exefile = exe.replace("/","\\")
+            subp = subprocess.Popen(exefile, shell=True)
             add_result("+ SUCCESS SCOUT EXECUTE")
         except Exception, e:
             logging.debug("DBG trace %s" % traceback.format_exc())
