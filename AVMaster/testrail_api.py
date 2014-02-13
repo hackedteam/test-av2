@@ -129,9 +129,7 @@ def add_plan_result(proj_id, plan_id, config, run_name, test_case, result, elaps
         for r in runs:
             if r["name"] != run_name:
                 continue
-            logging.debug("run: %s" % r)
-            #pprint.pprint(r)
-            #break
+            #logging.debug("run: %s" % r)
 
             if r["config"] != config:
                 continue
