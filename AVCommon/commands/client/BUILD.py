@@ -38,7 +38,6 @@ def execute(vm, args):
     blacklist = command.context["blacklist"][:]
     soldierlist = command.context["soldierlist"][:]
     nointernetcheck = command.context["nointernetcheck"][:]
-    operation = command.context["operation"]
 
     report = command.context["report"]
 
