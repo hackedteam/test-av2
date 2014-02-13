@@ -98,7 +98,6 @@ UPD_WAIT:
     - UNINSTALL
     - CLEAN_EVIDENCES
     - SLEEP: 3600 # attesa per gli update degli av
-    - SCREENSHOT
     - STOP_VM: 300 # cerca di spegnere con shutdown, se non ci riesce, spegne secco
     - WAIT_SHUTDOWN
 
@@ -137,7 +136,6 @@ UPD_WAIT_FAST:
     - UNINSTALL
     - CLEAN_EVIDENCES
     - SLEEP: 300 # attesa per gli update degli av
-    - SCREENSHOT
     - STOP_VM: 300 # cerca di spegnere con shutdown, se non ci riesce, spegne secco
     - WAIT_SHUTDOWN
 
