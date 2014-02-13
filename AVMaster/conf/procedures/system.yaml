@@ -133,12 +133,14 @@ VM_SOLDIER:
     - RELOG
 
 VM_MELT:
+    - CALL: SET_BUILD_PARAMS
     - BUILD: [ scout, windows, melt ]
     - UNINSTALL
     - SCREENSHOT
     - RELOG
 
 VM_EXPLOIT:
+    - CALL: SET_BUILD_PARAMS
     - BUILD: [ pull, exploit_docx, melt ]
     - BUILD: [ scout, exploit, melt ]
     - UNINSTALL
