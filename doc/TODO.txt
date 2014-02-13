@@ -9,4 +9,6 @@ core:
         + SHUTDOWN should consider a timeout, after that, proceed with the vmrun
     - elite check: avgscanx.exe
 
+android:
+    - http://www.xda-developers.com/android/automated-device-lets-you-automate-your-android-device-with-rules/
 

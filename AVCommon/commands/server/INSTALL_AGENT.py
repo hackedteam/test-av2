@@ -28,7 +28,7 @@ def execute(vm, protocol, inst_args):
     else:
         redis = config.redis
 
-    cmd = "rmdir /s /q C:\\AVTest\\AVAgent\\running \r\n"\
+    cmd = "rmdir /s /q C:\\AVTest\\running \r\n"\
           "cd C:\\AVTest\\AVAgent\r\n" \
           "c:\\python27\\python.exe"
     arg = ["C:\\AVTest\\AVAgent\\av_agent.py", "-m", vm, "-s", mq.session, "-d", redis]

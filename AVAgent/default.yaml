@@ -1,9 +1,14 @@
 
-blacklist: [iobit32,bitdef,comodo,gdata,drweb,emsisoft,sophos,360cn,360cn5,kis32,avg,avg32]
+soldierlist: [iobit32,bitdef,comodo,gdata,drweb,360cn,360cn5,kis32,avg,avg32]
+blacklist: [emsisoft,sophos]
+
 crop_whitelist: [kis,kis32]
 
 backend: 192.168.100.201
 frontend: 172.20.100.204
+
+nointernetcheck: [zanzara.local, win7zenoav, win7-noav, paradox, avtagent, funff, funie, funch, funwin81]
+operation: RiteAV
 
 build_parameters:
         linux:

@@ -10,13 +10,13 @@ def execute(vm, protocol, args):
 
     #logging.debug("    CS Execute")
     assert vm, "null vm"
-
+    tick = 15
     if args:
         assert isinstance(args, int), "you must specify an int for timeout."
 
         timeout = args
         off = False
-        tick = 15
+
 
         logging.debug("%s, shutting down with timeout %s." % (vm,timeout))
 
@@ -25,22 +25,17 @@ def execute(vm, protocol, args):
         for i in range(0, timeout, tick):
             sleep(tick)
             if vm_manager.execute(vm, "is_powered_off"):
-                off = True
-                break
-
-        if off:
-            return True, "Stopped VM"
-        else:
-            logging.info("Forcing shutdown")
-            ret = vm_manager.execute(vm, "shutdown")
-            if ret:
                 return True, "Stopped VM"
-            else:
-                return False, "Not Stopped VM %s" % ret
-    else:
-        ret = vm_manager.execute(vm, "shutdown")
 
-        if ret:
+
+    logging.info("Forcing shutdown")
+    ret = vm_manager.execute(vm, "shutdown")
+
+    logging.debug("%s, shutdown returns: %s" % (vm, ret))
+
+    for i in range(10):
+        if vm_manager.execute(vm, "is_powered_off"):
             return True, "Stopped VM"
-        else:
-            return False, "Not Stopped VM %s" % ret
+        sleep(tick)
+
+    return False, "Cannot stop VM"

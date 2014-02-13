@@ -44,6 +44,11 @@ def main():
 
     logging.debug(args)
     from av_master import AVMaster
+    from AVCommon import package
+
+    logging.info("chdir %s" % package.basedir)
+    os.chdir(package.basedir)
+
     master = AVMaster(args)
     master.start()
 
@@ -57,4 +62,6 @@ if __name__ == '__main__':
         os.remove("../logs/avmonitor-error.log")
     except:
         pass
+
+
     main()

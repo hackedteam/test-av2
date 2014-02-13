@@ -32,11 +32,11 @@ def execute(vm, protocol, args):
         src = src.replace('/','\\')
 
         if d == "":
-            dst = "%s/%s" % (dst_dir, f)
+            dst = "%s/%s/%s" % (dst_dir, vm, f)
         else:
-            dst = "%s/%s/%s" % (dst_dir, d, f)
+            dst = "%s/%s/%s/%s" % (dst_dir, vm, d, f)
 
-        rdir = "%s/%s" % (dst_dir, d)
+        rdir = "%s/%s/%s" % (dst_dir, vm, d)
         if not rdir in memo:
             if not os.path.exists(rdir):
                 logging.debug("mkdir %s " % (rdir))

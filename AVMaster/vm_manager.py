@@ -1,5 +1,6 @@
 import os
 import sys
+import socket
 from AVCommon.logger import logging
 
 sys.path.append(os.path.split(os.getcwd())[0])
@@ -14,7 +15,7 @@ prev = os.path.join(os.getcwd(), "..")
 if not prev in sys.path:
     sys.path.append(prev)
 
-vm_conf_file = "../AVMaster/conf/vms.cfg" #os.path.join("conf", "vms.cfg")
+vm_conf_file = "AVMaster/conf/vms-%s.cfg" % socket.gethostname()
 
 
 def execute(vm_name, cmd, *args):

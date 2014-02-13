@@ -26,6 +26,11 @@ from AVCommon.procedure import Procedure
 from AVCommon import config
 import yaml
 
+
+from AVCommon import package
+#logging.info("chdir %s" % package.basedir)
+os.chdir(package.basedir)
+
 class MQFeedProcedure(object):
     protocol = None
 
@@ -91,7 +96,7 @@ class AVAgent(object):
 
         # TODO
         # load default.yaml as a default SET command.
-        f = open("default.yaml")
+        f = open("AVAgent/default.yaml")
         y = yaml.load(f)
         for k,v in y.items():
             command.context[k] = v
@@ -177,7 +182,7 @@ if __name__ == "__main__":
 
     report = time.strftime("%y%m%d", time.localtime(time.time()))
 
-    logger.init(report)
+    logger.init(".", "avagent.log")
     from AVCommon.logger import logging
     globals()['logging']=logging
 

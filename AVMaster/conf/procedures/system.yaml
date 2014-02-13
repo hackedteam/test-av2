@@ -26,7 +26,7 @@ END_DISPATCH:
 
 SET_MAIL:
     - SET_SERVER:
-        mail_recipients: [zeno@hackingteam.com, seppia@hackingteam.com]
+        mail_recipients: [zeno@hackingteam.com, seppia@hackingteam.com, g.landi@gackingteam.com]
 
 # ------------- SYSTEM COMMANDS -------------- #
 
@@ -35,7 +35,7 @@ VM_EXEC_SOLDIER:
     - CALL: BUILD_SOLDIER
     - EXECUTE_VM: [ /AVTest/AVAgent/build/windows_elite/agent.exe, [], 40, True, True ]
     - SLEEP: 60
-    #- CHECK_INFECTION: INVERT
+    #- CHECK_INFECTION: STOP_IF_CLEAN
     - CROP: False
 
 
@@ -153,6 +153,42 @@ VM_STATIC:
     - CROP: False
     - ON_ERROR: SKIP
 
+SYSTEM_MELT:
+    - VM_ALL
+    - ON_ERROR: SKIP
+    - SLEEP: [10, 600]
+    - CALL: INIT_DISPATCH
+    - CALL: VM_CLEAN_EVIDENCES
+    - CALL: SET_MAIL
+    - REPORT:
+        - VM_MELT: ['AV Invisibility', 'Melt']
+    - UNINSTALL
+    - CALL: END_DISPATCH
+
+SYSTEM_ELITE:
+    - VM_ALL
+    - ON_ERROR: SKIP
+    - SLEEP: [10, 600]
+    - CALL: INIT_DISPATCH
+    - CALL: VM_CLEAN_EVIDENCES
+    - CALL: SET_MAIL
+    - REPORT:
+        - VM_ELITE_FAST: ['AV Invisibility', 'Elite']
+    - UNINSTALL
+    - CALL: END_DISPATCH
+
+SYSTEM_SOLDIER:
+    - VM_ALL
+    - ON_ERROR: SKIP
+    - SLEEP: [10, 600]
+    - CALL: INIT_DISPATCH
+    - CALL: VM_CLEAN_EVIDENCES
+    - CALL: SET_MAIL
+    - REPORT:
+        - VM_SOLDIER: ['AV Invisibility', 'Soldier']
+    - UNINSTALL
+    - CALL: END_DISPATCH
+
 SYSTEM_DAILY:
     - VM_ALL
     - ON_ERROR: SKIP
@@ -162,11 +198,29 @@ SYSTEM_DAILY:
     - CALL: SET_MAIL
     - REPORT:
         - VM_STATIC: ['AV Invisibility Static', 'Static check on builds']
-        - VM_ELITE_FAST: ['AV Invisibility', 'Elite']
         - VM_SOLDIER: ['AV Invisibility', 'Soldier']
+        - VM_ELITE_FAST: ['AV Invisibility', 'Elite']
         - VM_MELT: ['AV Invisibility', 'Melt']
         - VM_EXPLOIT: ['AV Invisibility', 'Exploit']
     - UNINSTALL
+    - CALL: VM_GET_LOG
+    - CALL: END_DISPATCH
+
+SYSTEM_DAILY_FAST:
+    - VM_ALL
+    - ON_ERROR: SKIP
+    - SLEEP: [10, 600]
+    - CALL: INIT_DISPATCH
+    - CALL: VM_CLEAN_EVIDENCES
+    - CALL: SET_MAIL
+    - REPORT:
+        #- VM_STATIC: ['AV Invisibility Static', 'Static check on builds']
+        - VM_SOLDIER: ['AV Invisibility', 'Soldier']
+        - VM_ELITE_FAST: ['AV Invisibility', 'Elite']
+        - VM_MELT: ['AV Invisibility', 'Melt']
+        - VM_EXPLOIT: ['AV Invisibility', 'Exploit']
+    - UNINSTALL
+    - CALL: VM_GET_LOG
     - CALL: END_DISPATCH
 
 SYSTEM_DAILY_POSITIVE:
@@ -197,7 +251,6 @@ SYS_PUSH_VIRUS:
     - SLEEP: 10
     - CROP: False
 
-
 SYSTEM_POSITIVE:
     - VM_ALL
     - ON_ERROR: SKIP
@@ -212,10 +265,30 @@ SYSTEM_POSITIVE:
 SYSTEM_MANUAL:
     #- START_VM: AV_AGENT
     #- SLEEP: [30, 120]
+
     - BUILD: [ pull, exploit, melt ]
     - BUILD: [ pull, windows, melt ]
     - RELOG
     - BUILD: [ scout, windows, silent ]
+
+SYSTEM_W81:
+    - REVERT
+    - SLEEP: [5, 60]
+
+    - START_VM
+    - CALL: VM_PUSH_AGENT
+    - START_AGENT: 172.20.20.168
+    - SET:
+        backend: 192.168.100.201
+        frontend: 192.168.100.204
+
+    - BUILD: [ pull, windows, silent ]
+
+S_W81:
+    - SET:
+        nointernetcheck: [funwin81]
+
+    - BUILD: [ pull, windows, silent ]
 
 # ---------------- #
 

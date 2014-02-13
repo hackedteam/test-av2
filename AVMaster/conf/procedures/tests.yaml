@@ -73,7 +73,7 @@ TEST_INFECTION:
     #- CALL: SET_DEFAULTS
     - BUILD: [ scout, windows, silent ]
     - ON_ERROR: CONTINUE
-    - CHECK_INFECTION
+    - CHECK_INFECTION: STOP_IF_CLEAN
     - UNINSTALL
     - CHECK_INFECTION
 
@@ -97,21 +97,71 @@ TEST_INSTALL:
 
 TEST_ELITE_FAST:
     - VM: [noav]
-    - CALL: VM_PUSH_AGENT
-    - INSTALL_AGENT
+    #- CALL: VM_PUSH_AGENT
+    #- INSTALL_AGENT
+    #- RELOG
+    - BUILD: [ scout, windows, silent ]
+    - SLEEP: 30
     - RELOG
-    - REPORT:
-        - VM_ELITE_FAST
-    - UNINSTALL
+
+    #- CROP: True
+    - BUILD: [ elite_fast, windows, silent ]
+    #- CROP: False
+
+    #- UNINSTALL
+    #- RELOG
 
 TEST_SOLDIER:
     - VM: [noav]
+    #- INTERNET: False
+    #- REVERT
+    #- START_VM
+    #- CALL: VM_PUSH_AGENT
+    #- INSTALL_AGENT
+    #- START_AGENT
+    #- RELOG
+
+    #- CLEAN_EVIDENCES
+    - BUILD: [ scout, windows, silent ]
+    - SLEEP: 60
+    - RELOG
+
+    #- CROP: True
+    - BUILD: [ soldier_fast, windows, silent ]
+    #- CROP: False
+
+    - CHECK_INFECTION
+
+    #- UNINSTALL
+    #- RELOG
+    #- UNINSTALL
+    - CALL: VM_GET_LOG
+
+TEST_ELITE:
+    - VM: [noav]
+    #- INTERNET: False
+    #- REVERT
+    #- START_VM
     - CALL: VM_PUSH_AGENT
     - INSTALL_AGENT
+    #- START_AGENT
     - RELOG
-    - REPORT:
-        - VM_SOLDIER: ['AV Invisibility', 'Soldier']
-    - UNINSTALL
+
+    - CLEAN_EVIDENCES
+    - BUILD: [ scout, windows, silent ]
+    - SLEEP: 60
+    - RELOG
+
+    #- CROP: True
+    - BUILD: [ elite_fast, windows, silent ]
+    #- CROP: False
+
+    - CHECK_INFECTION
+
+    #- UNINSTALL
+    #- RELOG
+    #- UNINSTALL
+    - CALL: VM_GET_LOG
 
 TEST_RELOG:
     - VM: [noav]
@@ -202,3 +252,67 @@ TEST_WINPHONE:
     #- RELOG
     #- CALL: SET_DEFAULTS
     - BUILD: [ pull, winphone, silent ]
+
+
+UPDATE_MANUAL_PART:
+    #- VM_ALL
+    #- INTERNET: True
+    - SLEEP: [10, 60]
+    #- REVERT
+    #- START_VM
+    #- CHECK_INFECTION # questo non e' necessario, ma e' meglio assicurarsene
+    - CALL: VM_PUSH_AGENT
+    - PUSH: [assets/update_system_manual.bat]
+    - INSTALL_AGENT
+    - EXECUTE_VM: /AVTest/assets/update_system_manual.bat # scarica gli aggiornamenti windows
+
+    - WAIT_SHUTDOWN
+    - START_VM: AV_AGENT
+    - STOP_VM: 300
+    - WAIT_SHUTDOWN
+    - REFRESH_SNAPSHOT
+
+TEST_SAMPLE:
+    - ON_ERROR: CONTINUE
+    - PUSH: [ AVAgent/assets/vira/clean.exe ]
+    - PUSH: [ AVAgent/assets/vira/TOTEST_signed.exe ]
+    - PUSH: [ AVAgent/assets/vira/TOTEST_unsigned.exe ]
+    - CHECK_STATIC: [ assets/vira/clean.exe ]
+    - CHECK_STATIC: [ assets/vira/TOTEST_signed.exe ]
+    - CHECK_STATIC: [ assets/vira/TOTEST_unsigned.exe ]
+    - ON_ERROR: SKIP
+
+TEST_PDF:
+    - ON_ERROR: CONTINUE
+    - PUSH: [ AVAgent/assets/vira/clean.exe ]
+    - PUSH: [ AVAgent/assets/vira/TOTEST_pdf.exe ]
+    - CHECK_STATIC: [ assets/vira/TOTEST_pdf.exe ]
+    - CHECK_STATIC: [ assets/vira/clean.exe ]
+    - ON_ERROR: SKIP
+
+TEST_STATIC_WINDOWS:
+    - BUILD: [ pull, windows, silent ]
+
+TEST_AVG:
+    - VM: [avg]
+    #- ON_ERROR: SKIP
+    #- CALL: VM_PUSH_AGENT
+    #- INSTALL_AGENT
+    #- RELOG
+    - SET:
+        nointernetcheck: [avg, win7avg]
+    - BUILD: [ scout, windows, silent ]
+
+TEST_INSA:
+    #- VM: [avast,drweb,gdata,kis,panda,trendm,emsisoft,norman]
+    - VM_ALL
+    - ON_ERROR: SKIP
+    - SLEEP: [1, 600]
+    - CALL: INIT_DISPATCH
+    #- CALL: VM_CLEAN_EVIDENCES
+    #- CALL: SET_MAIL
+    - REPORT:
+        - TEST_PDF
+        #- TEST_STATIC_WINDOWS
+    - UNINSTALL
+    #- CALL: END_DISPATCH

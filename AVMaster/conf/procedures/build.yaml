@@ -44,7 +44,7 @@ VM_PUSH_AGENT:
     - DELETE_DIR: /AVTest/
     - DELETE_DIR: /Users/avtest/Desktop/AVTest/
     - PUSH: [ AVAgent/*.py, AVAgent/*.yaml, AVCommon/*.py, AVCommon/*.yml, AVCommon/commands/client/*.py, AVCommon/commands/meta/*.py, AVCommon/commands/*.py]
-    - PUSH: [ AVAgent/assets/config*, AVAgent/assets/keyinject.exe, AVAgent/assets/windows/*  ]
+    - PUSH: [ AVAgent/assets/config*, AVAgent/assets/keyinject.exe, AVAgent/assets/getusertime.exe, AVAgent/assets/windows/*  ]
 
 VM_UPLOAD_SKYPE:
     - PUSH:
@@ -54,7 +54,7 @@ VM_UPLOAD_SKYPE:
 
 VM_GET_LOG:
     - PULL:
-        - ['avmonitor.log']
+        - ['avagent.log']
         - c:\\AVTest\\logs
         - logs
 

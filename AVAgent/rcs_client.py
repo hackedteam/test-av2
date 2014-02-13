@@ -143,6 +143,10 @@ class Rcs_client:
         status = self._call_get('status/counters')
         return status
 
+    def disable_analysis(self):
+        ret = self._call_post('agent/disable_analysis')
+        return ret
+
     def operation(self, operation):
         """ gets the operation id of an operation """
         operations = self._call_get('operation')
@@ -293,7 +297,7 @@ class Rcs_client:
         params = {'_id': instance_id}
         if force_soldier:
             params["force"] = "soldier"
-
+        logging.debug("upgrade: %s" % params)
         try:
             self._call_post('agent/upgrade', params)
             return True
@@ -304,14 +308,18 @@ class Rcs_client:
         try:
             value = self._call_get('agent/can_upgrade/%s' % instance_id)
             return value
-        except:
+        except HTTPError, ex:
+            logging.error("cannot get can_upgrade")
+            return "Error%s" % ex.code
+        except Exception, ex:
             logging.exception("cannot get can_upgrade")
-            return False
+            return "error"
 
     def instance_level(self, instance_id):
         params = {'_id': instance_id}
         try:
             info = self.instance_info(instance_id)
+            logging.debug("info: %s" %(info))
             return info["level"]
         except:
             return False
@@ -319,6 +327,7 @@ class Rcs_client:
     def instance_info(self, instance_id):
         agents = self._call_get('agent')
         # pp.pprint(agents)
+
         ret = [op for op in agents if op['_id'] == instance_id]
         return ret[0] if ret else None
 
@@ -412,3 +421,20 @@ class Rcs_client:
         out.write(resp)
 
 
+if __name__ == "__main__":
+
+    host = "rcs-minotauro"
+    user = "avmonitor"
+    passwd = "avmonitorp123"
+    operation = 'AVMonitor'
+    rcs=[]
+
+    conn = Rcs_client(host, user, passwd)
+    conn.login()
+
+    try:
+        instance_id = "52efa51d4e0913760f000138"
+        ret = conn.instance_upgrade(instance_id, True)
+        logging.debug("ret: %s" % ret)
+    finally:
+        conn.logout()
