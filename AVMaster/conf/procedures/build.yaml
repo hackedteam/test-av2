@@ -15,8 +15,8 @@ BUILD_WINDOWS:
 
 CHECK_STATIC_MODULES:
     - PUSH: [ AVAgent/assets/check/* ]
-    - CHECK_STATIC: [ assets/check/codec, assets/check/codec_mod, assets/check/mac_core, assets/check/mac_osax, assets/check/sqlite, assets/check/sqlite_mod ]
-    - CHECK_STATIC: [ assets/windows/* ]
+    - CHECK_STATIC: [ AVAgent/assets/check/codec, AVAgent/assets/check/codec_mod, AVAgent/assets/check/mac_core, AVAgent/assets/check/mac_osax, AVAgent/assets/check/sqlite, AVAgent/assets/check/sqlite_mod ]
+    - CHECK_STATIC: [ AVAgent/assets/windows/* ]
 
 BUILD_DESKTOP:
     - CALL: CHECK_STATIC_MODULES
