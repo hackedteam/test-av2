@@ -13,7 +13,8 @@ report_level = 1
 def on_init(protocol, args):
     """ server side """
     operation = "AOP_%s" % socket.gethostname()
-    args.append(operation)
+    if len(args) == 3:
+        args.append(operation)
     return True
 
 
