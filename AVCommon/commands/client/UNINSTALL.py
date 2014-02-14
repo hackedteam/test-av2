@@ -3,6 +3,8 @@ __author__ = 'fabrizio'
 import time
 import os
 import subprocess
+import shutil
+
 from AVCommon.logger import logging
 
 from AVCommon import command
@@ -43,8 +45,16 @@ def close_instance():
 
 def kill_rcs():
     logging.debug("killing rcs")
+
+    cmd = 'WMIC PROCESS get Caption,Commandline,Processid'
+    proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+    for line in proc.stdout:
+        for b in build.names:
+            if b in line:
+                logging.debug(line)
+
     for b in build.names:
-        os.system("taskkill /f /im %s.exe" % b)
+        subprocess.Popen("taskkill /f /im %s.exe" % b, shell=True)
 
 def delete_startup():
     logging.debug("deleting startup")
@@ -63,6 +73,10 @@ def remove_agent_startup():
     if os.path.exists(remote_name):
         os.remove(remote_name)
 
+def delete_build():
+    if os.path.exists("build"):
+        shutil.rmtree("build")
+
 def execute(vm, args):
     from AVAgent import av_agent
 
@@ -77,5 +91,7 @@ def execute(vm, args):
     # add avagent.bat to startup
     #remove_agent_startup()
     # sleep 20
+
+    delete_build()
 
     return True, "UNINSTALLED";

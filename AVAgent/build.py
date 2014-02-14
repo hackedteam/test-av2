@@ -65,16 +65,17 @@ def check_static(files, report = None):
 
     time.sleep(15)
     for src in files:
-            if not os.path.exists(src):
-                failed.append(src)
-                logging.error("Not existent file: %s" % src)
+        dst = "%s.copy.exe" % src
+        if not os.path.exists(src):
+            failed.append(src)
+            logging.error("Not existent file: %s" % src)
+        else:
+            if os.path.exists(dst) and os.path.exists(src):
+                success.append(src)
+                logging.debug("succesful copy %s to %s" % (src, dst))
             else:
-                if os.path.exists(dst) and os.path.exists(src):
-                    success.append(src)
-                    logging.debug("succesful copy %s to %s" % (src, dst))
-                else:
-                    logging.error("cannot copy")
-                    failed.append(src)
+                logging.error("cannot copy")
+                failed.append(src)
 
 
     if not failed:
