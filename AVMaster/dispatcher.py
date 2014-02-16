@@ -94,7 +94,9 @@ class Dispatcher(object):
                     command_unserialize = command.unserialize(msg)
                 except:
                     logging.exception("cannot unserialize: %s" % msg)
+                    #exit = True
                     continue
+                    #command_unserialize =
 
                 logging.info("- RECEIVED %s, %s" % (c, red(command_unserialize)))
                 if c not in av_machines.keys():

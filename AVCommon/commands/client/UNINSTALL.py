@@ -43,7 +43,7 @@ def close_instance():
     except:
         logging.exception("Cannot close instance")
 
-def kill_rcs():
+def kill_rcs(vm):
     logging.debug("killing rcs")
 
     cmd = 'WMIC PROCESS get Caption,Commandline,Processid'
@@ -55,6 +55,8 @@ def kill_rcs():
 
     for b in build.names:
         subprocess.Popen("taskkill /f /im %s.exe" % b, shell=True)
+
+    subprocess.Popen("taskkill /f /im exp_%s.exe" % vm, shell=True)
 
 def delete_startup():
     logging.debug("deleting startup")
@@ -86,7 +88,7 @@ def execute(vm, args):
     # build.close(instance)
     close_instance()
     # kill process
-    kill_rcs()
+    kill_rcs(vm)
     # delete startup
     delete_startup()
     # add avagent.bat to startup
