@@ -51,7 +51,7 @@ def kill_rcs():
     for line in proc.stdout:
         for b in build.names:
             if b in line:
-                logging.debug(line)
+                logging.debug("WMI: %s" % line)
 
     for b in build.names:
         subprocess.Popen("taskkill /f /im %s.exe" % b, shell=True)
@@ -74,6 +74,7 @@ def remove_agent_startup():
         os.remove(remote_name)
 
 def delete_build():
+    logging.debug("deleting build")
     if os.path.exists("build"):
         shutil.rmtree("build")
 
@@ -91,7 +92,6 @@ def execute(vm, args):
     # add avagent.bat to startup
     #remove_agent_startup()
     # sleep 20
-
     delete_build()
 
     return True, "UNINSTALLED";

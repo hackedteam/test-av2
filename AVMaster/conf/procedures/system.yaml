@@ -215,9 +215,9 @@ SYSTEM_DAILY_FAST:
     - CALL: SET_MAIL
     - REPORT:
         #- VM_STATIC: ['AV Invisibility Static', 'Static check on builds']
-        - VM_SOLDIER: ['AV Invisibility', 'Soldier']
+        #- VM_SOLDIER: ['AV Invisibility', 'Soldier']
         #- VM_ELITE_FAST: ['AV Invisibility', 'Elite']
-        #- VM_MELT: ['AV Invisibility', 'Melt']
+        - VM_MELT: ['AV Invisibility', 'Melt']
         #- VM_EXPLOIT: ['AV Invisibility', 'Exploit']
     - UNINSTALL
     - CALL: VM_GET_LOG
