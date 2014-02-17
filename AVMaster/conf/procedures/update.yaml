@@ -64,12 +64,13 @@ UPDATE_AGENT:
     - ON_ERROR: STOP
     - INTERNET: False
     - SLEEP: [10, 600]
-    #- REVERT
-    #- START_VM
+    - REVERT
+    - START_VM
 
     - CALL: VM_PUSH_AGENT
     - INSTALL_AGENT
     - START_AGENT
+    - UNINSTALL
 
     - CLEAN_EVIDENCES
     - STOP_VM: 300

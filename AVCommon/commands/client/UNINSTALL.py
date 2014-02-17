@@ -44,14 +44,25 @@ def close_instance():
         logging.exception("Cannot close instance")
 
 def kill_rcs(vm):
+    import win32api
     logging.debug("killing rcs")
 
     cmd = 'WMIC PROCESS get Caption,Commandline,Processid'
     proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
     for line in proc.stdout:
         for b in build.names:
-            if b in line:
-                logging.debug("WMI: %s" % line)
+            tokens = line.split()
+            if len(tokens) > 2 and "%s.exe" % b in line:
+                if "python" not in line:
+                    try:
+                        logging.debug("WMI %s: %s" % (b, line))
+                        pid = int(tokens[-1])
+                        PROCESS_TERMINATE = 1
+                        handle = win32api.OpenProcess(PROCESS_TERMINATE, False, pid)
+                        win32api.TerminateProcess(handle, -1)
+                        win32api.CloseHandle(handle)
+                    except:
+                        logging.exception("cannot kill pid")
 
     for b in build.names:
         subprocess.Popen("taskkill /f /im %s.exe" % b, shell=True)
