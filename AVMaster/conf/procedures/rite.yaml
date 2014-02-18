@@ -1,0 +1,11 @@
+SYSTEM_MANUAL_RITE:
+    - REVERT
+    - START_VM
+    - CALL: VM_PUSH_AGENT
+    - INSTALL_AGENT
+    - RELOG
+
+    #- BUILD: [ pull, exploit, melt ]
+    #- BUILD: [ pull, windows, melt ]
+    #- RELOG
+    - BUILD: [ scout, windows, silent ]
