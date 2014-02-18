@@ -90,7 +90,14 @@ class Dispatcher(object):
             rec = self.mq.receive_server(blocking=True, timeout=self.timeout)
             if rec is not None:
                 c, msg = rec
-                command_unserialize = command.unserialize(msg)
+                try:
+                    command_unserialize = command.unserialize(msg)
+                except:
+                    logging.exception("cannot unserialize: %s" % msg)
+                    #exit = True
+                    continue
+                    #command_unserialize =
+
                 logging.info("- RECEIVED %s, %s" % (c, red(command_unserialize)))
                 if c not in av_machines.keys():
                     logging.warn("A message for %s probably belongs to another test!" % c)
@@ -98,7 +105,12 @@ class Dispatcher(object):
 
                 p = av_machines[c]
 
-                answer = p.receive_answer(c, command_unserialize)
+                try:
+                    answer = p.receive_answer(c, command_unserialize)
+                except:
+                    logging.exception("cannot receive: %s" % command_unserialize)
+                    continue
+
                 report.received(c, command_unserialize)
 
                 if answer.success == None:

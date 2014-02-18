@@ -20,7 +20,7 @@ from AVCommon import logger
 def on_answer(vm, success, answer):
     from AVMaster import vm_manager
 
-    assert command.context, "Null context"
+    #assert command.context, "Null context"
 
     logging.debug("CROP answer: %s|%s" % (success, answer))
     # answer = [1,5,7]

@@ -3,6 +3,8 @@ __author__ = 'fabrizio'
 import time
 import os
 import subprocess
+import shutil
+
 from AVCommon.logger import logging
 
 from AVCommon import command
@@ -41,10 +43,39 @@ def close_instance():
     except:
         logging.exception("Cannot close instance")
 
-def kill_rcs():
+def kill_rcs(vm):
+    import win32api
     logging.debug("killing rcs")
+
+    cmd = 'WMIC PROCESS get Caption,Commandline,Processid'
+    proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+
+    expname = "exp_%s" % vm
+    if expname not in build.names:
+        build.names.append(expname)
+        build.names.append("notepad")
+
+    for line in proc.stdout:
+        for b in build.names:
+            exename = "%s.exe" % b
+            tokens = line.split()
+            if len(tokens) > 2 and exename in line:
+                if "python" not in line:
+                    try:
+                        logging.debug("WMI %s: %s" % (exename, line))
+                        pid = int(tokens[-1])
+                        PROCESS_TERMINATE = 1
+                        handle = win32api.OpenProcess(PROCESS_TERMINATE, False, pid)
+                        win32api.TerminateProcess(handle, -1)
+                        win32api.CloseHandle(handle)
+                    except:
+                        logging.exception("cannot kill pid")
+
     for b in build.names:
-        os.system("taskkill /f /im %s.exe" % b)
+        subprocess.Popen("taskkill /f /im %s.exe" % b, shell=True)
+
+    tasklist =  subprocess.Popen(["tasklist"], stdout=subprocess.PIPE).communicate()[0]
+    logging.debug(tasklist)
 
 def delete_startup():
     logging.debug("deleting startup")
@@ -63,6 +94,11 @@ def remove_agent_startup():
     if os.path.exists(remote_name):
         os.remove(remote_name)
 
+def delete_build():
+    logging.debug("deleting build")
+    if os.path.exists("build"):
+        shutil.rmtree("build")
+
 def execute(vm, args):
     from AVAgent import av_agent
 
@@ -71,11 +107,12 @@ def execute(vm, args):
     # build.close(instance)
     close_instance()
     # kill process
-    kill_rcs()
+    kill_rcs(vm)
     # delete startup
     delete_startup()
     # add avagent.bat to startup
     #remove_agent_startup()
     # sleep 20
+    delete_build()
 
     return True, "UNINSTALLED";

@@ -113,9 +113,11 @@ VM_ELITE_FAST:
     - SLEEP: 30
     - RELOG
 
+    - ON_ERROR: CONTINUE
     - CROP: True
     - BUILD: [ elite_fast, windows, silent ]
     - CROP: False
+    - ON_ERROR: SKIP
 
     - UNINSTALL
     - RELOG
@@ -125,9 +127,11 @@ VM_SOLDIER:
     - SLEEP: 30
     - RELOG
 
+    - ON_ERROR: CONTINUE
     - CROP: True
     - BUILD: [ soldier_fast, windows, silent ]
     - CROP: False
+    - ON_ERROR: SKIP
 
     - UNINSTALL
     - RELOG
@@ -215,10 +219,10 @@ SYSTEM_DAILY_FAST:
     - CALL: SET_MAIL
     - REPORT:
         #- VM_STATIC: ['AV Invisibility Static', 'Static check on builds']
-        - VM_SOLDIER: ['AV Invisibility', 'Soldier']
-        - VM_ELITE_FAST: ['AV Invisibility', 'Elite']
+        #- VM_SOLDIER: ['AV Invisibility', 'Soldier']
+        #- VM_ELITE_FAST: ['AV Invisibility', 'Elite']
         - VM_MELT: ['AV Invisibility', 'Melt']
-        - VM_EXPLOIT: ['AV Invisibility', 'Exploit']
+        #- VM_EXPLOIT: ['AV Invisibility', 'Exploit']
     - UNINSTALL
     - CALL: VM_GET_LOG
     - CALL: END_DISPATCH

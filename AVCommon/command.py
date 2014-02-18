@@ -26,6 +26,15 @@ if parent not in sys.path:
 known_commands = {}
 context = {}
 
+import exceptions
+class WEFake:
+    def __init__(self, *args):
+        self.args = list(args)
+    def __str__(self):
+        return "%s %s" % ("WindowsError", self.args)
+
+if "WindowsError" not in dir (exceptions):
+    exceptions.WindowsError = WEFake
 
 def init():
     global command_names
@@ -192,7 +201,10 @@ class Command(object):
         self.name = name
         self.success = success
         self.args = args
-        self.result = result
+        if  isinstance(result, Exception):
+            self.result = str(result)
+        else:
+            self.result = result
         if not timestamp:
             self.timestamp = time.time()
         else:
@@ -205,6 +217,8 @@ class Command(object):
         self.timestamp = time.time()
 
     def serialize(self):
+        logging.debug("serialize result: %s" % self.result)
+
         serialized = pickle.dumps(( self.name, self.success, self.args, self.result, self.vm, self.side, self.timestamp ),
                                   pickle.HIGHEST_PROTOCOL)
         #logging.debug("pickle.dumps(%s)" % serialized)

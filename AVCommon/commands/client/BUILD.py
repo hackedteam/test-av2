@@ -42,7 +42,7 @@ def execute(vm, args):
     report = command.context["report"]
 
     logging.debug("args: %s", args)
-    action, platform, kind, operation = args
+    action, platform, kind, operation = args[0:4]
 
     param = params[platform]
     platform_type = param['platform_type']
