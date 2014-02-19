@@ -29,14 +29,14 @@ def execute(vm, protocol, args):
     if ret:
         for i in range(6):
             if vm_manager.execute(vm, "is_powered_on"):
-                logging.debug("powered on")
+                logging.debug("%s: powered on" % vm)
                 for i in range(timeout):
                     if mq.check_connection(vm):
                         logging.debug("got connection from %s" % vm)
                         return True, "Login VM"
                     sleep(10)
 
-                logging.debug("try to reboot")
+                logging.debug("%s: try to reboot" % vm)
                 ret = vm_manager.execute(vm, "reboot")
             else:
                 sleep(10)

@@ -2,6 +2,7 @@ __author__ = 'fabrizio'
 
 import os
 import sys
+import socket
 from AVCommon.logger import logging
 from time import sleep
 from AVCommon import config
@@ -39,3 +40,12 @@ def red(msg, max_len=70):
         return s
 
     return "%s ..." %  s[:max_len]
+
+
+def get_hostname():
+    host = socket.gethostname()
+    drop = ["winxp","win7","win8"]
+    for d in drop:
+        host = host.replace(d, "")
+
+    return host

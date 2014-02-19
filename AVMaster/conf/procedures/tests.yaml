@@ -335,3 +335,22 @@ TEST_PUSH_VIRUS:
     - INSTALL_AGENT
     - START_AGENT
     - CALL: SYS_PUSH_VIRUS
+
+
+TEST_RELOG:
+    - REVERT
+    - START_VM
+
+    - RELOG
+    - RELOG
+    - RELOG
+    - RELOG
+    - RELOG
+
+    - RELOG
+    - RELOG
+    - RELOG
+    - RELOG
+    - RELOG
+
+    - STOP_VM

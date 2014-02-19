@@ -2,7 +2,7 @@ __author__ = 'zeno'
 
 import time
 from AVCommon.logger import logging
-from AVCommon import command
+from AVCommon import helper
 
 def execute(vm, protocol, args):
     # change the kind for the vm
@@ -28,7 +28,10 @@ def execute(vm, protocol, args):
             test_case = report_args.pop(0)
 
             proj_id = 1
-            plan_name = "Continuous Testing"
+
+            hostname = helper.get_hostname()
+
+            plan_name = "Continuous Testing %s" % hostname
 
             if  "INVERT" in report_args:
                 result = 'failed' if success else 'passed'

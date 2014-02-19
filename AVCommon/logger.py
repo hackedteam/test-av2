@@ -18,14 +18,17 @@ if not os.path.exists(logdir):
 #with open("../AVCommon/logging.yml") as o:
 #    logging.config.dictConfig(yaml.load(o))
 
-def init(report = "", logname_arg = "avmonitor.log"):
-    print "init report: %s" % report
+def init(report = "", logname_arg = "avmonitor.log", quiet=False):
+    #print "init report: %s" % report
     global logdir, logname
 
     if report:
         logdir = "%s/%s" % (logdir_base, report)
         logname = logname_arg
+        if not quiet:
+            setStreamLogger()
         logging = setFileLogger(logdir, logname_arg)
+
     else:
         logging = setStreamLogger()
 
@@ -80,5 +83,5 @@ def setFileLogger(report_dir, logname_arg):
 
     return logger
 
-init()
-logging.info("START LOGGING")
+#init()
+#logging.info("START LOGGING")

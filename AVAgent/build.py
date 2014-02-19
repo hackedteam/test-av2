@@ -22,6 +22,7 @@ import shutil
 from rcs_client import Rcs_client
 from AVCommon.logger import logging
 from AVCommon import process
+from AVCommon import helper
 
 MOUSEEVENTF_MOVE = 0x0001  # mouse move
 MOUSEEVENTF_ABSOLUTE = 0x8000  # absolute move
@@ -133,15 +134,8 @@ class connection:
         self.conn.logout()
 
 def get_target_name():
-    return 'VM_%s' % get_hostname()
+    return 'VM_%s' % helper.get_hostname()
 
-def get_hostname():
-    host = socket.gethostname()
-    drop = ["winxp","win7","win8"]
-    for d in drop:
-        host = host.replace(d, "")
-
-    return host
 
 class AgentBuild:
     def __init__(self, backend, frontend=None, platform='windows', kind='silent',
@@ -149,7 +143,7 @@ class AgentBuild:
         self.kind = kind
         self.host = (backend, frontend)
 
-        self.hostname = get_hostname()
+        self.hostname = helper.get_hostname()
 
         self.blacklist = blacklist
         self.soldierlist = soldierlist

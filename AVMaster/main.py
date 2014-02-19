@@ -30,6 +30,9 @@ def main():
                         help="session redis mq ")
     parser.add_argument('-e', '--report', type=str, default="")
 
+    parser.add_argument('-q', '--quiet', action='store_true', default=False,
+                        help="Quiet")
+
     args = parser.parse_args()
 
     if args.report:
@@ -37,7 +40,7 @@ def main():
     else:
         report = time.strftime("%y%m%d", time.localtime(time.time()))
 
-    logger.init(report)
+    logger.init(report, quiet=args.quiet)
 
     from AVCommon.logger import logging
     globals()['logging']=logging
