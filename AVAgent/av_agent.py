@@ -18,6 +18,7 @@ if parent not in sys.path:
     sys.path.insert(0, parent)
 
 from AVCommon import logger
+logger.init()
 
 from AVCommon.mq import MQStar
 from AVCommon.protocol import Protocol
