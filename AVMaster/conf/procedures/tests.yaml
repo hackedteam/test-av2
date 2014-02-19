@@ -313,7 +313,9 @@ TEST_INSA:
 
 
 TEST_UPD:
+    - VM_ALL
     - ON_ERROR: STOP
+    - SLEEP: [10,60]
     - REVERT
     - START_VM
     - STOP_AGENT
@@ -321,9 +323,11 @@ TEST_UPD:
     - INSTALL_AGENT
     - START_AGENT
     - UNINSTALL
-    - RELOG
+    #- RELOG
     - REPORT:
         - VM_SOLDIER
+    - CALL: VM_GET_LOG
+    - CALL: END_DISPATCH
 
 TEST_PUSH_VIRUS:
     - STOP_AGENT

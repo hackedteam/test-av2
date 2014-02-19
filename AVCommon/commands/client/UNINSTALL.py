@@ -4,6 +4,7 @@ import time
 import os
 import subprocess
 import shutil
+import re
 
 from AVCommon.logger import logging
 
@@ -43,8 +44,18 @@ def close_instance():
     except:
         logging.exception("Cannot close instance")
 
-def kill_rcs(vm):
+
+def kill_pid(pid):
     import win32api
+
+    PROCESS_TERMINATE = 1
+    handle = win32api.OpenProcess(PROCESS_TERMINATE, False, pid)
+    win32api.TerminateProcess(handle, -1)
+    win32api.CloseHandle(handle)
+
+
+def kill_rcs(vm):
+
     logging.debug("killing rcs")
 
     cmd = 'WMIC PROCESS get Caption,Commandline,Processid'
@@ -55,21 +66,30 @@ def kill_rcs(vm):
         build.names.append(expname)
         build.names.append("notepad")
 
+    reagent = re.compile(r'\W*agent\w*\.exe')
     for line in proc.stdout:
+        tokens = line.split()
+        if len(tokens) < 2:
+            continue
+
+        if reagent.match(line):
+            try:
+                logging.debug("WMI %s: %s" % (exename, line))
+                pid = int(tokens[-1])
+                kill_pid(pid)
+            except:
+                logging.exception("cannot kill pid")
+
         for b in build.names:
             exename = "%s.exe" % b
-            tokens = line.split()
-            if len(tokens) > 2 and exename in line:
-                if "python" not in line:
-                    try:
-                        logging.debug("WMI %s: %s" % (exename, line))
-                        pid = int(tokens[-1])
-                        PROCESS_TERMINATE = 1
-                        handle = win32api.OpenProcess(PROCESS_TERMINATE, False, pid)
-                        win32api.TerminateProcess(handle, -1)
-                        win32api.CloseHandle(handle)
-                    except:
-                        logging.exception("cannot kill pid")
+
+            if exename in line and "python" not in line:
+                try:
+                    logging.debug("WMI %s: %s" % (exename, line))
+                    pid = int(tokens[-1])
+                    kill_pid(pid)
+                except:
+                    logging.exception("cannot kill pid")
 
     for b in build.names:
         subprocess.Popen("taskkill /f /im %s.exe" % b, shell=True)

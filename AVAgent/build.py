@@ -17,6 +17,7 @@ import random
 from ConfigParser import ConfigParser
 from urllib2 import HTTPError
 import ctypes
+import shutil
 
 from rcs_client import Rcs_client
 from AVCommon.logger import logging
@@ -277,19 +278,17 @@ class AgentBuild:
 
                 raise e
 
-    def _execute_build(self, exenames):
+    def _execute_build(self, exenames, silent=False):
         try:
             exe = exenames[0]
-            if exe == "build\\agent.exe":
-                new_exe = "build\\SNZEHJJG.exe"
-                os.rename(exe, new_exe)
-                exe = new_exe
 
             logging.debug("- Execute: " + exe)
             #subp = subprocess.Popen([exe]) #, shell=True)
             exefile = exe.replace("/","\\")
             subp = subprocess.Popen(exefile, shell=True)
-            add_result("+ SUCCESS SCOUT EXECUTE")
+            if not silent:
+                add_result("+ SUCCESS SCOUT EXECUTE")
+
         except Exception, e:
             logging.debug("DBG trace %s" % traceback.format_exc())
             add_result("+ FAILED SCOUT EXECUTE")
@@ -557,6 +556,9 @@ class AgentBuild:
             else:
                 self.check_level(instance_id, "elite")
 
+            logging.debug("re executing scout")
+            self._execute_build("build/scout.exe", silent=True)
+
             logging.debug("- %s, uninstall: %s" % (level, time.ctime()))
             #sleep(60)
             self.uninstall(instance_id)
@@ -588,6 +590,9 @@ class AgentBuild:
     def execute_scout(self):
         """ build and execute the  """
         factory_id, ident, exe = self.execute_pull()
+
+        new_exe = "build\\scout.exe"
+        shutil.copy(exe[0], new_exe)
 
         self._execute_build(exe)
         if self.kind == "melt": # and not exploit

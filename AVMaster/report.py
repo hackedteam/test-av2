@@ -100,7 +100,7 @@ def mail_summary(mail_recipients, mail_server = "mail.hackingteam.com"):
 
 def finish():
     logging.debug("report finish")
-    dump_yaml()
+    #dump_yaml()
 
     logging.debug("context: %s" % command.context)
     mail_recipients = command.context.get("mail_recipients", [])

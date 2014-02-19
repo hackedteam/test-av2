@@ -332,9 +332,10 @@ SYSTEM_FUNCTIONAL:
         backend: 192.168.100.201
         frontend: 192.168.100.204
 
+    - UNINSTALL
     - PUSH: [ AVAgent/assets/facebook.bat ]
     - BUILD: [ pull, windows_elite, silent ]
-    - EXECUTE_VM: [ /AVTest/AVAgent/build/windows_elite/agent.exe, [], 40, True, True ]
+    - EXECUTE_VM: [ /AVTest/build/windows_elite/agent.exe, [], 40, True, True ]
     - SLEEP: 30
 
     - EXECUTE_VM: [ /AVTest/AVAgent/assets/facebook.bat, [], 40, True, True ]
@@ -358,9 +359,10 @@ SYSTEM_FUNCTIONAL_SOLDIER:
         backend: 192.168.100.201
         frontend: 192.168.100.204
 
+    - UNINSTALL
     - PUSH: [ AVAgent/assets/facebook.bat ]
     - BUILD: [ pull, windows_soldier, silent ]
-    - EXECUTE_VM: [ /AVTest/AVAgent/build/windows-soldier/agent.exe, [], 40, True, True ]
+    - EXECUTE_VM: [ /AVTest/build/windows-soldier/agent.exe, [], 40, True, True ]
     - SLEEP: 30
 
     - EXECUTE_VM: [ /AVTest/AVAgent/assets/facebook.bat, [], 40, True, True ]
