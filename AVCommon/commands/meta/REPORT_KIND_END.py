@@ -38,7 +38,7 @@ def execute(vm, protocol, args):
             else:
                 result = 'passed' if success else 'failed'
 
-            configs={ 'AV Invisibility': "%s, Windows" % vm}
+            configs={ 'AV Invisibility': "%s, Windows" % vm, 'AV Invisibility Static': "%s, Windows" % vm}
 
             config = configs.get(run_name, vm)
 
