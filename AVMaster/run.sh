@@ -1,4 +1,4 @@
 #!/bin/sh
 rm *.log
-cd ~/AVTest2/AVMaster
+cd ~/Rite/AVMaster
 python main.py -r $*

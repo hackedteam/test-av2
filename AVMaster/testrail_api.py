@@ -4,8 +4,12 @@ from urllib2 import HTTPError
 import sys
 import base64
 import pprint
+import os
+import inspect
 
 from AVCommon.logger import logging
+
+from AVCommon import helper
 
 user_hash = base64.encodestring('apitestrail@hackingteam.com:apicoltore').replace('\n', '')
 base_url = "http://172.20.20.168/testrail/index.php?/api"
@@ -85,9 +89,11 @@ def add_plan_entry(plan_id, plan_entry):
 def add_result(test_id, result, comment="", elapsed=0, defects="", version=0 ):
 
     res = { "status_id": result,
-            "elapsed": elapsed,
-            "comment": comment }
+            "elapsed": "%s" % int(elapsed),
+            "comment": comment,
+            "custom_steps_separated": None}
     add_result_url = "%s/v2/add_result/%d" % (base_url, test_id)
+    logging.debug("add_result: %s %s" % (add_result_url, res))
     return send_post(add_result_url, res)
 
 def rerun_plan(project_id,plan_id):
@@ -137,25 +143,28 @@ def add_plan_result(proj_id, plan_id, config, run_name, test_case, result, elaps
             for t in get_tests(r["id"]):
                 if test_case in t["title"]:
                     logging.debug("adding result for test: %s" % t["id"])
+                    #results = get_results(t["id"])
+                    #logging.debug("results: %s" % results )
                     add_result(t["id"], results[result], comment, elapsed)
                     return r["id"]
     logging.error("cannot find correct test case")
 
 def main():
+
     proj_id = 1
-    plan_name = "Continuous Testing"
+    plan_name = "Continuous Testing rite" #% helper.get_hostname()
     run_name = "AV Invisibility"
-    test_case = "Soldier"
+    test_case = "Elite"
     #test_case_id = 1
     result = "retest"
-    config = "360cn5, Windows"
+    config = "avg, Windows"
 
     #plan_id = 55
     #plan = get_plan(project_id, plan_id)
     plan = search_plan(proj_id, plan_name=plan_name)
     plan_id = plan["id"]
 
-    add_plan_result(proj_id, plan_id, config, run_name, test_case, result, 60.1)
+    add_plan_result(proj_id, plan_id, config, run_name, test_case, result, 60)
 
     #new_plan_id = rerun_plan(project_id, plan_id)
 

@@ -42,6 +42,7 @@ def execute(vm, protocol, args):
 
             config = configs.get(run_name, vm)
 
+            logging.debug("search plan %s on %s" % (proj_id, plan_name))
             plan = testrail_api.search_plan(proj_id, plan_name=plan_name)
             plan_id = plan["id"]
 
