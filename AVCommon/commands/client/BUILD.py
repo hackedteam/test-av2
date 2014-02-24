@@ -12,9 +12,9 @@ report_level = 1
 
 def on_init(protocol, args):
     """ server side """
-    operation = "AOP_%s" % socket.gethostname()
+    puppet =  socket.gethostname()
     if len(args) == 3:
-        args.append(operation)
+        args.append(puppet)
     return True
 
 
@@ -42,7 +42,9 @@ def execute(vm, args):
     report = command.context["report"]
 
     logging.debug("args: %s", args)
-    action, platform, kind, operation = args[0:4]
+    action, platform, kind, puppet = args[0:4]
+
+    operation = "AOP_%s" % puppet
 
     param = params[platform]
     platform_type = param['platform_type']
@@ -51,7 +53,26 @@ def execute(vm, args):
     assert action in ['scout', 'elite', 'elite_fast', 'soldier_fast', 'internet', 'test', 'clean', 'pull'], "action: %s" % action
     assert platform_type in ['desktop', 'mobile'], "platform_type: %s" % platform_type
 
-    results, success, errors = build.build(action, platform, platform_type, kind, param, operation, backend, frontend, blacklist, soldierlist, nointernetcheck, report)
+
+    class Args:
+        pass
+
+    args = Args()
+
+    args.action = action
+    args.platform = platform
+    args.kind = kind
+    args.backend = backend
+    args.frontend = frontend
+    args.param = param
+    args.blacklist = blacklist
+    args.soldierlist = soldierlist
+    args.platform_type = platform_type
+    args.nointernetcheck = nointernetcheck
+    args.operation = operation
+    args.puppet = puppet
+
+    results, success, errors = build.build(args, report)
 
     try:
         last_result = results[-1]

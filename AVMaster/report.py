@@ -3,6 +3,7 @@ __author__ = 'fabrizio'
 import os
 from AVCommon.logger import logging
 from AVCommon import logger
+from AVCommon import helper
 import pickle
 import yaml
 import time
@@ -124,7 +125,9 @@ def summary():
     report = Report()
     report.vm = {}
 
-    summary_header = "SUMMARY %s %s\n" % (report.name, report.timestamp)
+    hostname = helper.get_hostname()
+
+    summary_header = "SUMMARY @%s \n-- %s --\n %s\n" % (hostname, report.name, report.timestamp)
     summary = "\n"
     failed = OrderedDict()
     important_commands = ["BUILD", "CHECK_STATIC"]

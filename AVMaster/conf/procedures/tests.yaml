@@ -313,6 +313,7 @@ TEST_INSA:
 
 TEST_UPD:
     - VM_ALL
+    - INTERNET: False
     - ON_ERROR: STOP
     - SLEEP: [10,60]
     - REVERT
@@ -324,7 +325,7 @@ TEST_UPD:
     - UNINSTALL
     #- RELOG
     - REPORT:
-        - VM_SOLDIER
+        - VM_ELITE_FAST
     - CALL: VM_GET_LOG
     - CALL: END_DISPATCH
 

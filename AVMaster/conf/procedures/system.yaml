@@ -302,15 +302,19 @@ VM_FUNCTIONAL_EV:
     - CHECK_EVIDENCES: [screenshot]
 
 VM_FUNCTIONAL_CHAT_FB:
+    - SLEEP: 60
     - CHECK_EVIDENCES: [chat, program, facebook]
 
 VM_FUNCTIONAL_ADDRESSBOOK_FB:
+    - SLEEP: 60
     - CHECK_EVIDENCES: [addressbook, program, facebook]
 
 VM_FUNCTIONAL_CHAT_SKYPE:
+    - SLEEP: 60
     - CHECK_EVIDENCES: [chat, program, skype]
 
 VM_FUNCTIONAL_ADDRESSBOOK_SKYPE:
+    - SLEEP: 60
     - CHECK_EVIDENCES: [addressbook, program, skype]
 
 SYSTEM_FUNCTIONAL_FAST:
@@ -336,7 +340,7 @@ SYSTEM_FUNCTIONAL:
     - PUSH: [ AVAgent/assets/facebook.bat ]
     - BUILD: [ pull, windows_elite, silent ]
     - EXECUTE_VM: [ /AVTest/build/windows_elite/agent.exe, [], 40, True, True ]
-    - SLEEP: 30
+    - SLEEP: 60
 
     - EXECUTE_VM: [ /AVTest/AVAgent/assets/facebook.bat, [], 40, True, True ]
     - SLEEP: 120
@@ -362,7 +366,7 @@ SYSTEM_FUNCTIONAL_SOLDIER:
     - PUSH: [ AVAgent/assets/facebook.bat ]
     - BUILD: [ pull, windows_soldier, silent ]
     - EXECUTE_VM: [ /AVTest/build/windows-soldier/agent.exe, [], 40, True, True ]
-    - SLEEP: 30
+    - SLEEP: 60
 
     - EXECUTE_VM: [ /AVTest/AVAgent/assets/facebook.bat, [], 40, True, True ]
     - SLEEP: 120

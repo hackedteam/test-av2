@@ -120,6 +120,7 @@ class connection:
     user = "avmonitor"
     passwd = "avmonitorp123"
     operation = 'AVMonitor'
+
     rcs=[]
 
     def __enter__(self):
@@ -139,11 +140,12 @@ def get_target_name():
 
 class AgentBuild:
     def __init__(self, backend, frontend=None, platform='windows', kind='silent',
-                 ftype='desktop', blacklist=[], soldierlist=[], param=None):
+                 ftype='desktop', blacklist=[], soldierlist=[], param=None, puppet="puppet"):
         self.kind = kind
         self.host = (backend, frontend)
 
         self.hostname = helper.get_hostname()
+        self.prefix = puppet
 
         self.blacklist = blacklist
         self.soldierlist = soldierlist
@@ -321,8 +323,10 @@ class AgentBuild:
             logging.debug("level, expected: %s got: %s" % (expected, level))
             if not level == expected:
                 add_result("+ NO %s LEVEL" % level.upper())
+                return False
             else:
                 add_result("+ SUCCESS %s LEVEL" % level.upper())
+                return True
 
     def check_instance(self, ident):
         with connection() as c:
@@ -400,7 +404,7 @@ class AgentBuild:
             'TECH_FACTORIES', 'TECH_BUILD', 'TECH_CONFIG', 'TECH_EXEC', 'TECH_UPLOAD',
             'TECH_IMPORT', 'TECH_NI_RULES', 'VIEW', 'VIEW_ALERTS', 'VIEW_FILESYSTEM',
             'VIEW_EDIT', 'VIEW_DELETE', 'VIEW_EXPORT', 'VIEW_PROFILES']
-        user_name = "avmonitor_%s" % self.hostname
+        user_name = "avmonitor_%s_%s" % (self.prefix, self.hostname)
         connection.user = user_name
 
         user_exists = False
@@ -530,7 +534,9 @@ class AgentBuild:
             sleep(25 * 60)
             upgraded = self.check_level(instance_id, level)
 
+        logging.debug("Upgraded: %s" % upgraded)
         if upgraded:
+
             #if got_level != level:
             #    add_result("+ FAILED LEVEL: %s" % level)
             sleep(60)
@@ -759,7 +765,7 @@ def execute_agent(args, level, platform):
     logging.debug("DBG ftype: %s" % ftype)
 
     vmavtest = AgentBuild(args.backend, args.frontend,
-                          platform, args.kind, ftype, args.blacklist, args.soldierlist, args.param)
+                          platform, args.kind, ftype, args.blacklist, args.soldierlist, args.param, args.puppet)
 
     """ starts a scout """
     if socket.gethostname().lower() not in args.nointernetcheck:
@@ -793,7 +799,7 @@ def execute_agent(args, level, platform):
     return True
 
 def get_instance(client):
-    operation_id, group_id = client.operation('AVMonitor')
+    operation_id, group_id = client.operation(connection.operation)
     target = get_target_name()
 
     targets = client.targets(operation_id, target)
@@ -858,7 +864,7 @@ def uninstall(backend):
     with connection() as client:
         logging.debug("connected")
 
-        operation_id, group_id = client.operation('AVMonitor')
+        operation_id, group_id = client.operation(connection.operation)
         targets = client.targets(operation_id, target)
         if len(targets) != 1:
             return False, "not one target: %s" % len(targets)
@@ -888,31 +894,18 @@ def disable_analysis(backend):
     vmavtest = AgentBuild(backend)
     return vmavtest._disable_analysis()
 
-def build(action, platform, platform_type, kind, param, operation, backend, frontend, blacklist, soldierlist, nointernetcheck, report):
+def build(args, report):
     global results, report_send
     results = []
-
-    class Args:
-        pass
-
-    args = Args()
-
-    args.action = action
-    args.platform = platform
-    args.kind = kind
-    args.backend = backend
-    args.frontend = frontend
-    args.param = param
-    args.blacklist = blacklist
-    args.soldierlist = soldierlist
-    args.platform_type = platform_type
-    args.nointernetcheck = nointernetcheck
-    args.operation = operation
 
     report_send = report
 
     connection.host = args.backend
     connection.operation = args.operation
+
+    action = args.action
+    platform = args.platform
+    kind = args.kind
 
     if report_send:
         report_send("+ INIT %s, %s, %s" % (action, platform, kind))
