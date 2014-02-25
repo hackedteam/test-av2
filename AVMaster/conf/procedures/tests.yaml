@@ -105,32 +105,6 @@ TEST_ELITE_FAST:
     #- UNINSTALL
     #- RELOG
 
-TEST_SOLDIER:
-    - VM: [noav]
-    #- INTERNET: False
-    #- REVERT
-    #- START_VM
-    #- CALL: VM_PUSH_AGENT
-    #- INSTALL_AGENT
-    #- START_AGENT
-    #- RELOG
-
-    #- CLEAN_EVIDENCES
-    - BUILD: [ scout, windows, silent ]
-    - SLEEP: 60
-    - RELOG
-
-    #- CROP: True
-    - BUILD: [ soldier_fast, windows, silent ]
-    #- CROP: False
-
-    - CHECK_INFECTION
-
-    #- UNINSTALL
-    #- RELOG
-    #- UNINSTALL
-    - CALL: VM_GET_LOG
-
 TEST_ELITE:
     - VM: [noav]
     #- INTERNET: False
@@ -311,6 +285,13 @@ TEST_INSA:
     - UNINSTALL
     #- CALL: END_DISPATCH
 
+TEST_SOLDIER:
+    - BUILD: [ scout, windows, silent ]
+    - SLEEP: 30
+    - RELOG
+
+    - BUILD: [ soldier_fast, windows, silent ]
+
 TEST_UPD:
     - VM_ALL
     - INTERNET: False
@@ -328,9 +309,10 @@ TEST_UPD:
     - UNINSTALL
     #- RELOG
     - REPORT:
-        - VM_SOLDIER
+        - TEST_SOLDIER
+    - SLEEP: 120
     - CALL: VM_GET_LOG
-    - CALL: END_DISPATCH
+    #- CALL: END_DISPATCH
 
 TEST_PUSH_VIRUS:
     - STOP_AGENT
