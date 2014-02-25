@@ -133,7 +133,7 @@ def crop(iter):
                 b = max(y,b)
                 t = min(y,t)
 
-    logging.debug("crop box: %s" % str((l,t,r,b)))
+    #logging.debug("crop box: %s" % str((l,t,r,b)))
 
     c=im2.crop((l,t,r,b))
     im1 = im2

@@ -545,7 +545,6 @@ class AgentBuild:
             sleep(60)
             #add_result("+ SUCCESS UPGRADE INSTALL %s" % got_level.upper())
             if level == "soldier":
-
                 executed = self.execute_agent_startup();
                 if not executed:
                     add_result("+ FAILED EXECUTE %s" % level.upper())
@@ -576,6 +575,7 @@ class AgentBuild:
         logging.debug("- sending Results to Master")
 
     def execute_agent_startup(self):
+        logging.debug("execute_agent_startup")
         executed = False
         for d, b in itertools.product(start_dirs, names):
             filename = "%s/%s.exe" % (d, b)
