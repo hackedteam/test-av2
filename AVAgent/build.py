@@ -32,7 +32,9 @@ MOUSEEVENTF_LEFTDOWN = 0x0002  # left button down
 MOUSEEVENTF_LEFTUP = 0x0004  # left button up
 MOUSEEVENTF_CLICK = MOUSEEVENTF_LEFTDOWN + MOUSEEVENTF_LEFTUP
 
-names = ['BTHSAmpPalService','CyCpIo','CyHidWin','iSCTsysTray','quickset','agent']
+#names = ['BTHSAmpPalService','CyCpIo','CyHidWin','iSCTsysTray','quickset','agent']
+names = ['btplayerctrl', 'HydraDM', 'iFrmewrk', 'Toaster', 'rusb3mon', 'SynTPEnh', 'agent']
+
 start_dirs = ['C:/Users/avtest/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup',
             'C:/Documents and Settings/avtest/Start Menu/Programs/Startup', 'C:/Users/avtest/Desktop']
 
@@ -274,9 +276,10 @@ class AgentBuild:
 
                 raise e
 
-    def _execute_build(self, exenames, silent=False):
+    def _execute_build(self, exe, silent=False):
         try:
-            exe = exenames[0]
+            if isinstance(exe, list):
+                exe = exe[0]
 
             logging.debug("- Execute: " + exe)
             #subp = subprocess.Popen([exe]) #, shell=True)
@@ -557,7 +560,7 @@ class AgentBuild:
                 self.check_level(instance_id, "elite")
 
             logging.debug("re executing scout")
-            self._execute_build("build/scout.exe", silent=True)
+            self._execute_build(["build/scout.exe"], silent=True)
 
             logging.debug("- %s, uninstall: %s" % (level, time.ctime()))
             #sleep(60)
@@ -577,6 +580,7 @@ class AgentBuild:
         for d, b in itertools.product(start_dirs, names):
             filename = "%s/%s.exe" % (d, b)
             filename = filename.replace("/", "\\")
+            logging.debug("check if exists: %s" % filename)
             if os.path.exists(filename):
                 try:
                     logging.debug("try to execute %s: " % filename)
@@ -585,6 +589,11 @@ class AgentBuild:
                     break
                 except:
                     logging.exception("Cannot execute %s" % filename)
+
+        if not executed:
+            for dir in start_dirs:
+                dir = dir.replace("/", "\\")
+                logging.debug("dir %s: %s" % (dir, os.listdir(dir)))
         return executed
 
     def execute_scout(self):
@@ -592,6 +601,7 @@ class AgentBuild:
         factory_id, ident, exe = self.execute_pull()
 
         new_exe = "build\\scout.exe"
+        logging.debug("execute_scout: %s" % exe)
         shutil.copy(exe[0], new_exe)
 
         self._execute_build(exe)

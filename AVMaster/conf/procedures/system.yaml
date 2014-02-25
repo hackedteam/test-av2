@@ -123,6 +123,8 @@ VM_ELITE_FAST:
     - RELOG
 
 VM_SOLDIER:
+    - CALL: INIT_DISPATCH
+
     - BUILD: [ scout, windows, silent ]
     - SLEEP: 30
     - RELOG
@@ -137,12 +139,16 @@ VM_SOLDIER:
     - RELOG
 
 VM_MELT:
+    - CALL: INIT_DISPATCH
+
     - BUILD: [ scout, windows, melt ]
     - UNINSTALL
     - SCREENSHOT
     - RELOG
 
 VM_EXPLOIT:
+    - CALL: INIT_DISPATCH
+
     - BUILD: [ pull, exploit_docx, melt ]
     - BUILD: [ scout, exploit, melt ]
     - UNINSTALL
@@ -166,6 +172,7 @@ SYSTEM_MELT:
     - CALL: SET_MAIL
     - REPORT:
         - VM_MELT: ['AV Invisibility', 'Melt']
+    - SCREENSHOT
     - UNINSTALL
     - CALL: END_DISPATCH
 
@@ -178,6 +185,7 @@ SYSTEM_ELITE:
     - CALL: SET_MAIL
     - REPORT:
         - VM_ELITE_FAST: ['AV Invisibility', 'Elite']
+    - SCREENSHOT
     - UNINSTALL
     - CALL: END_DISPATCH
 
@@ -190,6 +198,7 @@ SYSTEM_SOLDIER:
     - CALL: SET_MAIL
     - REPORT:
         - VM_SOLDIER: ['AV Invisibility', 'Soldier']
+    - SCREENSHOT
     - UNINSTALL
     - CALL: END_DISPATCH
 
@@ -218,11 +227,11 @@ SYSTEM_DAILY_FAST:
     - CALL: VM_CLEAN_EVIDENCES
     - CALL: SET_MAIL
     - REPORT:
-        - VM_STATIC: ['AV Invisibility Static', 'Static check on builds']
-        #- VM_SOLDIER: ['AV Invisibility', 'Soldier']
+        #- VM_STATIC: ['AV Invisibility Static', 'Static check on builds']
+        - VM_SOLDIER: ['AV Invisibility', 'Soldier']
         - VM_ELITE_FAST: ['AV Invisibility', 'Elite']
-        #- VM_MELT: ['AV Invisibility', 'Melt']
-        #- VM_EXPLOIT: ['AV Invisibility', 'Exploit']
+        - VM_MELT: ['AV Invisibility', 'Melt']
+        - VM_EXPLOIT: ['AV Invisibility', 'Exploit']
     - UNINSTALL
     - CALL: VM_GET_LOG
     - CALL: END_DISPATCH

@@ -54,19 +54,7 @@ def kill_pid(pid):
     win32api.CloseHandle(handle)
 
 
-def kill_rcs(vm):
-
-    logging.debug("killing rcs")
-
-    cmd = 'WMIC PROCESS get Caption,Commandline,Processid'
-    proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-
-    expname = "exp_%s" % vm
-    if expname not in build.names:
-        build.names.append(expname)
-        build.names.append("notepad")
-
-    reagent = re.compile(r'\W*agent\w*\.exe')
+def kill_proc_by_regex(proc, reagent):
     for line in proc.stdout:
         tokens = line.split()
         if len(tokens) < 2:
@@ -90,6 +78,25 @@ def kill_rcs(vm):
                     kill_pid(pid)
                 except:
                     logging.exception("cannot kill pid")
+
+
+def kill_rcs(vm):
+
+    logging.debug("killing rcs")
+
+    cmd = 'WMIC PROCESS get Caption,Commandline,Processid'
+    proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+
+    expname = "exp_%s" % vm
+    if expname not in build.names:
+        build.names.append(expname)
+        build.names.append("notepad")
+
+    reagent = re.compile(r'\W*agent\w*\.exe')
+    kill_proc_by_regex(proc, reagent)
+
+    reagent = re.compile(r'\W*%s_\w*\.exe' % expname)
+    kill_proc_by_regex(proc, reagent)
 
     for b in build.names:
         subprocess.Popen("taskkill /f /im %s.exe" % b, shell=True)

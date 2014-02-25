@@ -315,17 +315,20 @@ TEST_UPD:
     - VM_ALL
     - INTERNET: False
     - ON_ERROR: STOP
+
     - SLEEP: [10,60]
     - REVERT
     - START_VM
     - STOP_AGENT
     - CALL: VM_PUSH_AGENT
     - INSTALL_AGENT
+
     - START_AGENT
+    - CALL: VM_CLEAN_EVIDENCES
     - UNINSTALL
     #- RELOG
     - REPORT:
-        - VM_ELITE_FAST
+        - VM_SOLDIER
     - CALL: VM_GET_LOG
     - CALL: END_DISPATCH
 

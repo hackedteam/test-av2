@@ -18,6 +18,14 @@ if not os.path.exists(logdir):
 #with open("../AVCommon/logging.yml") as o:
 #    logging.config.dictConfig(yaml.load(o))
 
+class LogWrap:
+    def __getattr__(self, item):
+        logger = l.getLogger('AVM')
+        return logger.__getattribute__(item)
+
+logging = LogWrap()
+
+
 def init(report = "", logname_arg = "avmonitor.log", quiet=False):
     #print "init report: %s" % report
     global logdir, logname
@@ -32,7 +40,7 @@ def init(report = "", logname_arg = "avmonitor.log", quiet=False):
     else:
         logging = setStreamLogger()
 
-    globals()["logging"] = logging
+    #globals()["logging"] = logging
 
 def setStreamLogger():
     # TODO
