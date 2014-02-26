@@ -102,8 +102,8 @@ TEST_ELITE_FAST:
     - BUILD: [ elite_fast, windows, silent ]
     #- CROP: False
 
-    #- UNINSTALL
-    #- RELOG
+    - UNINSTALL
+    - RELOG
 
 TEST_ELITE:
     - VM: [noav]
@@ -170,8 +170,20 @@ TEST_MELT:
     - VM: [funvm]
 
     #- CALL: SET_DEFAULTS
-    - CLEAN_EVIDENCES
+    #- CLEAN_EVIDENCES
     - BUILD: [ scout, windows, melt ]
+    - UNINSTALL
+    - RELOG
+
+
+TEST_SOLDIER:
+    - BUILD: [ scout, windows, silent ]
+    - SLEEP: 30
+    - RELOG
+
+    - BUILD: [ soldier_fast, windows, silent ]
+    - UNINSTALL
+    - RELOG
 
 # ----------------------
 
@@ -285,12 +297,6 @@ TEST_INSA:
     - UNINSTALL
     #- CALL: END_DISPATCH
 
-TEST_SOLDIER:
-    - BUILD: [ scout, windows, silent ]
-    - SLEEP: 30
-    - RELOG
-
-    - BUILD: [ soldier_fast, windows, silent ]
 
 TEST_UPD:
     - VM_ALL
@@ -310,6 +316,8 @@ TEST_UPD:
     #- RELOG
     - REPORT:
         - TEST_SOLDIER
+        - TEST_ELITE_FAST
+        - TEST_MELT
     - SLEEP: 120
     - CALL: VM_GET_LOG
     #- CALL: END_DISPATCH

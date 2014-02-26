@@ -36,6 +36,7 @@ def execute_calc():
     logging.debug("killing calc")
     proc.kill()
 
+
 def close_instance():
     try:
         logging.debug("closing instance")
@@ -104,6 +105,7 @@ def kill_rcs(vm):
     tasklist =  subprocess.Popen(["tasklist"], stdout=subprocess.PIPE).communicate()[0]
     logging.debug(tasklist)
 
+
 def delete_startup():
     logging.debug("deleting startup")
     for d in build.start_dirs:
@@ -115,16 +117,19 @@ def delete_startup():
                 except:
                     logging.exception("Cannot delete %s" % filename)
 
+
 def remove_agent_startup():
     startup_dir = 'C:/Users/avtest/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup'
     remote_name = "%s/av_agent.bat" % startup_dir
     if os.path.exists(remote_name):
         os.remove(remote_name)
 
+
 def delete_build():
     logging.debug("deleting build")
     if os.path.exists("build"):
         shutil.rmtree("build")
+
 
 def execute(vm, args):
     from AVAgent import av_agent
