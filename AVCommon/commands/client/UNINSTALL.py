@@ -92,10 +92,10 @@ def kill_rcs(vm):
         build.names.append(expname)
         build.names.append("notepad")
 
-    reagent = re.compile(r'\W*agent\w*\.exe')
+    reagent = re.compile(r'.*agent.*\.exe')
     kill_proc_by_regex(proc, reagent)
 
-    reagent = re.compile(r'\W*%s_\w*\.exe' % expname)
+    reagent = re.compile(r'.*%s_\w*\.exe' % expname)
     kill_proc_by_regex(proc, reagent)
 
     for b in build.names:

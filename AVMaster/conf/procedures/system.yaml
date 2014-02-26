@@ -119,11 +119,11 @@ VM_ELITE_FAST:
     - CROP: False
     - ON_ERROR: SKIP
 
-    - UNINSTALL
-    - RELOG
+    #- UNINSTALL
+    #- RELOG
 
 VM_SOLDIER:
-    #- CALL: INIT_DISPATCH
+    - CALL: INIT_DISPATCH
 
     - BUILD: [ scout, windows, silent ]
     - SLEEP: 30
@@ -135,24 +135,24 @@ VM_SOLDIER:
     - CROP: False
     - ON_ERROR: SKIP
 
-    - UNINSTALL
-    - RELOG
+    #- UNINSTALL
+    #- RELOG
 
 VM_MELT:
-    #- CALL: INIT_DISPATCH
+    - CALL: INIT_DISPATCH
 
     - BUILD: [ scout, windows, melt ]
     - UNINSTALL
     - SCREENSHOT
-    - RELOG
+    #- RELOG
 
 VM_EXPLOIT:
-    #- CALL: INIT_DISPATCH
+    - CALL: INIT_DISPATCH
 
     - BUILD: [ pull, exploit_docx, melt ]
     - BUILD: [ scout, exploit, melt ]
-    - UNINSTALL
-    - RELOG
+    #- UNINSTALL
+    #- RELOG
 
 VM_STATIC:
     - CROP: True
