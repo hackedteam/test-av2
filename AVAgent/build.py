@@ -881,14 +881,14 @@ def uninstall(backend):
 
         target_id = targets[0]
         instances = client.instances_by_target_id(target_id)
-        logging.debug("found these instances: %s" % instances)
+        #logging.debug("found these instances: %s" % instances)
         if len(instances) != 1:
             logging.warn("more than one instance")
 
         for instance in instances:
             instance_id = instance['_id']
             target_id = instance['path'][1]
-            logging.debug('closing instance: %s' % instance)
+            #logging.debug('closing instance: %s' % instance)
             client.instance_close(instance_id)
         return True, "Instance closed"
 

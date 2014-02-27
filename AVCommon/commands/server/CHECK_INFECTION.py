@@ -3,6 +3,7 @@ import sys
 from AVCommon.logger import logging
 from time import sleep
 from operator import xor
+from AVAgent import build
 
 def execute(vm, protocol, args):
     from AVMaster import vm_manager
@@ -15,7 +16,7 @@ def execute(vm, protocol, args):
 
     invert = "STOP_IF_CLEAN" in args if args else False
 
-    blacklist = ['BTHSAmpPalService','CyCpIo','CyHidWin','iSCTsysTray','quickset']
+    #blacklist = ['BTHSAmpPalService','CyCpIo','CyHidWin','iSCTsysTray','quickset']
 
     dirs = ['C:Users/avtest/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup',
             'C:/Documents and Settings/avtest/Start Menu/Programs/Startup', 'C:/Users/avtest/Desktop']
@@ -24,7 +25,7 @@ def execute(vm, protocol, args):
         out = vm_manager.execute(vm, "listDirectoryInGuest", d)
         #logging.debug("listDirectoryInGuest: %s" % out)
 
-        for b in blacklist:
+        for b in build.names:
             if b in out:
                 logging.info("%s, found %s in %s" % (vm, b, d))
                 clean = False

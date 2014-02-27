@@ -55,49 +55,50 @@ def kill_pid(pid):
     win32api.CloseHandle(handle)
 
 
-def kill_proc_by_regex(proc, reagent):
-    for line in proc.stdout:
-        tokens = line.split()
-        if len(tokens) < 2:
-            continue
+def kill_proc_by_regex(procs, reagent):
 
-        if reagent.match(line):
+    exenames = [ "%s.exe" % n for n in build.names]
+
+    for caption, pid in [ (e['Caption'],int(e['ProcessId'])) for e in procs]:
+        if reagent.match(caption) or caption in exenames:
             try:
-                logging.debug("WMI %s: %s" % (exename, line))
-                pid = int(tokens[-1])
+                logging.debug("WMI %s: %s" % (caption, pid))
                 kill_pid(pid)
             except:
                 logging.exception("cannot kill pid")
 
-        for b in build.names:
-            exename = "%s.exe" % b
-
-            if exename in line and "python" not in line:
-                try:
-                    logging.debug("WMI %s: %s" % (exename, line))
-                    pid = int(tokens[-1])
-                    kill_pid(pid)
-                except:
-                    logging.exception("cannot kill pid")
-
 
 def kill_rcs(vm):
 
-    logging.debug("killing rcs")
+    logging.debug("Killing rcs")
 
-    cmd = 'WMIC PROCESS get Caption,Commandline,Processid'
-    proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+    cmd = 'WMIC PROCESS get Caption,Processid /format:value'
+    wmilines = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).stdout.readlines()
 
+    procs = []
+
+    for l in wmilines:
+        tokens = l.rstrip().split('=')
+        if len(tokens) == 2:
+            k,v = tokens
+            p[k]=v
+            if p not in procs:
+                procs.append(p)
+        else:
+            p = {}
+
+
+    logging.debug("procs: %s" % procs)
     expname = "exp_%s" % vm
-    if expname not in build.names:
-        build.names.append(expname)
+
+    reagent = re.compile(r'agent.*\.exe')
+    kill_proc_by_regex(procs, reagent)
+
+    reagent = re.compile(r'.*%s.*\.exe' % expname)
+    kill_proc_by_regex(procs, reagent)
+
+    if "notepad" not in build.names:
         build.names.append("notepad")
-
-    reagent = re.compile(r'.*agent.*\.exe')
-    kill_proc_by_regex(proc, reagent)
-
-    reagent = re.compile(r'.*%s_\w*\.exe' % expname)
-    kill_proc_by_regex(proc, reagent)
 
     for b in build.names:
         subprocess.Popen("taskkill /f /im %s.exe" % b, shell=True)

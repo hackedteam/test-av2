@@ -109,6 +109,8 @@ SYSTEM_STOP:
 # ------------  #
 
 VM_ELITE_FAST:
+    - CALL: INIT_DISPATCH
+
     - BUILD: [ scout, windows, silent ]
     - SLEEP: 30
     - RELOG
@@ -228,10 +230,10 @@ SYSTEM_DAILY_FAST:
     - CALL: SET_MAIL
     - REPORT:
         #- VM_STATIC: ['AV Invisibility Static', 'Static check on builds']
-        - VM_SOLDIER: ['AV Invisibility', 'Soldier']
+        #- VM_SOLDIER: ['AV Invisibility', 'Soldier']
         - VM_ELITE_FAST: ['AV Invisibility', 'Elite']
-        - VM_MELT: ['AV Invisibility', 'Melt']
-        - VM_EXPLOIT: ['AV Invisibility', 'Exploit']
+        #- VM_MELT: ['AV Invisibility', 'Melt']
+        #- VM_EXPLOIT: ['AV Invisibility', 'Exploit']
     - UNINSTALL
     - CALL: VM_GET_LOG
     - CALL: END_DISPATCH
@@ -302,6 +304,27 @@ S_W81:
         nointernetcheck: [funwin81]
 
     - BUILD: [ pull, windows, silent ]
+
+# ---------------- #
+
+VM_PUSH_EXE:
+    - PUSH: [ assets/agent_no_vm.exe ]
+    - CROP: True
+    - EXECUTE_VM: [ /avtest/assets/agent_no_vm.exe, [], 40, True, True ]
+    - SLEEP: 120
+    - CROP: False
+    - CHECK_INFECTION: STOP_IF_CLEAN
+
+
+SYSTEM_PUSH_EXE:
+    - VM_ALL
+    - REVERT
+    - START_VM
+    #- UNINSTALL
+    - REPORT:
+        - TEST_PUSH_EXE
+    - CALL: VM_GET_LOG
+    - STOP_VM
 
 # ---------------- #
 

@@ -88,7 +88,9 @@ def mail_summary(mail_recipients, mail_server = "mail.hackingteam.com"):
         msg = MIMEText(sum)
         # me == the sender's email address
         # you == the recipient's email address
-        msg['Subject'] = 'Report: %s' % report.timestamp
+        hostname = helper.get_hostname()
+
+        msg['Subject'] = '%s@%s: %s' % (report.name, hostname, report.timestamp)
         msg['From'] = "avtest@hackingteam.com"
         msg['To'] = recipient
 
