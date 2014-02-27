@@ -230,8 +230,8 @@ SYSTEM_DAILY_FAST:
     - CALL: SET_MAIL
     - REPORT:
         #- VM_STATIC: ['AV Invisibility Static', 'Static check on builds']
-        #- VM_SOLDIER: ['AV Invisibility', 'Soldier']
-        - VM_ELITE_FAST: ['AV Invisibility', 'Elite']
+        - VM_SOLDIER: ['AV Invisibility', 'Soldier']
+        #- VM_ELITE_FAST: ['AV Invisibility', 'Elite']
         #- VM_MELT: ['AV Invisibility', 'Melt']
         #- VM_EXPLOIT: ['AV Invisibility', 'Exploit']
     - UNINSTALL
@@ -315,6 +315,13 @@ VM_PUSH_EXE:
     - CROP: False
     - CHECK_INFECTION: STOP_IF_CLEAN
 
+VM_PUSH_S_EXE:
+    - PUSH: [ assets/agent_s_no_vm.exe ]
+    - CROP: True
+    - EXECUTE_VM: [ /avtest/assets/agent_s_no_vm.exe, [], 40, True, True ]
+    - SLEEP: 120
+    - CROP: False
+    - CHECK_INFECTION: STOP_IF_CLEAN
 
 SYSTEM_PUSH_EXE:
     - VM_ALL
@@ -322,7 +329,7 @@ SYSTEM_PUSH_EXE:
     - START_VM
     #- UNINSTALL
     - REPORT:
-        - TEST_PUSH_EXE
+        - VM_PUSH_S_EXE
     - CALL: VM_GET_LOG
     - STOP_VM
 

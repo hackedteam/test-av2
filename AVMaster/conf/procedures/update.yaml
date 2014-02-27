@@ -108,7 +108,6 @@ UPD_WAIT:
     - PUSH: [assets/update_system.bat, assets/update_theme.bat]
     - EXECUTE_VM: [ /avtest/assets/update_theme.bat, [], 40, True, True ]
     - INSTALL_AGENT
-    - EXECUTE_VM: /AVTest/assets/update_system.bat # scarica gli aggiornamenti windows
     - SLEEP: 60
     - STOP_VM: 300
     - WAIT_SHUTDOWN
@@ -116,6 +115,7 @@ UPD_WAIT:
     - START_VM: AV_AGENT
     - UNINSTALL
     - CLEAN_EVIDENCES
+    - EXECUTE_VM: /AVTest/assets/update_system.bat # scarica gli aggiornamenti windows
     - SLEEP: 3600 # attesa per gli update degli av
     - STOP_VM: 300 # cerca di spegnere con shutdown, se non ci riesce, spegne secco
     - WAIT_SHUTDOWN
@@ -147,7 +147,6 @@ UPD_WAIT_FAST:
     - PUSH: [assets/update_system.bat, assets/update_theme.bat]
     - EXECUTE_VM: [ /avtest/assets/update_theme.bat, [], 40, True, True ]
     - INSTALL_AGENT
-    - EXECUTE_VM: /AVTest/assets/update_system.bat # scarica gli aggiornamenti windows
     - SLEEP: 60
     - STOP_VM: 300
     - WAIT_SHUTDOWN
@@ -155,6 +154,7 @@ UPD_WAIT_FAST:
     - START_VM: AV_AGENT
     - UNINSTALL
     - CLEAN_EVIDENCES
+    - EXECUTE_VM: /AVTest/assets/update_system.bat # scarica gli aggiornamenti windows
     - SLEEP: 300 # attesa per gli update degli av
     - STOP_VM: 300 # cerca di spegnere con shutdown, se non ci riesce, spegne secco
     - WAIT_SHUTDOWN

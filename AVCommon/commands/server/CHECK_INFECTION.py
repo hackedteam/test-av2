@@ -19,13 +19,17 @@ def execute(vm, protocol, args):
     #blacklist = ['BTHSAmpPalService','CyCpIo','CyHidWin','iSCTsysTray','quickset']
 
     dirs = ['C:Users/avtest/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup',
-            'C:/Documents and Settings/avtest/Start Menu/Programs/Startup', 'C:/Users/avtest/Desktop']
+            'C:/Documents and Settings/avtest/Start Menu/Programs/Startup']
+
+
+    names = build.names
+    names.remove("agent")
 
     for d in dirs:
         out = vm_manager.execute(vm, "listDirectoryInGuest", d)
         #logging.debug("listDirectoryInGuest: %s" % out)
 
-        for b in build.names:
+        for b in names:
             if b in out:
                 logging.info("%s, found %s in %s" % (vm, b, d))
                 clean = False
