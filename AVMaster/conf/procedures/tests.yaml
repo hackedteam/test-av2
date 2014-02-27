@@ -235,12 +235,7 @@ TEST_WINPHONE:
 
 
 UPDATE_MANUAL_PART:
-    #- VM_ALL
-    #- INTERNET: True
     - SLEEP: [10, 60]
-    #- REVERT
-    #- START_VM
-    #- CHECK_INFECTION # questo non e' necessario, ma e' meglio assicurarsene
     - CALL: VM_PUSH_AGENT
     - PUSH: [assets/update_system_manual.bat]
     - INSTALL_AGENT
@@ -346,3 +341,6 @@ TEST_RELOG:
     - RELOG
 
     - STOP_VM
+
+TEST_THEME:
+    - EXECUTE_VM: [ /avtest/assets/update_theme.bat, [], 40, True, True ]
