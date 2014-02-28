@@ -22,7 +22,7 @@ def execute(vm, protocol, args):
             'C:/Documents and Settings/avtest/Start Menu/Programs/Startup']
 
 
-    names = build.names
+    names = build.names[:]
     names.remove("agent")
 
     for d in dirs:
