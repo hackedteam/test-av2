@@ -231,7 +231,7 @@ SYSTEM_DAILY_FAST:
     - REPORT:
         #- VM_STATIC: ['AV Invisibility Static', 'Static check on builds']
         - VM_SOLDIER: ['AV Invisibility', 'Soldier']
-        #- VM_ELITE_FAST: ['AV Invisibility', 'Elite']
+        - VM_ELITE_FAST: ['AV Invisibility', 'Elite']
         #- VM_MELT: ['AV Invisibility', 'Melt']
         #- VM_EXPLOIT: ['AV Invisibility', 'Exploit']
     - UNINSTALL
@@ -348,13 +348,11 @@ VM_FUNCTIONAL_ADDRESSBOOK_FB:
     - SLEEP: 60
     - CHECK_EVIDENCES: [addressbook, program, facebook]
 
-VM_FUNCTIONAL_CHAT_SKYPE:
+VM_FUNCTIONAL_EV_SKYPE:
     - SLEEP: 60
     - CHECK_EVIDENCES: [chat, program, skype]
-
-VM_FUNCTIONAL_ADDRESSBOOK_SKYPE:
-    - SLEEP: 60
     - CHECK_EVIDENCES: [addressbook, program, skype]
+    - CHECK_EVIDENCES: [call, program, skype]
 
 SYSTEM_FUNCTIONAL_FAST:
     #- START_AGENT: 172.20.20.168
@@ -415,10 +413,39 @@ SYSTEM_FUNCTIONAL_SOLDIER:
         - VM_FUNCTIONAL_CHAT_FB: ['Functional testing', 'Social Chat Soldier']
         - VM_FUNCTIONAL_ADDRESSBOOK_FB: ['Functional testing', 'Social Addressbook Soldier']
 
-SYSTEM_FUNCTIONAL_SKYPE:
+
+VM_FUNCTIONAL_SKYPE:
     - VM: [ funie ]
     - CALL: SET_MAIL
 
+    - PUSH: [ AVAgent/assets/skype.bat ]
+    - EXECUTE_VM: [ /AVTest/AVAgent/assets/skype.bat, [], 40, True, True ]
+    - SLEEP: 120
+
     - REPORT:
-        - VM_FUNCTIONAL_ADDRESSBOOK_SKYPE: ['Functional testing', 'Skype Chat']
+        - VM_FUNCTIONAL_EV_SKYPE: ['Functional testing', 'Skype Chat']
+
+SYSTEM_FUNCTIONAL_SKYPE:
+    - VM: [ funie ]
+    - REVERT
+
+    - START_VM
+    - CALL: VM_PUSH_AGENT
+    - START_AGENT: 172.20.20.168
+    - SET:
+        backend: 192.168.100.201
+        frontend: 192.168.100.204
+
+    - UNINSTALL
+    - PUSH: [ AVAgent/assets/skype.bat ]
+    - BUILD: [ pull, windows_elite, silent ]
+    - EXECUTE_VM: [ /AVTest/build/windows_elite/agent.exe, [], 40, True, True ]
+    - SLEEP: 60
+
+    - EXECUTE_VM: [ /AVTest/AVAgent/assets/skype.bat, [], 40, True, True ]
+    - SLEEP: 300
+    - CALL: SET_MAIL
+
+    - REPORT:
+        - VM_FUNCTIONAL_EV_SKYPE: ['Functional testing', 'Skype Chat']
 
