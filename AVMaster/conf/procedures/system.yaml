@@ -350,7 +350,7 @@ VM_FUNCTIONAL_ADDRESSBOOK_FB:
 
 VM_FUNCTIONAL_EV_SKYPE:
     - SLEEP: 60
-    - CHECK_EVIDENCES: [chat, program, skype]
+    #- CHECK_EVIDENCES: [chat, program, skype]
     - CHECK_EVIDENCES: [addressbook, program, skype]
     - CHECK_EVIDENCES: [call, program, skype]
 
