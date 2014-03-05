@@ -175,6 +175,10 @@ TEST_MELT:
     - UNINSTALL
     - RELOG
 
+TEST_STATIC:
+    - CALL: BUILD_DESKTOP
+    - CALL: BUILD_MOBILE
+    - CALL: BUILD_EXPLOIT
 
 TEST_SOLDIER:
     - BUILD: [ scout, windows, silent ]
@@ -307,12 +311,12 @@ TEST_UPD:
 
     - START_AGENT
     - CALL: VM_CLEAN_EVIDENCES
-    - UNINSTALL
+    #- UNINSTALL
     #- RELOG
     - REPORT:
-        - TEST_SOLDIER
-        - TEST_ELITE_FAST
-        - TEST_MELT
+        - TEST_STATIC
+        #- TEST_ELITE_FAST
+        #- TEST_MELT
     - SLEEP: 120
     - CALL: VM_GET_LOG
     #- CALL: END_DISPATCH

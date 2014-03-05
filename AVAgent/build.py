@@ -50,10 +50,13 @@ def unzip(filename, fdir):
 
 
 def check_static(files, report = None):
+
     global report_send
     if report:
         report_send = report
 
+    rcs_words = ['rcs', 'hackingteam', 'hacking',
+                 'zeno', 'guido', 'chiodo', 'naga', 'alor']
     success = []
     failed = []
     for src in files:
@@ -81,6 +84,19 @@ def check_static(files, report = None):
                 logging.error("cannot copy")
                 failed.append(src)
 
+    allowed = { 'rcs': ['AVAgent/assets/check/mac_core', 'AVAgent/assets/check/mac_osax'] }
+    for src in files:
+        if not os.path.exists(src):
+            continue
+        f = open(src)
+        all = f.read()
+        for key in rcs_words:
+            allow_list = allowed.get(key,[])
+            if key in allow_list:
+                continue
+            if key in all or key.lower() in all or key.upper() in all:
+                #failed.append("Key: %s in %s" % (key, src))
+                add_result("+ WARNING: %s in %s" % (key, src))
 
     if not failed:
         add_result("+ SUCCESS CHECK_STATIC: %s" % success)

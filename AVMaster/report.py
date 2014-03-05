@@ -132,7 +132,7 @@ def summary():
     summary_header = "SUMMARY @%s \n-- %s --\n %s\n" % (hostname, report.name, report.timestamp)
     summary = "\n"
     failed = OrderedDict()
-    important_commands = ["BUILD", "CHECK_STATIC"]
+    important_commands = [] # ["BUILD", "CHECK_STATIC"]
     for vm in report.c_received.keys():
         report.vm[vm] = []
         current_proc = None
