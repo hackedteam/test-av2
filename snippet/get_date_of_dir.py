@@ -10,7 +10,7 @@ dir['kis14']    = ( "C:\\ProgramData\\Kaspersky Lab\\AVP14.0.0\\Data", "updater"
 dir['mcafee'] = ( "C:\\ProgramData\McAfee\\MSC\\Updates", "Download" ) # OK
 dir['norton'] = ( "C:\\Program Files (x86)\\Norton Internet Security\\NortonData\\21.1.0.18\\Definitions", "VirusDefs" ) #OK
 dir['panda']  = ( "C:\\Program Files (x86)\\Panda Security\\Panda Internet Security 2013", "Downloads" ) # OK
-dir['avira']  = ( "C:\\Program Files (x86)\\Avira\\AntiVir Desktop", "aevdf.dat" ) # 
+dir['avira']  = ( "C:\\Program Files (x86)\\Avira\\AntiVir Desktop", "aevdf.dat" ) #
 dir['avg']    = ( "C:\\Program Files (x86)\\AVG\\AVG2013", "sc.dat" )
 
 
