@@ -55,16 +55,7 @@ SYSTEM_SOLDIER_BASIC:
     - UNINSTALL
     - STOP_VM: 60
 
-SYSTEM_STATIC:
-    - VM_ALL
-    - CALL: INIT_DISPATCH
-    - CROP: True
-    - REPORT:
-        - BUILD_DESKTOP
-        - BUILD_MOBILE
-        - BUILD_EXPLOIT
-    - CROP: False
-    - CALL: END_DISPATCH
+
 
 SYSTEM_STATIC_WINDOWS:
     - VM_ALL
@@ -165,6 +156,20 @@ VM_STATIC:
     - CROP: False
     - ON_ERROR: SKIP
 
+
+SYSTEM_STATIC:
+    - VM_ALL
+    - ON_ERROR: SKIP
+    - SLEEP: [10, 600]
+    - CALL: INIT_DISPATCH
+    - CALL: VM_CLEAN_EVIDENCES
+    - CALL: SET_MAIL
+    - CROP: True
+    - REPORT:
+        - VM_STATIC: ['AV Invisibility Static', 'Static check on builds']
+    - CROP: False
+    - CALL: END_DISPATCH
+
 SYSTEM_MELT:
     - VM_ALL
     - ON_ERROR: SKIP
@@ -200,6 +205,19 @@ SYSTEM_SOLDIER:
     - CALL: SET_MAIL
     - REPORT:
         - VM_SOLDIER: ['AV Invisibility', 'Soldier']
+    - SCREENSHOT
+    - UNINSTALL
+    - CALL: END_DISPATCH
+
+SYSTEM_EXPLOIT:
+    - VM_ALL
+    - ON_ERROR: SKIP
+    - SLEEP: [10, 600]
+    - CALL: INIT_DISPATCH
+    - CALL: VM_CLEAN_EVIDENCES
+    - CALL: SET_MAIL
+    - REPORT:
+        - VM_EXPLOIT: ['AV Invisibility', 'Exploit']
     - SCREENSHOT
     - UNINSTALL
     - CALL: END_DISPATCH
