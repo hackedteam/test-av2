@@ -179,18 +179,23 @@ def summary():
         for kind, err in failed_kind.items():
             fail_err += "%s %s\n" % (kind, err)
         summary = fail_err + summary
-        append_retest(kind, err)
+        append_retest(failed_kind)
 
     return summary_header + summary
 
 def append_retest(failed_kind):
-    f = open("/home/avmonitor/Rite/rite_retest.sh", "w+")
-    f.write("#!/bin/sh\ncd ~/Rite/AVMaster\n")
-    for kind, err in failed_kind.items():
-        sys = kind.replace("VM_","SYSTEM_")
-        l = ",".join(err)
-        f.write("python main.py -r %s -m %s -c\n" % (sys, l))
-    f.close()
+    try:
+        retest = "/home/avmonitor/Rite/rite_retest.sh"
+        logging.debug("saving retest: %s" % retest)
+        f = open(retest, "w+")
+        f.write("#!/bin/sh\ncd ~/Rite/AVMaster\n")
+        for kind, err in failed_kind.items():
+            sys = kind.replace("VM_","SYSTEM_")
+            l = ",".join(err)
+            f.write("python main.py -r %s -m %s -c\n" % (sys, l))
+        f.close()
+    except:
+        logging.exception("cannot save rite_retest.sh")
 
 # arriva pulito
 # report si ricorda di un solo comando, per ogni av
