@@ -36,7 +36,7 @@ BUILD_MOBILE:
 
 BUILD_EXPLOIT:
     - BUILD: [ pull, exploit, melt ]
-    - BUILD: [ pull, exploit_docx, melt ]
+    #- BUILD: [ pull, exploit_docx, melt ]
 
 # -------------- VM COMMANDS -------------- #
 
