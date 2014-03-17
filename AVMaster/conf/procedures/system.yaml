@@ -141,11 +141,17 @@ VM_MELT:
 
 VM_EXPLOIT:
     - CALL: INIT_DISPATCH
-
-    - BUILD: [ pull, exploit_docx, melt ]
     - BUILD: [ scout, exploit, melt ]
     #- UNINSTALL
     #- RELOG
+
+VM_EXPLOIT_NOBUILD:
+    - CALL: INIT_DISPATCH
+    - ON_ERROR: CONTINUE
+    - BUILD: [ pull, exploit_docx, melt ]
+    - BUILD: [ pull, exploit_ppsx, melt ]
+    - BUILD: [ pull, exploit_web, melt ]
+    - ON_ERROR: SKIP
 
 VM_STATIC:
     - CROP: True
@@ -183,7 +189,7 @@ SYSTEM_MELT:
     - UNINSTALL
     - CALL: END_DISPATCH
 
-SYSTEM_ELITE:
+SYSTEM_ELITE_FAST:
     - VM_ALL
     - ON_ERROR: SKIP
     - SLEEP: [10, 600]
@@ -234,6 +240,7 @@ SYSTEM_DAILY:
         - VM_SOLDIER: ['AV Invisibility', 'Soldier']
         - VM_ELITE_FAST: ['AV Invisibility', 'Elite']
         - VM_MELT: ['AV Invisibility', 'Melt']
+        - VM_EXPLOIT_NOBUILD: ['AV Invisibility', 'Exploit', INVERT]
         - VM_EXPLOIT: ['AV Invisibility', 'Exploit']
     - UNINSTALL
     - CALL: VM_GET_LOG
@@ -252,6 +259,7 @@ SYSTEM_DAILY_FAST:
         - VM_ELITE_FAST: ['AV Invisibility', 'Elite']
         #- VM_MELT: ['AV Invisibility', 'Melt']
         #- VM_EXPLOIT: ['AV Invisibility', 'Exploit']
+        - VM_EXPLOIT_NOBUILD: ['AV Invisibility', 'Exploit', INVERT]
     - UNINSTALL
     - CALL: VM_GET_LOG
     - CALL: END_DISPATCH
