@@ -1,30 +1,11 @@
-SYSTEM_MANUAL_RITE:
-    - REVERT
-    - START_VM
-    - CALL: VM_PUSH_AGENT
-    - INSTALL_AGENT
-    - RELOG
-
-    #- BUILD: [ pull, exploit, melt ]
-    #- BUILD: [ pull, windows, melt ]
-    #- RELOG
-    - BUILD: [ scout, windows, silent ]
-
-TEST_CHECK_DATE:
-    - REVERT
-    - START_VM
-    - SLEEP: [10,30]
-    - PUSH: [ assets/get_date_of_dir.py ]
-    - EXECUTE_VM: [ /avtest/assets/get_date_of_dir.py, [], 40, True, True ]
-
-SYSTEM_FUNCTIONAL_RITE:
+SYSTEM_FUNCTIONAL_AVMASTER:
     - VM: [ funie, funch, funff ]
     - REVERT
     - SLEEP: [5, 60]
 
     - START_VM
     - CALL: VM_PUSH_AGENT
-    - START_AGENT: 172.20.20.122
+    - START_AGENT: 172.20.20.168
     - SET:
         backend: 192.168.100.201
         frontend: 192.168.100.204
@@ -44,14 +25,14 @@ SYSTEM_FUNCTIONAL_RITE:
         - VM_FUNCTIONAL_ADDRESSBOOK_FB: ['Functional testing', 'Social Addressbook']
         - VM_FUNCTIONAL_EXPLOIT_NOBUILD: ['Functional testing', 'Exploit No Build', INVERT]
 
-SYSTEM_FUNCTIONAL_SOLDIER_RITE:
+SYSTEM_FUNCTIONAL_SOLDIER_AVMASTER:
     - VM: [ funie, funch, funff ]
     - REVERT
     - SLEEP: [5, 60]
 
     - START_VM
     - CALL: VM_PUSH_AGENT
-    - START_AGENT: 172.20.20.122
+    - START_AGENT: 172.20.20.168
     - SET:
         backend: 192.168.100.201
         frontend: 192.168.100.204
@@ -70,13 +51,14 @@ SYSTEM_FUNCTIONAL_SOLDIER_RITE:
         - VM_FUNCTIONAL_CHAT_FB: ['Functional testing', 'Social Chat Soldier']
         - VM_FUNCTIONAL_ADDRESSBOOK_FB: ['Functional testing', 'Social Addressbook Soldier']
 
-SYSTEM_FUNCTIONAL_SKYPE_RITE:
+
+SYSTEM_FUNCTIONAL_SKYPE_AVMASTER:
     - VM: [ funie ]
     - REVERT
 
     - START_VM
     - CALL: VM_PUSH_AGENT
-    - START_AGENT: 172.20.20.122
+    - START_AGENT: 172.20.20.168
     - SET:
         backend: 192.168.100.201
         frontend: 192.168.100.204
@@ -93,3 +75,4 @@ SYSTEM_FUNCTIONAL_SKYPE_RITE:
 
     - REPORT:
         - VM_FUNCTIONAL_EV_SKYPE: ['Functional testing', 'Skype Chat']
+

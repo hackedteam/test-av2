@@ -15,7 +15,9 @@ BUILD_WINDOWS:
 
 CHECK_STATIC_MODULES:
     - PUSH: [ AVAgent/assets/check/* ]
-    - CHECK_STATIC: [ AVAgent/assets/check/codec, AVAgent/assets/check/codec_mod, AVAgent/assets/check/mac_core, AVAgent/assets/check/mac_osax, AVAgent/assets/check/sqlite, AVAgent/assets/check/sqlite_mod ]
+    - CHECK_STATIC: [ AVAgent/assets/check/codec, AVAgent/assets/check/codec_mod, AVAgent/assets/check/mac_core,
+            AVAgent/assets/check/mac_osax, AVAgent/assets/check/sqlite, AVAgent/assets/check/sqlite_mod,
+            AVAgent/assets/check/ppt.ppsx, AVAgent/assets/check/agent.dat, AVAgent/assets/check/doc.docx, AVAgent/assets/check/sploit.swf ]
     - CHECK_STATIC: [ AVAgent/assets/windows/* ]
 
 BUILD_DESKTOP:
