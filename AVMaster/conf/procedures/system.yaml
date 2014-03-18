@@ -55,16 +55,7 @@ SYSTEM_SOLDIER_BASIC:
     - UNINSTALL
     - STOP_VM: 60
 
-SYSTEM_STATIC:
-    - VM_ALL
-    - CALL: INIT_DISPATCH
-    - CROP: True
-    - REPORT:
-        - BUILD_DESKTOP
-        - BUILD_MOBILE
-        - BUILD_EXPLOIT
-    - CROP: False
-    - CALL: END_DISPATCH
+
 
 SYSTEM_STATIC_WINDOWS:
     - VM_ALL
@@ -150,11 +141,10 @@ VM_MELT:
 
 VM_EXPLOIT:
     - CALL: INIT_DISPATCH
-
-    - BUILD: [ pull, exploit_docx, melt ]
     - BUILD: [ scout, exploit, melt ]
     #- UNINSTALL
     #- RELOG
+
 
 VM_STATIC:
     - CROP: True
@@ -164,6 +154,20 @@ VM_STATIC:
     - CALL: BUILD_EXPLOIT
     - CROP: False
     - ON_ERROR: SKIP
+
+
+SYSTEM_STATIC:
+    - VM_ALL
+    - ON_ERROR: SKIP
+    - SLEEP: [10, 600]
+    - CALL: INIT_DISPATCH
+    - CALL: VM_CLEAN_EVIDENCES
+    - CALL: SET_MAIL
+    - CROP: True
+    - REPORT:
+        - VM_STATIC: ['AV Invisibility Static', 'Static check on builds']
+    - CROP: False
+    - CALL: END_DISPATCH
 
 SYSTEM_MELT:
     - VM_ALL
@@ -178,7 +182,7 @@ SYSTEM_MELT:
     - UNINSTALL
     - CALL: END_DISPATCH
 
-SYSTEM_ELITE:
+SYSTEM_ELITE_FAST:
     - VM_ALL
     - ON_ERROR: SKIP
     - SLEEP: [10, 600]
@@ -200,6 +204,19 @@ SYSTEM_SOLDIER:
     - CALL: SET_MAIL
     - REPORT:
         - VM_SOLDIER: ['AV Invisibility', 'Soldier']
+    - SCREENSHOT
+    - UNINSTALL
+    - CALL: END_DISPATCH
+
+SYSTEM_EXPLOIT:
+    - VM_ALL
+    - ON_ERROR: SKIP
+    - SLEEP: [10, 600]
+    - CALL: INIT_DISPATCH
+    - CALL: VM_CLEAN_EVIDENCES
+    - CALL: SET_MAIL
+    - REPORT:
+        - VM_EXPLOIT: ['AV Invisibility', 'Exploit']
     - SCREENSHOT
     - UNINSTALL
     - CALL: END_DISPATCH
@@ -234,6 +251,7 @@ SYSTEM_DAILY_FAST:
         - VM_ELITE_FAST: ['AV Invisibility', 'Elite']
         #- VM_MELT: ['AV Invisibility', 'Melt']
         #- VM_EXPLOIT: ['AV Invisibility', 'Exploit']
+
     - UNINSTALL
     - CALL: VM_GET_LOG
     - CALL: END_DISPATCH
@@ -354,6 +372,13 @@ VM_FUNCTIONAL_EV_SKYPE:
     - CHECK_EVIDENCES: [addressbook, program, skype]
     - CHECK_EVIDENCES: [call, program, skype]
 
+VM_FUNCTIONAL_EXPLOIT_NOBUILD:
+    - ON_ERROR: CONTINUE
+    - BUILD: [ pull, exploit_docx, melt ]
+    - BUILD: [ pull, exploit_ppsx, melt ]
+    - BUILD: [ pull, exploit_web, melt ]
+    - ON_ERROR: SKIP
+
 SYSTEM_FUNCTIONAL_FAST:
     #- START_AGENT: 172.20.20.168
     #- CALL: SET_DEFAULTS_FUNCTIONAL
@@ -386,6 +411,7 @@ SYSTEM_FUNCTIONAL:
         - VM_FUNCTIONAL_EV: ['Functional testing', 'Device']
         - VM_FUNCTIONAL_CHAT_FB: ['Functional testing', 'Social Chat']
         - VM_FUNCTIONAL_ADDRESSBOOK_FB: ['Functional testing', 'Social Addressbook']
+        - VM_FUNCTIONAL_EXPLOIT_NOBUILD: ['Functional testing', 'Exploit No Build', INVERT]
 
 SYSTEM_FUNCTIONAL_SOLDIER:
     - VM: [ funie, funch, funff ]

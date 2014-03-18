@@ -132,6 +132,7 @@ def summary():
     summary_header = "SUMMARY @%s \n-- %s --\n %s\n" % (hostname, report.name, report.timestamp)
     summary = "\n"
     failed = OrderedDict()
+    failed_kind = OrderedDict()
     important_commands = [] # ["BUILD", "CHECK_STATIC"]
     for vm in report.c_received.keys():
         report.vm[vm] = []
@@ -147,6 +148,9 @@ def summary():
                 if not cmd.success:
                     if vm not in failed:
                         failed[vm] = []
+                    if  current_proc not in failed_kind:
+                        failed_kind[current_proc] = []
+                    failed_kind[current_proc].append(vm)
                     failed[vm].append(current_proc)
                 summary += "    %s: %s\n" % (current_proc, success)
                 one_report = True
@@ -165,11 +169,33 @@ def summary():
             failed[vm].append("NO REPORT")
 
     if failed:
-        fail_err = "\nFAILED:\n"
+        fail_err = "\nFAILED VM:\n"
         for vm, err in failed.items():
             fail_err += "%s %s\n" % (vm, err)
-        return summary_header + fail_err + summary
+        summary = fail_err + summary
+
+    if failed_kind:
+        fail_err = "\nFAILED KIND:\n"
+        for kind, err in failed_kind.items():
+            fail_err += "%s %s\n" % (kind, err)
+        summary = fail_err + summary
+        append_retest(failed_kind)
+
     return summary_header + summary
+
+def append_retest(failed_kind):
+    try:
+        retest = "/home/avmonitor/Rite/rite_retest.sh"
+        logging.debug("saving retest: %s" % retest)
+        f = open(retest, "w+")
+        f.write("#!/bin/sh\ncd ~/Rite/AVMaster\n")
+        for kind, err in failed_kind.items():
+            sys = kind.replace("VM_","SYSTEM_")
+            l = ",".join(err)
+            f.write("python main.py -r %s -m %s -c\n" % (sys, l))
+        f.close()
+    except:
+        logging.exception("cannot save rite_retest.sh")
 
 # arriva pulito
 # report si ricorda di un solo comando, per ogni av
