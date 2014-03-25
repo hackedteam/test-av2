@@ -10,11 +10,30 @@ import os
 import zipfile
 from time import sleep
 
-adb_path = "/Users/olli/Documents/work/android/android-sdk-macosx/platform-tools/adb"
+#adb_path = "/Users/olli/Documents/work/android/android-sdk-macosx/platform-tools/adb"
 devices = []	# we found with usb devices actually connected
+adb_path ="adb";
 
 
+def get_deviceid(device=None):
+    cmd = "dumpsys iphonesubinfo".split()
+    if device:
+        proc = subprocess.Popen([adb_path,
+                            "-s", device,
+                            "shell"] + cmd,
+                            stdout=subprocess.PIPE)
 
+    else:
+        proc = subprocess.Popen([adb_path,
+                            "shell"] + cmd,
+                            stdout=subprocess.PIPE)
+
+    comm = proc.communicate()
+    lines = str(comm[0]).strip()
+    devline = lines.split("\n")[2]
+    id = devline.split("=")[1].strip()
+
+    return id
 
 def get_properties(device=None):
     def get_prop(property):
@@ -64,13 +83,13 @@ def install(apk, device=None):
         return False
     return True
 
-def execute(apk, device=None):
+def executeService(apk, device=None):
     """ Execute melted apk on phone
     @param apk class name to run (eg. com.roxy.angrybirds)
     @return True/False
     shell am  startservice -n $CLASS_PACK/
     """
-    app = apk + '/com.android.networking.ServiceMain'
+    app = apk + '/.ServiceMain'
     if device:
         proc = subprocess.call([adb_path,
                                 "-s", device,
@@ -84,21 +103,46 @@ def execute(apk, device=None):
         return False
     return True
 
+def executeGui(apk, device=None):
+    """ Execute melted apk on phone
+    @param apk class name to run (eg. com.roxy.angrybirds)
+    @return True/False
+    shell am  startservice -n $CLASS_PACK/
+    """
+    app = apk + '/.gui.AGUI'
+    if device:
+        proc = subprocess.call([adb_path,
+                                "-s", device,
+                                "shell", "am", "start",
+                                "-n", app], stdout=subprocess.PIPE)
+    else:
+        proc = subprocess.call([adb_path,
+                                "shell", "am", "start",
+                                "-n", app], stdout=subprocess.PIPE)
+    if proc != 0:
+        return False
+    return True
+
+
 def uninstall(apk, device=None):
     """ Execute melted apk on phone
     @param apk class name to run (eg. com.roxy.angrybirds)
     @return True/False
     """
+
     if device:
         proc = subprocess.call([adb_path,
                             "-s", device,
                             "uninstall", apk], stdout=subprocess.PIPE)
     else:
+        print "adb uninstall %s" % apk
         proc = subprocess.call([adb_path,
                                 "uninstall", apk], stdout=subprocess.PIPE)
 
     if proc != 0:
         return False
+
+    print proc
     return True
 
 

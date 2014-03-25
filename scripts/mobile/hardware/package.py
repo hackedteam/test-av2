@@ -1,4 +1,4 @@
-__author__ = 'fabrizio'
+__author__ = 'zeno'
 
 import os, sys
 import inspect
@@ -19,7 +19,6 @@ if not basedir:
     folder = cmd_folder
     while not found:
         parent = os.path.split(folder)[0]
-        #print "parent: %s" % parent
         if parent not in sys.path:
             sys.path.insert(0, parent)
 

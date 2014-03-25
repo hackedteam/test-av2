@@ -1,2 +1,5 @@
 Device;Android Version;SELinux Enforce;root
-LGE Nexus 5;4.4;;
+samsung GT-I9505;4.3;1;
+samsung GT-I9505;4.3;1;Error
+samsung GT-I9505;4.3;1;Error global name 'device_id' is not defined;1395762111.229179
+samsung GT-I9505;4.3;1;Error ;1395762483.681529
