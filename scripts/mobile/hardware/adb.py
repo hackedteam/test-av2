@@ -14,22 +14,42 @@ from time import sleep
 devices = []	# we found with usb devices actually connected
 adb_path ="adb";
 
+def call(cmd, device = None):
+    if device:
+        proc = subprocess.call([adb_path,
+                                "-s", device] + cmd.split(), stdout=subprocess.PIPE)
+    else:
+        proc = subprocess.call([adb_path] + cmd.split(), stdout=subprocess.PIPE)
 
-def get_deviceid(device=None):
-    cmd = "dumpsys iphonesubinfo".split()
+    return proc != 0
+
+def execute(cmd, device=None):
     if device:
         proc = subprocess.Popen([adb_path,
                             "-s", device,
-                            "shell"] + cmd,
+                            "shell"] + cmd.split(),
                             stdout=subprocess.PIPE)
 
     else:
         proc = subprocess.Popen([adb_path,
-                            "shell"] + cmd,
+                            "shell"] + cmd.split(),
                             stdout=subprocess.PIPE)
 
     comm = proc.communicate()
-    lines = str(comm[0]).strip()
+    return str(comm[0])
+
+def ps(device=None):
+    pp = execute("ps", device).strip()
+    return pp
+
+def reboot(device = None):
+    call("reboot")
+
+def get_deviceid(device=None):
+    cmd = "dumpsys iphonesubinfo"
+
+    comm =  execute(cmd, device)
+    lines = comm.strip()
     devline = lines.split("\n")[2]
     id = devline.split("=")[1].strip()
 
@@ -37,17 +57,8 @@ def get_deviceid(device=None):
 
 def get_properties(device=None):
     def get_prop(property):
-        if device:
-            proc = subprocess.Popen([adb_path,
-                                     "-s", device,
-                                     "shell", "getprop", property],
-                                    stdout=subprocess.PIPE)
-        else:
-            proc = subprocess.Popen([adb_path,
-                                     "shell", "getprop", property],
-                                    stdout=subprocess.PIPE)
-        output = str(proc.communicate()[0]).strip()
-        return output
+        cmd = "getprop %s" % property
+        return execute(cmd, device).strip()
 
     manufacturer = get_prop("ro.product.manufacturer")
     model = get_prop("ro.product.model")
@@ -142,7 +153,6 @@ def uninstall(apk, device=None):
     if proc != 0:
         return False
 
-    print proc
     return True
 
 

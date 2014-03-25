@@ -3,3 +3,6 @@ samsung GT-I9505;4.3;1;
 samsung GT-I9505;4.3;1;Error
 samsung GT-I9505;4.3;1;Error global name 'device_id' is not defined;1395762111.229179
 samsung GT-I9505;4.3;1;Error ;1395762483.681529
+samsung GT-I9505;4.3;1;Error 'set' object has no attribute 'keys';1395763482.662384
+samsung GT-I9505;4.3;1;Error 'module' object has no attribute 'restart';1395764704.646097
+samsung GT-I9505;4.3;1;[u'Root: selinux time: 82s', False];1395765224.021131

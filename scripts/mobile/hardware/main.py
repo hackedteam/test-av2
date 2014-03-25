@@ -59,10 +59,10 @@ def test_device(device_id):
         while not info_evidences and counter < 10:
             infos =  c.infos( target_id, instance_id)
             info_evidences = [ e['data']['content'] for e in infos if 'Root' in e['data']['content'] ]
-            print "info_evidences: %s: " % info_evidences
             counter +=1
             time.sleep(10)
 
+        print "info_evidences: %s: " % info_evidences
         if not info_evidences:
             return "No root"
 
@@ -85,16 +85,21 @@ def test_device(device_id):
         type_evidences = set()
         for e in evidences:
                type_evidences.add(e['type'])
-        print type_evidences.keys()
+        print type_evidences
 
         #print info_evidences[0].encode('utf-8')
         #for ev in info_evidences:
         #    print [ e for e in ev.split('\n') if "Root" in e ]
 
     #uninstall
-    adb.uninstall("com.viber.voip")
+    adb.uninstall(service)
+    adb.reboot()
+    time.sleep(60)
 
-    return "%s"
+    processes = adb.ps()
+    running = service in processes
+
+    return [root_method, running]
 
 def main():
     build.connection.host = "rcs-minotauro"
