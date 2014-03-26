@@ -16,6 +16,7 @@ adb_path ="adb";
 
 def call(cmd, device = None):
     if device:
+        print "##DEBUG## calling %s for device %s" % (cmd,device)
         proc = subprocess.call([adb_path,
                                 "-s", device] + cmd.split(), stdout=subprocess.PIPE)
     else:
@@ -43,7 +44,7 @@ def ps(device=None):
     return pp
 
 def reboot(device = None):
-    call("reboot")
+    call("reboot",device)
 
 def get_deviceid(device=None):
     cmd = "dumpsys iphonesubinfo"
@@ -140,7 +141,7 @@ def uninstall(apk, device=None):
     @param apk class name to run (eg. com.roxy.angrybirds)
     @return True/False
     """
-
+    print "##DEBUG## calling uninstall for device %s" % device
     if device:
         proc = subprocess.call([adb_path,
                             "-s", device,
@@ -155,6 +156,21 @@ def uninstall(apk, device=None):
 
     return True
 
+def get_attached_devices():
+    devices = []
+    #devices = ""
+    # Find All devices connected via USB
+    proc = subprocess.Popen([adb_path, "devices"], stdout=subprocess.PIPE)
+    output = str(proc.communicate())
+
+    for line in output.split('\\n'):
+        if '\\t' in line:
+            dev = line.split('\\t')[0]
+            props = get_properties(dev)
+            #devices += "device: %s model: %s %s\n" % (dev,props["manufacturer"],props["model"])
+            devices.append("device: %s model: %s %s" % (dev,props["manufacturer"],props["model"]))
+
+    return devices
 
 """
 	def run(self):

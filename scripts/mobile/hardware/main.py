@@ -16,17 +16,17 @@ service = 'com.android.deviceinfo'
 
 #set timeout via adb: http://osdir.com/ml/android-porting/2011-08/msg00182.html
 
-def test_device(device_id):
+def test_device(device_id, dev):
 
     # uninstall device
-    adb.uninstall(service)
+    adb.uninstall(service, dev)
 
     # install
-    if not adb.install(apk):
+    if not adb.install(apk, dev):
         return "installation failed"
 
     #exeec
-    if not adb.executeGui(service):
+    if not adb.executeGui(service, dev):
         return "execution failed"
 
     # sync e verifica
@@ -94,17 +94,41 @@ def test_device(device_id):
         #    print [ e for e in ev.split('\n') if "Root" in e ]
 
     #uninstall
-    adb.uninstall(service)
-    adb.reboot()
+    adb.uninstall(service, dev)
+    adb.reboot(dev)
     time.sleep(120)
 
-    processes = adb.ps()
+    processes = adb.ps(dev)
     running = service in processes
 
     return "%s, %s" % (root_method, running)
 
-def main():
+def do_test(dev):
     build.connection.host = "rcs-minotauro"
+
+    with open('tmp/test-%s.csv' % dev, 'ab') as csvfile:
+        # write header
+        devicelist = csv.writer(csvfile, delimiter=";",
+                                quotechar="|", quoting=csv.QUOTE_MINIMAL)
+        #devicelist.writerow(["Device", "Android Version", "SELinux Enforce", "root"])
+
+        # getprop device
+        device_id = adb.get_deviceid(dev)
+        print "device_id: %s" % device_id
+
+        props = adb.get_properties(dev)
+        device = "%s %s" % (props["manufacturer"], props["model"])
+
+        try:
+            results = test_device(device_id, dev)
+        except Exception, ex:
+            traceback.print_exc(device_id)
+            results = "Error %s" % ex
+
+        devicelist.writerow([ time.time(), device, device_id, props["release"], props["selinux"], results])
+
+def main():
+    devices = adb.get_attached_devices()
 
     print """ prerequisiti:
     1) Telefono connesso in USB,
@@ -113,27 +137,13 @@ def main():
     4) screen time 2m (settings/display/sleep)
     """
 
-    with open('test.csv', 'ab') as csvfile:
-        # write header
-        devicelist = csv.writer(csvfile, delimiter=";",
-                                quotechar="|", quoting=csv.QUOTE_MINIMAL)
-        #devicelist.writerow(["Device", "Android Version", "SELinux Enforce", "root"])
-
-        # getprop device
-        device_id = adb.get_deviceid()
-        print "device_id: %s" % device_id
-
-        props = adb.get_properties()
-        device = "%s %s" % (props["manufacturer"], props["model"])
-
-        try:
-            results = test_device(device_id)
-        except Exception, ex:
-            traceback.print_exc(device_id)
-            results = "Error %s" % ex
-
-        devicelist.writerow([ time.time(), device, device_id, props["release"], props["selinux"], results])
-
+    print "devices connessi:"
+    for device in devices:
+        print device
+    dev = raw_input("su quale device si vuole eseguire il test? ")
+    print "Eseguo il test su %s" % dev
+    do_test(dev)
+    print "Fine."
 
 if __name__ == "__main__":
     main()
