@@ -8,3 +8,7 @@ samsung GT-I9505;4.3;1;Error 'module' object has no attribute 'restart';13957647
 samsung GT-I9505;4.3;1;[u'Root: selinux time: 82s', False];1395765224.021131
 samsung GT-I9505;4.3;1;[u'Root: selinux time: 76s', False];1395765655.679775
 samsung Galaxy Nexus;4.0.4;;[u'Root: selinux time: 6s', False];1395766118.021669
+samsung GT-I9505;356845056078692;4.3;1;Error HTTP Error 403: Forbidden;1395823838.760978
+samsung GT-I9505;356845056078692;4.3;1;Error not enough arguments for format string;1395825931.733456
+samsung GT-I9505;356845056078692;4.3;1;Root: selinux time: 82s, False;1395826836.090697
+1395827575.116628;samsung GT-I9505;356845056078692;4.3;1;Error HTTP Error 403: Forbidden

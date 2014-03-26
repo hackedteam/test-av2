@@ -101,10 +101,17 @@ def test_device(device_id):
     processes = adb.ps()
     running = service in processes
 
-    return "%s, %s" % root_method, running
+    return "%s, %s" % (root_method, running)
 
 def main():
     build.connection.host = "rcs-minotauro"
+
+    print """ prerequisiti:
+    1) Telefono connesso in USB,
+    2) USB Debugging enabled (settings/developer options/usb debugging)
+    3) connesso wifi a RSSM
+    4) screen time 2m (settings/display/sleep)
+    """
 
     with open('test.csv', 'ab') as csvfile:
         # write header
@@ -125,7 +132,7 @@ def main():
             traceback.print_exc(device_id)
             results = "Error %s" % ex
 
-        devicelist.writerow([device, device_id, props["release"], props["selinux"], results, time.time()])
+        devicelist.writerow([ time.time(), device, device_id, props["release"], props["selinux"], results])
 
 
 if __name__ == "__main__":
