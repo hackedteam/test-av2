@@ -25,12 +25,16 @@ def test_device(device_id, dev):
     if not adb.install(apk, dev):
         return "installation failed"
 
+    print "installed"
     #exeec
     if not adb.executeGui(service, dev):
         return "execution failed"
+    else:
+        print "executed"
 
     # sync e verifica
     time.sleep(60)
+    print "slept"
 
     with build.connection() as c:
         operation = "Rite_Mobile"
@@ -56,6 +60,10 @@ def test_device(device_id, dev):
         instance_id = instances[0]['_id']
         print "instance_id: %s " % instance_id
 
+        info = c.instance_info(instance_id)
+        instance_name =  info['name']
+        print "instance_info name: %s" % instance_name
+
         info_evidences = []
         counter = 0
         while not info_evidences and counter < 10:
@@ -66,7 +74,7 @@ def test_device(device_id, dev):
 
         print "info_evidences: %s: " % info_evidences
         if not info_evidences:
-            return "No root"
+            return "%s , No root" % instance_name
 
         assert len(info_evidences) > 0
         root_method = info_evidences[0]
@@ -101,7 +109,7 @@ def test_device(device_id, dev):
     processes = adb.ps(dev)
     running = service in processes
 
-    return "%s, %s" % (root_method, running)
+    return "%s, %s, %s" % (instance_name, root_method, running)
 
 def do_test(dev):
     build.connection.host = "rcs-minotauro"
@@ -125,7 +133,9 @@ def do_test(dev):
             traceback.print_exc(device_id)
             results = "Error %s" % ex
 
-        devicelist.writerow([ time.time(), device, device_id, props["release"], props["selinux"], results])
+        line = [ time.time(), device, device_id, props["release"], props["selinux"], results]
+        print line
+        devicelist.writerow(line)
 
 def main():
     devices = adb.get_attached_devices()
