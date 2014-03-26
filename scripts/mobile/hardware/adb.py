@@ -53,6 +53,11 @@ def get_deviceid(device=None):
     devline = lines.split("\n")[2]
     id = devline.split("=")[1].strip()
 
+    if id == 'null':
+        cmd = "settings get secure android_id"
+        comm =  execute(cmd, device)
+        id = comm.strip()
+
     return id
 
 def get_properties(device=None):
