@@ -6,3 +6,5 @@ samsung GT-I9505;4.3;1;Error ;1395762483.681529
 samsung GT-I9505;4.3;1;Error 'set' object has no attribute 'keys';1395763482.662384
 samsung GT-I9505;4.3;1;Error 'module' object has no attribute 'restart';1395764704.646097
 samsung GT-I9505;4.3;1;[u'Root: selinux time: 82s', False];1395765224.021131
+samsung GT-I9505;4.3;1;[u'Root: selinux time: 76s', False];1395765655.679775
+samsung Galaxy Nexus;4.0.4;;[u'Root: selinux time: 6s', False];1395766118.021669

@@ -39,6 +39,8 @@ def test_device(device_id):
         assert c
         if not c.logged_in():
             return("Not logged in")
+        else:
+            print "logged in"
 
         operation_id, group_id = c.operation(operation)
         target_id = c.targets(operation_id, target_name)[0]
@@ -94,12 +96,12 @@ def test_device(device_id):
     #uninstall
     adb.uninstall(service)
     adb.reboot()
-    time.sleep(60)
+    time.sleep(120)
 
     processes = adb.ps()
     running = service in processes
 
-    return [root_method, running]
+    return "%s, %s" % root_method, running
 
 def main():
     build.connection.host = "rcs-minotauro"
@@ -115,7 +117,7 @@ def main():
         print "device_id: %s" % device_id
 
         props = adb.get_properties()
-        device = "%s %s" % (props["manufacturer"],props["model"])
+        device = "%s %s" % (props["manufacturer"], props["model"])
 
         try:
             results = test_device(device_id)
@@ -123,8 +125,7 @@ def main():
             traceback.print_exc(device_id)
             results = "Error %s" % ex
 
-        devicelist.writerow([device, props["release"], props["selinux"], results, time.time()])
-
+        devicelist.writerow([device, device_id, props["release"], props["selinux"], results, time.time()])
 
 
 if __name__ == "__main__":
