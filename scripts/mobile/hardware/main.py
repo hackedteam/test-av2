@@ -102,16 +102,19 @@ def test_device(device_id, dev):
         #    print [ e for e in ev.split('\n') if "Root" in e ]
 
     #uninstall
+    print "uninstall"
     adb.uninstall(service, dev)
+
+    print "reboot"
     adb.reboot(dev)
     time.sleep(120)
 
     processes = adb.ps(dev)
-    running = service in processes
+    running = "persistence: %s" % service in processes
 
     return "%s, %s, %s" % (instance_name, root_method, running)
 
-def do_test(dev):
+def do_test(dev = None):
     build.connection.host = "rcs-minotauro"
 
     with open('tmp/test-%s.csv' % dev, 'ab') as csvfile:
@@ -123,6 +126,9 @@ def do_test(dev):
         # getprop device
         device_id = adb.get_deviceid(dev)
         print "device_id: %s" % device_id
+
+        assert device_id
+        assert len(device_id) >= 8
 
         props = adb.get_properties(dev)
         device = "%s %s" % (props["manufacturer"], props["model"])
@@ -150,9 +156,18 @@ def main():
     print "devices connessi:"
     for device in devices:
         print device
-    dev = raw_input("su quale device si vuole eseguire il test? ")
-    print "Eseguo il test su %s" % dev
-    do_test(dev)
+
+    dev = None
+    if not devices:
+        print "non ci sono device connessi"
+    else:
+
+        if len(devices) > 1:
+            dev = raw_input("su quale device si vuole eseguire il test? ")
+            print "Eseguo il test su %s" % dev
+
+        do_test(dev)
+
     print "Fine."
 
 if __name__ == "__main__":

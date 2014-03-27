@@ -59,7 +59,7 @@ def get_deviceid(device=None):
         comm =  execute(cmd, device)
         id = comm.strip()
 
-    return id
+    return id.replace('*','')
 
 def get_properties(device=None):
     def get_prop(property):
