@@ -5,6 +5,8 @@ import csv
 import os
 import inspect
 import traceback
+import collections
+import datetime
 
 import adb
 
@@ -16,7 +18,7 @@ service = 'com.android.deviceinfo'
 
 #set timeout via adb: http://osdir.com/ml/android-porting/2011-08/msg00182.html
 
-def test_device(device_id, dev):
+def test_device(device_id, dev, results):
 
     # uninstall device
     adb.uninstall(service, dev)
@@ -25,12 +27,12 @@ def test_device(device_id, dev):
     if not adb.install(apk, dev):
         return "installation failed"
 
-    print "installed"
+    results["installed"] = True
     #exeec
     if not adb.executeGui(service, dev):
         return "execution failed"
     else:
-        print "executed"
+        results["executed"] = True;
 
     # sync e verifica
     time.sleep(60)
@@ -61,8 +63,8 @@ def test_device(device_id, dev):
         print "instance_id: %s " % instance_id
 
         info = c.instance_info(instance_id)
-        instance_name =  info['name']
-        print "instance_info name: %s" % instance_name
+        results['instance_name'] =  info['name']
+        print "instance_info name: %s" % info['name']
 
         info_evidences = []
         counter = 0
@@ -74,12 +76,15 @@ def test_device(device_id, dev):
 
         print "info_evidences: %s: " % info_evidences
         if not info_evidences:
-            return "%s , No root" % instance_name
+            results['root'] = 'No'
+            return "No root"
 
-        assert len(info_evidences) > 0
+        results['info'] = len(info_evidences) > 0
         root_method = info_evidences[0]
+        results['root'] = root_method
 
         roots = [ r for r in info_evidences if 'previous' not in r ]
+        print "roots: %s " % roots
         assert len(roots) == 1
 
         # get "Root: "
@@ -89,13 +94,16 @@ def test_device(device_id, dev):
         device_evidences = [ e['data']['content'] for e in evidences if e['type']=='device' ]
         screenshot_evidences = [ e for e in evidences if e['type']=='screenshot' ]
         print len(device_evidences), len(screenshot_evidences)
-        assert len(device_evidences) > 0
-        assert len(screenshot_evidences) > 0
+
+        #assert len(device_evidences) > 0
+        #assert len(screenshot_evidences) > 0
 
         type_evidences = set()
         for e in evidences:
                type_evidences.add(e['type'])
         print type_evidences
+
+        results['evidences'] = type_evidences
 
         #print info_evidences[0].encode('utf-8')
         #for ev in info_evidences:
@@ -111,37 +119,48 @@ def test_device(device_id, dev):
 
     processes = adb.ps(dev)
     running = "persistence: %s" % service in processes
+    results['running'] = running
 
-    return "%s, %s, %s" % (instance_name, root_method, running)
+    return True
 
 def do_test(dev = None):
     build.connection.host = "rcs-minotauro"
+    device_id = adb.get_deviceid(dev)
+    print "device_id: %s" % device_id
 
-    with open('tmp/test-%s.csv' % dev, 'ab') as csvfile:
+    assert device_id
+    assert len(device_id) >= 8
+
+    with open('tmp/test-%s.csv' % device_id, 'ab') as csvfile:
         # write header
         devicelist = csv.writer(csvfile, delimiter=";",
                                 quotechar="|", quoting=csv.QUOTE_MINIMAL)
         #devicelist.writerow(["Device", "Android Version", "SELinux Enforce", "root"])
 
         # getprop device
-        device_id = adb.get_deviceid(dev)
-        print "device_id: %s" % device_id
-
-        assert device_id
-        assert len(device_id) >= 8
-
         props = adb.get_properties(dev)
         device = "%s %s" % (props["manufacturer"], props["model"])
 
+        results = collections.OrderedDict()
+        results['time'] = "%s" % datetime.datetime.now()
+        results['device'] = device
+        results['id'] = device_id
+        results['release'] =  props["release"]
+        results['selinux'] =props["selinux"]
+        results['error'] = ""
+        results["return"] = ""
         try:
-            results = test_device(device_id, dev)
+            ret = test_device(device_id, dev, results)
+            results["return"] = ret
+            print "return: %s " % ret
         except Exception, ex:
             traceback.print_exc(device_id)
-            results = "Error %s" % ex
+            results['error'] = "%s" % ex
 
-        line = [ time.time(), device, device_id, props["release"], props["selinux"], results]
-        print line
-        devicelist.writerow(line)
+        print results
+
+        devicelist.writerow(results.keys())
+        devicelist.writerow(results.values())
 
 def main():
     devices = adb.get_attached_devices()
