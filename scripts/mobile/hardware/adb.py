@@ -220,3 +220,6 @@ def get_attached_devices():
 			sys.exit(1)
 
 """
+
+if __name__ == "__main__":
+    print get_deviceid()
