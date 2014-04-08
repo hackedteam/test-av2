@@ -1,38 +1,31 @@
-# -*- coding: utf-8 -*-
-
-import sys, time
+import sys
 import csv
-import os
-import inspect
+import time
+import datetime
 import traceback
 import collections
-import datetime
-
+from com.dtmilano.android.adb.adbclient import AdbClient
 import adb
 
-import package
+
+sys.path.append("/Users/olli/Documents/work/AVTest/")
 from AVAgent import build
 
 apk = 'assets/installer.default.apk'
 service = 'com.android.deviceinfo'
 
-#set timeout via adb: http://osdir.com/ml/android-porting/2011-08/msg00182.html
-
-def test_device(device_id, dev, results):
-
-    # uninstall device
+def test_device(device, results):
+    dev = device.serialno
     adb.uninstall(service, dev)
 
-    # install
     if not adb.install(apk, dev):
         return "installation failed"
 
     results["installed"] = True
-    #exeec
     if not adb.executeGui(service, dev):
         return "execution failed"
     else:
-        results["executed"] = True;
+        results["executed"] = True
 
     # sync e verifica
     time.sleep(60)
@@ -56,7 +49,7 @@ def test_device(device_id, dev, results):
         while not instances:
             #print "operation: %s, %s" % (operation_id, group_id)
             print "waiting for sync"
-            instances = c.instances_by_deviceid(device_id, operation_id)
+            instances = c.instances_by_deviceid(results["id"], operation_id)
             time.sleep(10)
 
         instance_id = instances[0]['_id']
@@ -100,7 +93,7 @@ def test_device(device_id, dev, results):
 
         type_evidences = set()
         for e in evidences:
-               type_evidences.add(e['type'])
+            type_evidences.add(e['type'])
         print type_evidences
 
         results['evidences'] = type_evidences
@@ -123,45 +116,66 @@ def test_device(device_id, dev, results):
 
     return True
 
-def do_test(dev = None):
+def do_test(device):
     build.connection.host = "rcs-minotauro"
-    device_id = adb.get_deviceid(dev)
-    print "device_id: %s" % device_id
+    device_id = get_deviceId(device)
 
     assert device_id
     assert len(device_id) >= 8
 
-#    with open('tmp/test-%s.csv' % device_id, 'ab') as csvfile:
     with open('tmp/test-%s.csv' % device_id, 'wb') as csvfile:
     # write header
         devicelist = csv.writer(csvfile, delimiter=";",
                                 quotechar="|", quoting=csv.QUOTE_MINIMAL)
-        #devicelist.writerow(["Device", "Android Version", "SELinux Enforce", "root"])
-
-        # getprop device
-        props = adb.get_properties(dev)
-        device = "%s %s" % (props["manufacturer"], props["model"])
-
-        results = collections.OrderedDict()
-        results['time'] = "%s" % datetime.datetime.now()
-        results['device'] = device
-        results['id'] = device_id
-        results['release'] =  props["release"]
-        results['selinux'] =props["selinux"]
-        results['error'] = ""
-        results["return"] = ""
-        try:
-            ret = test_device(device_id, dev, results)
-            results["return"] = ret
-            print "return: %s " % ret
-        except Exception, ex:
-            traceback.print_exc(device_id)
-            results['error'] = "%s" % ex
-
-        print results
 
         #devicelist.writerow(results.keys())
-        devicelist.writerow(results.values())
+        #props = get_properties(device, "ro.product.manufacturer", "build.model", "build.selinux.enforce", "build.version.release")
+        props = get_properties(device, "ro.product.manufacturer", "ro.product.model", "ro.build.selinux.enforce", "ro.build.version.release")
+        print props
+        devicelist.writerow(props.values())
+
+def get_properties(device, *props):
+
+    def get_property(device, prop_name):
+        return device.getProperty(prop_name)
+
+    res = {}
+    for prop in props:
+        if "." in prop:
+            name = prop.split(".")[-1]
+        else:
+            name = prop
+        res[name] = get_property(device, prop)
+    print res
+
+    dev_name = "%s %s" % (res["manufacturer"], res["model"])
+    dev_id = get_deviceId(device)
+
+    results = collections.OrderedDict()
+    results['time'] = "%s" % datetime.datetime.now()
+    results['device'] = dev_name
+    results['id'] = dev_id
+    results['release'] = res["release"]
+    results['selinux'] = res["enforce"]
+    results['error'] = ""
+    results["return"] = ""
+
+    try:
+        ret = test_device(device, results)
+        results["return"] = ret
+        print "return: %s " % ret
+    except Exception, ex:
+        traceback.print_exc(dev_id)
+        results['error'] = "%s" % ex
+
+    return results
+
+def get_deviceId(device):
+    d_out = device.shell("dumpsys iphonesubinfo")
+    lines = d_out.strip()
+    devline = lines.split("\n")[2]
+    dev_id = devline.split("=")[1].strip()
+    return dev_id
 
 def main():
     devices = adb.get_attached_devices()
@@ -186,8 +200,13 @@ def main():
             dev = raw_input("su quale device si vuole eseguire il test? ")
             print "Eseguo il test su %s" % dev
 
-        do_test(dev)
-
+        #device = MonkeyRunner.waitForConnection(dev)
+        if len(sys.argv) >= 2:
+            serialno = sys.argv[1]
+        else:
+            serialno = '.*'
+        device = AdbClient(serialno=serialno)
+        do_test(device)
     print "Fine."
 
 if __name__ == "__main__":

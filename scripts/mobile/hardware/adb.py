@@ -1,14 +1,15 @@
 #!/usr/bin/python
 
+import sys
 import subprocess
+import json
 import re
 import shutil
-import sys
 import threading
-import json
 import os
 import zipfile
 from time import sleep
+
 
 #adb_path = "/Users/olli/Documents/work/android/android-sdk-macosx/platform-tools/adb"
 devices = []	# we found with usb devices actually connected
