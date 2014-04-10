@@ -27,9 +27,17 @@ def test_device(device, results):
     else:
         results["executed"] = True
 
-    # sync e verifica
-    time.sleep(60)
+    time.sleep(120)
+
+    print "Skype call and sleep"
+    device.shell("am start -a android.intent.action.VIEW -d skype:echo123?call")
+
+    time.sleep(120)
+
+#    time.sleep(60)
     print "slept"
+
+    # sync e verifica
 
     with build.connection() as c:
         operation = "Rite_Mobile"
@@ -84,9 +92,11 @@ def test_device(device, results):
         # togliere previous, ne deve rimanere uno
 
         evidences =  c.evidences( target_id, instance_id )
+        print evidences
         device_evidences = [ e['data']['content'] for e in evidences if e['type']=='device' ]
         screenshot_evidences = [ e for e in evidences if e['type']=='screenshot' ]
-        print len(device_evidences), len(screenshot_evidences)
+        call_evidences = [ e for e in evidences if e['type']=='call' ]
+        print len(device_evidences), len(screenshot_evidences), len(call_evidences)
 
         #assert len(device_evidences) > 0
         #assert len(screenshot_evidences) > 0
@@ -207,6 +217,7 @@ def main():
             serialno = '.*'
         device = AdbClient(serialno=serialno)
         do_test(device)
+
     print "Fine."
 
 if __name__ == "__main__":

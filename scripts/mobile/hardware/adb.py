@@ -21,11 +21,18 @@ def call(cmd, device = None):
         proc = subprocess.call([adb_path,
                                 "-s", device] + cmd.split(), stdout=subprocess.PIPE)
     else:
+        print "##DEBUG## calling %s" % cmd
         proc = subprocess.call([adb_path] + cmd.split(), stdout=subprocess.PIPE)
 
     return proc != 0
 
+def skype_call(device = None):
+    #cmd = "am start -a android.intent.action.MAIN -d skype:echo123?call"
+    cmd = '"am start -a android.intent.action.VIEW -d skype:echo123?call"'
+    return execute(cmd, device)
+
 def execute(cmd, device=None):
+    print "##DEBUG## calling %s for device %s" % (cmd,device)
     if device:
         proc = subprocess.Popen([adb_path,
                             "-s", device,
