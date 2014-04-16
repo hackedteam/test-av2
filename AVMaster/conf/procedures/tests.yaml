@@ -91,17 +91,21 @@ TEST_INSTALL:
 
 TEST_ELITE_FAST:
     - VM: [noav]
-    #- CALL: VM_PUSH_AGENT
-    #- INSTALL_AGENT
-    #- RELOG
+    - CALL: INIT_DISPATCH
+
+    - CALL: VM_PUSH_AGENT
+    - INSTALL_AGENT
+    - RELOG
+
     - BUILD: [ scout, windows, silent ]
     - SLEEP: 30
     - RELOG
 
-    #- CROP: True
+    - ON_ERROR: CONTINUE
+    - CROP: True
     - BUILD: [ elite_fast, windows, silent ]
-    #- CROP: False
-
+    - CROP: False
+    - ON_ERROR: SKIP
     - UNINSTALL
     - RELOG
 

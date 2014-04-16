@@ -55,8 +55,6 @@ SYSTEM_SOLDIER_BASIC:
     - UNINSTALL
     - STOP_VM: 60
 
-
-
 SYSTEM_STATIC_WINDOWS:
     - VM_ALL
     - INTERNET: False
@@ -195,6 +193,20 @@ SYSTEM_ELITE_FAST:
     - UNINSTALL
     - CALL: END_DISPATCH
 
+
+SYSTEM_ELITE:
+    - VM_ALL
+    - ON_ERROR: SKIP
+    - SLEEP: [10, 600]
+    - CALL: INIT_DISPATCH
+    - CALL: VM_CLEAN_EVIDENCES
+    - CALL: SET_MAIL
+    - REPORT:
+        - VM_ELITE: ['AV Invisibility', 'Elite']
+    - SCREENSHOT
+    - UNINSTALL
+    - CALL: END_DISPATCH
+
 SYSTEM_SOLDIER:
     - VM_ALL
     - ON_ERROR: SKIP
@@ -247,7 +259,7 @@ SYSTEM_DAILY_FAST:
     - CALL: SET_MAIL
     - REPORT:
         #- VM_STATIC: ['AV Invisibility Static', 'Static check on builds']
-        - VM_SOLDIER: ['AV Invisibility', 'Soldier']
+        #- VM_SOLDIER: ['AV Invisibility', 'Soldier']
         - VM_ELITE_FAST: ['AV Invisibility', 'Elite']
         #- VM_MELT: ['AV Invisibility', 'Melt']
         #- VM_EXPLOIT: ['AV Invisibility', 'Exploit']
