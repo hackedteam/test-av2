@@ -488,6 +488,7 @@ class AgentBuild:
             with connection() as c:
                 instance_id, target_id = get_instance(c)
         if not instance_id:
+            add_result("+ FAILED DID NOT SYNC")
             logging.debug("- exiting execute_elite_fast because did't sync")
             return
 
@@ -827,20 +828,32 @@ def execute_agent(args, level, platform):
     return True
 
 def get_instance(client):
+    #logging.debug("client: %s" % client)
     operation_id, group_id = client.operation(connection.operation)
     target = get_target_name()
 
     targets = client.targets(operation_id, target)
+
     if len(targets) != 1:
         return False, "not one target: %s" % len(targets)
 
     target_id = targets[0]
     instances = client.instances_by_target_id(target_id)
-    logging.debug("found these instances: %s" % instances)
-    if len(instances) != 1:
-        return False, "not one instance: %s" % len(instances)
+    instances = [k for k in instances if k['status'] == 'open']
 
-    instance = instances[0]
+    logging.debug("found these instances: %s" % instances)
+    if len(instances) == 0:
+        return False, "no open instances"
+
+    if len(instances) > 1:
+        #return False, "not one instance: %s" % len(instances)
+        logging.debug("WARNING: more than one instances: %s, choosing last one" % len(instances))
+        try:
+            instances=sorted(instances, key=lambda x: x['stat']['last_sync'])
+        except:
+            logging.excpetion("sorting")
+
+    instance = instances[-1]
     instance_id = instance['_id']
     target_id = instance['path'][1]
 

@@ -191,6 +191,7 @@ SYSTEM_ELITE_FAST:
         - VM_ELITE_FAST: ['AV Invisibility', 'Elite']
     - SCREENSHOT
     - UNINSTALL
+    - CALL: VM_GET_LOG
     - CALL: END_DISPATCH
 
 
@@ -218,6 +219,7 @@ SYSTEM_SOLDIER:
         - VM_SOLDIER: ['AV Invisibility', 'Soldier']
     - SCREENSHOT
     - UNINSTALL
+    - CALL: VM_GET_LOG
     - CALL: END_DISPATCH
 
 SYSTEM_EXPLOIT:
@@ -231,6 +233,7 @@ SYSTEM_EXPLOIT:
         - VM_EXPLOIT: ['AV Invisibility', 'Exploit']
     - SCREENSHOT
     - UNINSTALL
+    - CALL: VM_GET_LOG
     - CALL: END_DISPATCH
 
 SYSTEM_DAILY:

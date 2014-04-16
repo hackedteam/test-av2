@@ -207,7 +207,7 @@ class Rcs_client:
 
     def instances_by_name(self, name):
         """ gets the instances id of an operation, matching the ident """
-        logging.debug("lookin for instances with target: %s" % name)
+        logging.debug("looking for instances with target: %s" % name)
         agents = self._call_get('agent')
         #logging.debug("agents: %s" % agents)
         #pp.pprint(agents)
