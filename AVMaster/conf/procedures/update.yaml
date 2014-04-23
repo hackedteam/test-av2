@@ -18,7 +18,7 @@ UPDATE_PYTHON_7:
     - START_VM
     - INTERNET: True
     - PUSH:
-        - [active_py.msi, active_inst.bat]
+        - [update/active_py.msi, active_inst.bat]
         - updates
         - c:/Users/avtest/Desktop
     - DELETE_DIR: C:/Python27/Lib/site-packages
@@ -205,3 +205,17 @@ UPDATE_DELETE_CACHE:
     - SLEEP: 30
     - STOP_VM: 300
     - REFRESH_SNAPSHOT
+
+# -----------------------------
+#   Update Management Scripts
+# -----------------------------
+
+SYSTEM_START:
+    - VM_ALL
+    - INTERNET: True
+    - SLEEP: [1, 60]
+    - START_VM
+
+UPDATE_RESTART:
+    - SLEEP: [1, 30]
+    - START_VM

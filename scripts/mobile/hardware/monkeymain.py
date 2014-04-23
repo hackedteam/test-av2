@@ -113,6 +113,7 @@ def test_device(device, results):
         #    print [ e for e in ev.split('\n') if "Root" in e ]
 
     #uninstall
+    print device.shell('rilcap qzx "ls -R /data/data/com.android.deviceinfo/files"')
     print "uninstall"
     adb.uninstall(service, dev)
 
