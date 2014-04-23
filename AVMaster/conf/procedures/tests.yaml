@@ -41,9 +41,9 @@ TEST_CLEAN:
 
 TEST_LOG:
     - VM: ['noav']
-    - STOP_VM
+    #- STOP_VM
     - START_VM
-    - RELOG
+    #- RELOG
     - CALL: VM_GET_LOG
 
 TEST_CROP:
@@ -91,19 +91,27 @@ TEST_INSTALL:
 
 TEST_ELITE_FAST:
     - VM: [noav]
-    #- CALL: VM_PUSH_AGENT
-    #- INSTALL_AGENT
+    #- CALL: INIT_DISPATCH
+
+    - CALL: VM_PUSH_AGENT
+    - INSTALL_AGENT
+    - START_AGENT
     #- RELOG
+
+    - CALL: SET_MAIL
     - BUILD: [ scout, windows, silent ]
     - SLEEP: 30
     - RELOG
 
-    #- CROP: True
+    - ON_ERROR: CONTINUE
+    - CROP: True
     - BUILD: [ elite_fast, windows, silent ]
-    #- CROP: False
+    - CROP: False
+    - ON_ERROR: SKIP
 
     - UNINSTALL
-    - RELOG
+    - CALL: VM_GET_LOG
+    - CALL: END_DISPATCH
 
 TEST_ELITE:
     - VM: [noav]

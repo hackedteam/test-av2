@@ -68,11 +68,12 @@ def execute(vm, args):
             logging.exception("problem grabbing")
         return True, "%s" % ret
     else:
+        # stops the crop server
+        logging.debug("stop grab_loop")
+
         crop_whitelist = command.context.get("crop_whitelist",[])
         logging.debug("crop_whitelist: %s" % crop_whitelist)
 
-        # stops the crop server
-        logging.debug("stop grab_loop")
         go_on = False
         if thread:
             thread.join()
@@ -144,5 +145,7 @@ def crop(iter):
         name = name.replace('/','\\')
         c.save(name)
         return iter
+    else:
+        logging.debug("crop too small")
 
     return None

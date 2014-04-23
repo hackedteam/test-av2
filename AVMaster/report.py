@@ -192,7 +192,7 @@ def append_retest(failed_kind):
         for kind, err in failed_kind.items():
             sys = kind.replace("VM_","SYSTEM_")
             l = ",".join(err)
-            f.write("python main.py -r %s -m %s -c\n" % (sys, l))
+            f.write("python main.py -r %s -m %s -c $*\n" % (sys, l))
         f.close()
     except:
         logging.exception("cannot save rite_retest.sh")
