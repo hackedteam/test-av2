@@ -481,8 +481,9 @@ if __name__ == "__main__":
     conn.login()
 
     try:
-        instance_id = "52efa51d4e0913760f000138"
-        ret = conn.instance_upgrade(instance_id, True)
+        #instance_id = "52efa51d4e0913760f000138"
+        ret = conn.blacklist()
+        print ret.encode('utf-8')
         logging.debug("ret: %s" % ret)
     finally:
         conn.logout()

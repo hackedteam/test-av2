@@ -1,5 +1,5 @@
 
-soldierlist: [iobit32,bitdef,comodo,gdata,drweb,360cn,360cn5,kis32,avg,avg32]
+soldierlist: [adaware,iobit32,bitdef,comodo,gdata,drweb,360cn,360cn5,kis32,avg,avg32]
 blacklist: [emsisoft,sophos]
 
 crop_whitelist: [kis,kis32]
