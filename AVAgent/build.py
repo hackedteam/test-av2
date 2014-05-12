@@ -612,7 +612,8 @@ class AgentBuild:
         if not executed:
             for dir in start_dirs:
                 dir = dir.replace("/", "\\")
-                logging.debug("dir %s: %s" % (dir, os.listdir(dir)))
+                if os.path.exists(dir):
+                    logging.debug("dir %s: %s" % (dir, os.listdir(dir)))
         return executed
 
     def execute_scout(self):
