@@ -44,6 +44,24 @@ SYSTEM_FUNCTIONAL_RITE:
         - VM_FUNCTIONAL_ADDRESSBOOK_FB: ['Functional testing', 'Social Addressbook']
         - VM_FUNCTIONAL_EXPLOIT_NOBUILD: ['Functional testing', 'Exploit No Build', INVERT]
 
+
+SYSTEM_FUNCTIONAL_MANUAL:
+    - VM: [ funie, funch, funff ]
+    - REVERT
+    - SLEEP: [5, 60]
+
+    - START_VM
+    - CALL: VM_PUSH_AGENT
+    - START_AGENT: 172.20.20.122
+    - SET:
+        backend: 192.168.100.201
+        frontend: 192.168.100.204
+
+    - UNINSTALL
+    - PUSH: [ AVAgent/assets/facebook.bat ]
+    - BUILD: [ pull, windows_elite, silent ]
+    - EXECUTE_VM: [ /AVTest/build/windows_elite/agent.exe, [], 40, True, True ]
+
 SYSTEM_FUNCTIONAL_SOLDIER_RITE:
     - VM: [ funie, funch, funff ]
     - REVERT
