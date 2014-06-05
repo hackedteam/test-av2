@@ -12,21 +12,45 @@ UPDATE_SNAPSHOT:
     - INTERNET: False
     - REFRESH_SNAPSHOT
 
+UPDATE_ALL_7:
+    - ON_ERROR: STOP
+    - REVERT
+    - START_VM
+    - INTERNET: True
+ #python
+    - PUSH:
+        - [active_py.msi, active_inst.bat]
+        - assets/python
+        - c:/avtest/assets/python
+    - DELETE_DIR: C:/Python27/Lib/site-packages
+    - EXECUTE_VM: c:/avtest/assets/python/active_inst.bat
+ #reg
+    - PUSH: [assets/update_reg.bat]
+    - EXECUTE_VM: c:/avtest/assets/update_reg.bat
+    - DELETE_DIR: assets
+ #agent
+    - INTERNET: False
+    - CALL: VM_PUSH_AGENT
+    - INSTALL_AGENT
+    - RELOG
+    - INTERNET: False
+    - STOP_VM
+    - REFRESH_SNAPSHOT
+
 UPDATE_PYTHON_7:
     - ON_ERROR: STOP
     - REVERT
     - START_VM
     - INTERNET: True
     - PUSH:
-        - [update/active_py.msi, active_inst.bat]
-        - updates
-        - c:/Users/avtest/Desktop
+        - [active_py.msi, active_inst.bat]
+        - assets/python
+        - c:/avtest/assets/python
     - DELETE_DIR: C:/Python27/Lib/site-packages
-    - EXECUTE_VM: /Users/avtest/Desktop/active_inst.bat
-#    - EXECUTE_VM: /active_inst.bat
+    - EXECUTE_VM: c:/avtest/assets/python/active_inst.bat
     - INTERNET: False
     - STOP_VM
-#    - REFRESH_SNAPSHOT
+    - REFRESH_SNAPSHOT
 
 UPDATE_PYTHON_XP:
     - ON_ERROR: STOP
@@ -35,15 +59,13 @@ UPDATE_PYTHON_XP:
     - INTERNET: True
     - PUSH:
         - [active_py.msi, active_inst.bat]
-        - updates
-        - c:/Documents and Settings/avtest/Desktop
-#        - c:/Documents and Settings/avtest/Desktop
+        - assets/python
+        - c:/avtest/assets/python
     - DELETE_DIR: C:/Python27/Lib/site-packages
-    - EXECUTE_VM: /Documents and Settings/avtest/Desktop/active_inst.bat
-#    - EXECUTE_VM: /active_inst.bat
-#    - INTERNET: False
-#    - STOP_VM
-#    - REFRESH_SNAPSHOT
+    - EXECUTE_VM: c:/avtest/assets/python/active_inst.bat
+    - INTERNET: False
+    - STOP_VM
+    - REFRESH_SNAPSHOT
 
 
 UPDATE_THEME:
@@ -87,6 +109,23 @@ UPDATE_AGENT:
 
     - CLEAN_EVIDENCES
     - STOP_VM: 300
+    - WAIT_SHUTDOWN
+    - REFRESH_SNAPSHOT
+
+UPDATE_AGENT_2:
+    - ON_ERROR: STOP
+    - INTERNET: False
+    - SLEEP: [10, 60]
+    - REVERT
+    - START_VM
+
+    - CALL: VM_PUSH_AGENT
+    - INSTALL_AGENT
+    - START_AGENT
+    - UNINSTALL
+
+    - CLEAN_EVIDENCES
+    - STOP_VM
     - WAIT_SHUTDOWN
     - REFRESH_SNAPSHOT
 
