@@ -14,7 +14,7 @@ def execute(vm, protocol, level):
 
     #vm_first = "avast,avast32,avg,avg32,avira,kis,kis14,kis32,mcafee,norton,panda,comodo,eset,msessential".split(',')
     vm_first = "avast,avast32,avg,avg32,avira,kis,kis14,kis32,mcafee,norton,comodo,eset,eset7,msessential,panda".split(',')
-    vm_second = "drweb,360cn5,adaware,ahnlab,bitdef,fsecure,gdata,iobit32,vba32,fortinet,mbytes,norman,risint,trendm,zoneal".split(',')
+    vm_second = "drweb,360cn5,adaware,ahnlab,bitdef,fsecure,gdata,iobit32,vba32,fortinet,mbytes,norman,risint,trendm,zoneal,clamav".split(',')
     vm_ignored = ""
 
     if level and level.lower() == "important":
