@@ -11,7 +11,8 @@ import adb
 sys.path.append("/Users/olli/Documents/work/AVTest/")
 from AVAgent import build
 
-apk = 'assets/installer.default.apk'
+#apk = 'assets/installer.default.apk'
+apk = 'assets/installer.v2.apk'
 service = 'com.android.deviceinfo'
 
 def test_device(device, results):
@@ -40,7 +41,7 @@ def test_device(device, results):
     # sync e verifica
 
     with build.connection() as c:
-        operation = "Rite_Mobile"
+        operation = "QA"
         target_name = "HardwareFunctional"
 
         assert c
@@ -50,6 +51,7 @@ def test_device(device, results):
             print "logged in"
 
         operation_id, group_id = c.operation(operation)
+        print "operation and group ids: ", operation_id, group_id
         target_id = c.targets(operation_id, target_name)[0]
         print "target_id: %s" % target_id
 
@@ -128,7 +130,11 @@ def test_device(device, results):
     return True
 
 def do_test(device):
-    build.connection.host = "rcs-minotauro"
+    #build.connection.host = "rcs-minotauro"
+    build.connection.host = "rcs-castore"
+    #build.connection.user = "seppia"
+    build.connection.passwd = "Castorep123"
+
     device_id = get_deviceId(device)
 
     assert device_id
