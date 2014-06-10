@@ -15,6 +15,8 @@ from time import sleep
 devices = []	# we found with usb devices actually connected
 adb_path ="adb";
 
+temp_remote_path = "/data/local/tmp/in/"
+
 def call(cmd, device = None):
     if device:
         print "##DEBUG## calling %s for device %s" % (cmd,device)
@@ -184,6 +186,114 @@ def get_attached_devices():
             devices.append("device: %s model: %s %s" % (dev,props["manufacturer"],props["model"]))
 
     return devices
+
+#ML
+#Copy a single file to an implicit tmp directory
+#The destination dir will be /data/local/tmp/in/ (it will be created if nonexistent)
+def copy_tmp_file(file_local_path, device=None):
+
+    print "##DEBUG##  Copying a single file to an implicit tmp directory on device %s" % device
+
+    copy_file(file_local_path, temp_remote_path, False, device)
+
+    # if device:
+    #     print "create dir %s" % temp_remote_path
+    #     proc = subprocess.call([adb_path,
+    #                         "-s", device,
+    #                         "shell", "mkdir", temp_remote_path], stdout=subprocess.PIPE)
+    #     print "adb push %s" % file_local_path
+    #     proc = subprocess.call([adb_path,
+    #                         "-s", device,
+    #                         "push", file_local_path, temp_remote_path], stdout=subprocess.PIPE)
+    # else:
+    #     print "create dir %s" % temp_remote_path
+    #     proc = subprocess.call([adb_path,
+    #                             "shell", "mkdir", temp_remote_path], stdout=subprocess.PIPE)
+    #     print "adb push %s" % file_local_path
+    #     proc = subprocess.call([adb_path,
+    #                             "push", file_local_path, temp_remote_path], stdout=subprocess.PIPE)
+
+#ML
+#Copy a single file to an explicit directory with unprivileged or ROOT privileges
+#The destination dir will be created if nonexistent
+#it uses a temp directory ("/data/local/tmp/in/") to pull the file and then with root privileges moves the file.
+#if the destination is directory "/data/local/tmp/in/", then it doesn't move the file
+def copy_file(file_local_path, remote_path, root=False, device=None):
+
+    print "##DEBUG##  Copying a single file to a directory on device %s" % device
+
+    print "create dir %s" % remote_path
+    #can always create temp dir without root
+    executeSU("mkdir" + " " + temp_remote_path, False, device)
+
+    print "adb push %s" % file_local_path
+    if device:
+        proc = subprocess.call([adb_path,
+                    "-s", device,
+                    "push", file_local_path, temp_remote_path], stdout=subprocess.PIPE)
+    else:
+        proc = subprocess.call([adb_path,
+                    "push", file_local_path, temp_remote_path], stdout=subprocess.PIPE)
+
+    if remote_path!=temp_remote_path:
+            print "create remote destination %s" % remote_path
+            print (executeSU("mkdir" + " " + remote_path, root, device))
+            #print (executeSU("id", root, device))
+
+            print "move the file to %s" % remote_path
+
+            print (executeSU("mv" + " " + temp_remote_path + "/" + os.path.basename(file_local_path) + " " + remote_path, root, device))
+
+    # def copy_file_old(file_local_path, remote_path, root=False, device=None):
+    #
+    #     print "##DEBUG##  Copying a single file to a directory on device %s" % device
+    #
+    #     if device:
+    #         print "create dir %s" % remote_path
+    #         proc = subprocess.call([adb_path,
+    #                             "-s", device,
+    #                             getShell(root), "mkdir", remote_path], stdout=subprocess.PIPE)
+    #         print "adb push %s" % file_local_path
+    #         proc = subprocess.call([adb_path,
+    #                             "-s", device,
+    #                             "push", file_local_path, remote_path], stdout=subprocess.PIPE)
+    #         if remote_path!=temp_remote_path:
+    #             print "create remote destination %s" % remote_path
+    #             proc = subprocess.call([adb_path,
+    #                             "-s", device,
+    #                             getShell(root), "mkdir", remote_path], stdout=subprocess.PIPE)
+    #             print "move the file to %s" % remote_path
+    #             proc = subprocess.call([adb_path,
+    #                             "-s", device,
+    #                             getShell(root), "mv", file_local_path, remote_path], stdout=subprocess.PIPE)
+    #
+    #     else:
+    #         print "create dir %s" % remote_path
+    #         proc = subprocess.call([adb_path,
+    #                                 "shell", "mkdir", remote_path], stdout=subprocess.PIPE)
+    #         print "adb push %s" % file_local_path
+    #         proc = subprocess.call([adb_path,
+    #                                 "push", file_local_path, remote_path], stdout=subprocess.PIPE)
+
+
+def executeSU(cmd, root=False, device=None):
+
+    if root:
+        print "##DEBUG## calling %s for device %s with root %s" % (cmd, device, root)
+        if device:
+            print "##DEBUG## executing: %s with rilcap" % cmd
+            proc = subprocess.Popen(
+                [adb_path, "shell", "rilcap qzx '" + cmd + "'"], stdout=subprocess.PIPE)
+        else:
+            print "##DEBUG## executing: %s withOUT rilcap" % cmd
+            proc = subprocess.Popen([adb_path, "shell", "rilcap qzx '" + cmd + "'"], stdout=subprocess.PIPE)
+
+        #using call
+        #return proc
+        comm = proc.communicate()
+        return str(comm[0])
+    else:
+        execute(cmd, device)
 
 """
 	def run(self):
