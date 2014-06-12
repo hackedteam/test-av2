@@ -159,7 +159,7 @@ def get_target_name():
 class AgentBuild:
     def __init__(self, backend, frontend=None, platform='windows', kind='silent',
                  ftype='desktop', blacklist=[], soldierlist=[], param=None,
-                 puppet="puppet", asset_dir="AVAgent/assets"):
+                 puppet="puppet", asset_dir="AVAgent/assets", factory=None):
         self.kind = kind
         self.host = (backend, frontend)
 
@@ -172,6 +172,7 @@ class AgentBuild:
         self.asset_dir = asset_dir
         self.ftype = ftype
         self.param = param
+        self.factory = factory
         logging.debug("DBG blacklist: %s" % self.blacklist)
         logging.debug("DBG soldierlist: %s" % self.soldierlist)
         logging.debug("DBG hostname: %s" % self.hostname)
@@ -682,9 +683,13 @@ class AgentBuild:
         logging.debug("- Host: %s %s\n" % (self.hostname, time.ctime()))
         operation = connection.operation
         target = get_target_name()
-        # desktop_exploit_melt, desktop_scout_
-        factory = '%s_%s_%s_%s' % (
-            self.hostname, self.ftype, self.platform, self.kind)
+        if not self.factory:
+            # desktop_exploit_melt, desktop_scout_
+            factory = '%s_%s_%s_%s' % (
+                self.hostname, self.ftype, self.platform, self.kind)
+        else:
+            factory = self.factory
+
         config = "%s/config_%s.json" % (self.asset_dir, self.ftype)
 
         if not os.path.exists('build'):
@@ -797,7 +802,7 @@ def execute_agent(args, level, platform):
     logging.debug("DBG ftype: %s" % ftype)
 
     vmavtest = AgentBuild(args.backend, args.frontend,
-                          platform, args.kind, ftype, args.blacklist, args.soldierlist, args.param, args.puppet, args.asset_dir)
+                          platform, args.kind, ftype, args.blacklist, args.soldierlist, args.param, args.puppet, args.asset_dir, args.factory)
 
     """ starts a scout """
     if socket.gethostname().lower() not in args.nointernetcheck:
@@ -957,7 +962,6 @@ def build(args, report):
     try:
         #check_blacklist(blacklist)
         if action in ["pull", "scout", "elite", "elite_fast", "soldier", "soldier_fast"]:
-            print args, connection.user, connection.passwd
             execute_agent(args, action, args.platform)
         elif action == "clean":
             clean(args.backend)

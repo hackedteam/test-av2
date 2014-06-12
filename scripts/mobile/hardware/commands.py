@@ -42,13 +42,16 @@ dev_params = {}
 def set(srv_params, dev_params):
     return srv_params, dev_params
 
-def build_apk(kind, srv):
+def build_apk(kind, srv, factory):
     class Args:
         pass
 
     report = None
-    print srv, servers[srv]
-    srv_params = servers[srv]
+
+    try:
+        srv_params = servers[srv]
+    except KeyError:
+        return False
 
 
     args = Args()
@@ -68,6 +71,7 @@ def build_apk(kind, srv):
     args.soldierlist = ""
     args.nointernetcheck = socket.gethostname()
     args.puppet = "rite"
+    args.factory = factory
 
     build.connection.host = "rcs-castore"
     build.connection.user = "avmonitor"
@@ -81,7 +85,11 @@ def check_evidences():
     pass
 
 
-if __name__ == "__main__":
-    if build_apk("silent","castore"):
-        print "done"
+def do_test():
+    assert build_apk("silent","castore"), "Build failed. It have to be succeded."
+    assert build_apk("silent","castoro") is False, "Build succeded. It have to dont be succeded."
 
+    print "all done"
+
+if __name__ == "__main__":
+    do_test()
