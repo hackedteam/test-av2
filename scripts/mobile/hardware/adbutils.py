@@ -19,6 +19,7 @@ def uninstall_rilcap_shell(devSerialnumber, adb):
 
 
 def start_wifi_av_network(dev, adb):
+    print "start_wifi_av_network"
     adb.copy_file(wifi_av_network_conf, '/data/misc/wifi/', True, dev)
     adb.executeSU('chown system /data/misc/wifi/wpa_supplicant.conf', True, dev)
     adb.executeSU('chgrp wifi /data/misc/wifi/wpa_supplicant.conf', True, dev)

@@ -3,7 +3,7 @@ import csv
 import time
 # import datetime
 import traceback
-from com.dtmilano.android.adb.adbclient import AdbClient
+from adbclient import AdbClient
 import adb
 
 # our files
@@ -11,9 +11,13 @@ import adbutils
 import utils
 #from antivirus_apk import Antivirus_apk
 import apk_dataLoader
-from AVAgent import build
+
 
 sys.path.append("/Users/mlosito/Sviluppo/Rite/")
+sys.path.append("/Users/zeno/AVTest/")
+
+from AVAgent import build
+
 
 #avs_to_test = ['avast', '360security']
 avs_to_test = ['360security']
