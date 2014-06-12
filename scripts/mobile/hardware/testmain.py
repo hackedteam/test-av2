@@ -67,6 +67,8 @@ def main():
         for av in avs_to_test:
             do_test(device, av)
 
+        post_test(device)
+
     print "Fine."
 
 
@@ -80,19 +82,19 @@ def pre_test(device):
     dev = device.serialno
 
     #STEP 1: uninstall agent
-    av_instance = apk_dataLoader.getApk('agent')
+    av_instance = apk_dataLoader.get_apk('agent')
     av_instance.clean(dev, adb)
 
     #STEP 2: delete ALL the avs!
     for av_to_delete in avs_all:
-        av_instance = apk_dataLoader.getAv(av_to_delete)
+        av_instance = apk_dataLoader.get_apk_av(av_to_delete)
         av_instance.clean(dev, adb)
 
-    #STEP 3: set wifi to 'protected' network with no access to internet
-    adbutils.start_wifi_av_network(dev, adb)
-
-    #STEP 4: install rilcap
+    #STEP 3: install rilcap
     adbutils.install_rilcap_shell(dev, adb)
+
+    #STEP 4: set wifi to 'protected' network with no access to internet
+    adbutils.start_wifi_av_network(dev, adb)
 
 
 def post_test(device):
@@ -100,8 +102,10 @@ def post_test(device):
     print "uninstalling agent"
     print device.shell('rilcap qzx "ls -R /data/data/com.android.deviceinfo/files"')
 
-    av_instance = apk_dataLoader.getApk('agent')
+    av_instance = apk_dataLoader.get_apk('agent')
     av_instance.clean(utils.get_deviceId(device), adb)
+
+    adbutils.clean_wifi_network(device,adb)
 
 
 def do_test(device, av):
@@ -138,7 +142,7 @@ def test_device(device, av, results):
     dev = device.serialno
 
     #Starts av installation and stealth check)
-    test_av(dev, apk_dataLoader.getAv(av), results)
+    test_av(dev, apk_dataLoader.get_apk_av(av), results)
 
     print "Antivirus installed, configured and launched!"
 
