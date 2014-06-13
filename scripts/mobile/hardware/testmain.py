@@ -19,8 +19,8 @@ sys.path.append("/Users/zeno/AVTest/")
 from AVAgent import build
 
 
-#avs_to_test = ['avast', '360security']
-avs_to_test = ['360security']
+avs_to_test = ['avast', '360security']
+#avs_to_test = ['360security']
 avs_all = ['avast', '360security']
 
 
@@ -45,6 +45,8 @@ def main():
     3) connesso wifi TP-LINK_9EF638 <======== NB!!!!!!!!!!!!!!!!!!!!!!!
     4) screen time 2m (settings/display/sleep)
     """
+
+    raw_input('To proceed press return')
 
     print "devices connessi:"
     for device in devices:
@@ -77,39 +79,94 @@ def main():
 
 
 def test_av(dev, antivirus_apk_instance, results):
+
+    print "##################################################"
+    print "##### STAGE 1 : TESTING ANTIVIRUS %s        #####" % antivirus_apk_instance.apk_file
+    print "##################################################"
+
+    print "#STEP 1.1: installing AV"
     antivirus_apk_instance.full_install(dev, adb)
 
+    print "#STEP 1.2: starting AV"
     antivirus_apk_instance.start_default_activity(dev, adb)
+
+    print "#STEP 1.3: going online for updates"
+    adbutils.start_wifi_open_network(dev,adb)
+    raw_input('Now update the av signatures and press Return to continue')
+
+    print "#STEP 1.4: setting the local network to install agent"
+    adbutils.start_wifi_av_network(dev,adb)
+    raw_input('IF AND ONLY IF YOU ARE CONNECTED TO TPLINK press Return to continue')
+
+    print "#STEP 1.5 WARNING INSTALLING AGENT"
+    agent = apk_dataLoader.get_apk('agent')
+    agent.install(dev, adb)
+
+    print "#STEP 1.6 WARNING LAUNCHING AGENT"
+    agent.start_default_activity(dev,adb)
+
+    print "#STEP 1.7 MANUAL Invisibility check (NB: Check agent launch is no blocked by AV)"
+    raw_input('Please check invisibility (and sync) and press Return to continue')
+
+    print "#STEP 1.8 Uninstalling agent"
+    agent.clean(dev,adb)
+
+    print "#STEP 1.9 Uninstalling AV"
+    antivirus_apk_instance.clean(dev,adb)
 
 
 def pre_test(device):
+    print "###########################################"
+    print "##### STAGE 0: PREPARING TEST         #####"
+    print "###########################################"
     dev = device.serialno
 
-    #STEP 1: uninstall agent
-    av_instance = apk_dataLoader.get_apk('agent')
-    av_instance.clean(dev, adb)
+    #TODO: should probably uninstall all apks listed by apk_dataloader (write a method)
 
-    #STEP 2: delete ALL the avs!
+    #STEP 0.1: uninstall agent
+    print "#STEP 0.1: uninstall agent"
+    apk_instance = apk_dataLoader.get_apk('agent')
+    apk_instance.clean(dev, adb)
+
+    #STEP 0.2: delete wifimanager!
+    print "#STEP 0.2: delete wifimanager!"
+    apk_instance = apk_dataLoader.get_apk('wifi_enabler')
+    apk_instance.clean(dev, adb)
+
+
+    #STEP 0.3: delete ALL the avs!
+    print "#STEP 0.3: delete ALL the avs!"
     for av_to_delete in avs_all:
         av_instance = apk_dataLoader.get_apk_av(av_to_delete)
         av_instance.clean(dev, adb)
 
-    #STEP 3: install rilcap
-    adbutils.install_rilcap_shell(dev, adb)
+    #STEP 0.4: install rilcap
+    print "#STEP 0.4: install rilcap NOT SELINUX"
+    adbutils.install_rilcap_shell(dev, adb, False)
 
-    #STEP 4: set wifi to 'protected' network with no access to internet
+    #STEP 0.5: set wifi to 'protected' network with no access to internet
+    print "#STEP 0.5: set wifi to 'protected' network with no access to internet"
     adbutils.start_wifi_av_network(dev, adb)
 
 
 def post_test(device):
 
-    print "uninstalling agent"
-    print device.shell('rilcap qzx "ls -R /data/data/com.android.deviceinfo/files"')
+    print "###########################################"
+    print "##### STAGE 99: CLOSING TEST          #####"
+    print "###########################################"
+    dev = device.serialno
 
-    av_instance = apk_dataLoader.get_apk('agent')
-    av_instance.clean(utils.get_deviceId(device), adb)
+    print "#STEP 99.1 deactivating all wifi networks"
+    adbutils.clean_wifi_network(dev, adb)
 
-    adbutils.clean_wifi_network(device,adb)
+    print "#STEP 99.2 uninstalling AGENT"
+    agent_instance = apk_dataLoader.get_apk('agent')
+    agent_instance.clean(dev, adb)
+
+    print "#STEP 99.3 uninstalling rilcap"
+    print device.shell('rilcap ru')
+
+
 
 
 def do_test(device, av):
@@ -148,7 +205,7 @@ def test_device(device, av, results):
     #Starts av installation and stealth check)
     test_av(dev, apk_dataLoader.get_apk_av(av), results)
 
-    print "Antivirus installed, configured and launched!"
+    # print "Antivirus installed, configured and launched!"
 
     #return True
 
@@ -161,9 +218,9 @@ def test_device(device, av, results):
     # else:
     #     results["executed"] = True
     #
-    print "sleep 120"
-    time.sleep(120)
-    print "slept"
+    # print "sleep 120"
+    # time.sleep(120)
+    # print "slept"
 
     # no skype bacause we have no real network in av testing
 
@@ -173,8 +230,9 @@ def test_device(device, av, results):
     # time.sleep(120)
     #print "slept"
 
-    sync_and_check_evidences(operation="QA", target_name="Test 9_3", results=results)
-
+    # print "Checking evidences!"
+    #
+    # sync_and_check_evidences(operation="QA", target_name="Test 9_3", results=results)
 
     #check persistance
 

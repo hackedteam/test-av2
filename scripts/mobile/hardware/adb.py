@@ -8,7 +8,7 @@ import shutil
 import threading
 import os
 import zipfile
-from time import sleep
+import time
 
 
 #adb_path = "/Users/olli/Documents/work/android/android-sdk-macosx/platform-tools/adb"
@@ -244,38 +244,6 @@ def copy_file(file_local_path, remote_path, root=False, device=None):
 
             print (executeSU("mv" + " " + temp_remote_path + "/" + os.path.basename(file_local_path) + " " + remote_path, root, device))
 
-    # def copy_file_old(file_local_path, remote_path, root=False, device=None):
-    #
-    #     print "##DEBUG##  Copying a single file to a directory on device %s" % device
-    #
-    #     if device:
-    #         print "create dir %s" % remote_path
-    #         proc = subprocess.call([adb_path,
-    #                             "-s", device,
-    #                             getShell(root), "mkdir", remote_path], stdout=subprocess.PIPE)
-    #         print "adb push %s" % file_local_path
-    #         proc = subprocess.call([adb_path,
-    #                             "-s", device,
-    #                             "push", file_local_path, remote_path], stdout=subprocess.PIPE)
-    #         if remote_path!=temp_remote_path:
-    #             print "create remote destination %s" % remote_path
-    #             proc = subprocess.call([adb_path,
-    #                             "-s", device,
-    #                             getShell(root), "mkdir", remote_path], stdout=subprocess.PIPE)
-    #             print "move the file to %s" % remote_path
-    #             proc = subprocess.call([adb_path,
-    #                             "-s", device,
-    #                             getShell(root), "mv", file_local_path, remote_path], stdout=subprocess.PIPE)
-    #
-    #     else:
-    #         print "create dir %s" % remote_path
-    #         proc = subprocess.call([adb_path,
-    #                                 "shell", "mkdir", remote_path], stdout=subprocess.PIPE)
-    #         print "adb push %s" % file_local_path
-    #         proc = subprocess.call([adb_path,
-    #                                 "push", file_local_path, remote_path], stdout=subprocess.PIPE)
-
-
 def executeSU(cmd, root=False, device=None):
 
     if root:
@@ -288,8 +256,6 @@ def executeSU(cmd, root=False, device=None):
             print "##DEBUG## executing: %s withOUT rilcap" % cmd
             proc = subprocess.Popen([adb_path, "shell", "rilcap qzx '" + cmd + "'"], stdout=subprocess.PIPE)
 
-        #using call
-        #return proc
         comm = proc.communicate()
         return str(comm[0])
     else:

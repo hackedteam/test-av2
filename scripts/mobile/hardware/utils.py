@@ -1,8 +1,10 @@
 import collections
 import datetime
 
+from adbclient import AdbClient
 
 def get_deviceId(device):
+    device = AdbClient(device.serialno)
     d_out = device.shell("dumpsys iphonesubinfo")
     lines = d_out.strip()
     devline = lines.split("\n")[2]
