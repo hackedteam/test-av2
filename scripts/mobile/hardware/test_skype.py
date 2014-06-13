@@ -1,5 +1,6 @@
 __author__ = 'olli'
 
+import os
 import sys
 import csv
 import time
@@ -9,10 +10,14 @@ import collections
 from com.dtmilano.android.adb.adbclient import AdbClient
 import adb
 
+from commands import build_apk
+
 sys.path.append("/Users/olli/Documents/work/AVTest/")
 from AVAgent import build
 
 service = 'com.android.deviceinfo'
+installer = "default"
+
 
 def get_deviceId(device):
     d_out = device.shell("dumpsys iphonesubinfo")
@@ -63,6 +68,13 @@ def test_device(device, results):
     dev = device.serialno
     adb.uninstall(service, dev)
 
+    if not build_apk("silent", "castore", results["device"]):
+        print "error building apk for testing"
+        return
+
+    apk = "build/android/install.%s.apk" % installer
+
+    print "installing ", apk
     if not adb.install(apk, dev):
         return "installation failed"
 
@@ -81,7 +93,8 @@ def test_device(device, results):
 
     with build.connection() as c:
         operation = "QA"
-        target_name = "HardwareFunctional"
+        #target_name = "HardwareFunctional"
+        target_name = build.get_target_name()
 
         assert c
         if not c.logged_in():
@@ -177,7 +190,9 @@ def test_device(device, results):
 
     return True
 
-def main(apk, serialno):
+def main(serialno):
+    global installer
+
     devices = adb.get_attached_devices()
 
     print """ prerequisiti:
@@ -210,7 +225,16 @@ def main(apk, serialno):
             "ro.build.version.sdk"
         )
 
+        #installer = "default"
+
         # doing test here
+        maj = props["release"].split(".")[0]
+        min = props["release"].split(".")[1]
+
+        print maj, min
+        if maj == "2":
+            installer = "v2"
+
         try:
             ret = test_device(device, props)
             props["return"] = ret
@@ -225,16 +249,10 @@ def main(apk, serialno):
     print "Fine."
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print "usage: %s <apk>" % sys.argv[0]
-        sys.exit(1)
+    if len(sys.argv) == 2:
+        serialno = sys.argv[1]
+    else:
+        serialno = ".*"
 
-    else: # len(sys.argv) <= 2
-        apk = sys.argv[1]
-
-        if len(sys.argv) == 3:
-            serialno = sys.argv[2]
-        else:
-            serialno = ".*"
-
-        main(apk, serialno)
+    print os.getcwd()
+    main(serialno)

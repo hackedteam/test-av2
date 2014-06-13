@@ -158,7 +158,8 @@ def get_target_name():
 
 class AgentBuild:
     def __init__(self, backend, frontend=None, platform='windows', kind='silent',
-                 ftype='desktop', blacklist=[], soldierlist=[], param=None, puppet="puppet"):
+                 ftype='desktop', blacklist=[], soldierlist=[], param=None,
+                 puppet="puppet", asset_dir="AVAgent/assets", factory=None):
         self.kind = kind
         self.host = (backend, frontend)
 
@@ -168,8 +169,10 @@ class AgentBuild:
         self.blacklist = blacklist
         self.soldierlist = soldierlist
         self.platform = platform
+        self.asset_dir = asset_dir
         self.ftype = ftype
         self.param = param
+        self.factory = factory
         logging.debug("DBG blacklist: %s" % self.blacklist)
         logging.debug("DBG soldierlist: %s" % self.soldierlist)
         logging.debug("DBG hostname: %s" % self.hostname)
@@ -680,10 +683,14 @@ class AgentBuild:
         logging.debug("- Host: %s %s\n" % (self.hostname, time.ctime()))
         operation = connection.operation
         target = get_target_name()
-        # desktop_exploit_melt, desktop_scout_
-        factory = '%s_%s_%s_%s' % (
-            self.hostname, self.ftype, self.platform, self.kind)
-        config = "AVAgent/assets/config_%s.json" % self.ftype
+        if not self.factory:
+            # desktop_exploit_melt, desktop_scout_
+            factory = '%s_%s_%s_%s' % (
+                self.hostname, self.ftype, self.platform, self.kind)
+        else:
+            factory = self.factory
+
+        config = "%s/config_%s.json" % (self.asset_dir, self.ftype)
 
         if not os.path.exists('build'):
             os.mkdir('build')
@@ -795,7 +802,7 @@ def execute_agent(args, level, platform):
     logging.debug("DBG ftype: %s" % ftype)
 
     vmavtest = AgentBuild(args.backend, args.frontend,
-                          platform, args.kind, ftype, args.blacklist, args.soldierlist, args.param, args.puppet)
+                          platform, args.kind, ftype, args.blacklist, args.soldierlist, args.param, args.puppet, args.asset_dir, args.factory)
 
     """ starts a scout """
     if socket.gethostname().lower() not in args.nointernetcheck:
