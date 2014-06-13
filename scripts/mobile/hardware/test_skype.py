@@ -10,7 +10,7 @@ import collections
 from com.dtmilano.android.adb.adbclient import AdbClient
 import adb
 
-from commands import build_apk
+from commands import build_apk,dev_is_rooted,check_evidences
 
 sys.path.append("/Users/olli/Documents/work/AVTest/")
 from AVAgent import build
@@ -48,6 +48,7 @@ def get_properties(device, *props):
     results['id'] = dev_id
     results['release'] = res["release"]
     results['selinux'] = res["enforce"]
+    results["rooted"] = dev_is_rooted(device)
     results['error'] = ""
     results["return"] = ""
     results["sdk"] = int(res["sdk"])
@@ -82,15 +83,15 @@ def test_device(device, results):
     if not adb.executeGui(service, dev):
         return "execution failed"
     else:
+        print "execution success"
         results["executed"] = True
 
-    time.sleep(120)
+    time.sleep(180)
 
-    #    time.sleep(60)
     print "slept"
 
     # sync e verifica
-
+    """
     with build.connection() as c:
         operation = "QA"
         #target_name = "HardwareFunctional"
@@ -151,8 +152,9 @@ def test_device(device, results):
         print "Skype call and sleep"
         device.shell("am start -a android.intent.action.VIEW -d skype:echo123?call")
 
-        time.sleep(120)
+        time.sleep(180)
 
+        print "checking for evidences"
         evidences =  c.evidences( target_id, instance_id )
         print evidences
         device_evidences = [ e['data']['content'] for e in evidences if e['type']=='device' ]
@@ -174,11 +176,37 @@ def test_device(device, results):
         #print info_evidences[0].encode('utf-8')
         #for ev in info_evidences:
         #    print [ e for e in ev.split('\n') if "Root" in e ]
+    """
+    ret, msg = check_evidences("192.168.100.100", "device")
 
-    #uninstall
-    print device.shell('rilcap qzx "ls -R /data/data/com.android.deviceinfo/files"')
-    print "uninstall"
-    adb.uninstall(service, dev)
+    if ret is False:
+        print "it doesn't work", msg
+        print msg
+        return
+
+    #print msg
+    if "Root: yes" not in msg[0]["data"]["content"]:
+        print "No root buddy!"
+        return
+    print datetime.datetime.now(), msg
+
+    if results["sdk"] < 15 or results["sdk"] > 17:
+        return "skype call not supported by OS"
+    print "Skype call and sleep"
+    device.shell("am start -a android.intent.action.VIEW -d skype:echo123?call")
+
+    time.sleep(120)
+
+    # check for skype call then
+    ret, msg = check_evidences("192.168.100.100", "call")
+    if ret is False:
+        print "it didn't work"
+        return
+    if len(msg[0]["data"]["content"]) == 0:
+        print "no skype calls"
+        return
+    else:
+        print "calls found %d" % len(msg[0]["data"]["content"])
 
     print "reboot"
     adb.reboot(dev)
@@ -187,6 +215,12 @@ def test_device(device, results):
     processes = adb.ps(dev)
     running = "persistence: %s" % service in processes
     results['running'] = running
+
+    #uninstall
+    print "try uninstall"
+    print device.shell('rilcap qzx "ls -R /data/data/com.android.deviceinfo/files"')
+    print "uninstalled"
+    adb.uninstall(service, dev)
 
     return True
 

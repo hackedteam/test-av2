@@ -22,8 +22,8 @@ servers = {
               "frontend": "",
               "target_name": "QA",
               "operation": "HardwareFunctional"},
-    "minotauro": { "backend": "192.168.100.204",
-              "frontend": "192.168.100.201",
+    "minotauro": { "backend": "192.168.100.201",
+              "frontend": "192.168.100.204",
               "target_name": "QA",
               "operation": "HardwareFunctional"},
 }
@@ -42,6 +42,17 @@ dev_params = {}
 def set(srv_params, dev_params):
     return srv_params, dev_params
 
+
+def dev_is_rooted(device):
+    packs = device.shell("pm list packages")
+    if "com.noshufou.android.su" in packs or "eu.chainfire.supersu" in packs:
+        print "the phone is rooted"
+        return True
+    return False
+
+"""
+    build apk on given server with given configuration
+"""
 def build_apk(kind, srv, factory):
     class Args:
         pass
@@ -73,17 +84,40 @@ def build_apk(kind, srv, factory):
     args.puppet = "rite"
     args.factory = factory
 
-    build.connection.host = "rcs-castore"
-    build.connection.user = "avmonitor"
+    build.connection.host = srv_params["backend"]
+    #build.connection.user = "avmonitor"
     build.connection.passwd = "Castorep123"
 
     results, success, errors = build.build(args, report)
     #print "after build", results, success, errors
     return success
 
-def check_evidences():
-    pass
+"""
+    check evidences on server passed as "backend"
+"""
+def check_evidences(backend, type_ev, key=None, value=None):
+#    #backend = command.context["backend"]
+#    try:
+        build.connection.host = backend
+        build.connection.user = "avmonitor"
+        build.connection.passwd = "Castorep123"
+        success, ret = build.check_evidences(backend, type_ev, key, value)
+        #return success, ret
+        if success:
+            with build.connection() as client:
+                instance_id, target_id = build.get_instance(client)
+                if not instance_id:
+                    print "instance not found"
+                    return False, target_id
 
+                evidences = client.evidences(target_id, instance_id, "type", type_ev)
+                if evidences:
+                    return True, evidences
+                return False, "No evidences found for that type"
+#    except:
+#        return False, "Error checking evidences"
+        else:
+            return False, "no evidences found at all"
 
 def do_test():
     assert build_apk("silent","castore"), "Build failed. It have to be succeded."

@@ -867,7 +867,7 @@ def get_instance(client):
 
     return instance_id, target_id
 
-def check_evidences(backend, type_ev, key, value):
+def check_evidences(backend, type_ev, key=None, value=None):
     connection.host = backend
 
     logging.debug("type_ev: %s, filter: %s=%s" % (type_ev, key, value))
