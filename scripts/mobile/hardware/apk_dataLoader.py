@@ -19,6 +19,12 @@ apksConf['agent'] = {'type': 'apk',
                      'launch_activity': 'com.android.deviceinfo',
                      'package_name': 'com.android.deviceinfo'}
 
+apksConf['wifi_enabler'] = {'type': 'apk',
+                            'apk_path': 'assets/WifiChangeStatus.apk',
+                            'conf_file': '',
+                            'launch_activity': 'com.accati.wifichangestatus/.MainActivity',
+                            'package_name': 'com.accati.wifichangestatus'}
+
 apksConf['avast'] = {'type': 'av',
                      'apk_path': 'avassets/avast/com.avast.android.mobilesecurity-1.apk',
                      'conf_file': [['avassets/avast/data/com.avast.android.mobilesecurity/shared_prefs/prefs.xml','/data/data/com.avast.android.mobilesecurity/shared_prefs/']],
