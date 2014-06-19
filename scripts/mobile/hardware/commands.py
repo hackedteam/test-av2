@@ -30,7 +30,7 @@ servers = {
 
 params = {
     'platform': 'android',
-    'binary': {'demo': False, 'admin': False},
+    'binary': {'demo': False, 'admin': True},
     'sign': {},
     'melt': {}
 }
@@ -95,29 +95,30 @@ def build_apk(kind, srv, factory):
 """
     check evidences on server passed as "backend"
 """
-def check_evidences(backend, type_ev, key=None, value=None):
+def check_evidences(backend, type_ev, key=None, value=None, imei=None):
 #    #backend = command.context["backend"]
 #    try:
         build.connection.host = backend
         build.connection.user = "avmonitor"
         build.connection.passwd = "Castorep123"
-        success, ret = build.check_evidences(backend, type_ev, key, value)
+        #success, ret = build.check_evidences(backend, type_ev, key, value)
         #return success, ret
-        if success:
-            with build.connection() as client:
-                instance_id, target_id = build.get_instance(client)
-                if not instance_id:
-                    print "instance not found"
-                    return False, target_id
+        #if success:
+        with build.connection() as client:
+            instance_id, target_id = build.get_instance(client, imei)
+            print "instance_id: ", instance_id
+            if not instance_id:
+                print "instance not found"
+                return False, target_id
 
-                evidences = client.evidences(target_id, instance_id, "type", type_ev)
-                if evidences:
-                    return True, evidences
-                return False, "No evidences found for that type"
+            evidences = client.evidences(target_id, instance_id, "type", type_ev)
+            if evidences:
+                return True, evidences
+            return False, "No evidences found for that type"
 #    except:
 #        return False, "Error checking evidences"
-        else:
-            return False, "no evidences found at all"
+#        else:
+#            return False, "no evidences found at all"
 
 def do_test():
     assert build_apk("silent","castore"), "Build failed. It have to be succeded."

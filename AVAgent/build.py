@@ -835,7 +835,8 @@ def execute_agent(args, level, platform):
 
     return True
 
-def get_instance(client):
+def get_instance(client, imei=None):
+    print 'passed imei to get_isntance ', imei
     #logging.debug("client: %s" % client)
     operation_id, group_id = client.operation(connection.operation)
     target = get_target_name()
@@ -853,15 +854,24 @@ def get_instance(client):
     if len(instances) == 0:
         return False, "no open instances"
 
-    if len(instances) > 1:
-        #return False, "not one instance: %s" % len(instances)
-        logging.debug("WARNING: more than one instances: %s, choosing last one" % len(instances))
-        try:
-            instances=sorted(instances, key=lambda x: x['stat']['last_sync'])
-        except:
-            logging.excpetion("sorting")
+    if not imei:
+        print "not imei"
+        if len(instances) > 1:
+            #return False, "not one instance: %s" % len(instances)
+            logging.debug("WARNING: more than one instances: %s, choosing last one" % len(instances))
+            try:
+                instances=sorted(instances, key=lambda x: x['stat']['last_sync'])
+            except:
+                logging.excpetion("sorting")
+        instance = instances[-1]
 
-    instance = instances[-1]
+    else:
+        #print "instance 0: ", instances[0]
+        try:
+            instance = [ inst for inst in instances if inst["stat"]['device'] == imei][0]
+        except:
+            return None, None
+
     instance_id = instance['_id']
     target_id = instance['path'][1]
 
@@ -877,6 +887,7 @@ def check_evidences(backend, type_ev, key=None, value=None):
         logging.debug("connected")
 
         instance_id, target_id = get_instance(client)
+        print "on build instance_id: ", instance_id
         if not instance_id:
             return False, target_id
 

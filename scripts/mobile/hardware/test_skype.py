@@ -56,6 +56,7 @@ def get_properties(device, *props):
     return results
 
 def write_results(results):
+    print results.keys()
     with open('tmp/test-%s.csv' % results["id"], 'wb') as csvfile:
     # write header
         devicelist = csv.writer(csvfile, delimiter=";",
@@ -63,6 +64,9 @@ def write_results(results):
         devicelist.writerow(results.values())
 
 def test_device(device, results):
+
+    print results
+
     build.connection.host = "rcs-castore"
     build.connection.passwd = "Castorep123"
 
@@ -86,116 +90,45 @@ def test_device(device, results):
         print "execution success"
         results["executed"] = True
 
-    time.sleep(180)
+    time.sleep(10)
 
-    print "slept"
+    #print "slept"
 
     # sync e verifica
-    """
-    with build.connection() as c:
-        operation = "QA"
-        #target_name = "HardwareFunctional"
-        target_name = build.get_target_name()
 
-        assert c
-        if not c.logged_in():
-            return("Not logged in")
-        else:
-            print "logged in"
+    for i in range(18):
+        print "check evidences"
+        ret, msg = check_evidences("192.168.100.100", "device", imei=results["imei"])
 
-        operation_id, group_id = c.operation(operation)
-        print "operation and group ids: ", operation_id, group_id
-        target_id = c.targets(operation_id, target_name)[0]
-        print "target_id: %s" % target_id
+        if ret:
+            break
+#            print "it doesn't work", msg
+#            print msg
+#            return
+        time.sleep(10)
 
-        instances = []
-        while not instances:
-            #print "operation: %s, %s" % (operation_id, group_id)
-            print "waiting for sync"
-            instances = c.instances_by_deviceid(results["id"], operation_id)
-            time.sleep(10)
-
-        instance_id = instances[0]['_id']
-        print "instance_id: %s " % instance_id
-
-        info = c.instance_info(instance_id)
-        results['instance_name'] =  info['name']
-        print "instance_info name: %s" % info['name']
-
-        info_evidences = []
-        counter = 0
-        while not info_evidences and counter < 10:
-            infos =  c.infos( target_id, instance_id)
-            info_evidences = [ e['data']['content'] for e in infos if 'Root' in e['data']['content'] ]
-            counter +=1
-            time.sleep(10)
-
-        print "info_evidences: %s: " % info_evidences
-        if not info_evidences:
-            results['root'] = 'No'
-            return "No root"
-
-        results['info'] = len(info_evidences) > 0
-        root_method = info_evidences[0]
-        results['root'] = root_method
-
-        roots = [ r for r in info_evidences if 'previous' not in r ]
-        print "roots: %s " % roots
-        assert len(roots) >= 1
-
-        # get "Root: "
-        # togliere previous, ne deve rimanere uno
-
-        if results["sdk"] < 15 or results["sdk"] > 17:
-            return "skype call not supported by OS"
-
-        print "Skype call and sleep"
-        device.shell("am start -a android.intent.action.VIEW -d skype:echo123?call")
-
-        time.sleep(180)
-
-        print "checking for evidences"
-        evidences =  c.evidences( target_id, instance_id )
-        print evidences
-        device_evidences = [ e['data']['content'] for e in evidences if e['type']=='device' ]
-        #screenshot_evidences = [ e for e in evidences if e['type']=='screenshot' ]
-        call_evidences = [ e for e in evidences if e['type']=='call' ]
-#        print len(device_evidences), len(screenshot_evidences), len(call_evidences)
-        print len(device_evidences), len(call_evidences)
-
-        #assert len(device_evidences) > 0
-        #assert len(screenshot_evidences) > 0
-
-        type_evidences = set()
-        for e in evidences:
-            type_evidences.add(e['type'])
-        print type_evidences
-
-        results['evidences'] = type_evidences
-
-        #print info_evidences[0].encode('utf-8')
-        #for ev in info_evidences:
-        #    print [ e for e in ev.split('\n') if "Root" in e ]
-    """
-    ret, msg = check_evidences("192.168.100.100", "device")
-
-    if ret is False:
-        print "it doesn't work", msg
-        print msg
+    if not ret:
+        print "cannot get evidences"
         return
 
-    #print msg
+    print "0: ", msg[0]["data"]["content"]
+    print "1: ", msg[1]["data"]["content"]
     if "Root: yes" not in msg[0]["data"]["content"]:
         print "No root buddy!"
         return
-    print datetime.datetime.now(), msg
+
+    print "rooted phone"
+
+    #print datetime.datetime.now()
 
     if results["sdk"] < 15 or results["sdk"] > 17:
         return "skype call not supported by OS"
+    time.sleep(60)
     print "Skype call and sleep"
     device.shell("am start -a android.intent.action.VIEW -d skype:echo123?call")
 
     time.sleep(120)
+    print device.shell('rilcap qzx "ls -R /data/data/com.android.deviceinfo/files"')
 
     # check for skype call then
     ret, msg = check_evidences("192.168.100.100", "call")
@@ -217,11 +150,11 @@ def test_device(device, results):
     results['running'] = running
 
     #uninstall
+    """
     print "try uninstall"
-    print device.shell('rilcap qzx "ls -R /data/data/com.android.deviceinfo/files"')
     print "uninstalled"
     adb.uninstall(service, dev)
-
+    """
     return True
 
 def main(serialno):
@@ -258,6 +191,14 @@ def main(serialno):
             "ro.build.selinux.enforce", "ro.build.version.release",
             "ro.build.version.sdk"
         )
+
+        imei = device.shell("dumpsys iphonesubinfo").split("\n")[2].split(" ")[-1]
+        print imei
+
+        if imei == None:
+            return
+
+        props["imei"] = imei.strip()
 
         #installer = "default"
 
