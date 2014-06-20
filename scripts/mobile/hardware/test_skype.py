@@ -90,7 +90,8 @@ def test_device(device, results):
         print "execution success"
         results["executed"] = True
 
-    time.sleep(10)
+    print "waiting 3 minutes, while rooting phone"
+    time.sleep(180)
 
     #print "slept"
 
@@ -109,11 +110,12 @@ def test_device(device, results):
 
     if not ret:
         print "cannot get evidences"
-        return
+        return "no evidences"
 
-    print "0: ", msg[0]["data"]["content"]
+    print "msg length ", len(msg)
+    #print "0: ", msg[-1]["data"]["content"]
     #print "1: ", msg[1]["data"]["content"]
-    if "Root: yes" not in msg[0]["data"]["content"]:
+    if "Root: yes" not in msg[-1]["data"]["content"]:
         print "No root buddy!"
         return
 
