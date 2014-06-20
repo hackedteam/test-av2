@@ -112,7 +112,7 @@ def test_device(device, results):
         return
 
     print "0: ", msg[0]["data"]["content"]
-    print "1: ", msg[1]["data"]["content"]
+    #print "1: ", msg[1]["data"]["content"]
     if "Root: yes" not in msg[0]["data"]["content"]:
         print "No root buddy!"
         return
