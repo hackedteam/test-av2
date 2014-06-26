@@ -71,6 +71,7 @@ def execute(vm, args):
     args.nointernetcheck = nointernetcheck
     args.operation = operation
     args.puppet = puppet
+    args.asset_dir = "AVAgent/assets"
 
     results, success, errors = build.build(args, report)
 
