@@ -72,6 +72,7 @@ def execute(vm, args):
     args.operation = operation
     args.puppet = puppet
     args.asset_dir = "AVAgent/assets"
+    args.factory = None
 
     results, success, errors = build.build(args, report)
 

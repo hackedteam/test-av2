@@ -136,7 +136,7 @@ def check_internet(address, queue):
 class connection:
     host = ""
     user = "avmonitor"
-    passwd = "avmonitorp123"
+    passwd = "testriteP123" # old: avmonitorp123
     operation = 'AVMonitor'
 
     rcs=[]
