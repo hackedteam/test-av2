@@ -139,6 +139,7 @@ VM_MELT:
 
 VM_EXPLOIT:
     - CALL: INIT_DISPATCH
+    - BUILD: [ pull, selfdel_exploit, melt ]
     - BUILD: [ scout, exploit, melt ]
     #- UNINSTALL
     #- RELOG
@@ -315,6 +316,7 @@ SYSTEM_MANUAL:
     #- SLEEP: [30, 120]
 
     - BUILD: [ pull, exploit, melt ]
+    - BUILD: [ pull, selfdel_exploit, melt ]
     - BUILD: [ pull, windows, melt ]
     - RELOG
     - BUILD: [ scout, windows, silent ]

@@ -125,3 +125,16 @@ build_parameters:
           melt: {appname: APPNAME, filename: example.docx, input: '000', url: 'http://HOSTNAME/APPNAME'}
           platform: exploit
           package: {}
+        selfdel_exploit:
+          platform_type: desktop
+          deliver: {user: USERID}
+          factory: {_id: '000'}
+          meltfile: AVAgent/assets/windows/meltexploit.txt
+          generate:
+            binary: {admin: false, demo: false}
+            exploit: HT-2014-001
+            melt: {admin: false, demo: false, scout: true}
+            platforms: [windows]
+          melt: {appname: agent.exe, combo: txt, filename: example.txt, input: '000'}
+          platform: exploit
+          package: {}
