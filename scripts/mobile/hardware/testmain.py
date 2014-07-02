@@ -19,9 +19,10 @@ sys.path.append("/Users/zeno/AVTest/")
 from AVAgent import build
 
 
-avs_to_test = ['avast', '360security']
-#avs_to_test = ['360security']
-avs_all = ['avast', '360security']
+#avs_to_test = ['avast', '360security', 'AVG']
+#avs_to_test = ['AVG']
+avs_to_test = ['avira']
+avs_all = ['avast', '360security', 'AVG', 'avira', 'Lookout', 'Norton']
 
 
 #build.connection.host = "rcs-minotauro"
@@ -37,16 +38,14 @@ def main():
     !!! Test AntiVirus !!!
     !!! Attenzione:    !!!
     !!! Prima dell'installazione dell'agente, al dispositivo va impedito il libero accesso ad internet. !!!
-    !!! Questa e' una demo quindi suppone di avere tutti i files nella cartella avassets
     """
     print """ prerequisiti:
     1) Telefono connesso in USB,
     2) USB Debugging enabled (settings/developer options/usb debugging)
     3) connesso wifi TP-LINK_9EF638 <======== NB!!!!!!!!!!!!!!!!!!!!!!!
-    4) screen time 2m (settings/display/sleep)
+    4) NESSUNA SIM INSTALLATA <======== NB!!!!!!!!!!!!!!!!!!!!!!!
+    5) screen time 2m (settings/display/sleep)
     """
-
-    raw_input('To proceed press return')
 
     print "devices connessi:"
     for device in devices:
@@ -148,6 +147,12 @@ def pre_test(device):
     print "#STEP 0.5: set wifi to 'protected' network with no access to internet"
     adbutils.start_wifi_av_network(dev, adb)
 
+    #STEP 0.6: installing EICAR virus
+    print "#STEP 0.6: installing EICAR virus"
+    eicar_instance = apk_dataLoader.get_apk('eicar')
+    eicar_instance.install(dev, adb)
+
+
 
 def post_test(device):
 
@@ -166,7 +171,9 @@ def post_test(device):
     print "#STEP 99.3 uninstalling rilcap"
     print device.shell('rilcap ru')
 
-
+    print "#STEP 99.4 uninstalling eicar"
+    eicar_instance = apk_dataLoader.get_apk('eicar')
+    eicar_instance.clean(dev, adb)
 
 
 def do_test(device, av):
