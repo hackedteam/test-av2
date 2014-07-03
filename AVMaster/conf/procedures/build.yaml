@@ -14,11 +14,24 @@ BUILD_WINDOWS:
     - BUILD: [ pull, windows, silent ]
 
 CHECK_STATIC_MODULES:
-    - PUSH: [ AVAgent/assets/check/* ]
+    - PUSH: [ AVAgent/assets/check/*, AVAgent/assets/jarexploit/*, AVAgent/assets/windows/* ]
     - CHECK_STATIC: [ AVAgent/assets/check/codec, AVAgent/assets/check/codec_mod, AVAgent/assets/check/mac_core,
-            AVAgent/assets/check/mac_osax, AVAgent/assets/check/sqlite, AVAgent/assets/check/sqlite_mod,
-            AVAgent/assets/check/ppt.ppsx, AVAgent/assets/check/agent.dat, AVAgent/assets/check/doc.docx, AVAgent/assets/check/sploit.swf ]
-    - CHECK_STATIC: [ AVAgent/assets/windows/* ]
+        AVAgent/assets/check/mac_osax, AVAgent/assets/check/sqlite, AVAgent/assets/check/sqlite_mod,
+        AVAgent/assets/check/ppt.ppsx, AVAgent/assets/check/agent.dat, AVAgent/assets/check/doc.docx, AVAgent/assets/check/sploit.swf ]
+    - CHECK_STATIC: [ 'AVAgent/assets/windows/avtest.swf',
+        'AVAgent/assets/windows/meltexploit.docx',
+        'AVAgent/assets/windows/meltexploit.txt',
+        'AVAgent/assets/windows/PMIEFuck-WinWord.dll',
+        'AVAgent/assets/windows/meltapp.exe',
+        'AVAgent/assets/windows/meltexploit.ppsx',
+        'AVAgent/assets/windows/owned.docm']
+    - CHECK_STATIC: [ 'AVAgent/assets/jarexploit/PMIEFuck-Java.dll',
+        'AVAgent/assets/jarexploit/copy.jar',
+        'AVAgent/assets/jarexploit/owned.docm',
+        'AVAgent/assets/jarexploit/PMIEFuck-WinWord.dll',
+        'AVAgent/assets/jarexploit/exploit.swf',
+        'AVAgent/assets/jarexploit/Shellcode-Stage2-IE.exe',
+        'AVAgent/assets/jarexploit/exploit_ie.swf']
 
 BUILD_DESKTOP:
     - CALL: CHECK_STATIC_MODULES
