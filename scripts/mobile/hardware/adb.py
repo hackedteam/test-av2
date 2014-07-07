@@ -12,19 +12,21 @@ import time
 
 
 #adb_path = "/Users/olli/Documents/work/android/android-sdk-macosx/platform-tools/adb"
-devices = []	# we found with usb devices actually connected
-adb_path ="adb";
+devices = []  # we found with usb devices actually connected
+adb_path = "adb"
 
 temp_remote_path = "/data/local/tmp/in/"
+
+busybox_filename = 'busybox-android'
 
 def call(cmd, device = None):
     if device:
         print "##DEBUG## calling %s for device %s" % (cmd,device)
         proc = subprocess.call([adb_path,
-                                "-s", device] + cmd.split(), stdout=subprocess.PIPE)
+                                "-s", device] + cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     else:
         print "##DEBUG## calling %s" % cmd
-        proc = subprocess.call([adb_path] + cmd.split(), stdout=subprocess.PIPE)
+        proc = subprocess.call([adb_path] + cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     return proc != 0
 
@@ -196,22 +198,6 @@ def copy_tmp_file(file_local_path, device=None):
 
     copy_file(file_local_path, temp_remote_path, False, device)
 
-    # if device:
-    #     print "create dir %s" % temp_remote_path
-    #     proc = subprocess.call([adb_path,
-    #                         "-s", device,
-    #                         "shell", "mkdir", temp_remote_path], stdout=subprocess.PIPE)
-    #     print "adb push %s" % file_local_path
-    #     proc = subprocess.call([adb_path,
-    #                         "-s", device,
-    #                         "push", file_local_path, temp_remote_path], stdout=subprocess.PIPE)
-    # else:
-    #     print "create dir %s" % temp_remote_path
-    #     proc = subprocess.call([adb_path,
-    #                             "shell", "mkdir", temp_remote_path], stdout=subprocess.PIPE)
-    #     print "adb push %s" % file_local_path
-    #     proc = subprocess.call([adb_path,
-    #                             "push", file_local_path, temp_remote_path], stdout=subprocess.PIPE)
 
 #ML
 #Copy a single file to an explicit directory with unprivileged or ROOT privileges
@@ -244,22 +230,123 @@ def copy_file(file_local_path, remote_path, root=False, device=None):
 
             print (executeSU("mv" + " " + temp_remote_path + "/" + os.path.basename(file_local_path) + " " + remote_path, root, device))
 
+
+#Retrieves a single file from device temporary folder using adb pull
+#local dir should exists!
+#works only with temp dir (because does not use ROOT!)
+def get_remote_temp_file(remote_filename, local_destination_path, device=None):
+    assert os.path.exists(local_destination_path)
+
+    remote_file_fullpath = temp_remote_path + "/" + remote_filename
+    print "adb pull from=%s to=%s" % (remote_file_fullpath, local_destination_path)
+
+    if device:
+        proc = subprocess.call([adb_path,
+            "-s", device,
+            "pull", remote_file_fullpath, local_destination_path], stdout=subprocess.PIPE)
+    else:
+        proc = subprocess.call([adb_path,
+            "pull", remote_file_fullpath, local_destination_path], stdout=subprocess.PIPE)
+
+
+#Retrieves a single file from device from any folder using dd and adb pull
+#local dir should exists!
+def get_remote_file(remote_source_filename, remote_source_path, local_destination_path, root=True, device=None):
+    assert os.path.exists(local_destination_path)
+
+    remote_file_fullpath_src = remote_source_path + "/" + remote_source_filename
+    remote_file_fullpath_tmp = temp_remote_path + "/" + remote_source_filename
+
+    print (executeSU("dd" + " if=" + remote_file_fullpath_src + " of=" + remote_file_fullpath_tmp, root, device))
+
+    print (executeSU("chown " + "shell.shell" + " " + remote_file_fullpath_tmp, root, device))
+
+    get_remote_temp_file(remote_source_filename, local_destination_path, device)
+
+    remove_temp_file(remote_source_filename, device)
+
+
+#ML
+#deletes a single file
+def remove_file(filename, file_path, root=False, device=None):
+
+    print "##DEBUG##  Deleting a single file from device %s" % device
+
+    toremove = file_path + "/" + filename
+
+    print "removing file %s" % toremove
+
+    executeSU("rm" + " " + toremove, root, device)
+
+
+#ML
+#deletes a single file from tmp
+def remove_temp_file(filename, device=None):
+    remove_file(filename, temp_remote_path, False, device)
+
+
 def executeSU(cmd, root=False, device=None):
 
     if root:
         print "##DEBUG## calling %s for device %s with root %s" % (cmd, device, root)
+        print "##DEBUG## executing: %s with rilcap" % cmd
         if device:
-            print "##DEBUG## executing: %s with rilcap" % cmd
             proc = subprocess.Popen(
                 [adb_path, "shell", "rilcap qzx '" + cmd + "'"], stdout=subprocess.PIPE)
         else:
-            print "##DEBUG## executing: %s withOUT rilcap" % cmd
             proc = subprocess.Popen([adb_path, "shell", "rilcap qzx '" + cmd + "'"], stdout=subprocess.PIPE)
 
         comm = proc.communicate()
         return str(comm[0])
     else:
-        execute(cmd, device)
+        print "##DEBUG## executing: %s withOUT rilcap" % cmd
+        return execute(cmd, device)
+
+
+#This command installs busybox,
+def install_busybox(local_path_with_filename, device=None):
+    print 'Installing BusyBox'
+    copy_tmp_file(local_path_with_filename)
+    #renames file to default (busybox-android)
+    executeSU("mv" + " " + temp_remote_path + "/" + os.path.basename(local_path_with_filename) + " " + temp_remote_path + "/" + busybox_filename, False, device)
+
+
+#NB: this command requires install_busybox!
+def uninstall_busybox(device=None):
+    print 'Removing BusyBox'
+    remove_temp_file(busybox_filename, device)
+
+
+#NB: this command requires install_busybox!
+def execute_busybox(cmd, root=False, device=None):
+    print 'Executing with BusyBox cmd= %s' % cmd
+    executeSU(temp_remote_path + "/" + busybox_filename + " " + cmd, root, device)
+
+
+def pack_remote(destination_path_and_filename, source_dir, root=False, device=None):
+    print 'Packing'
+    execute_busybox("tar -zcvf " + destination_path_and_filename + " " + source_dir, root, device)
+
+
+def unpack_remote(source_path_and_filename, destination_dir, root=False, device=None):
+    print 'Unpacking'
+    execute_busybox("tar -zxvf " + source_path_and_filename + " -C " + destination_dir, root, device)
+
+
+def pack_remote_to_local(remote_source_dir, local_path, local_filename, root=False, device=None):
+    remote_file_fullpath = temp_remote_path + "/" + local_filename
+    pack_remote(remote_file_fullpath, remote_source_dir, root, device)
+    get_remote_temp_file(local_filename, local_path, device)
+    remove_temp_file(local_filename, device)
+
+
+def unpack_local_to_remote(local_file_path, local_filename, remote_dir, root=False, device=None):
+    remote_file_fullpath = temp_remote_path + "/" + local_filename
+    copy_tmp_file(local_file_path + "/" + local_filename, device)
+    unpack_remote(remote_file_fullpath, remote_dir, root, device)
+    remove_temp_file(local_filename, device)
+
+
 
 """
 	def run(self):

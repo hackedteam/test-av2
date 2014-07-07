@@ -30,6 +30,8 @@ build.connection.host = "rcs-castore"
 build.connection.user = "marco"
 build.connection.passwd = "passwordP123"
 
+# selinux, no_selinux, rooted (just need to call su)
+device_rooting_technique = 'rooted'
 
 def main():
     devices = adb.get_attached_devices()
@@ -120,8 +122,6 @@ def pre_test(device):
     print "###########################################"
     dev = device.serialno
 
-    #TODO: should probably uninstall all apks listed by apk_dataloader (write a method)
-
     #STEP 0.1: uninstall agent
     print "#STEP 0.1: uninstall agent"
     apk_instance = apk_dataLoader.get_apk('agent')
@@ -139,19 +139,28 @@ def pre_test(device):
         av_instance = apk_dataLoader.get_apk_av(av_to_delete)
         av_instance.clean(dev, adb)
 
-    #STEP 0.4: install rilcap
-    print "#STEP 0.4: install rilcap NOT SELINUX"
-    adbutils.install_rilcap_shell(dev, adb, False)
+    #STEP 0.4: delete EICAR virus
+    print "#STEP 0.6: installing EICAR virus"
+    eicar_instance = apk_dataLoader.get_apk('eicar')
+    eicar_instance.clean(dev, adb)
 
-    #STEP 0.5: set wifi to 'protected' network with no access to internet
+    #STEP 0.5: install rilcap
+    print "#STEP 0.4: install rilcap using: %s", device_rooting_technique
+    if not adbutils.install_rilcap_shell(dev, adb, device_rooting_technique):
+        exit()
+
+    #STEP 0.6: set wifi to 'protected' network with no access to internet
     print "#STEP 0.5: set wifi to 'protected' network with no access to internet"
     adbutils.start_wifi_av_network(dev, adb)
 
-    #STEP 0.6: installing EICAR virus
+    #STEP 0.7: installing EICAR virus
     print "#STEP 0.6: installing EICAR virus"
     eicar_instance = apk_dataLoader.get_apk('eicar')
     eicar_instance.install(dev, adb)
 
+    #STEP 0.8: installing BusyBox
+    print "#STEP 0.8: installing BusyBox"
+    adb.install_busybox('assets/busybox-android', dev)
 
 
 def post_test(device):
@@ -175,13 +184,27 @@ def post_test(device):
     eicar_instance = apk_dataLoader.get_apk('eicar')
     eicar_instance.clean(dev, adb)
 
+    #STEP 99.5: delete wifimanager!
+    print "#STEP 99.5: delete wifimanager!"
+    apk_instance = apk_dataLoader.get_apk('wifi_enabler')
+    apk_instance.clean(dev, adb)
 
-def do_test(device, av):
+    #STEP 99.6: delete ALL the avs!
+    print "#STEP 99.6: delete ALL the avs!"
+    for av_to_delete in avs_all:
+        av_instance = apk_dataLoader.get_apk_av(av_to_delete)
+        av_instance.clean(dev, adb)
 
-    device_id = utils.get_deviceId(device)
+    #STEP 99.7: uninstalling BusyBox
+    print "#STEP 99.7: uninstalling BusyBox"
+    adb.uninstall_busybox(dev)
 
-    assert device_id
-    assert len(device_id) >= 8
+
+def do_test(device_id, av):
+
+    # device_id = device #utils.get_deviceId(device)
+    # assert device_id
+    # assert len(device_id) >= 8
 
     with open('tmp/test-%s-%s.csv' % (device_id, av), 'wb') as csvfile:
         # write header
@@ -189,16 +212,16 @@ def do_test(device, av):
 
         #props = get_properties(device, "ro.product.manufacturer", "build.model", "build.selinux.enforce",
                                     # "build.version.release")
-        props = utils.get_properties(device, av, "ro.product.manufacturer", "ro.product.model",
+        props = utils.get_properties(device_id, av, "ro.product.manufacturer", "ro.product.model",
                                      "ro.build.selinux.enforce", "ro.build.version.release")
 
         # adds results to csv
         try:
-            ret = test_device(device, av, props)
+            ret = test_device(device_id, av, props)
             props["return"] = ret
             print "return: %s " % ret
         except Exception, ex:
-            traceback.print_exc(utils.get_deviceId(device))
+            traceback.print_exc(utils.get_deviceId(device_id))
             props['error'] = "%s" % ex
 
         print props

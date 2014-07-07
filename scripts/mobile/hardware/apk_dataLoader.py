@@ -16,6 +16,7 @@ apksConf = {}
 apksConf['agent'] = {'type': 'apk',
                      'apk_path': 'assets/installer.default.apk',
                      'conf_file': '',
+                     'conf_gzip': '',
                      'launch_activity': 'com.android.deviceinfo/.gui.AGUI',
                      'package_name': 'com.android.deviceinfo'}
 
@@ -23,18 +24,21 @@ apksConf['agent'] = {'type': 'apk',
 apksConf['eicar'] = {'type': 'apk',
                      'apk_path': 'assets/uk.co.extorian.EICARAntiVirusTest-1.apk',
                      'conf_file': '',
+                     'conf_gzip': '',
                      'launch_activity': '', #does not need to be launched
                      'package_name': 'uk.co.extorian.EICARAntiVirusTest'}
 
 apksConf['wifi_enabler'] = {'type': 'apk',
                             'apk_path': 'assets/WifiChangeStatus.apk',
                             'conf_file': '',
+                            'conf_gzip': '',
                             'launch_activity': 'com.accati.wifichangestatus/.MainActivity',
                             'package_name': 'com.accati.wifichangestatus'}
 
 apksConf['avast'] = {'type': 'av',
                      'apk_path': 'avassets/avast/com.avast.android.mobilesecurity-1.apk',
                      'conf_file': [['avassets/avast/data/com.avast.android.mobilesecurity/shared_prefs/prefs.xml','/data/data/com.avast.android.mobilesecurity/shared_prefs/']],
+                     'conf_gzip': '',
                      'launch_activity': 'com.avast.android.mobilesecurity/com.avast.android.mobilesecurity.app.home.StartActivity',
                      'package_name': 'com.avast.android.mobilesecurity',
                      'start_scan_activity': ''}
@@ -45,6 +49,7 @@ apksConf['360security'] = {'type': 'av',
                                          ['avassets/360security/data/com.qihoo.security/databases/sp.db', '/data/data/com.qihoo.security/databases/'],
                                          ['avassets/360security/data/com.qihoo.security/shared_prefs/appsflyer-data.xml', '/data/data/com.qihoo.security/shared_prefs/']
                                         ],
+                           'conf_gzip': '',
                            'launch_activity': 'com.qihoo.security/com.qihoo.security.AppEnterActivity',
                            'package_name': 'com.qihoo.security',
                            'start_scan_activity': 'com.qihoo.security.services.DeepScanService'}
@@ -60,6 +65,7 @@ apksConf['AVG'] = {'type': 'av',
                                          ['avassets/AVG/data/com.antivirus/shared_prefs/OCM_CAMPAIGN.xml', '/data/data/com.antivirus/shared_prefs/'],
                                          ['avassets/AVG/data/com.antivirus/shared_prefs/uuid.prefs.xml', '/data/data/com.antivirus/shared_prefs/']
                                         ],
+                           'conf_gzip': '',
                            'launch_activity': 'com.antivirus/com.antivirus.ui.main.AntivirusMainScreen',
                            'package_name': 'com.antivirus',
                            'start_scan_activity': ''}
@@ -77,6 +83,7 @@ apksConf['avira'] = {'type':    'av',
                                                 ['avassets/avira/data/com.avira.android/databases/mixpanel', '/data/data/com.avira.android/databases/'],
                                                 ['avassets/avira/data/com.avira.android/databases/idsafeguard', '/data/data/com.avira.android/databases/']
                                                 ],
+                                'conf_gzip': 'avassets/avira/data/com.avira.android.tar.gz',
                                 'launch_activity': 'com.avira.android/com.avira.android.AviraMobileSecurityActivity',
                                 'package_name': 'com.avira.android',
                                 'start_scan_activity': ''}
@@ -91,6 +98,7 @@ apksConf['Lookout'] = {'type':    'av',
                                                 ['avassets/Lookout/data/com.lookout/databases/mixpanel', '/data/data/com.lookout/databases/'],
                                                 ['avassets/Lookout/data/com.lookout/databases/security.db', '/data/data/com.lookout/databases/']
                                                 ],
+                                'conf_gzip': '',
                                 'launch_activity': 'com.lookout/com.lookout.ui.LoadDispatch',
                                 'package_name': 'com.lookout',
                                 'start_scan_activity': ''}
@@ -144,6 +152,7 @@ apksConf['Norton'] = {'type':    'av',
                                                 ['avassets/Norton/data/com.symantec.mobilesecurity/databases/webview.db', '/data/data/com.symantec.mobilesecurity/databases/'],
                                                 ['avassets/Norton/data/com.symantec.mobilesecurity/app_database/ApplicationCache.db', '/data/data/com.symantec.mobilesecurity/app_database/']
                                                 ],
+                                'conf_gzip': '',
                                 'launch_activity': 'com.symantec.mobilesecurity/com.symantec.mobilesecurity.ui.Startor',
                                 'package_name': 'com.symantec.mobilesecurity',
                                 'start_scan_activity': ''}
@@ -193,8 +202,20 @@ def get_generic_apk(apk_id):
 
 def get_apk_av(apk_id):
     #collects list of conf files and directories
-    return Antivirus_apk(apksConf[apk_id]['apk_path'], apksConf[apk_id]['package_name'], apksConf[apk_id]['conf_file'], apksConf[apk_id]['launch_activity'], apksConf[apk_id]['start_scan_activity'])
+    return Antivirus_apk(apksConf[apk_id]['apk_path'], apksConf[apk_id]['package_name'], apksConf[apk_id]['conf_file'], apksConf[apk_id]['conf_gzip'], apksConf[apk_id]['launch_activity'], apksConf[apk_id]['start_scan_activity'])
 
 
 def get_apk(apk_id):
-    return Apk(apksConf[apk_id]['apk_path'], apksConf[apk_id]['package_name'], apksConf[apk_id]['conf_file'], apksConf[apk_id]['launch_activity'])
+    return Apk(apksConf[apk_id]['apk_path'], apksConf[apk_id]['package_name'], apksConf[apk_id]['conf_file'], apksConf[apk_id]['conf_gzip'], apksConf[apk_id]['launch_activity'])
+
+
+def get_apk_list():
+    return apksConf.keys()
+
+
+def get_av_list():
+    avs = []
+    for apk in apksConf.keys():
+        if apksConf[apk]['type'] == 'av':
+            avs.append(apk)
+    return avs
