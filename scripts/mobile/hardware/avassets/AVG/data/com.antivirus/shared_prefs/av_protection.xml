@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<map>
+<long name="last_update_long" value="1402655182935" />
+<boolean name="_scansdcard_" value="true" />
+<boolean name="debug_allowed_ignored" value="true" />
+<long name="auto_scan_last_time" value="1402655179828" />
+<boolean name="non_market_apps_allowed_ignore" value="true" />
+<int name="version" value="192271" />
+<string name="core_version">3722</string>
+<string name="incavi_version">7671</string>
+<boolean name="url_anti_phishing_key" value="true" />
+<string name="secbd_firewall">740438002</string>
+<boolean name="auto_scan_sms" value="true" />
+<long name="KEY_FULL_SCAN_LAST_THREAT_COUNT" value="0" />
+<boolean name="device_root_ignored" value="false" />
+<string name="ignore_packages"></string>
+<long name="auto_full_last_time" value="1402659506225" />
+<long name="auto_scan_interval" value="86400000" />
+<int name="sens" value="15" />
+</map>

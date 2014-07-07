@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<map>
+<string name="COS_EVN">cos_prod</string>
+<int name="preference_int_value_folder_sequence" value="2" />
+<boolean name="InKorea" value="false" />
+<boolean name="InChina" value="false" />
+<int name="Locate_Frequency" value="86400" />
+<boolean name="InJapan" value="false" />
+<int name="LLT_OUTDATE_TIME" value="0" />
+<long name="LastPeriodicLocate" value="1402927077764" />
+<long name="LockTime" value="1402927082761" />
+<boolean name="gone_through_whats_new" value="true" />
+<boolean name="LongTimeLostMode" value="false" />
+</map>

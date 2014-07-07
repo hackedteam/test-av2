@@ -1,0 +1,5 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<map>
+<long name="preinstall_next_activation_notify_time" value="1403531400830" />
+<boolean name="preinstall_device_activation_flag" value="true" />
+</map>

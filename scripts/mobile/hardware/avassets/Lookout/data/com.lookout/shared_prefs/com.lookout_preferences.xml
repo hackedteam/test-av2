@@ -1,0 +1,50 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<map>
+<string name="C2DMToken">APA91bGXDFqabrnqL0QRR9orMaM139yIDjvHoWypbG8GM7T434TCHcanJOjL_Wtj4Ol75KjuvAjhdsvbygHZp1oTWb_p0ZWURhGk2rN2NQWDoorC2UoyNmRJCtHRI4knjinnN7DLKkQWYqVPkTMnQKPHdBPV6F-yPw</string>
+<string name="backup_day">No Preference</string>
+<int name="app_version" value="90010" />
+<boolean name="UserActivated" value="true" />
+<boolean name="backup_on_wifi" value="true" />
+<long name="recurringUpdateCheckAlarmTime" value="1405340051010" />
+<string name="av_time">No Preference</string>
+<string name="backup_frequency">Daily</string>
+<boolean name="lockScreenPhotos" value="false" />
+<string name="OLD_PHONE_NUMBER_KEY"></string>
+<long name="earlyUpdateCheckAlarmTime" value="1402834451010" />
+<boolean name="scheduled_scans" value="true" />
+<boolean name="SignalFlareOptInShown" value="true" />
+<string name="av_frequency">Daily</string>
+<string name="OLD_SIM_SERIAL_KEY">89390100001382971295</string>
+<boolean name="BinaryAcquisitionShown" value="true" />
+<string name="backup_time">No Preference</string>
+<string name="SplitTestingInstallTestNumber">00031</string>
+<boolean name="backup_pictures" value="false" />
+<boolean name="notifications" value="true" />
+<string name="av_day">No Preference</string>
+<boolean name="sideload_notification_setting" value="true" />
+<boolean name="scheduled_backup" value="true" />
+<boolean name="DEFAULT_KEY" value="true" />
+<boolean name="av_mtn" value="false" />
+<boolean name="PrivacyAdvisorEnabledSettingKey" value="false" />
+<string name="SmsStaticToken">tYDx</string>
+<boolean name="signalFlare" value="false" />
+<boolean name="InvitedToTrialShown" value="true" />
+<string name="savedExtStorageDirectory0">/storage/sdcard0/</string>
+<string name="emailAddressEncrypt">TkJcgCBQ4YFXjKjoDP0+Nloq6DK3Z3MLmr7eeBz7gnjdKVRm9wtwANKN1bTQtmwI</string>
+<int name="lastKnownVersion" value="90010" />
+<long name="LoggedInTime" value="1402661654350" />
+<boolean name="backup_calls" value="true" />
+<string name="PushTokenType">GCM</string>
+<int name="NextBackupTime" value="1402750020" />
+<boolean name="backup" value="false" />
+<boolean name="av_file_scan" value="true" />
+<string name="device_state_info">activated</string>
+<boolean name="backup_contacts" value="true" />
+<boolean name="deviceLocked" value="false" />
+<boolean name="antivirus" value="true" />
+<boolean name="IsNewUserKey" value="true" />
+<string name="preloadTargetMarketChannel"></string>
+<long name="NUM_APP_SCANS_BEFORE_ACTIVATION_KEY" value="16" />
+<int name="MixpanelTrackingInWalkthrough" value="4" />
+<boolean name="av_sms_scan" value="false" />
+</map>

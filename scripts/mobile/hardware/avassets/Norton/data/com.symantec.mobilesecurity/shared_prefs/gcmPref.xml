@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<map>
+<string name="registration_id">APA91bHVC8AYEHJUfdBR7jHDC7kqudKD70S8YgZLFRbnwKuQzO1bGjWk-hjBY4fvX_iHamBMEug6T-qjG_7hjXUh-Or9XiF5hWQ7Rgr_B3dB6r9JEt-wBCx7_nec_pP0HP9CSuEV7R5zs4Z6DmvvlA-WI38gNM5081ZkgbDadzu5p-ZXR5gXRV4</string>
+<boolean name="onServer" value="true" />
+<int name="appVersion" value="1533" />
+<int name="gcmCheckResult" value="0" />
+<long name="upload_node_time" value="-99" />
+</map>

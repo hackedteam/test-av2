@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<map>
+<long name="throttle_start" value="8000" />
+<long name="throttle_end" value="8000" />
+<long name="min_version" value="20110101" />
+<long name="throttle_apk_percent" value="50" />
+<boolean name="dataIssueSolved" value="true" />
+<string name="update_flag">30334002</string>
+<boolean name="collector_autoshutdown" value="true" />
+<long name="device_hash" value="8235" />
+<boolean name="submit_system_apk" value="false" />
+</map>
