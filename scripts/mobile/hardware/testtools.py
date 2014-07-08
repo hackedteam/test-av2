@@ -278,6 +278,7 @@ def do_test(device_id, av):
         print props
         devicelist.writerow(props.values())
 
+
 def test_device(device, av, results):
     # extracts serial number (cannot pass an object to command line!)
     dev = device.serialno
