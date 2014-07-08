@@ -1,0 +1,71 @@
+Comandi:
+
+INSTALL(apk, package, configs[])
+    -
+      apk.full_install(self, dev, adb)
+
+SET(server_params[], device_params[]
+* SET(device, params{}) o SET(params{}) con il device specificato dentro il dict params
+    - missing!
+
+BUILD(kind)
+    - implemented (Matteo)
+
+UNINSTALL(package)
+    -
+      apk.clean(self, dev, adb)
+
+EXECUTE(package, activity)
+    -
+      start_default_activity(self, dev, adb, params=None)
+
+CHECK_EVIDENCES(kinds[])
+* CHECK_EVIDENCES(evidence_type, filter_key, filter_value) (che sono sti filters???)
+    -implemented (Matteo)
+
+WIFI(network_conf)
+    -cfg is loaded from file
+      start_wifi_av_network(dev, adb)
+
+CHECK_CONNECTION()
+    -only checks wifi connection
+      adbutils.info_wifi_network(dev, adb)
+
+CHECK_INFECTION()
+    -how? Installation? Service running?
+
+INIT_DEVICE(): prepara ambiente, installs busybox executable, "root” device)
+    - check!
+      testtools.pre_test(device)
+
+RESET_DEVICE(pulisce il device riportandolo a prima di INIT_DEVICE())
+    -
+      testmain.post_test(device)
+
+PULL(src_files[], src_dir, dest_dir)
+    -
+      adb.get_remote_file(remote_source_filename, remote_source_path, local_destination_path, root=True, device=None)
+
+PUSH(couple_src_dest[])
+* PUSH(src_files[], src_dir, dst_dir)
+    -
+      adb.copy_file(file_local_path, remote_path, root=False, device=None)
+
+Da decidere:
+UPDATE()
+     - Ricarica la conf di un'app
+       testtools.get_config(device, av)
+       testtools.get_apk(device, av)
+
+Macro:
+INFECT():BUILD(), INSTALL(),…
+-install implemented (Marco)
+-infect implemented (Marco)
+-build implemented (Matteo)
+
+
+TODO:
+- check network with connection to google and/or internal servers
+- better wifi config
+- check sim connection
+- ...
