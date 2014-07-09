@@ -6,25 +6,26 @@ import traceback
 import time
 
 # our files
-import adbutils
+import superuserutils
+import wifiutils
 import apk_dataLoader
 import testmain
 import utils
-
+import adb
 
 def get_config(device, av):
     dev = device.serialno
     apk = apk_dataLoader.get_apk_av(av)
 
     adb.install_busybox('assets/busybox-android', dev)
-    apk.pack_app_data(dev, adb)
+    apk.pack_app_data(dev)
     adb.uninstall_busybox(dev)
 
 
 def get_apk(device, av):
     dev = device.serialno
     apk = apk_dataLoader.get_apk_av(av)
-    apk.retrieve_apk(dev, adb)
+    apk.retrieve_apk(dev)
 
 
 def main(argv):
@@ -84,21 +85,21 @@ def main(argv):
             get_config(device, av)
             get_apk(device, av)
         elif operation == '2':
-            if not adbutils.install_rilcap_shell(device.serialno, adb):
+            if not superuserutils.install_rilcap_shell(device.serialno):
                 exit(-1)
-            adbutils.start_wifi_open_network(device.serialno, adb)
+            wifiutils.start_wifi_open_network(device.serialno)
         elif operation == '3':
-            if not adbutils.install_rilcap_shell(device.serialno, adb):
+            if not superuserutils.install_rilcap_shell(device.serialno):
                 exit(-1)
-            adbutils.start_wifi_av_network(device.serialno, adb)
+            wifiutils.start_wifi_av_network(device.serialno)
         elif operation == '4':
-            if not adbutils.install_rilcap_shell(device.serialno, adb):
+            if not superuserutils.install_rilcap_shell(device.serialno):
                 exit(-1)
-            adbutils.wifi_av_network_conf_disable(device.serialno, adb)
+            wifiutils.disable_wifi_network(device.serialno)
         elif operation == '5':
             testmain.post_test(device)
         elif operation == '6':
-            adbutils.uninstall_rilcap_shell(device.serialno, adb)
+            superuserutils.uninstall_rilcap_shell(device.serialno)
         elif operation == '7':
             pre_test(device)
             for av in apk_dataLoader.get_av_list():
@@ -112,9 +113,9 @@ def main(argv):
             do_test(device, av)
             post_test(device)
         elif operation == '9':
-            if not adbutils.install_rilcap_shell(device.serialno, adb):
+            if not superuserutils.install_rilcap_shell(device.serialno):
                 exit()
-            adbutils.info_wifi_network(device.serialno, adb)
+            wifiutils.info_wifi_network(device.serialno)
         else:
             print 'What?'
 
@@ -128,43 +129,43 @@ def test_av(dev, antivirus_apk_instance, results):
     print "##################################################"
 
     print "#STEP 1.1: installing AV"
-    antivirus_apk_instance.full_install(dev, adb)
+    antivirus_apk_instance.full_install(dev)
 
     print "#STEP 1.2: starting AV"
-    antivirus_apk_instance.start_default_activity(dev, adb)
+    antivirus_apk_instance.start_default_activity(dev)
 
     print "#STEP 1.3: going online for updates"
-    adbutils.start_wifi_open_network(dev, adb)
+    wifiutils.start_wifi_open_network(dev)
     raw_input('Now update the av signatures and press Return to continue')
 
     print "#STEP 1.4: setting the local network to install agent"
-    adbutils.start_wifi_av_network(dev, adb)
+    wifiutils.start_wifi_av_network(dev)
 
     print "#STEP 1.5: checking connection to TPLINK"
-    adbutils.start_wifi_av_network(dev, adb)
+    wifiutils.start_wifi_av_network(dev)
 
     for i in range(1,100):
-        if "TP-LINK_9EF638" == adbutils.info_wifi_network(dev, adb):
+        if "TP-LINK_9EF638" == wifiutils.info_wifi_network(dev):
             break
         time.sleep(2)
 
-    print "Net is %s, we go on..." % adbutils.info_wifi_network(dev, adb)
+    print "Net is %s, we go on..." % wifiutils.info_wifi_network(dev)
 
     print "#STEP 1.6 WARNING INSTALLING AGENT"
     agent = apk_dataLoader.get_apk('agent')
-    agent.install(dev, adb)
+    agent.install(dev)
 
     print "#STEP 1.7 WARNING LAUNCHING AGENT"
-    agent.start_default_activity(dev, adb)
+    agent.start_default_activity(dev)
 
     print "#STEP 1.8 MANUAL Invisibility check (NB: Check agent launch is no blocked by AV)"
     raw_input('Please check invisibility (and sync) and press Return to continue')
 
     print "#STEP 1.9 Uninstalling agent"
-    agent.clean(dev, adb)
+    agent.clean(dev)
 
     print "#STEP 1.10 Uninstalling AV"
-    antivirus_apk_instance.clean(dev, adb)
+    antivirus_apk_instance.clean(dev)
 
 
 def pre_test(device):
@@ -176,38 +177,38 @@ def pre_test(device):
     #STEP 0.1: uninstall agent
     print "#STEP 0.1: uninstall agent"
     apk_instance = apk_dataLoader.get_apk('agent')
-    apk_instance.clean(dev, adb)
+    apk_instance.clean(dev)
 
     #STEP 0.2: delete wifimanager!
     print "#STEP 0.2: delete wifimanager!"
     apk_instance = apk_dataLoader.get_apk('wifi_enabler')
-    apk_instance.clean(dev, adb)
+    apk_instance.clean(dev)
 
 
     #STEP 0.3: delete ALL the avs!
     print "#STEP 0.3: delete ALL the avs!"
     for av_to_delete in apk_dataLoader.get_av_list():
         av_instance = apk_dataLoader.get_apk_av(av_to_delete)
-        av_instance.clean(dev, adb)
+        av_instance.clean(dev)
 
     #STEP 0.4: delete EICAR virus
     print "#STEP 0.6: installing EICAR virus"
     eicar_instance = apk_dataLoader.get_apk('eicar')
-    eicar_instance.clean(dev, adb)
+    eicar_instance.clean(dev)
 
     #STEP 0.5: install rilcap
     print "#STEP 0.4: install rilcap"
-    if not adbutils.install_rilcap_shell(dev, adb):
+    if not superuserutils.install_rilcap_shell(dev):
         exit()
 
     #STEP 0.6: set wifi to 'protected' network with no access to internet
     print "#STEP 0.5: set wifi to 'protected' network with no access to internet"
-    adbutils.start_wifi_av_network(dev, adb)
+    wifiutils.start_wifi_av_network(dev)
 
     #STEP 0.7: installing EICAR virus
     print "#STEP 0.6: installing EICAR virus"
     eicar_instance = apk_dataLoader.get_apk('eicar')
-    eicar_instance.install(dev, adb)
+    eicar_instance.install(dev)
 
     #STEP 0.8: installing BusyBox
     print "#STEP 0.8: installing BusyBox"
@@ -222,29 +223,29 @@ def post_test(device):
     dev = device.serialno
 
     print "#STEP 99.1 deactivating all wifi networks"
-    adbutils.clean_wifi_network(dev, adb)
+    wifiutils.clean_wifi_network(dev)
 
     print "#STEP 99.2 uninstalling AGENT"
     agent_instance = apk_dataLoader.get_apk('agent')
-    agent_instance.clean(dev, adb)
+    agent_instance.clean(dev)
 
     print "#STEP 99.3 uninstalling rilcap"
     print device.shell('rilcap ru')
 
     print "#STEP 99.4 uninstalling eicar"
     eicar_instance = apk_dataLoader.get_apk('eicar')
-    eicar_instance.clean(dev, adb)
+    eicar_instance.clean(dev)
 
     #STEP 99.5: delete wifimanager!
     print "#STEP 99.5: delete wifimanager!"
     apk_instance = apk_dataLoader.get_apk('wifi_enabler')
-    apk_instance.clean(dev, adb)
+    apk_instance.clean(dev)
 
     #STEP 99.6: delete ALL the avs!
     print "#STEP 99.6: delete ALL the avs!"
     for av_to_delete in apk_dataLoader.get_av_list():
         av_instance = apk_dataLoader.get_apk_av(av_to_delete)
-        av_instance.clean(dev, adb)
+        av_instance.clean(dev)
 
     #STEP 99.7: uninstalling BusyBox
     print "#STEP 99.7: uninstalling BusyBox"

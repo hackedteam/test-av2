@@ -7,9 +7,9 @@ from adbclient import AdbClient
 import adb
 
 # our files
-import adbutils
+import superuserutils
 import utils
-#from antivirus_apk import Antivirus_apk
+import wifiutils
 import apk_dataLoader
 
 
@@ -86,34 +86,34 @@ def test_av(dev, antivirus_apk_instance, results):
     print "##################################################"
 
     print "#STEP 1.1: installing AV"
-    antivirus_apk_instance.full_install(dev, adb)
+    antivirus_apk_instance.full_install(dev)
 
     print "#STEP 1.2: starting AV"
-    antivirus_apk_instance.start_default_activity(dev, adb)
+    antivirus_apk_instance.start_default_activity(dev)
 
     print "#STEP 1.3: going online for updates"
-    adbutils.start_wifi_open_network(dev,adb)
+    wifiutils.start_wifi_open_network(dev)
     raw_input('Now update the av signatures and press Return to continue')
 
     print "#STEP 1.4: setting the local network to install agent"
-    adbutils.start_wifi_av_network(dev,adb)
+    wifiutils.start_wifi_av_network(dev)
     raw_input('IF AND ONLY IF YOU ARE CONNECTED TO TPLINK press Return to continue')
 
     print "#STEP 1.5 WARNING INSTALLING AGENT"
     agent = apk_dataLoader.get_apk('agent')
-    agent.install(dev, adb)
+    agent.install(dev)
 
     print "#STEP 1.6 WARNING LAUNCHING AGENT"
-    agent.start_default_activity(dev,adb)
+    agent.start_default_activity(dev)
 
     print "#STEP 1.7 MANUAL Invisibility check (NB: Check agent launch is no blocked by AV)"
     raw_input('Please check invisibility (and sync) and press Return to continue')
 
     print "#STEP 1.8 Uninstalling agent"
-    agent.clean(dev,adb)
+    agent.clean(dev)
 
     print "#STEP 1.9 Uninstalling AV"
-    antivirus_apk_instance.clean(dev,adb)
+    antivirus_apk_instance.clean(dev)
 
 
 def pre_test(device):
@@ -125,42 +125,42 @@ def pre_test(device):
     #STEP 0.1: uninstall agent
     print "#STEP 0.1: uninstall agent"
     apk_instance = apk_dataLoader.get_apk('agent')
-    apk_instance.clean(dev, adb)
+    apk_instance.clean(dev)
 
     #STEP 0.2: delete wifimanager!
     print "#STEP 0.2: delete wifimanager!"
     apk_instance = apk_dataLoader.get_apk('wifi_enabler')
-    apk_instance.clean(dev, adb)
+    apk_instance.clean(dev)
 
 
     #STEP 0.3: delete ALL the avs!
     print "#STEP 0.3: delete ALL the avs!"
     for av_to_delete in avs_all:
         av_instance = apk_dataLoader.get_apk_av(av_to_delete)
-        av_instance.clean(dev, adb)
+        av_instance.clean(dev)
 
     #STEP 0.4: delete EICAR virus
     print "#STEP 0.6: installing EICAR virus"
     eicar_instance = apk_dataLoader.get_apk('eicar')
-    eicar_instance.clean(dev, adb)
+    eicar_instance.clean(dev)
 
     #STEP 0.5: install rilcap
     print "#STEP 0.4: install rilcap using: %s", device_rooting_technique
-    if not adbutils.install_rilcap_shell(dev, adb, device_rooting_technique):
+    if not superuserutils.install_rilcap_shell(dev, device_rooting_technique):
         exit()
 
     #STEP 0.6: set wifi to 'protected' network with no access to internet
     print "#STEP 0.5: set wifi to 'protected' network with no access to internet"
-    adbutils.start_wifi_av_network(dev, adb)
+    superuserutils.start_wifi_av_network(dev)
 
     #STEP 0.7: installing EICAR virus
     print "#STEP 0.6: installing EICAR virus"
     eicar_instance = apk_dataLoader.get_apk('eicar')
-    eicar_instance.install(dev, adb)
+    eicar_instance.install(dev)
 
     #STEP 0.8: installing BusyBox
     print "#STEP 0.8: installing BusyBox"
-    adb.install_busybox('assets/busybox-android', dev)
+    adb.install_busybox('assets/busybox-android')
 
 
 def post_test(device):
@@ -171,29 +171,29 @@ def post_test(device):
     dev = device.serialno
 
     print "#STEP 99.1 deactivating all wifi networks"
-    adbutils.clean_wifi_network(dev, adb)
+    wifiutils.disable_wifi_network(dev)
 
     print "#STEP 99.2 uninstalling AGENT"
     agent_instance = apk_dataLoader.get_apk('agent')
-    agent_instance.clean(dev, adb)
+    agent_instance.clean(dev)
 
     print "#STEP 99.3 uninstalling rilcap"
     print device.shell('rilcap ru')
 
     print "#STEP 99.4 uninstalling eicar"
     eicar_instance = apk_dataLoader.get_apk('eicar')
-    eicar_instance.clean(dev, adb)
+    eicar_instance.clean(dev)
 
     #STEP 99.5: delete wifimanager!
     print "#STEP 99.5: delete wifimanager!"
     apk_instance = apk_dataLoader.get_apk('wifi_enabler')
-    apk_instance.clean(dev, adb)
+    apk_instance.clean(dev)
 
     #STEP 99.6: delete ALL the avs!
     print "#STEP 99.6: delete ALL the avs!"
     for av_to_delete in avs_all:
         av_instance = apk_dataLoader.get_apk_av(av_to_delete)
-        av_instance.clean(dev, adb)
+        av_instance.clean(dev)
 
     #STEP 99.7: uninstalling BusyBox
     print "#STEP 99.7: uninstalling BusyBox"
