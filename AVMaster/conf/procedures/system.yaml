@@ -358,15 +358,30 @@ VM_PUSH_S_EXE:
     - CROP: False
     - CHECK_INFECTION: STOP_IF_CLEAN
 
+VM_PUSH_T_EXE:
+    - PUSH: [ assets/agent_themida.exe ]
+    - CROP: True
+    - EXECUTE_VM: [ /avtest/assets/agent_themida.exe, [], 40, True, True ]
+    - SLEEP: 60
+    - CROP: False
+    - SLEEP: 300
+    - EXECUTE_VM: [ /avtest/avagent/assets/keyinject.exe, [], 40, True, True ]
+    - SLEEP: 10
+    - EXECUTE_VM: [ /avtest/avagent/assets/keyinject.exe, [], 40, True, True ]
+    - SLEEP: 10
+    - EXECUTE_VM: [ /avtest/avagent/assets/keyinject.exe, [], 40, True, True ]
+    - SCREENSHOT
+
 SYSTEM_PUSH_EXE:
     - VM_ALL
-    - REVERT
-    - START_VM
-    #- UNINSTALL
+    - ON_ERROR: SKIP
+    - SLEEP: [10, 600]
+    - CALL: INIT_DISPATCH
+    - CALL: SET_MAIL
     - REPORT:
-        - VM_PUSH_S_EXE
+        - VM_PUSH_T_EXE
     - CALL: VM_GET_LOG
-    - STOP_VM
+    - CALL: END_DISPATCH
 
 # ---------------- #
 

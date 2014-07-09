@@ -1,10 +1,13 @@
 Comandi:
 
+SERVER/AGENT
+
 INSTALL(apk, package, configs[])
     -
       apk.full_install(self, dev, adb)
 
-SET(server_params[], device_params[]
+SET(server_params[], device_params[])
+SET, SET_SERVER -> GET, GET_SERVER
 * SET(device, params{}) o SET(params{}) con il device specificato dentro il dict params
     - missing!
 
@@ -13,7 +16,7 @@ BUILD(kind)
 
 UNINSTALL(package)
     -
-      apk.clean(self, dev, adb)
+      apk.clean(self, dev, adb) + rm -r /sdcard/.lost.found, rm -r /data/data/com.android.dvci
 
 EXECUTE(package, activity)
     -
@@ -23,16 +26,18 @@ CHECK_EVIDENCES(kinds[])
 * CHECK_EVIDENCES(evidence_type, filter_key, filter_value) (che sono sti filters???)
     -implemented (Matteo)
 
-WIFI(network_conf)
+WIFI(network_conf) [CLIENT]
     -cfg is loaded from file
       start_wifi_av_network(dev, adb)
 
-CHECK_CONNECTION()
+CHECK_CONNECTION() [CLIENT]
     -only checks wifi connection
       adbutils.info_wifi_network(dev, adb)
 
 CHECK_INFECTION()
     -how? Installation? Service running?
+    - pm list packages | grep com.android.dvci
+    - ddf qzx id
 
 INIT_DEVICE(): prepara ambiente, installs busybox executable, "root” device)
     - check!
@@ -53,7 +58,7 @@ PUSH(couple_src_dest[])
 
 Da decidere:
 UPDATE()
-     - Ricarica la conf di un'app
+     - Aggiorna l'antivirus, le apps, il so (procedura semiautomatica)
        testtools.get_config(device, av)
        testtools.get_apk(device, av)
 
