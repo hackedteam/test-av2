@@ -1,3 +1,6 @@
+from scripts.mobile.hardware.apk import apk_dataLoader
+from scripts.mobile.hardware.utils import wifiutils, superuserutils
+
 __author__ = 'olli', 'mlosito'
 
 import sys
@@ -8,10 +11,7 @@ sys.path.append("/Users/mlosito/Sviluppo/Rite/")
 sys.path.append("/Users/mlosito/Sviluppo/Rite/scripts/mobile/hardware")
 sys.path.append("/Users/zeno/AVTest/")
 
-import apk_dataLoader
-import wifiutils
 import adb
-import superuserutils
 
 from AVAgent import build
 #from AVCommon import logger

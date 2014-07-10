@@ -7,10 +7,9 @@ from adbclient import AdbClient
 import adb
 
 # our files
-import superuserutils
+from scripts.mobile.hardware.apk import apk_dataLoader
+from scripts.mobile.hardware.utils import wifiutils, superuserutils
 import utils
-import wifiutils
-import apk_dataLoader
 
 
 sys.path.append("/Users/mlosito/Sviluppo/Rite/")

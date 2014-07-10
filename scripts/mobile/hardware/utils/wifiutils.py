@@ -1,5 +1,6 @@
+from scripts.mobile.hardware.apk import apk_dataLoader
+
 __author__ = 'mlosito'
-import apk_dataLoader
 import string
 import adb
 

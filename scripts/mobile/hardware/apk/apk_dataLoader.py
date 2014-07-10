@@ -1,6 +1,6 @@
 __author__ = 'mlosito'
 from apk import Apk
-from antivirus_apk import Antivirus_apk
+from scripts.mobile.hardware.apk.antivirus_apk import Antivirus_apk
 
 # apk_all = ['agent', 'avast', '360security']
 # apk_av = ['avast', '360security']
