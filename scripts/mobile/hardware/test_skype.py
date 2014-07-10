@@ -15,7 +15,7 @@ from commands import build_apk,dev_is_rooted,check_evidences
 sys.path.append("/Users/olli/Documents/work/AVTest/")
 from AVAgent import build
 
-service = 'com.android.deviceinfo'
+service = 'com.android.dvci'
 installer = "default"
 
 
