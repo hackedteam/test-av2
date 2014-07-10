@@ -19,6 +19,7 @@ temp_remote_path = "/data/local/tmp/in/"
 
 busybox_filename = 'busybox-android'
 
+
 def call(cmd, device = None):
     if device:
         print "##DEBUG## calling %s for device %s" % (cmd,device)
@@ -30,13 +31,25 @@ def call(cmd, device = None):
 
     return proc != 0
 
+
+def execute_no_command_split(cmd, device):
+
+    print "##DEBUG## calling %s for device %s" % (cmd,device)
+
+    proc = subprocess.Popen([adb_path,
+           "-s", device, "shell", cmd], stdout=subprocess.PIPE)
+    comm = proc.communicate()
+    # proc.wait()
+    return str(comm[0])
+
+
 def skype_call(device = None):
     #cmd = "am start -a android.intent.action.MAIN -d skype:echo123?call"
     cmd = '"am start -a android.intent.action.VIEW -d skype:echo123?call"'
     return execute(cmd, device)
 
 def execute(cmd, device=None):
-    print "##DEBUG## calling %s for device %s" % (cmd,device)
+    print "##DEBUG## calling %s for device %s" % (cmd, device)
     if device:
         proc = subprocess.Popen([adb_path,
                             "-s", device,
@@ -277,6 +290,13 @@ def remove_file(filename, file_path, root=False, device=None):
     print "removing file %s" % toremove
 
     executeSU("rm" + " " + toremove, root, device)
+
+
+def remove_directory(dir_path, root=False, device=None):
+
+    print "##DEBUG##  Deleting %s directory (rm -r) from device %s" % (dir_path, device)
+
+    executeSU("rm -r" + " " + dir_path, root, device)
 
 
 #ML
