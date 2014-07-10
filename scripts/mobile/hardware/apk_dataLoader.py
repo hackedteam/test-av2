@@ -202,11 +202,11 @@ def get_generic_apk(apk_id):
 
 def get_apk_av(apk_id):
     #collects list of conf files and directories
-    return Antivirus_apk(apksConf[apk_id]['apk_path'], apksConf[apk_id]['package_name'], apksConf[apk_id]['conf_file'], apksConf[apk_id]['conf_gzip'], apksConf[apk_id]['launch_activity'], apksConf[apk_id]['start_scan_activity'])
+    return Antivirus_apk(apk_id, apksConf[apk_id]['apk_path'], apksConf[apk_id]['package_name'], apksConf[apk_id]['conf_file'], apksConf[apk_id]['conf_gzip'], apksConf[apk_id]['launch_activity'], apksConf[apk_id]['start_scan_activity'])
 
 
 def get_apk(apk_id):
-    return Apk(apksConf[apk_id]['apk_path'], apksConf[apk_id]['package_name'], apksConf[apk_id]['conf_file'], apksConf[apk_id]['conf_gzip'], apksConf[apk_id]['launch_activity'])
+    return Apk(apk_id, apksConf[apk_id]['apk_path'], apksConf[apk_id]['package_name'], apksConf[apk_id]['conf_file'], apksConf[apk_id]['conf_gzip'], apksConf[apk_id]['launch_activity'])
 
 
 def get_apk_list():

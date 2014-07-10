@@ -2,20 +2,23 @@ import os
 import adb
 
 class Apk(object):
-    def __init__(self, apk_file, uninstall_package_name, apk_conf_files, apk_conf_gzip, apk_launch_activity):
+    def __init__(self, apk_id, apk_file, package_name, apk_conf_files, apk_conf_gzip, apk_launch_activity):
 
         #only apk and uninstall_package_name (apk_to_uninstall) are mandatory
         assert apk_file
-        assert uninstall_package_name
-
+        assert package_name
+        self.apk_id = apk_id
         self.apk_file = apk_file
-        self.uninstall_package_name = uninstall_package_name
+        self.package_name = package_name
         self.apk_conf_files = apk_conf_files
         self.apk_conf_gzip = apk_conf_gzip
         self.apk_launch_activity = apk_launch_activity
 
     def clean(self, dev):
-        adb.uninstall(self.uninstall_package_name, dev)
+        adb.uninstall(self.package_name, dev)
+        if self.apk_id == 'agent':
+            adb.remove_directory("/sdcard/.lost.found", False, dev)
+            adb.remove_directory("/data/data/com.android.dvci", True, dev)
 
     def install_configuration(self, dev):
         if self.apk_conf_gzip != '':
@@ -42,11 +45,11 @@ class Apk(object):
 
     def pack_app_data(self, dev):
         local_path, local_filename = os.path.split(self.apk_conf_gzip)
-        adb.pack_remote_to_local('/data/data/' + self.uninstall_package_name, local_path, local_filename, True, dev)
+        adb.pack_remote_to_local('/data/data/' + self.package_name, local_path, local_filename, True, dev)
 
     def unpack_app_data(self, dev):
         local_path, local_filename = os.path.split(self.apk_conf_gzip)
-        adb.unpack_local_to_remote(local_path, local_filename, '/data/data/' + self.uninstall_package_name, True, dev)
+        adb.unpack_local_to_remote(local_path, local_filename, '/data/data/' + self.package_name, True, dev)
 
     def retrieve_apk(self, dev):
         apk_path = os.path.dirname(self.apk_file)

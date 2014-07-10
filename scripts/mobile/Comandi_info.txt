@@ -6,9 +6,12 @@ DONE - INSTALL
      Nota: l'install installa anche l'eventuale configurazione definita nell'apk_dataloader.
           La confiurazione puo' essere definita come singoli files o come zip (ma non entrambi i metodi)
 
-TODO - SET(server_params[], device_params[])
-TODO - SET, SET_SERVER -> GET, GET_SERVER
-TODO - * SET(device, params{}) o SET(params{}) con il device specificato dentro il dict params
+DONE - SET, SET_SERVER -> GET, GET_SERVER
+
+    get_server(context_element)
+    set_server(context_elements)
+    get_client(context_element)
+    set_client(context_elements)
 
 DONE - BUILD
      def build_apk(kind, srv, factory)
@@ -52,35 +55,35 @@ DONE: INIT_DEVICE(): prepara ambiente, installs busybox executable, "root” dev
 DONE: RESET_DEVICE(pulisce il device riportandolo a prima di INIT_DEVICE())
     def reset_device(dev)
 
-TODO - PULL(src_files[], src_dir, dest_dir)
-    -
-      adb.get_remote_file(remote_source_filename, remote_source_path, local_destination_path, root=True, device=None)
+DONE - PULL(src_files[], src_dir, dest_dir)
+    pull(src_files, src_dir, dst_dir, dev)
+    Note:  Si possono copiare n files da una singola cartella remota, verso una singola cartella locale.
+           Utilizza sempre il root
+           Per copiare una cartella si puo' integrare l' adb.pack_remote_to_local
 
-TODO - PUSH(couple_src_dest[])
-* PUSH(src_files[], src_dir, dst_dir)
-    -
-      adb.copy_file(file_local_path, remote_path, root=False, device=None)
+DONE - PUSH(couple_src_dest[])
+    def push(src_files, src_dir, dst_dir, dev):
+    Nota:  Per copiare una cartella si puo' integrare l' adb.unpack_local_to_remote
 
 
-
-
-TODO -  (everything else below)
-
-Da decidere:
-UPDATE()
+TODO: UPDATE()
      - Aggiorna l'antivirus, le apps, il so (procedura semiautomatica)
        testtools.get_config(device, av)
        testtools.get_apk(device, av)
 
-Macro:
+DONE: Macro:
 INFECT():BUILD(), INSTALL(),…
--install implemented (Marco)
--infect implemented (Marco)
--build implemented (Matteo)
+-install
+    install(apk_id, dev)
+-infect
+    Facilmente creabile una macro con:
+    install_agent(dev)
+    e
+    execute_agent(dev)
+
+-build
+    build_apk(kind, srv, factory):
 
 
 TODO:
-- check network with connection to google and/or internal servers
-- better wifi config
-- check sim connection
-- ...
+gestione del logging

@@ -26,7 +26,7 @@ def disable_wifi_network(dev):
     wifi_enabler.start_default_activity(dev, "-e wifi disable")
 
 
-#sets NO AP on wifi config
+#get current wifi network
 def info_wifi_network(dev):
     wifi_enabler = install_wifi_enabler(dev)
     wifi_enabler.start_default_activity(dev, "-e wifi info")
@@ -54,3 +54,8 @@ def start_wifi_network(ssid, psk, dev):
     #ensures you are connected to the desired network
     while ssid != info_wifi_network(dev):
         time.sleep(1)
+
+
+def ping_google(dev):
+    result = adb.execute_no_command_split("/system/bin/ping -n -c 2 -w 3 173.194.35.114 > /dev/null; echo $?", dev)
+    return result

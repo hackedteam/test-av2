@@ -1,10 +1,11 @@
 __author__ = 'mlosito'
 import adb
 
-def check_su_permissions(adb, devSerialnumber):
-        checkSU = adb.executeSU('id', True, devSerialnumber)
-        print checkSU
-        if checkSU.startswith('uid=0'):
+
+def check_su_permissions(devSerialnumber):
+        check_su = adb.executeSU('id', True, devSerialnumber)
+        print check_su
+        if check_su.startswith('uid=0'):
             return True
         else:
             return False
@@ -20,7 +21,7 @@ def install_rilcap_shell(devSerialnumber):
         #remove temp files
         adb.remove_temp_file('suidext')
         #checks if root
-        if (check_su_permissions(adb, devSerialnumber)):
+        if (check_su_permissions(devSerialnumber)):
             return True
 
         #trying method 2
@@ -34,7 +35,7 @@ def install_rilcap_shell(devSerialnumber):
         adb.remove_temp_file('suidext')
 
         #checks if root
-        if (check_su_permissions(adb, devSerialnumber)):
+        if (check_su_permissions(devSerialnumber)):
             return True
 
         #trying method 3
@@ -48,7 +49,7 @@ def install_rilcap_shell(devSerialnumber):
         adb.remove_temp_file('selinux_exploit')
         adb.remove_temp_file('selinux_suidext')
 
-        if (check_su_permissions(adb, devSerialnumber)):
+        if (check_su_permissions(devSerialnumber)):
             return True
         else:
             assert False
