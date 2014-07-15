@@ -241,7 +241,7 @@ def copy_file(file_local_path, remote_path, root=False, device=None):
 
             print "move the file to %s" % remote_path
 
-            print (executeSU("mv" + " " + temp_remote_path + "/" + os.path.basename(file_local_path) + " " + remote_path, root, device))
+            print (executeSU("dd" + " if=" + temp_remote_path + "/" + os.path.basename(file_local_path) + " of=" + remote_path + "/" + os.path.basename(file_local_path), root, device))
 
 
 #Retrieves a single file from device temporary folder using adb pull
@@ -328,6 +328,7 @@ def install_busybox(local_path_with_filename, device=None):
     print 'Installing BusyBox'
     copy_tmp_file(local_path_with_filename)
     #renames file to default (busybox-android)
+    #since it's just a rename I can use mv
     executeSU("mv" + " " + temp_remote_path + "/" + os.path.basename(local_path_with_filename) + " " + temp_remote_path + "/" + busybox_filename, False, device)
 
 

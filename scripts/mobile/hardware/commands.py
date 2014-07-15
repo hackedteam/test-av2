@@ -1,5 +1,5 @@
 from scripts.mobile.hardware.apk import apk_dataLoader
-from scripts.mobile.hardware.utils import wifiutils, superuserutils
+from scripts.mobile.hardware.utils import wifiutils, superuserutils, utils
 
 __author__ = 'olli', 'mlosito'
 
@@ -49,15 +49,15 @@ client_context = {}
 server_context = {}
 
 
-def set_util(context_elements, context):
+def _set_util(context_elements, context):
     for k, v in context_elements.items():
         context[k] = v
 
 
-def get_util(context_element, context):
+def _get_util(context_element, context):
     key = context_element
     if key not in context:
-        return False, "Key not found: %s" % context.keys()
+        return "Key not found: %s" % context.keys()
     value = context[key]
 
     print "key: %s value: %s" % (key, value)
@@ -65,21 +65,21 @@ def get_util(context_element, context):
 
 
 def get_server(context_element):
-    return get_util(context_element, server_context)
+    return _get_util(context_element, server_context)
 
 
 def set_server(context_elements):
-    return set_util(context_elements, server_context)
+    return _set_util(context_elements, server_context)
 
 
 # Used get_client because 'set' is a builin funciton
 def get_client(context_element):
-    return get_util(context_element, client_context)
+    return _get_util(context_element, client_context)
 
 
 # Used set_client because 'get' is a builin function
 def set_client(context_elements):
-    return set_util(context_elements, client_context)
+    return _set_util(context_elements, client_context)
 
 
 def dev_is_rooted(device):
@@ -226,7 +226,7 @@ def info_wifi_network(dev):
 
 #this tries to ping google's ip (173.194.35.114) twice and checks result
 def can_ping_google(dev):
-    ping_ok = wifiutils.ping_google(dev.serialno)
+    ping_ok = wifiutils.ping_google(dev)
     if ping_ok.strip() == "0":
         return True
     else:
@@ -274,17 +274,27 @@ def reset_device(dev):
         uninstall(av_to_delete, dev)
     uninstall('eicar', dev)
 
-    superuserutils.uninstall_rilcap_shell(dev)
 
     #uninstall BusyBox
     adb.uninstall_busybox(dev)
 
 
+    superuserutils.uninstall_rilcap_shell(dev)
+
+
+#updates project data, using new data from a physical device
+def update(apk_id, dev):
+    utils.get_config(dev, apk_id)
+    utils.get_apk(dev, apk_id)
+
+
+#this gets a LIST of file. Remember it
 def pull(src_files, src_dir, dst_dir, dev):
     for file_to_get in src_files:
         adb.get_remote_file(file_to_get, src_dir, dst_dir, True, dev)
 
 
+#this puts a LIST of file. Remember it
 def push(src_files, src_dir, dst_dir, dev):
     for file_to_put in src_files:
         adb.copy_file(src_dir + "/" + file_to_put, dst_dir, True, dev)

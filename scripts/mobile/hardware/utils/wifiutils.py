@@ -23,13 +23,13 @@ def start_wifi_open_network(dev):
 
 #sets NO AP on wifi config
 def disable_wifi_network(dev):
-    wifi_enabler = install_wifi_enabler(dev)
+    wifi_enabler = apk_dataLoader.get_apk('wifi_enabler')
     wifi_enabler.start_default_activity(dev, "-e wifi disable")
 
 
 #get current wifi network
 def info_wifi_network(dev):
-    wifi_enabler = install_wifi_enabler(dev)
+    wifi_enabler = apk_dataLoader.get_apk('wifi_enabler')
     wifi_enabler.start_default_activity(dev, "-e wifi info")
     log = adb.execute('logcat -d -s WifiManager', dev)
     linelist = string.split(log, '\r\n')
@@ -50,7 +50,7 @@ def install_wifi_enabler(dev):
 
 def start_wifi_network(ssid, psk, dev):
     print "start_wifi_av_network"
-    wifi_enabler = install_wifi_enabler(dev)
+    wifi_enabler = apk_dataLoader.get_apk('wifi_enabler')
     wifi_enabler.start_default_activity(dev, "--es SSID " + ssid + " --es psk " + psk)
     #ensures you are connected to the desired network
     while ssid != info_wifi_network(dev):

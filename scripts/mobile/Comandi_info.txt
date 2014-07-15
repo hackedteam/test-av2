@@ -68,6 +68,7 @@ DONE - PUSH(couple_src_dest[])
 
 TODO: UPDATE()
      - Aggiorna l'antivirus, le apps, il so (procedura semiautomatica)
+     Nota: Per ora ci sono queste 2 funzionalita'
        testtools.get_config(device, av)
        testtools.get_apk(device, av)
 
