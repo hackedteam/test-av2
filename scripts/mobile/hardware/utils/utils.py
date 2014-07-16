@@ -2,6 +2,9 @@ import collections
 import datetime
 
 from adbclient import AdbClient
+from scripts.mobile.hardware import adb
+from scripts.mobile.hardware.apk import apk_dataLoader
+
 
 def get_deviceId(device):
     device = AdbClient(device.serialno)
@@ -39,3 +42,18 @@ def get_properties(device, av, *props):
     results["return"] = ""
 
     return results
+
+
+def get_config(device, av):
+    dev = device.serialno
+    apk = apk_dataLoader.get_apk_av(av)
+
+    adb.install_busybox('assets/busybox-android', dev)
+    apk.pack_app_data(dev)
+    adb.uninstall_busybox(dev)
+
+
+def get_apk(device, av):
+    dev = device.serialno
+    apk = apk_dataLoader.get_apk_av(av)
+    apk.retrieve_apk(dev)

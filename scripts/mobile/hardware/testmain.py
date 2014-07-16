@@ -7,10 +7,8 @@ from adbclient import AdbClient
 import adb
 
 # our files
-import superuserutils
-import utils
-import wifiutils
-import apk_dataLoader
+from scripts.mobile.hardware.apk import apk_dataLoader
+from scripts.mobile.hardware.utils import wifiutils, superuserutils, utils
 
 
 sys.path.append("/Users/mlosito/Sviluppo/Rite/")
@@ -29,9 +27,6 @@ avs_all = ['avast', '360security', 'AVG', 'avira', 'Lookout', 'Norton']
 build.connection.host = "rcs-castore"
 build.connection.user = "marco"
 build.connection.passwd = "passwordP123"
-
-# selinux, no_selinux, rooted (just need to call su)
-device_rooting_technique = 'rooted'
 
 def main():
     devices = adb.get_attached_devices()
@@ -145,13 +140,13 @@ def pre_test(device):
     eicar_instance.clean(dev)
 
     #STEP 0.5: install rilcap
-    print "#STEP 0.4: install rilcap using: %s", device_rooting_technique
-    if not superuserutils.install_rilcap_shell(dev, device_rooting_technique):
+    print "#STEP 0.4: install rilcap using: %s"
+    if not superuserutils.install_rilcap_shell(dev):
         exit()
 
     #STEP 0.6: set wifi to 'protected' network with no access to internet
     print "#STEP 0.5: set wifi to 'protected' network with no access to internet"
-    superuserutils.start_wifi_av_network(dev)
+    wifiutils.start_wifi_av_network(dev)
 
     #STEP 0.7: installing EICAR virus
     print "#STEP 0.6: installing EICAR virus"

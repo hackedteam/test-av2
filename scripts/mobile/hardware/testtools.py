@@ -1,33 +1,17 @@
 import sys
-from adbclient import AdbClient
-import adb
 import csv
 import traceback
 import time
+import os
+
+from adbclient import AdbClient
 
 # our files
 import commands
-import superuserutils
-import wifiutils
-import apk_dataLoader
+from scripts.mobile.hardware.apk import apk_dataLoader
+from scripts.mobile.hardware.utils import wifiutils, superuserutils, utils
 import testmain
-import utils
 import adb
-
-
-def get_config(device, av):
-    dev = device.serialno
-    apk = apk_dataLoader.get_apk_av(av)
-
-    adb.install_busybox('assets/busybox-android', dev)
-    apk.pack_app_data(dev)
-    adb.uninstall_busybox(dev)
-
-
-def get_apk(device, av):
-    dev = device.serialno
-    apk = apk_dataLoader.get_apk_av(av)
-    apk.retrieve_apk(dev)
 
 
 def main(argv):
@@ -67,23 +51,46 @@ def main(argv):
         # print 'Args=', (str(sys.argv))
         # operation = sys.argv[1]
 
+        init = raw_input('Init everything? (y/n)')
+        if init == "y":
+            print "Init!"
+            commands.init_device(device.serialno)
+
+        dev = device.serialno
+
         operation = -1
 
         while operation != "99":
+            print ''
+            print '#################       OPERATIONS      #################'
             print 'What operation do you want to perform?'
             print '1  - get new configuration from installed av'
             print '2  - use net RSSM'
             print '3  - use net TPLINK'
             print '4  - disable net'
-            print '5  - clean phone (except rilcap)'
-            print '6  - uninstall rilcap'
+            print '5  - get wifi network name'
+            print '6  - ping google'
             print '7  - test all avs'
             print '8  - test a single av'
-            print '9  - get wifi network name'
-            print '10 - ping google'
-            print '11 - is infected?'
-            print '12 - got r00t?'
-            print '99 - Exit!'
+            print '9 - is infected?'
+            print '10 - got r00t?'
+            print '11 - pull file'
+            print '12 - push file'
+            print ''
+            print '#################     INTERNAL TESTS    #################'
+            print '20 - test get_server'
+            print '21 - test set_server'
+            print '22 - test get_client'
+            print '23 - test set_client'
+            print '24 - test install'
+            print '25 - test install_agent'
+            print '26 - test uninstall'
+            print '27 - test uninstall_agent'
+            print '28 - test execute'
+            print '29 - test execute_agent'
+            print ''
+            print '#################          EXIT         #################'
+            print '99 - Clean & exit!'
 
             operation = raw_input()
 
@@ -91,58 +98,108 @@ def main(argv):
                 print 'Which av you want to retrieve?'
                 print str(apk_dataLoader.get_av_list())
                 av = raw_input()
-                get_config(device, av)
-                get_apk(device, av)
+                commands.update(av, dev)
+
             elif operation == '2':
-                if not superuserutils.install_rilcap_shell(device.serialno):
-                    exit(-1)
-                wifiutils.start_wifi_open_network(device.serialno)
+                commands.wifi('open', dev)
+
             elif operation == '3':
-                if not superuserutils.install_rilcap_shell(device.serialno):
-                    exit(-1)
-                wifiutils.start_wifi_av_network(device.serialno)
+                commands.wifi('av', dev)
+
             elif operation == '4':
-                if not superuserutils.install_rilcap_shell(device.serialno):
-                    exit(-1)
-                wifiutils.disable_wifi_network(device.serialno)
+                commands.wifi('disable', dev)
+
             elif operation == '5':
-                testmain.post_test(device)
+                print commands.info_wifi_network(dev)
+
             elif operation == '6':
-                superuserutils.uninstall_rilcap_shell(device.serialno)
-            elif operation == '7':
-                pre_test(device)
-                for av in apk_dataLoader.get_av_list():
-                    do_test(device, av)
-                post_test(device)
-            elif operation == '8':
-                print 'Which av you want to retrieve?'
-                print str(apk_dataLoader.get_av_list())
-                av = raw_input()
-                pre_test(device)
-                do_test(device, av)
-                post_test(device)
-            elif operation == '9':
-                if not superuserutils.install_rilcap_shell(device.serialno):
-                    exit()
-                wifiutils.info_wifi_network(device.serialno)
-            elif operation == '10':
-                ping_ok = wifiutils.ping_google(device.serialno)
-                if ping_ok.strip() == "0":
+                if commands.can_ping_google(dev):
                     print "I can ping google"
                 else:
                     print "I canNOT ping google"
-            elif operation == '11':
-                if commands.check_infection(device.serialno):
+
+            elif operation == '7':
+                # TODO: andrebbe spostato il do_test
+                for av in apk_dataLoader.get_av_list():
+                    do_test(device, av)
+
+            elif operation == '8':
+                # TODO: andrebbe spostato il do_test
+                print 'Which av you want to test?'
+                print str(apk_dataLoader.get_av_list())
+                av = raw_input()
+                do_test(device, av)
+
+            elif operation == '9':
+                if commands.check_infection(dev):
                     print "Infected"
                 else:
                     print "Clean"
-            elif operation == '12':
-                if commands.check_su_permissions(device.serialno):
+
+            elif operation == '10':
+                if commands.check_su_permissions(dev):
                     print "Root!"
                 else:
                     print "Not root :("
+            elif operation == '11':
+                print '12 - pull file'
+                commands.pull(['file.png'], '/sdcard/', 'tmp', dev)
+                if os.path.exists('tmp/file.png'):
+                    print 'Pull OK!'
+                    #debug: time.sleep(20)
+                    os.remove('tmp/file.png')
+                else:
+                    print 'Pull failed!'
 
-    print "Operazioni terminate"
+            elif operation == '12':
+                print '13 - push file'
+                commands.push(['file.png'], 'assets', '/sdcard/', dev)
+
+            elif operation == '20':
+                print "testvarsrv= " + commands.get_server('testvarsrv')
+            elif operation == '21':
+                commands.set_server({'testvarsrv': 'testvaluesrv'})
+            elif operation == '22':
+                print "testvarcli= " + commands.get_client('testvarcli')
+            elif operation == '23':
+                commands.set_client({'testvarcli': 'testvaluecli'})
+            elif operation == '24':
+                commands.install('wifi_enabler', dev)
+            elif operation == '25':
+                commands.install_agent(dev)
+            elif operation == '26':
+                commands.uninstall('wifi_enabler', dev)
+            elif operation == '27':
+                commands.uninstall_agent(dev)
+            elif operation == '28':
+                commands.execute('wifi_enabler', dev)
+            elif operation == '29':
+                commands.execute_agent(dev)
+
+        print "Operazioni terminate, cleaning time"
+        commands.reset_device(dev)
+        print "The end"
+
+'''
+
+
+commands.update()
+commands.pull()
+commands.push()
+
+
+
+wifi
+info_wifi_network
+can_ping_google
+check_su_permissions
+check_infection
+init_device
+reset_device
+update
+pull
+push
+'''
 
 
 def test_av(dev, antivirus_apk_instance, results):
@@ -188,17 +245,6 @@ def test_av(dev, antivirus_apk_instance, results):
 
     print "#STEP 1.10 Uninstalling AV"
     antivirus_apk_instance.clean(dev)
-
-
-def pre_test(device):
-    print "###########################################"
-    print "##### STAGE 0: PREPARING TEST         #####"
-    print "###########################################"
-    commands.init_device(device.serialno)
-
-
-def post_test(device):
-    commands.reset_device(device.serialno)
 
 
 def do_test(device_id, av):
