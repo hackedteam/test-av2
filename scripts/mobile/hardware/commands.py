@@ -126,10 +126,10 @@ def build_apk(kind, srv, factory):
 
     build.connection.host = srv_params["backend"]
     #build.connection.user = "avmonitor"
-    build.connection.passwd = "Castorep123"
+    build.connection.passwd = "testriteP123"
 
     results, success, errors = build.build(args, report)
-    #print "after build", results, success, errors
+    print "after build", results, success, errors
     return success
 
 
@@ -141,7 +141,7 @@ def check_evidences(backend, type_ev, key=None, value=None, imei=None):
 #    try:
         build.connection.host = backend
         build.connection.user = "avmonitor"
-        build.connection.passwd = "Castorep123"
+        build.connection.passwd = "testriteP123"
         #success, ret = build.check_evidences(backend, type_ev, key, value)
         #return success, ret
         #if success:

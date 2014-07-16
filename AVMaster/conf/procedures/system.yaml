@@ -26,7 +26,7 @@ END_DISPATCH:
 
 SET_MAIL:
     - SET_SERVER:
-        mail_recipients: [zeno@hackingteam.com, seppia@hackingteam.com, m.losito@gackingteam.com]
+        mail_recipients: [zeno@hackingteam.com, seppia@hackingteam.com, m.losito@hackingteam.com]
 
 # ------------- SYSTEM COMMANDS -------------- #
 
@@ -138,9 +138,31 @@ VM_MELT:
     #- RELOG
 
 VM_EXPLOIT:
+    - ON_ERROR: CONTINUE
     - CALL: INIT_DISPATCH
     - BUILD: [ pull, selfdel_exploit, melt ]
-    - BUILD: [ scout, exploit, melt ]
+
+    - BUILD: [ pull, exploit, melt ]
+    - BUILD: [ pull, exploit_avi, melt ]
+    - BUILD: [ pull, exploit_bmp, melt ]
+    - BUILD: [ pull, exploit_eml, melt ]
+    - BUILD: [ pull, exploit_gif, melt ]
+    - BUILD: [ pull, exploit_html, melt ]
+    - BUILD: [ pull, exploit_jpg, melt ]
+    - BUILD: [ pull, exploit_mp3, melt ]
+    - BUILD: [ pull, exploit_png, melt ]
+    - BUILD: [ pull, exploit_vsd, melt ]
+    - BUILD: [ pull, exploit_doc, melt ]
+    #- BUILD: [ pull, exploit_docx, melt ]
+    - BUILD: [ pull, exploit_ppt, melt ]
+    - BUILD: [ pull, exploit_ppsx, melt ]
+    - BUILD: [ pull, exploit_xls, melt ]
+    - BUILD: [ pull, exploit_rtf, melt ]
+    - BUILD: [ pull, exploit_exe, melt ]
+    - BUILD: [ pull, exploit_zip, melt ]
+    - BUILD: [ pull, exploit_rar, melt ]
+    - BUILD: [ pull, exploit_pdf, melt ]
+
     #- UNINSTALL
     #- RELOG
 
@@ -264,9 +286,9 @@ SYSTEM_DAILY_FAST:
     - REPORT:
         #- VM_STATIC: ['AV Invisibility Static', 'Static check on builds']
         #- VM_SOLDIER: ['AV Invisibility', 'Soldier']
-        - VM_ELITE_FAST: ['AV Invisibility', 'Elite']
+        #- VM_ELITE_FAST: ['AV Invisibility', 'Elite']
         #- VM_MELT: ['AV Invisibility', 'Melt']
-        #- VM_EXPLOIT: ['AV Invisibility', 'Exploit']
+        - VM_EXPLOIT: ['AV Invisibility', 'Exploit']
 
     - UNINSTALL
     - CALL: VM_GET_LOG

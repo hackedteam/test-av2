@@ -138,7 +138,7 @@ SYSTEM_FUNCTIONAL_ACHILLE:
         frontend: 172.20.20.119
 
     - SET_SERVER:
-        mail_recipients: [zeno@hackingteam.com, seppia@hackingteam.com, m.losito@gackingteam.com]
+        mail_recipients: [zeno@hackingteam.com, seppia@hackingteam.com, m.losito@hackingteam.com]
 
     - REPORT:
         - VM_SOLDIER_ACHILLE: ['AV Invisibility Experimental', 'Soldier']

