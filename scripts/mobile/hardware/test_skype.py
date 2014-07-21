@@ -68,7 +68,8 @@ def test_device(device, results):
     print results
 
     build.connection.host = "rcs-castore"
-    build.connection.passwd = "Castorep123"
+    build.connection.passwd = "testriteP123"
+#    build.connection.passwd = "Castorep123"
 
     dev = device.serialno
     adb.uninstall(service, dev)

@@ -248,6 +248,7 @@ class AgentBuild:
             return (target_id, factory_id, ident)
 
     def _build_agent(self, factory, melt=None, kind="silent",tries=0):
+        appname = "yo"
         with connection() as c:
 
             try:
