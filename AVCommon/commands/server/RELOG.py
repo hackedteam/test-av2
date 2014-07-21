@@ -15,7 +15,7 @@ def execute(vm, protocol, args):
     assert vm, "null vm"
     mq = protocol.mq
 
-    timeout = 30 # 300
+    timeout = 9  #9 = 90 sec; 30 = 300 sec
     if args:
         timeout = args / 10
 
