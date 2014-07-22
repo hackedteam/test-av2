@@ -140,7 +140,6 @@ VM_MELT:
 VM_EXPLOIT:
     - ON_ERROR: CONTINUE
     - CALL: INIT_DISPATCH
-    - BUILD: [ pull, selfdel_exploit, melt ]
 
     - BUILD: [ pull, exploit, melt ]
     - BUILD: [ pull, exploit_avi, melt ]
@@ -153,15 +152,15 @@ VM_EXPLOIT:
     - BUILD: [ pull, exploit_png, melt ]
     - BUILD: [ pull, exploit_vsd, melt ]
     - BUILD: [ pull, exploit_doc, melt ]
-    #- BUILD: [ pull, exploit_docx, melt ]
     - BUILD: [ pull, exploit_ppt, melt ]
-    - BUILD: [ pull, exploit_ppsx, melt ]
     - BUILD: [ pull, exploit_xls, melt ]
     - BUILD: [ pull, exploit_rtf, melt ]
     - BUILD: [ pull, exploit_exe, melt ]
     - BUILD: [ pull, exploit_zip, melt ]
     - BUILD: [ pull, exploit_rar, melt ]
     - BUILD: [ pull, exploit_pdf, melt ]
+
+    - BUILD: [ scout, selfdel_exploit, melt ]
 
     #- UNINSTALL
     #- RELOG
