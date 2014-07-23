@@ -1008,12 +1008,16 @@ def main():
     #parser.set_defaults(platform_type=platform_type)
 
     args = parser.parse_args()
-    if "winxp" in socket.gethostname():
-        avname = socket.gethostname().replace("winxp", "").lower()
-    elif "win7" in socket.gethostname():
-        avname = socket.gethostname().replace("win7", "").lower()
+
+    #edit by ML
+    winhostname = socket.gethostname().lower()
+
+    if "winxp" in winhostname:
+        avname = winhostname.replace("winxp", "").lower()
+    elif "win7" in winhostname:
+        avname = winhostname.replace("win7", "").lower()
     else:
-        avname = socket.gethostname().replace("win8", "").lower()
+        avname = winhostname.replace("win8", "").lower()
 
     platform_mobile = ["android", "blackberry", "ios"]
 
