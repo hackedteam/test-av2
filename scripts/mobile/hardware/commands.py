@@ -1,6 +1,3 @@
-from scripts.mobile.hardware.apk import apk_dataLoader
-from scripts.mobile.hardware.utils import wifiutils, superuserutils, utils
-
 __author__ = 'olli', 'mlosito'
 
 import sys
@@ -10,6 +7,9 @@ sys.path.append("/Users/olli/Documents/work/AVTest/")
 sys.path.append("/Users/mlosito/Sviluppo/Rite/")
 sys.path.append("/Users/mlosito/Sviluppo/Rite/scripts/mobile/hardware")
 sys.path.append("/Users/zeno/AVTest/")
+
+from scripts.mobile.hardware.apk import apk_dataLoader
+from scripts.mobile.hardware.utils import wifiutils, superuserutils, utils
 
 import adb
 

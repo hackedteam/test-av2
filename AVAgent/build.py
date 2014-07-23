@@ -248,7 +248,7 @@ class AgentBuild:
             return (target_id, factory_id, ident)
 
     def _build_agent(self, factory, melt=None, kind="silent",tries=0):
-        appname = "yo"
+
         with connection() as c:
 
             try:
@@ -707,20 +707,22 @@ class AgentBuild:
         meltfile = self.param.get('meltfile', None)
         exe = self._build_agent(factory_id, melt=meltfile, kind=self.kind)
 
+        """
         if "exploit_" in self.platform:
-            if self.platform == 'exploit_docx':
-                appname = "exp_%s/avtest.swf" % self.hostname
-            elif self.platform == 'exploit_ppsx':
-                appname = "pexp_%s/avtest.swf" % self.hostname
-            elif self.platform == 'exploit_web':
-                dllname = "exp_%s/PMIEFuck-WinWord.dll" % self.hostname
-                docname = "exp_%s/owned.docm" % self.hostname
+            appname = "exp_%s.exe" % self.platform
+            #if self.platform == 'exploit_docx':
+            #    appname = "exp_%s/avtest.swf" % self.hostname
+            #elif self.platform == 'exploit_ppsx':
+            #    appname = "pexp_%s/avtest.swf" % self.hostname
+            #elif self.platform == 'exploit_web':
+            #    dllname = "exp_%s/PMIEFuck-WinWord.dll" % self.hostname
+            #    docname = "exp_%s/owned.docm" % self.hostname
 
-            url = "http://%s/%s" % (self.host[1], appname)
-            logging.debug("DBG getting: %s" % url)
-            done = False
-            try:
-                u = urllib2.urlopen(url)
+            #url = "http://%s/%s" % (self.host[1], appname)
+            #logging.debug("DBG getting: %s" % url)
+            #done = False
+            #try:
+            #    u = urllib2.urlopen(url)
                 localFile = open('build/file.swf', 'w')
                 localFile.write(u.read())
                 localFile.close()
@@ -752,6 +754,7 @@ class AgentBuild:
             except IOError:
                 add_result("+ FAILED EXPLOIT SAVE")
                 pass
+        """
 
         return factory_id, ident, exe
 
