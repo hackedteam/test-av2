@@ -65,3 +65,5 @@ results.txt
 /.idea/RCSAVTest.iml
 
 /.idea/inspectionProfiles/Project_Default.xml
+
+.idea/*
