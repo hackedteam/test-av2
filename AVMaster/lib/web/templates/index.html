@@ -7,26 +7,32 @@
         <h1>{{ title }}</h1>
     </div>
     <table class="table table-striped table-bordered">
-        <thead><tr><th>ID</th><th>Report</th><th>Results</th></tr></thead>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Report</th>
+            <th>Results</th>
+        </tr>
+        </thead>
         <tbody>
 
-		{% for report in reports %}
+        {% for report in reports %}
 
-            <tr>
-				<td>{{ report.time }}</td>
-				<td>
-					{% if report.status < 1 %}
-						<b>In Progress..</b>
-					{% else %}
-						<a href="/report/{{ report.id }}">open</a>
-					{% endif %}
-				</td>
-				<td><a href="/results/{{ report.id }}">open</a></td>
-			</tr>
+        <tr>
+            <td>{{ report.time }}</td>
+            <td>
+                {% if report.status < 1 %}
+                <b>In Progress..</b>
+                {% else %}
+                <a href="/report/{{ report.id }}">open</a>
+                {% endif %}
+            </td>
+            <td><a href="/results/{{ report.id }}">open</a></td>
+        </tr>
 
-		{% endfor %}
+        {% endfor %}
 
-		</tbody>
-	</table>
+        </tbody>
+    </table>
 
-{% endblock %}
+    {% endblock %}

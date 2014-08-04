@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<map>
+<null name="ccblob" />
+<null name="connection_token" />
+<boolean name="lite_version" value="false" />
+<string name="license_type">NMS</string>
+</map>

@@ -1,235 +1,266 @@
 import os
+from AVCommon.logger import logging
 
 from time import sleep
 from ConfigParser import ConfigParser, NoSectionError
-from pysphere.resources.vi_exception import VIException
+from pysphere.resources.vi_exception import VIException, VIApiException
 from datetime import datetime
 
-from VMManager import vSphere
+#from VMManager import vSphere
+from VMRun import vSphere
+
 
 class VMachine:
-	def __init__(self, conf_file, name):
-		self.name = name
-		try:
-			self.config = ConfigParser()
-			self.config.read( conf_file )
-			self.path     = self.config.get("vms", name)
-			self.snapshot = self.config.get("vm_config", "snapshot")
-			self.user     = self.config.get("vm_config", "user")
-			self.passwd   = self.config.get("vm_config", "passwd")
-			#self.vi_srv   = vi_srv	
-				
-		except NoSectionError:
-			print "[!] VM or VM stuff not found on %s" % conf_file
-			return None
-		
-	def __str__(self):
-		return "%s" % self.name
+    def __init__(self, name):
+        self.name = name
+        self.config = None
 
-	#	FUNCTIONS
+    def __str__(self):
+        return "%s" % self.name
 
-	def refresh_snapshot(self, delete=True):
-		untouchables = [ "ready", "activated", "_datarecovery_" ]
-		date = datetime.now().strftime('%Y%m%d-%H%M')
-		self.create_snapshot(date)
-		if delete is True:
-			snap_list = self.list_snapshots()
-			for snap in snap_list:
-				print snap.get_name()
-			if len(snap_list) > 0 and snap_list[-2].get_name() not in untouchables and "manual" not in snap_list[-2].get_name():
-				print "DBG deleting %s" % snap_list[-2].get_name()
-				self.delete_snapshot(snap_list[-2].get_name())
+    def get_params(self, conf_file):
+        try:
+            self.config = ConfigParser()
+            self.config.read(conf_file)
 
-	def send_files(self, src_dir, dst_dir, filestocopy):
-		with vSphere(self.path) as vm:
+            self.path = self.config.get("vms", self.name)
 
-			self._run_vm(vm, "login_in_guest", self.user, self.passwd)
+            self.snapshot = self.config.get("vm_config", "snapshot")
+            self.user = self.config.get("vm_config", "user")
+            self.passwd = self.config.get("vm_config", "passwd")
 
-			memo = []
-			for filetocopy in filestocopy:
-				d,f = filetocopy.split("/")
-				src = "%s/%s/%s" % (src_dir, d, f)
+            self.sdkhost = self.config.get("vsphere", "host")
+            self.sdkuser = self.config.get("vsphere", "user")
+            self.sdkdomain = self.config.get("vsphere", "domain")
+            self.sdkpasswd = self.config.get("vsphere", "passwd")
 
-				if d == ".":
-					dst =  "%s\\%s" % (dst_dir, f)
-				else:
-					dst =  "%s\\%s\\%s" % (dst_dir, d, f)
+        except NoSectionError:
+            logging.debug("cwd: %s" % os.getcwd())
+            logging.error("VM or VM stuff not found on %s" % conf_file)
+            raise
 
-				rdir = "%s\\%s" % (dst_dir, d)
-				if not rdir in memo:
-					print "DBG mkdir %s " % (rdir)
-					self._run_vm(vm, "make_directory", rdir)
-					memo.append( rdir )
+    #   FUNCTIONS
+    def refresh_snapshot(self, delete=True):
+        untouchables = ["ready", "activated", "_datarecovery_"]
+        date = datetime.now().strftime('%Y%m%d-%H%M')
+        self.create_snapshot(date)
+        if delete is True:
+            snap_list = self.list_snapshots()
+            for snap in snap_list[:-2]:
+                 logging.debug("should delete: %s" % snap.get_name())
+            if len(snap_list) > 0 and snap_list[-2].get_name() not in untouchables and "manual" not in snap_list[
+                -2].get_name():
+                logging.debug("deleting %s" % snap_list[-2].get_name())
+                self.delete_snapshot(snap_list[-2].get_name())
 
-				try:
-					print "DBG copy %s -> %s" % (src, dst)
-					self._run_vm(vm, "send_file", src, dst)
-				except:
-					print "DBG resending file %s -> %s" % (src, dst)
-					self._run_vm(vm, "send_file", src, dst)
+    def send_files(self, src_dir, dst_dir, filestocopy):
+        with vSphere(self.path, self.sdkhost, self.sdkuser, self.sdkdomain, self.sdkpasswd) as vm:
 
-	def get_all_pid(self):
-		pids = []
-		procs = self.list_processes()
+            self._run_vm(vm, "login_in_guest", self.user, self.passwd)
 
-		if procs is None:
-			return None
+            memo = []
+            for filetocopy in filestocopy:
+                d, f = filetocopy.split("/")
+                src = "%s/%s/%s" % (src_dir, d, f)
 
-		for proc in procs:
-			pids.append(proc['pid'])
+                if d == ".":
+                    dst = "%s\\%s" % (dst_dir, f)
+                else:
+                    dst = "%s\\%s\\%s" % (dst_dir, d, f)
 
-		return pids
+                rdir = "%s\\%s" % (dst_dir, d)
+                if not rdir in memo:
+                    logging.debug("making directory %s " % (rdir))
+                    self._run_vm(vm, "make_directory", rdir)
+                    memo.append(rdir)
 
-	def execute_cmd(self, cmd, args=[], timeout=40):
-		pid = self.start_process(cmd, args)
-		print "DBG created process %s with pid %s" % (cmd, pid)
+                try:
+                    logging.debug("copy %s -> %s" % (src, dst))
+                    self._run_vm(vm, "send_file", src, dst)
+                except:
+                    logging.debug("resending file %s -> %s" % (src, dst))
+                    self._run_vm(vm, "send_file", src, dst)
 
-		tick = 0
+    def get_all_pid(self):
+        pids = []
+        procs = self.list_processes()
 
-		while pid in self.get_all_pid():
-			if tick >= timeout * 6:
-				break
-			tick += 1
-			sleep(10)
+        if procs is None:
+            return None
 
-		print self.get_all_pid()
-		print "exiting"
+        for proc in procs:
+            pids.append(proc['pid'])
 
-	def shutdown_upgrade(self, timeout=120):
-		
-		tick = 0
+        return pids
 
-		shutdown_cmd = "C:\\WINDOWS\\system32\\shutdown.exe"
-		args = [ "/s", "/t", "0" ]
-		
-		self.execute_cmd(shutdown_cmd, args=args)
+    def execute_cmd(self, cmd, args=[], timeout=40):
+        pid = self.start_process(cmd, args)
+        logging.debug("created process %s with pid %s" % (cmd, pid))
 
-		while self.is_powered_off() is False:
-			if tick >= timeout * 60:
-				tick += 1
-				sleep(15)
-				return False
-		return True
+        tick = 0
 
-	#	TASKS
+        while pid in self.get_all_pid():
+            if tick >= timeout * 6:
+                break
+            tick += 1
+            sleep(10)
 
-	def startup(self):
-		return self._run_task("power_on")
+        logging.debug(self.get_all_pid())
+        logging.debug("exiting")
 
-	def shutdown(self):
-		return self._run_task("power_off")
+    def down_upgrade(self, timeout=120):
 
-	def suspend(self):
-		return self._run_task("suspend")
+        tick = 0
 
-	def get_snapshots(self):
-		return self._run_task("get_snapshots")
+        shutdown_cmd = "C:\\WINDOWS\\system32\\shutdown.exe"
+        args = ["/s", "/t", "0"]
 
-	def revert_last_snapshot(self):
-		return self._run_task("revert_to_snapshot")
+        self.execute_cmd(shutdown_cmd, args=args)
 
-	def create_snapshot(self, name):
-		return self._run_task("create_snapshot", name)
+        while self.is_powered_off() is False:
+            if tick >= timeout * 60:
+                tick += 1
+                sleep(15)
+                return False
+        return True
 
-	def delete_snapshot(self, name):
-		return self._run_task("delete_named_snapshot", name)
+    #   TASKS
 
-	# 	COMMANDS
+    def startup(self):
+        return self._run_task("power_on")
 
-	def is_powered_off(self):
-		return self._run_cmd("is_powered_off")
+    def reboot(self):
+        return self._run_task("reset")
 
-	def is_powered_on(self):
-		return self._run_cmd("is_powered_on")
+    def shutdown(self):
+        return self._run_task("power_off")
 
-	def login_in_guest(self):
-		return self._run_cmd("login_in_guest", self.user, self.passwd)
+    def suspend(self):
+        return self._run_task("suspend")
 
-	def list_snapshots(self):
-		return self._run_cmd("get_snapshots")
+    def get_snapshots(self):
+        return self._run_task("get_snapshots")
 
-	def start_process(self, cmd, args=[]):
-		return self._run_cmd("start_process", cmd, args)
+    def revert_last_snapshot(self):
+        return self._run_task("revert_to_snapshot")
 
-	def terminate_process(self, pid):
-		return self._run_cmd("terminate_process", pid)
+    def create_snapshot(self, name):
+        return self._run_task("create_snapshot", name)
 
-	def list_processes(self):
-		return self._run_cmd("list_processes")
+    def delete_snapshot(self, name):
+        return self._run_task("delete_named_snapshot", name)
 
-	#def check_tools(self):
-	#	self.login_in_guest()
-	#	return self.list_processes()
+    #   COMMANDS
 
-	#	VM
+    def is_powered_off(self):
+        return self._run_cmd("is_powered_off")
 
-	def list_directory(self, dir_path):
-		with vSphere(self.path) as vm:
-			self._run_vm(vm, "login_in_guest", self.user, self.passwd )
-			return self._run_vm(vm, "list_files", dir_path)
+    def is_powered_on(self):
+        return self._run_cmd("is_powered_on")
 
-	def make_directory(self, dst_dir):
-		with vSphere(self.path) as vm:
-			self._run_vm(vm, "login_in_guest", self.user, self.passwd )
-			return self._run_vm(vm, "make_directory", dst_dir)
+    def login_in_guest(self):
+    #       print "login with %s and %s" % (self.user, self.passwd)
+        return self._run_cmd("login_in_guest", self.user, self.passwd)
 
-	def send_file(self, src_file, dst_file):
-		with vSphere(self.path) as vm:
-			self._run_vm(vm, "login_in_guest", self.user, self.passwd )
-			return self._run_vm(vm, "send_file", src_file, dst_file )
+    def list_snapshots(self):
+        return self._run_cmd("get_snapshots")
 
-	def get_file(self, src_file, dst_file):
-		with vSphere(self.path) as vm:
-			self._run_vm(vm, "login_in_guest", self.user, self.passwd )
-			return self._run_vm(vm, "get_file", src_file, dst_file )
+    def start_process(self, cmd, args=[]):
+        return self._run_cmd("start_process", cmd, args)
 
-	#	PRIMITIVES
+    def terminate_process(self, pid):
+        return self._run_cmd("terminate_process", pid)
 
-	def _run_vm(self, vm, func, *params):
-		try:
-			f = getattr(vm, func)
+    def list_processes(self):
+        with vSphere(self.path, self.sdkhost, self.sdkuser, self.sdkdomain, self.sdkpasswd) as vm:
+            try:
+                self._run_vm(vm, "login_in_guest", self.user, self.passwd)
+                return self._run_vm(vm, "list_processes")
+            #            except VIApiException:
+            #                logging.error("path %s is not found on vm %s") % (dir_path, vm)
+            #                raise Exception("path %s is not found on vm %s" % (dir_path, vm))
+            except Exception as e:
+                print "EXCEPTION %s" % e
+                return None
 
-			if len(params) is None:
-				return f
-			else:
-				return f( *params )
-		except Exception as e:
-			print "%s, ERROR: Problem running %s. Reason: %s" % (self.name, func, e)
+    # def check_tools(self):
+    #   self.login_in_guest()
+    #   return self.list_processes()
 
-	def _run_cmd(self, func, *params):
-		try:
-			with vSphere(self.path) as vm:
-				f = getattr(vm, func)
+    #   VM
 
-				if len(params) is None:
-					return f
-				else:
-					return f( *params )
-		except Exception as e:
-			print "%s, ERROR: Problem running %s. Reason: %s" % (self.name, func, e)
+    def list_directory(self, dir_path):
+        with vSphere(self.path, self.sdkhost, self.sdkuser, self.sdkdomain, self.sdkpasswd) as vm:
+            try:
+                self._run_vm(vm, "login_in_guest", self.user, self.passwd)
+                return self._run_vm(vm, "list_files", dir_path)
+            #            except VIApiException:
+            #                logging.error("path %s is not found on vm %s") % (dir_path, vm)
+            #                raise Exception("path %s is not found on vm %s" % (dir_path, vm))
+            except Exception as e:
+                print "EXCEPTION %s" % e
+                return None
 
-	def _run_task(self, func, *params):
-		
-		def wait_for(task):
-			s = task.wait_for_state(['success','error'])
+    def make_directory(self, dst_dir):
+        with vSphere(self.path, self.sdkhost, self.sdkuser, self.sdkdomain, self.sdkpasswd) as vm:
+            self._run_vm(vm, "login_in_guest", self.user, self.passwd)
+            return self._run_vm(vm, "make_directory", dst_dir)
 
-			if s == 'error':
-				print "DBG ERROR: problem with task %s: %s" % (func, task.get_error_message())
-				return False
-			return True
+    def send_file(self, src_file, dst_file):
+        with vSphere(self.path, self.sdkhost, self.sdkuser, self.sdkdomain, self.sdkpasswd) as vm:
+            self._run_vm(vm, "login_in_guest", self.user, self.passwd)
+            return self._run_vm(vm, "send_file", src_file, dst_file)
 
-		try:
-			with vSphere(self.path) as vm:
-				f = getattr(vm, func)
+    def get_file(self, src_file, dst_file):
+        with vSphere(self.path, self.sdkhost, self.sdkuser, self.sdkdomain, self.sdkpasswd) as vm:
+            self._run_vm(vm, "login_in_guest", self.user, self.passwd)
+            return self._run_vm(vm, "get_file", src_file, dst_file)
 
-				if len(params) is None:
-					task = f(sync_run=False)
-				else:
-					task = f(sync_run=False, *params)
-				return wait_for(task)
-		except Exception as e:
-			print "%s, ERROR: Problem running %s. Reason: %s" % (self.name, func, e)
+    #   PRIMITIVES
 
+    def _run_vm(self, vm, func, *params):
+        try:
+            f = getattr(vm, func)
 
+            if len(params) is None:
+                return f
+            else:
+                return f(*params)
+        except Exception as e:
+            #logging.exception("%s, ERROR: Problem running %s" % (self.name, func))
+            raise
 
+    def _run_cmd(self, func, *params):
+        try:
+            with vSphere(self.path, self.sdkhost, self.sdkuser, self.sdkdomain, self.sdkpasswd) as vm:
+                f = getattr(vm, func)
 
+                if len(params) is None:
+                    return f
+                else:
+                    return f(*params)
+        except Exception as e:
+            logging.error("%s, ERROR: Problem running %s. Reason: %s" % (self.name, func, e))
+            raise
+
+    def _run_task(self, func, *params):
+
+        def wait_for(task):
+            s = task.wait_for_state(['success', 'error'])
+
+            if s == 'error':
+                logging.error("ERROR: problem with task %s: %s" % (func, task.get_error_message()))
+                return False
+            return True
+
+        try:
+            with vSphere(self.path, self.sdkhost, self.sdkuser, self.sdkdomain, self.sdkpasswd) as vm:
+                f = getattr(vm, func)
+                if len(params) is None:
+                    task = f(sync_run=False)
+                else:
+                    task = f(sync_run=False, *params)
+                return wait_for(task)
+        except Exception as e:
+            logging.error("%s, ERROR: Problem running %s. Reason: %s" % (self.name, func, e))
+            raise

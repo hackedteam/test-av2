@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<map>
+<boolean name="pua_set_tag" value="true" />
+<boolean name="antivirus_alert_status_tag" value="false" />
+<string name="welcome_description_text">Sicurezza e praticità per la protezione dalle minacce più recenti</string>
+<boolean name="antitheft_alert_status_tag" value="false" />
+<string name="welcome_title_text">Protezione senza sforzi</string>
+<boolean name="adware_set_tag" value="true" />
+<boolean name="scan_result_alert_status_tag" value="true" />
+<string name="cleanAppList">com.accati.wifichangestatus,com.antivirus,com.accati.wifichangestatus,com.antivirus,com.accati.wifichangestatus,com.antivirus,com.accati.wifichangestatus,com.antivirus</string>
+<int name="app_startup_current_state" value="1007" />
+<long name="nextVdfCheck" value="1402748263235" />
+<boolean name="device_admin_alert_status_tag" value="false" />
+</map>

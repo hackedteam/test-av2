@@ -7,40 +7,42 @@
         <h1>{{ title }}</h1>
     </div>
     <table class="table table-striped table-bordered">
-    	<tr>
-    		<td width="70%">
+        <tr>
+            <td width="70%">
 
-				<h3>{{ result.vm_name }}, <i>{{ result.kind }}</i></h3>
-				<p>Full Results:<br />
-				<ul>
-				{% for result in result.result %}
-					<li>{{ result }}</li>
-				{% endfor %}
-				</ul><br />
-				<b>logs:</b><br />
-				<ul>
+                <h3>{{ result.vm_name }}, <i>{{ result.kind }}</i></h3>
 
-				{% if result.log %}
-				{% for log in result.log %}
-					<li>{{ log }}</li>
-				{% endfor %}
-				{% endif %}
-				</ul></p>
-			</td>
+                <p>Full Results:<br/>
+                <ul>
+                    {% for result in result.result %}
+                    <li>{{ result }}</li>
+                    {% endfor %}
+                </ul>
+                <br/>
+                <b>logs:</b><br/>
 
-			<td> 
-				<p><b>Screenshot</b><br />
-					<a href="/report/{{ result.test_id }}/result/{{ result.vm_name }}/{{ result.kind }}/image" border=0><img src="data:image/png;base64,{{ result.scrshot }}" border=0 width=300 height=300></a>
-				</p> 
-				{% if sample %}
+                {% if result.log %}
+                {% for log in result.log %}
+                {{ log }}<br/>
+                {% endfor %}
+                {% endif %}
+                </p>
+            </td>
 
-				<p><b>Sample</b></br>
-					<a href="/report/{{ result.test_id }}/result/{{ result.vm_name }}/{{ result.kind }}/sample">Download</a>
-				</p>
+            <td>
+                <p><b>Screenshot</b><br/>
+                    <a href="/report/{{ result.test_id }}/result/{{ result.vm_name }}/{{ result.kind }}/image" border=0><img
+                            src="data:image/png;base64,{{ result.scrshot }}" border=0 width=300 height=300></a>
+                </p>
+                {% if sample %}
 
-				{% endif %}
-			</td>
-		</tr>
-	</table>
+                <p><b>Sample</b></br>
+                    <a href="/report/{{ result.test_id }}/result/{{ result.vm_name }}/{{ result.kind }}/sample">Download</a>
+                </p>
 
-{% endblock %}
+                {% endif %}
+            </td>
+        </tr>
+    </table>
+
+    {% endblock %}

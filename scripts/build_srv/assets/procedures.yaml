@@ -1,0 +1,6 @@
+
+BUILD_ELITE:
+    - BUILD: [ elite, windows, silent ]
+
+BUILD_SCOUT:
+    - BUILD: [ elite, windows, silent ]

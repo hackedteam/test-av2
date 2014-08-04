@@ -1,0 +1,31 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<map>
+<long name="drawerUsed" value="1402061693832" />
+<long name="installation_guid" value="1402060223062" />
+<long name="paAdRepDone" value="1402060469457" />
+<long name="gLastSeenVersion" value="1402060227378" />
+<long name="appLaunches" value="1402061659925" />
+<long name="gInstallAntiTheftNotificationTime" value="1402060236652" />
+<long name="communityIQEnabled" value="1402060235065" />
+<long name="gVirusScannerReminderAppsNotificationTime" value="1402060227121" />
+<long name="gAnalyticsFailedVPSUpdatesDownloadedBytes" value="1402060468961" />
+<long name="gSettingsNextUpdate" value="1402061660864" />
+<long name="scannedAppsTotal" value="1402061749286" />
+<long name="amsLastUpdateTime" value="1402060227220" />
+<long name="gSettingsAutoUpdateOnMobile" value="1402061703294" />
+<long name="lastActiveUserTrack" value="1402060230099" />
+<long name="oemPartner" value="1402061660723" />
+<long name="eulaDone2" value="1402060236064" />
+<long name="gSettingsGlobalActivityLogExternal" value="1402061722093" />
+<long name="gVirusScannerReminderFilesNotificationTime" value="1402060227158" />
+<long name="welcomePremiumShown" value="1402061736952" />
+<long name="gConnectivityStateChangedReceiverEnabled" value="1402061660891" />
+<long name="settingsScanExternal" value="1402061663394" />
+<long name="gPinTimeout" value="1402061696200" />
+<long name="gAnalyticsFailedVPSUpdates" value="1402060468923" />
+<long name="guid" value="1402060228617" />
+<long name="gAmsUpdatedNotificationScheduledNumber" value="1402060226907" />
+<long name="gAmsUpdatedNotificationTime" value="1402060226866" />
+<long name="globalActivityLogLastId" value="1402061744453" />
+<long name="gSettingsFileShieldReadEnabled" value="1402060227427" />
+</map>

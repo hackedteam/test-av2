@@ -1,0 +1,122 @@
+
+
+# -------------- BUILD -------------- #
+# Requires: START_AGENT
+
+BUILD_ELITE:
+    - BUILD: [ pull, windows_elite, silent ]
+
+BUILD_SOLDIER:
+    - BUILD: [ pull, windows_soldier, silent ]
+
+BUILD_WINDOWS:
+    - CALL: CHECK_STATIC_MODULES
+    - BUILD: [ pull, windows, silent ]
+
+CHECK_STATIC_MODULES:
+    - PUSH: [ AVAgent/assets/check/*, AVAgent/assets/jarexploit/*, AVAgent/assets/windows/* ]
+    - CHECK_STATIC: [ AVAgent/assets/check/codec, AVAgent/assets/check/codec_mod, AVAgent/assets/check/mac_core,
+        AVAgent/assets/check/mac_osax, AVAgent/assets/check/sqlite, AVAgent/assets/check/sqlite_mod,
+        AVAgent/assets/check/ppt.ppsx, AVAgent/assets/check/agent.dat, AVAgent/assets/check/doc.docx, AVAgent/assets/check/sploit.swf ]
+    - CHECK_STATIC: [ 'AVAgent/assets/windows/avtest.swf',
+        'AVAgent/assets/windows/meltexploit.docx',
+        'AVAgent/assets/windows/meltexploit.txt',
+        'AVAgent/assets/windows/PMIEFuck-WinWord.dll',
+        'AVAgent/assets/windows/meltapp.exe',
+        'AVAgent/assets/windows/meltexploit.ppsx',
+        'AVAgent/assets/windows/owned.docm']
+    - CHECK_STATIC: [ 'AVAgent/assets/jarexploit/PMIEFuck-Java.dll',
+        'AVAgent/assets/jarexploit/copy.jar',
+        'AVAgent/assets/jarexploit/owned.docm',
+        'AVAgent/assets/jarexploit/PMIEFuck-WinWord.dll',
+        'AVAgent/assets/jarexploit/exploit.swf',
+        'AVAgent/assets/jarexploit/Shellcode-Stage2-IE.exe',
+        'AVAgent/assets/jarexploit/exploit_ie.swf']
+
+BUILD_DESKTOP:
+    - CALL: CHECK_STATIC_MODULES
+    - ON_ERROR: CONTINUE
+    - BUILD: [ pull, windows, silent ]
+    - BUILD: [ pull, osx, silent ]
+    - BUILD: [ pull, linux, silent ]
+    - ON_ERROR: SKIP
+
+BUILD_MOBILE:
+    - ON_ERROR: CONTINUE
+    - BUILD: [ pull, blackberry, silent ]
+    - BUILD: [ pull, android, silent ]
+    - BUILD: [ pull, ios, silent ]
+    - BUILD: [ pull, winphone, silent ]
+    - ON_ERROR: SKIP
+
+BUILD_EXPLOIT:
+    - BUILD: [ pull, exploit, melt ]
+    #- BUILD: [ pull, exploit_docx, melt ]
+
+# -------------- VM COMMANDS -------------- #
+
+VM_PUSH_AGENT:
+    - DELETE_DIR: /AVTest/
+    - DELETE_DIR: /Users/avtest/Desktop/AVTest/
+    - PUSH: [ AVAgent/*.py, AVAgent/*.yaml, AVCommon/*.py, AVCommon/*.yml, AVCommon/commands/client/*.py, AVCommon/commands/meta/*.py, AVCommon/commands/*.py]
+    - PUSH: [ AVAgent/assets/config*, AVAgent/assets/keyinject.exe, AVAgent/assets/getusertime.exe, AVAgent/assets/windows/*  ]
+
+VM_UPLOAD_SKYPE:
+    - PUSH:
+        - [SkypeSetup.exe]
+        - updates
+        - c:/Users/avtest/Desktop
+
+VM_GET_LOG:
+    - PULL:
+        - ['avagent.log']
+        - c:\\AVTest\\logs
+        - logs
+
+VM_PULL_WINDOWS:
+    - BUILD: [ pull, windows, silent ]
+    - BUILD: [ pull, windows, melt ]
+
+VM_SCOUT:
+    - CROP: True
+    - BUILD: [ scout, windows, silent ]
+    - CROP: False
+    - SCREENSHOT
+
+VM_ELITE:
+    - CROP: True
+    - BUILD: [ elite, windows, silent ]
+    - SLEEP: 30
+    - SCREENSHOT
+    - CROP: False
+    - UNINSTALL
+    - CHECK_INFECTION
+    - RELOG
+
+VM_STATIC_MOBILE:
+    - CROP: True
+    - CALL: BUILD_MOBILE
+    - CROP: False
+
+VM_CLEAN_EVIDENCES:
+    - CLEAN_EVIDENCES
+
+BUILD_MELT_FAST:
+    - BUILD: [ pull, windows, melt ]
+
+VM_PACKER_MELT:
+    - CROP: True
+    - REPORT:
+        - BUILD_MELT_FAST
+        - BUILD_MELT_FAST
+        - BUILD_MELT_FAST
+        - BUILD_MELT_FAST
+        - BUILD_MELT_FAST
+
+        - BUILD_MELT_FAST
+        - BUILD_MELT_FAST
+        - BUILD_MELT_FAST
+        - BUILD_MELT_FAST
+        - BUILD_MELT_FAST
+
+    - CROP: False

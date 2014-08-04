@@ -1,0 +1,14 @@
+
+avagent:
+    - default set file, can be overridden by SET: blacklist, server, ...
+    - no session in receive channel, so that the "session" represents the server side and it can be changed by command
+
+
+core:
+    - PUSH and PULL, if agent is up and running, can be faster, using a zipped channel.
+        + SHUTDOWN should consider a timeout, after that, proceed with the vmrun
+    - elite check: avgscanx.exe
+
+android:
+    - http://www.xda-developers.com/android/automated-device-lets-you-automate-your-android-device-with-rules/
+

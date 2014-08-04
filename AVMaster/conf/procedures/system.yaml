@@ -1,0 +1,452 @@
+# ------------ FOGLIO DI STILE -------------- #
+
+# 3 livelli: SYSTEM, VM, AGENT
+# SYSTEM: // opzionale START_VM + STOP_VM
+#    - INIT_
+#    - END_
+#    - SYSTEM_
+# VM: // no START_VM, si' opzionale: START_AGENT + STOP_AGENT
+#   - VM
+# AGENT: // no START_VM, no START_AGENT
+#   - AG_
+#   - CHECK_
+#   - *
+
+# ----------- PARTIAL COMMANDS -------------- #
+
+INIT_DISPATCH:
+    - INTERNET: False
+    - REVERT
+    - START_VM: AV_AGENT
+
+END_DISPATCH:
+    - STOP_VM: 60
+
+# -------------- SERVER SET -------------- #
+
+SET_MAIL:
+    - SET_SERVER:
+        mail_recipients: [zeno@hackingteam.com, seppia@hackingteam.com, m.losito@hackingteam.com]
+
+# ------------- SYSTEM COMMANDS -------------- #
+
+VM_EXEC_SOLDIER:
+    - CROP: True
+    - CALL: BUILD_SOLDIER
+    - EXECUTE_VM: [ /AVTest/AVAgent/build/windows_elite/agent.exe, [], 40, True, True ]
+    - SLEEP: 60
+    #- CHECK_INFECTION: STOP_IF_CLEAN
+    - CROP: False
+
+
+SYSTEM_SOLDIER_BASIC:
+    - VM_ALL
+    - INTERNET: False
+    - SLEEP: [10, 60]
+    - START_VM
+    - CALL: VM_PUSH_AGENT
+    - INSTALL_AGENT
+    - SLEEP: 10
+    - RELOG
+
+    - CALL: SET_MAIL
+    - REPORT:
+        - VM_EXEC_SOLDIER: ['AV Invisibility', 'Soldier']
+    - UNINSTALL
+    - STOP_VM: 60
+
+SYSTEM_STATIC_WINDOWS:
+    - VM_ALL
+    - INTERNET: False
+    - SLEEP: [10, 120]
+    - CALL: INIT_DISPATCH
+    - CROP: True
+    - CALL: SET_MAIL
+    - REPORT:
+        - BUILD_WINDOWS
+    - CROP: False
+    - CALL: END_DISPATCH
+
+SYSTEM_STATIC_MOBILE:
+    - VM_ALL: IMPORTANT
+    - INTERNET: False
+    - SLEEP: [0, 600]
+    - CALL: INIT_DISPATCH
+    - CLEAN_EVIDENCES
+    - CROP: True
+    - REPORT:
+        - BUILD_MOBILE
+    - CROP: False
+    - CALL: END_DISPATCH
+
+REVERT:
+    - VM_ALL
+    - INTERNET: False
+    - SLEEP: [1, 10]
+    - REVERT
+
+SYSTEM_START:
+    - VM_ALL
+    - INTERNET: False
+    - SLEEP: [1, 60]
+    - START_VM
+
+SYSTEM_STOP:
+    - VM_ALL
+    - STOP_VM: 60
+
+# ------------  #
+
+VM_ELITE_FAST:
+    - CALL: INIT_DISPATCH
+
+    - BUILD: [ scout, windows, silent ]
+    - SLEEP: 30
+    - RELOG
+
+    - ON_ERROR: CONTINUE
+    - CROP: True
+    - BUILD: [ elite_fast, windows, silent ]
+    - CROP: False
+    - ON_ERROR: SKIP
+
+    #- UNINSTALL
+    #- RELOG
+
+VM_SOLDIER:
+    - CALL: INIT_DISPATCH
+
+    - BUILD: [ scout, windows, silent ]
+    - SLEEP: 30
+    - RELOG
+
+    - ON_ERROR: CONTINUE
+    - CROP: True
+    - BUILD: [ soldier_fast, windows, silent ]
+    - CROP: False
+    - ON_ERROR: SKIP
+
+    #- UNINSTALL
+    #- RELOG
+
+VM_MELT:
+    - CALL: INIT_DISPATCH
+
+    - BUILD: [ scout, windows, melt ]
+    - UNINSTALL
+    - SCREENSHOT
+    #- RELOG
+
+VM_EXPLOIT:
+    - ON_ERROR: CONTINUE
+    - CALL: INIT_DISPATCH
+
+    - BUILD: [ pull, exploit, melt ]
+    - BUILD: [ pull, exploit_avi, melt ]
+    #- BUILD: [ pull, exploit_bmp, melt ]
+    - BUILD: [ pull, exploit_eml, melt ]
+    #- BUILD: [ pull, exploit_gif, melt ]
+    #- BUILD: [ pull, exploit_html, melt ]
+    - BUILD: [ pull, exploit_jpg, melt ]
+    #- BUILD: [ pull, exploit_mp3, melt ]
+    #- BUILD: [ pull, exploit_png, melt ]
+    - BUILD: [ pull, exploit_vsd, melt ]
+    - BUILD: [ pull, exploit_doc, melt ]
+    - BUILD: [ pull, exploit_ppt, melt ]
+    - BUILD: [ pull, exploit_xls, melt ]
+    #- BUILD: [ pull, exploit_rtf, melt ]
+    #- BUILD: [ pull, exploit_exe, melt ]
+    - BUILD: [ pull, exploit_zip, melt ]
+    - BUILD: [ pull, exploit_rar, melt ]
+    - BUILD: [ pull, exploit_pdf, melt ]
+
+    - BUILD: [ scout, selfdel_exploit, melt ]
+
+    #- UNINSTALL
+    #- RELOG
+
+
+VM_STATIC:
+    - CROP: True
+    - ON_ERROR: CONTINUE
+    - CALL: BUILD_DESKTOP
+    - CALL: BUILD_MOBILE
+    - CALL: BUILD_EXPLOIT
+    - CROP: False
+    - ON_ERROR: SKIP
+
+
+SYSTEM_STATIC:
+    - VM_ALL
+    - ON_ERROR: SKIP
+    - SLEEP: [10, 600]
+    - CALL: INIT_DISPATCH
+    - CALL: VM_CLEAN_EVIDENCES
+    - CALL: SET_MAIL
+    - CROP: True
+    - REPORT:
+        - VM_STATIC: ['AV Invisibility Static', 'Static check on builds']
+    - CROP: False
+    - CALL: END_DISPATCH
+
+SYSTEM_MELT:
+    - VM_ALL
+    - ON_ERROR: SKIP
+    - SLEEP: [10, 600]
+    - CALL: INIT_DISPATCH
+    - CALL: VM_CLEAN_EVIDENCES
+    - CALL: SET_MAIL
+    - REPORT:
+        - VM_MELT: ['AV Invisibility', 'Melt']
+    - SCREENSHOT
+    - UNINSTALL
+    - CALL: END_DISPATCH
+
+SYSTEM_ELITE_FAST:
+    - VM_ALL
+    - ON_ERROR: SKIP
+    - SLEEP: [10, 600]
+    - CALL: INIT_DISPATCH
+    - CALL: VM_CLEAN_EVIDENCES
+    - CALL: SET_MAIL
+    - REPORT:
+        - VM_ELITE_FAST: ['AV Invisibility', 'Elite']
+    - SCREENSHOT
+    - UNINSTALL
+    - CALL: VM_GET_LOG
+    - CALL: END_DISPATCH
+
+
+SYSTEM_ELITE:
+    - VM_ALL
+    - ON_ERROR: SKIP
+    - SLEEP: [10, 600]
+    - CALL: INIT_DISPATCH
+    - CALL: VM_CLEAN_EVIDENCES
+    - CALL: SET_MAIL
+    - REPORT:
+        - VM_ELITE: ['AV Invisibility', 'Elite']
+    - SCREENSHOT
+    - UNINSTALL
+    - CALL: END_DISPATCH
+
+SYSTEM_SOLDIER:
+    - VM_ALL
+    - ON_ERROR: SKIP
+    - SLEEP: [10, 600]
+    - CALL: INIT_DISPATCH
+    - CALL: VM_CLEAN_EVIDENCES
+    - CALL: SET_MAIL
+    - REPORT:
+        - VM_SOLDIER: ['AV Invisibility', 'Soldier']
+    - SCREENSHOT
+    - UNINSTALL
+    - CALL: VM_GET_LOG
+    - CALL: END_DISPATCH
+
+SYSTEM_EXPLOIT:
+    - VM_ALL
+    - ON_ERROR: SKIP
+    - SLEEP: [10, 600]
+    - CALL: INIT_DISPATCH
+    - CALL: VM_CLEAN_EVIDENCES
+    - CALL: SET_MAIL
+    - REPORT:
+        - VM_EXPLOIT: ['AV Invisibility', 'Exploit']
+    - SCREENSHOT
+    - UNINSTALL
+    - CALL: VM_GET_LOG
+    - CALL: END_DISPATCH
+
+SYSTEM_DAILY:
+    - VM_ALL
+    - ON_ERROR: SKIP
+    - SLEEP: [10, 600]
+    - CALL: INIT_DISPATCH
+    - CALL: VM_CLEAN_EVIDENCES
+    - CALL: SET_MAIL
+    - REPORT:
+        - VM_STATIC: ['AV Invisibility Static', 'Static check on builds']
+        - VM_SOLDIER: ['AV Invisibility', 'Soldier']
+        - VM_ELITE_FAST: ['AV Invisibility', 'Elite']
+        - VM_MELT: ['AV Invisibility', 'Melt']
+        - VM_EXPLOIT: ['AV Invisibility', 'Exploit']
+    - UNINSTALL
+    - CALL: VM_GET_LOG
+    - CALL: END_DISPATCH
+
+SYSTEM_DAILY_FAST:
+    - VM_ALL
+    - ON_ERROR: SKIP
+    - SLEEP: [10, 600]
+    - CALL: INIT_DISPATCH
+    - CALL: VM_CLEAN_EVIDENCES
+    - CALL: SET_MAIL
+    - REPORT:
+        #- VM_STATIC: ['AV Invisibility Static', 'Static check on builds']
+        #- VM_SOLDIER: ['AV Invisibility', 'Soldier']
+        #- VM_ELITE_FAST: ['AV Invisibility', 'Elite']
+        #- VM_MELT: ['AV Invisibility', 'Melt']
+        - VM_EXPLOIT: ['AV Invisibility', 'Exploit']
+
+    - UNINSTALL
+    - CALL: VM_GET_LOG
+    - CALL: END_DISPATCH
+
+SYSTEM_DAILY_POSITIVE:
+    - VM_ALL
+    - ON_ERROR: SKIP
+    - SLEEP: [10, 600]
+    - CALL: INIT_DISPATCH
+    - CALL: VM_CLEAN_EVIDENCES
+    - CALL: SET_MAIL
+    - REPORT:
+        - VM_STATIC: ['AV Invisibility Static', 'Static check on builds']
+        - VM_ELITE_FAST: ['AV Invisibility', 'Elite']
+        - VM_MELT: ['AV Invisibility', 'Melt']
+        - VM_EXPLOIT: ['AV Invisibility', 'Exploit']
+        - SYS_PUSH_VIRUS: ['AVM Update', 'Positive static check', INVERT]
+    - UNINSTALL
+    - CALL: END_DISPATCH
+
+# ------------  #
+
+SYS_PUSH_VIRUS:
+    - ON_ERROR: CONTINUE
+    - SLEEP: 30
+    - CROP: True
+    - PUSH: [ AVAgent/assets/vira/conficker.dll, AVAgent/assets/vira/eicar.com ]
+    - SLEEP: 30
+    - CHECK_STATIC: [ AVAgent/assets/vira/conficker.dll, AVAgent/assets/vira/eicar.com ]
+    - SLEEP: 10
+    - CROP: False
+
+SYSTEM_POSITIVE:
+    - VM_ALL
+    - ON_ERROR: SKIP
+    - SLEEP: [10, 600]
+    - CALL: INIT_DISPATCH
+    - CALL: SET_MAIL
+    - REPORT:
+        - SYS_PUSH_VIRUS: ['AVM Update', 'Positive static check', INVERT]
+    - UNINSTALL
+    - CALL: END_DISPATCH
+
+SYSTEM_MANUAL:
+    #- START_VM: AV_AGENT
+    #- SLEEP: [30, 120]
+
+    - BUILD: [ pull, exploit, melt ]
+    - BUILD: [ pull, selfdel_exploit, melt ]
+    - BUILD: [ pull, windows, melt ]
+    - RELOG
+    - BUILD: [ scout, windows, silent ]
+
+SYSTEM_W81:
+    - REVERT
+    - SLEEP: [5, 60]
+
+    - START_VM
+    - CALL: VM_PUSH_AGENT
+    - START_AGENT: 172.20.20.168
+    - SET:
+        backend: 192.168.100.201
+        frontend: 192.168.100.204
+
+    - BUILD: [ pull, windows, silent ]
+
+S_W81:
+    - SET:
+        nointernetcheck: [funwin81]
+
+    - BUILD: [ pull, windows, silent ]
+
+# ---------------- #
+
+VM_PUSH_EXE:
+    - PUSH: [ assets/agent_no_vm.exe ]
+    - CROP: True
+    - EXECUTE_VM: [ /avtest/assets/agent_no_vm.exe, [], 40, True, True ]
+    - SLEEP: 120
+    - CROP: False
+    - CHECK_INFECTION: STOP_IF_CLEAN
+
+VM_PUSH_S_EXE:
+    - PUSH: [ assets/agent_s_no_vm.exe ]
+    - CROP: True
+    - EXECUTE_VM: [ /avtest/assets/agent_s_no_vm.exe, [], 40, True, True ]
+    - SLEEP: 120
+    - CROP: False
+    - CHECK_INFECTION: STOP_IF_CLEAN
+
+VM_PUSH_T_EXE:
+    - PUSH: [ assets/agent_themida.exe ]
+    - CROP: True
+    - EXECUTE_VM: [ /avtest/assets/agent_themida.exe, [], 40, True, True ]
+    - SLEEP: 60
+    - CROP: False
+    - SLEEP: 300
+    - EXECUTE_VM: [ /avtest/avagent/assets/keyinject.exe, [], 40, True, True ]
+    - SLEEP: 10
+    - EXECUTE_VM: [ /avtest/avagent/assets/keyinject.exe, [], 40, True, True ]
+    - SLEEP: 10
+    - EXECUTE_VM: [ /avtest/avagent/assets/keyinject.exe, [], 40, True, True ]
+    - SCREENSHOT
+
+SYSTEM_PUSH_EXE:
+    - VM_ALL
+    - ON_ERROR: SKIP
+    - SLEEP: [10, 600]
+    - CALL: INIT_DISPATCH
+    - CALL: SET_MAIL
+    - REPORT:
+        - VM_PUSH_T_EXE
+    - CALL: VM_GET_LOG
+    - CALL: END_DISPATCH
+
+# ---------------- #
+
+VM_FUNCTIONAL_EV:
+    - CHECK_EVIDENCES: [device]
+    - CHECK_EVIDENCES: [url]
+    - CHECK_EVIDENCES: [screenshot]
+
+VM_FUNCTIONAL_CHAT_FB:
+    - SLEEP: 60
+    - CHECK_EVIDENCES: [chat, program, facebook]
+
+VM_FUNCTIONAL_ADDRESSBOOK_FB:
+    - SLEEP: 60
+    - CHECK_EVIDENCES: [addressbook, program, facebook]
+
+VM_FUNCTIONAL_EV_SKYPE:
+    - SLEEP: 60
+    #- CHECK_EVIDENCES: [chat, program, skype]
+    - CHECK_EVIDENCES: [addressbook, program, skype]
+    - CHECK_EVIDENCES: [call, program, skype]
+
+VM_FUNCTIONAL_EXPLOIT_NOBUILD:
+    - ON_ERROR: CONTINUE
+    - BUILD: [ pull, exploit_docx, melt ]
+    - BUILD: [ pull, exploit_ppsx, melt ]
+    - BUILD: [ pull, exploit_web, melt ]
+    - ON_ERROR: SKIP
+
+SYSTEM_FUNCTIONAL_FAST:
+    #- START_AGENT: 172.20.20.168
+    #- CALL: SET_DEFAULTS_FUNCTIONAL
+    - REPORT:
+        - VM_FUNCTIONAL_CHAT_FB
+        - VM_FUNCTIONAL_ADDRESSBOOK_FB
+
+
+VM_FUNCTIONAL_SKYPE:
+    - VM: [ funie ]
+    - CALL: SET_MAIL
+
+    - PUSH: [ AVAgent/assets/skype.bat ]
+    - EXECUTE_VM: [ /AVTest/AVAgent/assets/skype.bat, [], 40, True, True ]
+    - SLEEP: 120
+
+    - REPORT:
+        - VM_FUNCTIONAL_EV_SKYPE: ['Functional testing', 'Skype Chat']

@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<map>
+<boolean name="show_skip" value="true" />
+<int name="first_screen" value="2" />
+<int name="second_screen" value="0" />
+<boolean name="onboarding_comm_client_key" value="false" />
+<string name="analytics_const">default</string>
+</map>

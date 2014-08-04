@@ -1,0 +1,90 @@
+Comandi:
+
+DONE - INSTALL
+     install(apk_id, dev)
+     install_agent(dev)
+     Nota: l'install installa anche l'eventuale configurazione definita nell'apk_dataloader.
+          La confiurazione puo' essere definita come singoli files o come zip (ma non entrambi i metodi)
+
+DONE - SET, SET_SERVER -> GET, GET_SERVER
+
+    get_server(context_element)
+    set_server(context_elements)
+    get_client(context_element)
+    set_client(context_elements)
+
+DONE - BUILD
+     def build_apk(kind, srv, factory)
+     Nota: Matteo
+
+DONE - UNINSTALL
+     uninstall(apk_id, dev)
+     uninstall_agent(dev)
+     Nota: (per l'agente fa anche: rm -r /sdcard/.lost.found, rm -r /data/data/com.android.dvci)
+
+DONE - EXECUTE
+     def execute(apk_id, dev):
+     Nota: attualmente segue sempre solo l'activity definita come starting activity nell'apk_dataloader.
+           Implementare un'execute generica e' molto smplice ma tende a spargere in giro activity da lanciare...
+           Piuttosto possiamo arricchire l'apk_dataloader con altre activity (gli AV ne hanno gia' una in piu' ma non viene usata)
+
+DONE - CHECK_EVIDENCES
+     check_evidences(backend, type_ev, key=None, value=None, imei=None)
+     Nota: Matteo
+
+DONE - WIFI(network_conf) [CLIENT]
+    wifi(dev, mode)
+    Nota: Per imitare il funzionamento di INTERNET.py, accetta mode che indica la modalita'
+    # mode: open is a net open to internet, av is open only to our servers, every other mode disables wifi
+
+DONE - CHECK_CONNECTION() [CLIENT]
+    info_wifi_network(dev):
+    Nota: this checks which wifi network is active and return the SSID
+    can_ping_google(dev)
+    Nota: this tries to ping google's ip (173.194.35.114) twice and checks result
+
+DONE - CHECK_INFECTION()
+    check_su_permissions(dev)
+    superuserutils.check_su_permissions(dev)
+    Nota: ho implementato due check diverse -> vedere come usarle per essere aderenti agli attuali commands
+
+DONE: INIT_DEVICE(): prepara ambiente, installs busybox executable, "root” device)
+    init_device(dev)
+    Nota: Qui bisognerebbe vedere i casi di errore. Per ora in caso i errore -> exit()
+
+DONE: RESET_DEVICE(pulisce il device riportandolo a prima di INIT_DEVICE())
+    def reset_device(dev)
+
+DONE - PULL(src_files[], src_dir, dest_dir)
+    pull(src_files, src_dir, dst_dir, dev)
+    Note:  Si possono copiare n files da una singola cartella remota, verso una singola cartella locale.
+           Utilizza sempre il root
+           Per copiare una cartella si puo' integrare l' adb.pack_remote_to_local
+
+DONE - PUSH(couple_src_dest[])
+    def push(src_files, src_dir, dst_dir, dev):
+    Nota:  Per copiare una cartella si puo' integrare l' adb.unpack_local_to_remote
+
+
+TODO: UPDATE()
+     - Aggiorna l'antivirus, le apps, il so (procedura semiautomatica)
+     Nota: Per ora ci sono queste 2 funzionalita'
+       testtools.get_config(device, av)
+       testtools.get_apk(device, av)
+
+DONE: Macro:
+INFECT():BUILD(), INSTALL(),…
+-install
+    install(apk_id, dev)
+-infect
+    Facilmente creabile una macro con:
+    install_agent(dev)
+    e
+    execute_agent(dev)
+
+-build
+    build_apk(kind, srv, factory):
+
+
+TODO:
+gestione del logging

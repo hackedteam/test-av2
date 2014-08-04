@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<map>
+<boolean name="trial_ended_activity" value="true" />
+<string name="alreadyTakenTrialVersion">3.8.6.1533</string>
+<string name="reset_trial_version">3.8.5</string>
+<int name="initial_trial_days" value="30" />
+</map>

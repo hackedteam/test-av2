@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<map>
+<boolean name="drawerUsed" value="true" />
+<string name="installation_guid">356ac0cd-53f7-45f3-95ab-eb51c8a2dd97</string>
+<boolean name="paAdRepDone" value="false" />
+<string name="gLastSeenVersion">3.0.7550</string>
+<int name="appLaunches" value="1" />
+<long name="gInstallAntiTheftNotificationTime" value="1402146636298" />
+<boolean name="communityIQEnabled" value="false" />
+<long name="gVirusScannerReminderAppsNotificationTime" value="1403269827097" />
+<long name="gAnalyticsFailedVPSUpdatesDownloadedBytes" value="0" />
+<long name="gSettingsNextUpdate" value="1402076060844" />
+<int name="scannedAppsTotal" value="14" />
+<long name="amsLastUpdateTime" value="1402060227196" />
+<boolean name="gSettingsAutoUpdateOnMobile" value="false" />
+<long name="lastActiveUserTrack" value="1402048800000" />
+<string name="oemPartner"></string>
+<boolean name="eulaDone2" value="true" />
+<boolean name="gSettingsGlobalActivityLogExternal" value="true" />
+<long name="gVirusScannerReminderFilesNotificationTime" value="1403269827097" />
+<boolean name="gConnectivityStateChangedReceiverEnabled" value="false" />
+<boolean name="settingsScanExternal" value="true" />
+<int name="gPinTimeout" value="5000" />
+<int name="gAnalyticsFailedVPSUpdates" value="0" />
+<string name="guid">356ac0cd-53f7-45f3-95ab-eb51c8a2dd97</string>
+<int name="gAmsUpdatedNotificationScheduledNumber" value="1" />
+<long name="gAmsUpdatedNotificationTime" value="1402146626848" />
+<long name="globalActivityLogLastId" value="8" />
+<boolean name="gSettingsFileShieldReadEnabled" value="false" />
+</map>
