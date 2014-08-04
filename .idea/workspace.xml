@@ -5,9 +5,7 @@
     <option name="CUSTOM_SCOPE_NAME" value="Changed Files" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4052f9d9-3c11-47a0-a6cc-5122f61c053e" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/AVAgent/conf/vmavtest.cfg" afterPath="$PROJECT_DIR$/AVAgent/conf/vmavtest.cfg" />
-    </list>
+    <list default="true" id="4052f9d9-3c11-47a0-a6cc-5122f61c053e" name="Default" comment="" />
     <ignored path="RCSAVTest.iws" />
     <ignored path=".idea/workspace.xml" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -56,9 +54,7 @@
         <entry file="file://$PROJECT_DIR$/AVMaster/master.py">
           <provider selected="true" editor-type-id="text-editor">
             <state line="433" column="11" selection-start="13882" selection-end="13882" vertical-scroll-proportion="0.0" vertical-offset="6315" max-vertical-offset="12645">
-              <folding>
-                <element signature="e#0#15#0" expanded="true" />
-              </folding>
+              <folding />
             </state>
           </provider>
         </entry>
@@ -66,7 +62,7 @@
       <file leaf-file-name="vmavtest.cfg" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/AVAgent/conf/vmavtest.cfg">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="6" column="1" selection-start="138" selection-end="138" vertical-scroll-proportion="0.15437393" vertical-offset="0" max-vertical-offset="583">
+            <state line="6" column="1" selection-start="138" selection-end="138" vertical-scroll-proportion="0.08866995" vertical-offset="0" max-vertical-offset="1015">
               <folding />
             </state>
           </provider>
@@ -140,10 +136,10 @@
     <scope name="Common" pattern="" />
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="1345" />
-    <option name="y" value="22" />
-    <option name="width" value="1203" />
-    <option name="height" value="706" />
+    <option name="x" value="79" />
+    <option name="y" value="203" />
+    <option name="width" value="2240" />
+    <option name="height" value="1138" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="false">
     <OptionsSetting value="true" id="Add" />
@@ -182,6 +178,30 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
             </PATH_ELEMENT>
           </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="RCSAVTest" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="AVTest" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="RCSAVTest" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="AVTest" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="AVAgent" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
         </subPane>
       </pane>
     </panes>
@@ -189,14 +209,14 @@
   <component name="PropertiesComponent">
     <property name="options.splitter.main.proportions" value="0.3" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="options.lastSelected" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
-    <property name="recentsLimit" value="5" />
     <property name="TODO_SCOPE" value="Project Files" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/tests" />
+    <property name="recentsLimit" value="5" />
+    <property name="options.lastSelected" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
     <property name="restartRequiresConfirmation" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/tests" />
     <property name="FullScreen" value="false" />
-    <property name="options.splitter.details.proportions" value="0.2" />
     <property name="options.searchVisible" value="true" />
+    <property name="options.splitter.details.proportions" value="0.2" />
   </component>
   <component name="PyConsoleOptionsProvider">
     <option name="myPythonConsoleState">
@@ -494,13 +514,13 @@
       <method />
     </configuration>
     <list size="7">
-      <item index="0" class="java.lang.String" itemvalue="Python.test_vm_agent" />
-      <item index="1" class="java.lang.String" itemvalue="Python tests.Tests" />
-      <item index="2" class="java.lang.String" itemvalue="Python.av_agent" />
-      <item index="3" class="java.lang.String" itemvalue="Python.test_vm_commands" />
-      <item index="4" class="java.lang.String" itemvalue="Python.test_avagent" />
-      <item index="5" class="java.lang.String" itemvalue="Python.test_command" />
-      <item index="6" class="java.lang.String" itemvalue="Python.test_protocol" />
+      <item index="0" class="java.lang.String" itemvalue="Python.av_agent" />
+      <item index="1" class="java.lang.String" itemvalue="Python.test_vm_commands" />
+      <item index="2" class="java.lang.String" itemvalue="Python.test_avagent" />
+      <item index="3" class="java.lang.String" itemvalue="Python.test_command" />
+      <item index="4" class="java.lang.String" itemvalue="Python.test_protocol" />
+      <item index="5" class="java.lang.String" itemvalue="Python.test_vm_agent" />
+      <item index="6" class="java.lang.String" itemvalue="Python tests.Tests" />
     </list>
     <recent_temporary>
       <list size="5">
@@ -572,14 +592,14 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="1345" y="22" width="1203" height="706" extended-state="0" />
-    <editor active="true" />
+    <frame x="79" y="203" width="2240" height="1138" extended-state="0" />
+    <editor active="false" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32968882" sideWeight="0.49960223" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3293718" sideWeight="0.49952874" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32968882" sideWeight="0.49960223" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.22603878" sideWeight="0.6719717" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.25852036" sideWeight="0.67266774" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.16071428" sideWeight="0.67266774" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3573854" sideWeight="0.79359096" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32733223" sideWeight="0.50071025" order="8" side_tool="true" content_ui="tabs" />
@@ -616,9 +636,9 @@
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.22603878" sideWeight="0.6719717" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.25852036" sideWeight="0.67266774" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39949536" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.17979316" sideWeight="0.6703112" order="5" side_tool="false" content_ui="combo" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.41850594" sideWeight="0.7723845" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.17979316" sideWeight="0.6703112" order="5" side_tool="false" content_ui="combo" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39949536" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
     </layout-to-restore>
   </component>
   <component name="VcsContentAnnotationSettings">
@@ -656,9 +676,7 @@
     <entry file="file://$PROJECT_DIR$/AVMaster/master.py">
       <provider selected="true" editor-type-id="text-editor">
         <state line="91" column="8" selection-start="2256" selection-end="2256" vertical-scroll-proportion="0.0" vertical-offset="1275" max-vertical-offset="12645">
-          <folding>
-            <element signature="e#0#15#0" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -743,15 +761,13 @@
     <entry file="file://$PROJECT_DIR$/AVMaster/master.py">
       <provider selected="true" editor-type-id="text-editor">
         <state line="433" column="11" selection-start="13882" selection-end="13882" vertical-scroll-proportion="0.0" vertical-offset="6315" max-vertical-offset="12645">
-          <folding>
-            <element signature="e#0#15#0" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/AVAgent/conf/vmavtest.cfg">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="6" column="1" selection-start="138" selection-end="138" vertical-scroll-proportion="0.15437393" vertical-offset="0" max-vertical-offset="583">
+        <state line="6" column="1" selection-start="138" selection-end="138" vertical-scroll-proportion="0.08866995" vertical-offset="0" max-vertical-offset="1015">
           <folding />
         </state>
       </provider>
