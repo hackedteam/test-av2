@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<map>
+<boolean name="VERSION_INITIALY_UPDATED" value="true" />
+<string name="top_performance_activity_class_name">com.antivirus.ui.performance.AvPerformanceActivity</string>
+<boolean name="tatzpinbekalut" value="true" />
+<string name="service_name">com.antivirus.AVService</string>
+<int name="version" value="192271" />
+</map>

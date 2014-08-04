@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<map>
+<boolean name="IsScanned" value="true" />
+<int name="MalwareCount" value="0" />
+<int name="RiskCount" value="0" />
+</map>

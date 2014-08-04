@@ -1,0 +1,1 @@
+elevate.exe sc config wuauserv start= disabled

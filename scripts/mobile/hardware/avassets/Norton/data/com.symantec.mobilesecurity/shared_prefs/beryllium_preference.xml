@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<map>
+<long name="reqNumInHour" value="46" />
+<long name="seqNum" value="2014042901" />
+<int name="maxFileVersion" value="19" />
+<int name="RepuFormatVersionLatestQueried" value="3" />
+<long name="queryTime" value="1402926990219" />
+<string name="BERYLLIUM_GUID">974e1599a31ba5dd2881bbeab42b4b67411e173cb29de28ffcb844b1bcd8e0f4293ef730</string>
+</map>

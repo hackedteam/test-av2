@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<map>
+<boolean name="wipe_enable" value="true" />
+<boolean name="lock_enable" value="true" />
+<boolean name="scream_enable" value="true" />
+<string name="unlock">C3:4A:1D:3E:46:94:7C:E5:B4:F3:23:9F:06:7D:52:EB:81:C3:B1:F5</string>
+<boolean name="locate_enable" value="true" />
+<int name="old_version_code" value="1533" />
+</map>

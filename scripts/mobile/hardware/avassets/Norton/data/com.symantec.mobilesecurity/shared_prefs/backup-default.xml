@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<map>
+<long name="service_id" value="2880183" />
+<string name="jeffdeekills@gmail.com_E9AFA258-5DEA-3A45-AC64-389DB6C42A91_END_POINT_LIST"></string>
+<int name="BACKUP_NOTIFY_MAINSCREEN_KEY_KEY" value="1" />
+<int name="BACKUP_MODULE_STATUS_KEY" value="3" />
+<string name="jeffdeekills@gmail.com_E9AFA258-5DEA-3A45-AC64-389DB6C42A91_BACKUP_CONTACT_FOLDER_KEY">CMyDqCgQt+WvARgBIAEoyoOoKDIHQ09OVEFDVDgAQABI58z6nAVQ58z6nAVgAGjnzPqcBXgDggEuL2U5YWZhMjU4LTVkZWEtM2E0NS1hYzY0LTM4OWRiNmM0MmE5MS9DT05UQUNUL6IBAKgB58z6nAWwAefM+pwFuAEA2AEAcLflrwGAAgE=</string>
+<string name="endpoint_guid">e9afa258-5dea-3a45-ac64-389db6c42a91</string>
+<string name="endpoint_name">samsung_GTN7000</string>
+<string name="email_id">jeffdeekills@gmail.com</string>
+<long name="jeffdeekills@gmail.com_E9AFA258-5DEA-3A45-AC64-389DB6C42A91_CONTATCT_FOLDER_ID_key" value="84541900" />
+<string name="access_token">2eRN2A10n5b8ztu2QBVlG8iGJcJ4Jl9osRv+iSp8kM2gfF/pVSxdht6f1JgQaYg/yWo3Dka0261eeRqiI6JBc3nbauOy31mWlBn+mIDpCVCh7TNQ47IYbVLRoEpBHqyq5y40k+ejHjRA/ly4qg8+M29bciQkJGR/4ULPyvZVWpUbExAxURgYUEzAusAsb9izjeVvatgHRez5V18mOOQdHWvA/Z3a+2E+E7gopBmGs9c0nZ5l9o29wNR2NOMu78wbDBB04TXg8yxPh9JpDaDeH5aqSTniNA2yQVROrcI9uZr+nFkI0vTBTYTm9ZpsusVPx1n+pi7p/NulDnsHf5DUHVIvkZ0O5vqgzcfrZ5PPxibTyeXnmjo1AKGc9mgbvKjaRUlPqI4acrnW1cVFzTtBTWaJDpF9EQq04tbCWyNKptIyrhBdgeFK2TJDUpQN9lHLZoCc9Ig9oBlND4m/4NeAKr8PNEgZUlL+M8C49e1RtWORL75oqePfdtjTcog1wpLdgbNGBfY96WeqLKOvlGJ6dw==</string>
+<boolean name="BACKUP_INITIALIZED_KEY" value="true" />
+<string name="jeffdeekills@gmail.com_E9AFA258-5DEA-3A45-AC64-389DB6C42A91_BACKUP_DEVICE_FOLDER_KEY">CMqDqCgQt+WvARgBIAEyJGU5YWZhMjU4LTVkZWEtM2E0NS1hYzY0LTM4OWRiNmM0MmE5MTgAQABI5sz6nAVQ5sz6nAVgAGjmzPqcBXgDggEmL2U5YWZhMjU4LTVkZWEtM2E0NS1hYzY0LTM4OWRiNmM0MmE5MS+iAQCoAebM+pwFsAHmzPqcBbgBANgBAHC35a8BgAIB</string>
+</map>

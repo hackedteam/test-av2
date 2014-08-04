@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<map>
+<boolean name="ConnectivitySend" value="false" />
+<string name="DeviceId">97:4E:15:99:A3:1B:A5:DD:28:81:BB:EA:B4:2B:4B:67:41:1E:17:3C</string>
+<string name="MacAddress">36:89:89:9F:2A:8D:5C:D8:3A:87:93:C8:13:7D:81:73:48:C2:8B:18</string>
+<long name="ScheduleStartTime" value="1402926971018" />
+</map>

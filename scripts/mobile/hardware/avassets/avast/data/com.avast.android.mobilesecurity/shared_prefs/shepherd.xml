@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<map>
+<long name="shepherdNextUpdateTime" value="1402078229068" />
+<boolean name="shepherdConnectivityChangeReceiverEnabled" value="false" />
+<long name="shepherdLastUpdateAttemptTime" value="1402060227538" />
+</map>

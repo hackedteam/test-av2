@@ -1,0 +1,260 @@
+# -------------- UPDATE -------------- #
+# COMPLETE COMMANDS
+
+UPDATE_DISABLE_UPD:
+    - PUSH: [assets/elevate.exe, assets/disable_autoupd.bat, assets/update_system.bat]
+    #- EXECUTE_VM: /AVTest/assets/disable_autoupd.bat
+    - EXECUTE_VM: /AVTest/assets/update_system.bat
+
+UPDATE_SNAPSHOT:
+    - VM_ALL: IMPORTANT
+    - ON_ERROR: STOP
+    - INTERNET: False
+    - REFRESH_SNAPSHOT
+
+UPDATE_ALL_7:
+    - ON_ERROR: STOP
+    - REVERT
+    - START_VM
+    - INTERNET: True
+ #python
+    - PUSH:
+        - [active_py.msi, active_inst.bat]
+        - assets/python
+        - c:/avtest/assets/python
+    - DELETE_DIR: C:/Python27/Lib/site-packages
+    - EXECUTE_VM: c:/avtest/assets/python/active_inst.bat
+ #reg
+    - PUSH: [assets/update_reg.bat]
+    - EXECUTE_VM: c:/avtest/assets/update_reg.bat
+    - DELETE_DIR: assets
+ #agent
+    - INTERNET: False
+    - CALL: VM_PUSH_AGENT
+    - INSTALL_AGENT
+    - RELOG
+    - INTERNET: False
+    - STOP_VM
+    - REFRESH_SNAPSHOT
+
+UPDATE_PYTHON_7:
+    - ON_ERROR: STOP
+    - REVERT
+    - START_VM
+    - INTERNET: True
+    - PUSH:
+        - [active_py.msi, active_inst.bat]
+        - assets/python
+        - c:/avtest/assets/python
+    - DELETE_DIR: C:/Python27/Lib/site-packages
+    - EXECUTE_VM: c:/avtest/assets/python/active_inst.bat
+    - INTERNET: False
+    - STOP_VM
+    - REFRESH_SNAPSHOT
+
+UPDATE_PYTHON_XP:
+    - ON_ERROR: STOP
+    - REVERT
+    - START_VM
+    - INTERNET: True
+    - PUSH:
+        - [active_py.msi, active_inst.bat]
+        - assets/python
+        - c:/avtest/assets/python
+    - DELETE_DIR: C:/Python27/Lib/site-packages
+    - EXECUTE_VM: c:/avtest/assets/python/active_inst.bat
+    - INTERNET: False
+    - STOP_VM
+    - REFRESH_SNAPSHOT
+
+
+UPDATE_THEME:
+    - ON_ERROR: STOP
+    - INTERNET: False
+    - REVERT
+    - SLEEP: [ 1, 120 ]
+    - START_VM
+    - PUSH: [assets/update_theme.bat]
+    - EXECUTE_VM: [ /avtest/assets/update_theme.bat, [], 40, True, True ]
+    - SLEEP: 120
+    - DELETE_DIR: assets
+    - STOP_VM: 300
+    - REFRESH_SNAPSHOT
+
+UPDATE_REG:
+    - ON_ERROR: STOP
+    - INTERNET: False
+    - REVERT
+    - SLEEP: [ 1, 120 ]
+    - START_VM
+    - PUSH: [assets/update_reg.bat]
+    - EXECUTE_VM: c:/avtest/assets/update_reg.bat
+    - SLEEP: 120
+    - EXECUTE_VM: c:/windows/system32/ipconfig.exe
+    - DELETE_DIR: assets
+    - STOP_VM: 300
+    - REFRESH_SNAPSHOT
+
+UPDATE_AGENT:
+    - ON_ERROR: STOP
+    - INTERNET: False
+    - SLEEP: [10, 600]
+    - REVERT
+    - START_VM
+
+    - CALL: VM_PUSH_AGENT
+    - INSTALL_AGENT
+    - START_AGENT
+    - UNINSTALL
+
+    - CLEAN_EVIDENCES
+    - STOP_VM: 300
+    - WAIT_SHUTDOWN
+    - REFRESH_SNAPSHOT
+
+UPDATE_AGENT_2:
+    - ON_ERROR: STOP
+    - INTERNET: False
+    - SLEEP: [10, 60]
+    - REVERT
+    - START_VM
+
+    - CALL: VM_PUSH_AGENT
+    - INSTALL_AGENT
+    - START_AGENT
+    - UNINSTALL
+
+    - CLEAN_EVIDENCES
+    - STOP_VM
+    - WAIT_SHUTDOWN
+    - REFRESH_SNAPSHOT
+
+UPDATE_AGENT_FAST:
+    - CALL: VM_PUSH_AGENT
+    - INSTALL_AGENT
+    - RELOG
+
+
+# ---------------------------
+
+UPD_WAIT:
+    - INTERNET: True
+    - SLEEP: [10, 600]
+    - REVERT
+    - START_VM
+    - CHECK_INFECTION # questo non e' necessario, ma e' meglio assicurarsene
+    - CALL: VM_PUSH_AGENT
+    - PUSH: [assets/update_system.bat, assets/update_theme.bat]
+    - EXECUTE_VM: [ /avtest/assets/update_theme.bat, [], 40, True, True ]
+    - INSTALL_AGENT
+    - SLEEP: 60
+    - STOP_VM: 300
+    - WAIT_SHUTDOWN
+
+    - START_VM: AV_AGENT
+    - UNINSTALL
+    - CLEAN_EVIDENCES
+    - EXECUTE_VM: /AVTest/assets/update_system.bat # scarica gli aggiornamenti windows
+    - SLEEP: 3600 # attesa per gli update degli av
+    - STOP_VM: 300 # cerca di spegnere con shutdown, se non ci riesce, spegne secco
+    - WAIT_SHUTDOWN
+
+    - START_VM: AV_AGENT
+    - STOP_VM: 300
+    - WAIT_SHUTDOWN
+
+UPD_REFRESH:
+    - REFRESH_SNAPSHOT
+
+UPDATE_FULL:
+    - VM_ALL
+    - ON_ERROR: STOP
+    - CALL: SET_MAIL
+    - REPORT:
+        - UPD_WAIT: ['AVM Update', 'Update AV']
+        - UPD_REFRESH
+    - CALL: END_DISPATCH
+# ---------------------------
+
+UPD_WAIT_FAST:
+    - INTERNET: True
+    - SLEEP: [10, 600]
+    - REVERT
+    - START_VM
+    - CHECK_INFECTION # questo non e' necessario, ma e' meglio assicurarsene
+    - CALL: VM_PUSH_AGENT
+    - PUSH: [assets/update_system.bat, assets/update_theme.bat]
+    - EXECUTE_VM: [ /avtest/assets/update_theme.bat, [], 40, True, True ]
+    - INSTALL_AGENT
+    - SLEEP: 60
+    - STOP_VM: 300
+    - WAIT_SHUTDOWN
+
+    - START_VM: AV_AGENT
+    - UNINSTALL
+    - CLEAN_EVIDENCES
+    - EXECUTE_VM: /AVTest/assets/update_system.bat # scarica gli aggiornamenti windows
+    - SLEEP: 300 # attesa per gli update degli av
+    - STOP_VM: 300 # cerca di spegnere con shutdown, se non ci riesce, spegne secco
+    - WAIT_SHUTDOWN
+
+    - START_VM: AV_AGENT
+    - STOP_VM: 300
+    - WAIT_SHUTDOWN
+
+UPDATE_FAST:
+    - VM_ALL
+    - ON_ERROR: STOP
+    - CALL: SET_MAIL
+    - REPORT:
+        - UPD_WAIT_FAST: ['AVM Update', 'Update AV']
+        - UPD_REFRESH
+    - CALL: END_DISPATCH
+
+# ---------------------------
+
+UPDATE_MANUAL:
+    - VM_ALL
+    - INTERNET: True
+    - SLEEP: [10, 60]
+    - REVERT
+    - START_VM
+    - CHECK_INFECTION # questo non e' necessario, ma e' meglio assicurarsene
+    - CALL: VM_PUSH_AGENT
+    - PUSH: [assets/update_system_manual.bat]
+    - INSTALL_AGENT
+    - EXECUTE_VM: /AVTest/assets/update_system_manual.bat # scarica gli aggiornamenti windows
+
+    - WAIT_SHUTDOWN
+    - START_VM: AV_AGENT
+    - STOP_VM: 300
+    - WAIT_SHUTDOWN
+    - REFRESH_SNAPSHOT
+
+# ---------------------------
+UPDATE_DELETE_CACHE:
+    #- VM_ALL
+    - VM: [zenoav, noav]
+    - ON_ERROR: STOP
+    - SLEEP: [0, 10]
+    - REVERT
+    - START_VM
+    - PUSH: [ assets/delete_cache.bat ]
+    - EXECUTE_VM: /AVTest/assets/delete_cache.bat
+    - SLEEP: 30
+    - STOP_VM: 300
+    - REFRESH_SNAPSHOT
+
+# -----------------------------
+#   Update Management Scripts
+# -----------------------------
+
+SYSTEM_START:
+    - VM_ALL
+    - INTERNET: True
+    - SLEEP: [1, 60]
+    - START_VM
+
+UPDATE_RESTART:
+    - SLEEP: [1, 30]
+    - START_VM

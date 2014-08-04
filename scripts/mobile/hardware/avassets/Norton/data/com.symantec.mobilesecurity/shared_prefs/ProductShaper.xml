@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<map>
+<string name="brp_content"></string>
+<string name="bcp_content"></string>
+<boolean name="bcp_update_needed" value="false" />
+<boolean name="brp_update_needed" value="false" />
+</map>

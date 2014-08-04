@@ -1,0 +1,66 @@
+
+Overview del sistema AVMonitor 2.0
+
+AVMonitor 2.0 è un sistema di gestione di test automatici che lavora su un ecosistema di macchine virtuali operanti sistemi differenti, dotati di protezioni antimalware.
+
+Ogni test è definito  da una procedura di test e da una lista di VM sulle quali questa procedura verrà eseguita. Più test potranno essere eseguiti, in modalità automatica o manuale, secondo le necessità e le le possibilità. Ogni procedura è definita come un elenco di comandi con i propri argomenti, scritta in un semplice linguaggio di dominio (DSL, YAML). Il test opera asincronicamente sulle varie VM, attraverso degli agenti AVAgent, distribuiti e mantenuti aggiornati dal sistema, che ricevono i comandi, li eseguono e restituiscono i risultati. Una procedura viene considerata di esito positivo qualora tutti i valori di successo dei comandi che la compongono lo siano.
+
+I test dovranno evidenziare problemi nella fase installativa e operativa delle instanze di RCS, per identificare rapidamente sia le incompatibilità con il software di protezione, sia  eventuali malfunzionamenti di componenti chiave del prodotto. A questo proposito verranno implementati, in particolare,  alcuni comandi client che permettano la verifica del funzionamento del modulo Skype e del modulo chat su windows. 
+
+Al termine dell'esecuzione delle procedure viene generato un report.
+
+Il componente lato server è AVServer che si occupa di gestire le VM, accendendole, gestendo gli snapshot, copiando file ed eseguendo applicazioni. Ogni VM deve essere inizializzata con una installazione di AVAgent, operazione che verrà eseguita tramite AVServer una tantum (al più verrà ripetuta la sincronizzazione dei file ad ogni update per garantire la consistenza del sistema).
+AVAgent è un servizio che viene eseguito allo startup della VM e che riceverà tramite Commands over MQ over Redis le richieste di operazioni da svolgere. La sua presenza permette di avere un controllo migliore del comportamento del test e velocizza tutte le operazioni di scambio di file.
+
+AVServer viene invocato scegliendo una procedure e l'elenco delle AV sulle quali eseguirla. Questa procedura, scritta in YAML, è definita come lista di comandi da eseguire. I comandi possibili sono di tre tipi:
+- lato server che operano sulle VM (START_VM, REVERT, SCREENSHOT, PUSH, PULL, EXECUTE_VM, EVAL_SERVER, ...)
+- lato client, che invocano dei metodi definiti sul AVAgent ( COMMAND_CLIENT, EVAL_CLIENT, ...)
+- metacomandi, che operano sul flusso della procedura: (CALL_PROCEDURE)
+
+Il file YAML delle procedure può essere esteso e adattato alle varie esigenze, la CALL garantisce il riuso delle PROCEDURE.
+La progettazione dei test, quindi, è separata dalla progettazione del sistema, e avviene usando un DSL definito da una grammatica molto semplice, estendibile a piacimento.
+
+Il software è scritto in python 2.7 e riutilizza tutta l'esperienza acquisita nella versione 1.0 di AVMonitor, in particolare viene riusato il codice per i seguenti aspetti:
+- gestione delle VM
+- generazione , esecuzione e verifica delle backdoor
+- comunicazione con RCS Server, per la gestione dei target e delle istanze e per la verifica della presenza delle evidence
+- gestione firewall e sicurezza
+E' stato invece completamente ripensato e riscritto il controllo dei comandi, per separare al meglio i contesti operativi.
+Anche i report dovranno essere pesantemente rivisti.
+
+A titolo di esempio, segue un prototipo di procedure.yaml; si può notare come TEST_ELITE sia un test eseguibile completo che usa procedure definite nello stesso file:
+
+DISPATCH:
+   - REVERT
+   - START_VM
+   - UPDATE
+   - START_AGENT
+   - PUSH:
+       - build_scout.sh
+       - payload.dat
+
+SCOUT:
+   - CALL: DISPATCH
+   - COMMAND_CLIENT:
+      - SCOUT_BUILD_WINDOWS_SILENT
+      - EXECUTE_SCOUT
+
+ELITE:
+   - CALL: SCOUT
+   - COMMAND_CLIENT:
+        - UPGRADE_ELITE
+
+TEST_ELITE:
+   - CALL: ELITE
+   - PULL:  debug_logs.txt
+   - STOP_AGENT
+   - STOP_VM
+   
+
+In questi giorni stiamo finalizzando la comunicazione e la gestione della topologia del sistema, integrando tutto ciò che occorre per la gestione delle VM.
+Poi lavoreremo sulle implementazioni dei comandi di AVAgent, che essendo separati dal resto del sistema, potranno essere scritti e testati in modo molto più semplice di quanto abbiamo potuto fare nella versione 1.
+
+TL;DR
+Il nuovo progetto è disegnato per essere più robusto, veloce ed estensibile. Entro la fine dell'anno avremo i primi risultati operativi, in particolare colmerà alcune mancanze della versione stabile (test skype e chat).
+Contiamo di raggiungere una condizione di completezza e di stabilità e di sostituire la versione attuale entro marzo 2014. 
+Come per la versione 1 la mia presenza nel progetto sarà assidua solo nelle fasi iniziali e di sviluppo, poi la manutenzione e la gestione quotidiana sarà affidata a Matteo.

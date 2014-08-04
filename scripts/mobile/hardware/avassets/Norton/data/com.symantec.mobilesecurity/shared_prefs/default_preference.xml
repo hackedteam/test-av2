@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<map>
+<boolean name="skip_auto_launch_cc" value="true" />
+<boolean name="is_lu_already_run" value="true" />
+<long name="last_lu_success_time" value="1402926983916" />
+<null name="purchase_error_code" />
+</map>

@@ -8,65 +8,65 @@ hresults = []
 
 def build_mail_body(results):
 
-	for av in results:
-		name = av[0].split(",")[0]
-		k = len(av)
+    for av in results:
+        name = av[0].split(",")[0]
+        k = len(av)
 
-		hres = []
-		hres.append(name)
+        hres = []
+        hres.append(name)
 
-		for ares in av:
-			r = ares.split(",")
-			j = len(r)
-			hres.append(r[j-1].strip())
+        for ares in av:
+            r = ares.split(",")
+            j = len(r)
+            hres.append(r[j-1].strip())
 
-		hresults.append(hres)
-
-
-	header = "<table><tr><td>AV</td><td>Silent</td><td>Melt</td><td>Exploit</td></tr>"
-	line   = "<tr><td>AV_NAME</td><td bgcolor='SCOLOR'><a href='#' class='fill-div'></td><td bgcolor='MCOLOR'><a href='#' class='fill-div'></td><td bgcolor='ECOLOR'><a href='#' class='fill-div'></td></tr>"
-	footer = "</table>"
-
-	content = ""
+        hresults.append(hres)
 
 
-	with open("/tmp/color.html","wb+") as f:
-		content += header
+    header = "<table><tr><td>AV</td><td>Silent</td><td>Melt</td><td>Exploit</td></tr>"
+    line   = "<tr><td>AV_NAME</td><td bgcolor='SCOLOR'><a href='#' class='fill-div'></td><td bgcolor='MCOLOR'><a href='#' class='fill-div'></td><td bgcolor='ECOLOR'><a href='#' class='fill-div'></td></tr>"
+    footer = "</table>"
 
-	for res in hresults:
-		l = line.replace("AV_NAME",res[0])
-
-
-		if "SUCCESS" in res[1]:
-			l = l.replace("SCOLOR","green")
-			print "%s SUCCESS" % res[0]
-		elif "FAILED" in res[1]:
-			print "%s FAILED" % res[0]
-			l = l.replace("SCOLOR","red")
-		elif "ERROR" in res[1]:
-			print "%s ERROR" % res[0]
-			l = l.replace("SCOLOR","black")
+    content = ""
 
 
-		if "SUCCESS" in res[2]:
-			l = l.replace("MCOLOR","green")
-			print "%s SUCCESS" % res[0]
-		elif "FAILED" in res[2]:
-			l = l.replace("MCOLOR","red")
-			print "%s FAILED" % res[0]
-		elif "ERROR" in res[2]:
-			l = l.replace("MCOLOR","black")
-			print "%s ERROR" % res[0]
+    with open("/tmp/color.html","wb+") as f:
+        content += header
+
+    for res in hresults:
+        l = line.replace("AV_NAME",res[0])
 
 
-		if "SUCCESS" in res[3]:
-			l = l.replace("ECOLOR","green")
-		elif "FAILED" in res[3]:
-			l = l.replace("ECOLOR","red")
-		elif "ERROR" in res[3]:
-			l = l.replace("ECOLOR","black")
+        if "SUCCESS" in res[1]:
+            l = l.replace("SCOLOR","green")
+            print "%s SUCCESS" % res[0]
+        elif "FAILED" in res[1]:
+            print "%s FAILED" % res[0]
+            l = l.replace("SCOLOR","red")
+        elif "ERROR" in res[1]:
+            print "%s ERROR" % res[0]
+            l = l.replace("SCOLOR","black")
 
-		content += l
 
-	content += footer
+        if "SUCCESS" in res[2]:
+            l = l.replace("MCOLOR","green")
+            print "%s SUCCESS" % res[0]
+        elif "FAILED" in res[2]:
+            l = l.replace("MCOLOR","red")
+            print "%s FAILED" % res[0]
+        elif "ERROR" in res[2]:
+            l = l.replace("MCOLOR","black")
+            print "%s ERROR" % res[0]
+
+
+        if "SUCCESS" in res[3]:
+            l = l.replace("ECOLOR","green")
+        elif "FAILED" in res[3]:
+            l = l.replace("ECOLOR","red")
+        elif "ERROR" in res[3]:
+            l = l.replace("ECOLOR","black")
+
+        content += l
+
+    content += footer
 

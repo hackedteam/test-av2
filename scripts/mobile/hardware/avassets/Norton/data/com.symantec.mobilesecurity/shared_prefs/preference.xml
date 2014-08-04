@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<map>
+<string name="Last_Info_LastPSR">adpInNam=Norton+Mobile+Security&amp;adpInNamP=com.symantec.mobilesecurity&amp;adpInVer=3.8.6.1533&amp;adpLcSKU=00000101&amp;adpNaSta=0&amp;adpLcSta=NOT_ACTIVATED&amp;adpLcSubRmD=0&amp;adpLcTyp=Unknown&amp;HBVER=4.9&amp;EPGUID=8d187547-50e4-37bd-aea7-6ad475b84ddf&amp;OPID=1&amp;platform=android</string>
+<string name="Last_Info_LastSSR">adsSwOSLng=it&amp;adsSwOSCtr=IT&amp;adsSwOSVer=4.1.2&amp;adsSwAMVer=4.8.20&amp;adsHwBldDev=GT-N7000&amp;adsHwBldDis=JZO54K.N7000XXLSZ&amp;adsHwBldHst=SEI-46&amp;adsHwBldMfr=samsung&amp;adsHwBldMdl=GT-N7000&amp;adsHwBldPtN=GT-N7000&amp;adsHwCPUTyp=armeabi-v7a&amp;adsHwMemP=904372224&amp;adsSwSDK=16&amp;adsHwTelTyp=GSM&amp;adsHwNetTyp=HSDPA&amp;HBVER=4.9&amp;EPGUID=8d187547-50e4-37bd-aea7-6ad475b84ddf&amp;OPID=0&amp;platform=android</string>
+<string name="Last_Info_BS_Response">1402926950482</string>
+<string name="Last_Info_INV_Response">1402926951410</string>
+<long name="Last_Info_LastTimeStampHeartbeat" value="1402926940396" />
+<long name="Last_Info_LastTimeStampProductStateChange" value="1402926940341" />
+<long name="Last_Info_LastTimeStampSystemStatechange" value="1402926940293" />
+<long name="Last_Info_LastTimeStampRefreshSystem" value="1402926940232" />
+<long name="Last_Info_LastTimeStampRefreshProduct" value="1402926940260" />
+</map>

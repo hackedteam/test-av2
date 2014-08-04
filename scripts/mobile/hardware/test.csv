@@ -1,0 +1,20 @@
+Device;Android Version;SELinux Enforce;root
+samsung GT-I9505;4.3;1;
+samsung GT-I9505;4.3;1;Error
+samsung GT-I9505;4.3;1;Error global name 'device_id' is not defined;1395762111.229179
+samsung GT-I9505;4.3;1;Error ;1395762483.681529
+samsung GT-I9505;4.3;1;Error 'set' object has no attribute 'keys';1395763482.662384
+samsung GT-I9505;4.3;1;Error 'module' object has no attribute 'restart';1395764704.646097
+samsung GT-I9505;4.3;1;[u'Root: selinux time: 82s', False];1395765224.021131
+samsung GT-I9505;4.3;1;[u'Root: selinux time: 76s', False];1395765655.679775
+samsung Galaxy Nexus;4.0.4;;[u'Root: selinux time: 6s', False];1395766118.021669
+samsung GT-I9505;356845056078692;4.3;1;Error HTTP Error 403: Forbidden;1395823838.760978
+samsung GT-I9505;356845056078692;4.3;1;Error not enough arguments for format string;1395825931.733456
+samsung GT-I9505;356845056078692;4.3;1;Root: selinux time: 82s, False;1395826836.090697
+1395827575.116628;samsung GT-I9505;356845056078692;4.3;1;Error HTTP Error 403: Forbidden
+1395836012.710254;LGE Nexus 4;355136050291528;4.3.1;;Error HTTP Error 403: Forbidden
+1395840959.483666;samsung GT-I9505;356845056078692;4.3;1;No root
+1395841401.782793;LGE Nexus 4;355136050291528;4.3.1;;No root
+1395843481.213686;samsung Galaxy Nexus;351554050449108;4.0.4;;No root
+1395844918.289567;asus Nexus 7;7ffec94575fa9e2e;4.4.2;;No root
+1395845233.67534;asus Nexus 7;7ffec94575fa9e2e;4.4.2;;No root

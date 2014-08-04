@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<map>
+<long name="scd_com_symantec_mobilesecurity_00000101_last_update_time" value="1402926974005" />
+<long name="AppInsight Revocation List_last_update_time" value="1402926979050" />
+<long name="Norton Mobile Security Engine_last_update_time" value="1402926981009" />
+<long name="Norton Community Watch for Android_last_update_time" value="1402926974461" />
+<long name="NMS_com_symantec_mobilesecurity_00000101_last_update_time" value="1402926984679" />
+<long name="Norton Mobile Security Virus Definitions_last_update_time" value="1402926981397" />
+<long name="partner_com_symantec_mobilesecurity_00000101_last_update_time" value="1402926975410" />
+<string name="storage_server_time">20140616</string>
+<long name="first_install_time" value="1402926940077" />
+<long name="Beryllium Config_last_update_time" value="1402926980702" />
+<long name="AppInsight Beryllium_last_update_time" value="1402926978336" />
+</map>

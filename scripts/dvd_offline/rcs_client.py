@@ -253,7 +253,7 @@ class Rcs_client:
         @param agent
         @param type (if None all types should be returned)
         """
-        f = { "type":"['']", "target":target, "agent":agent[1] }
+        f = { "type":"['']", "target":target, "_id":agent }
         filter = json.dumps(f)
         #print urllib.quote(filter)
         link  = 'https://%s/evidence?filter=%s' % (self.host, filter)

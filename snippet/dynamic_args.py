@@ -1,5 +1,5 @@
 def foo(k, *params):
-	print params
+    print params
 
 
 foo(k="one")
