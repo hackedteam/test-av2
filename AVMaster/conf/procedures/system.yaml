@@ -159,6 +159,8 @@ VM_EXPLOIT:
     #- BUILD: [ pull, exploit_zip, melt ]
     #- BUILD: [ pull, exploit_rar, melt ]
     - BUILD: [ scout, exploit_pdf, melt ]
+    - UNINSTALL
+    - RELOG
     - BUILD: [ scout, selfdel_exploit, melt ]
 
     #- UNINSTALL
