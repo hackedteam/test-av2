@@ -572,12 +572,15 @@ class AgentBuild:
                     add_result("+ FAILED EXECUTE %s" % level.upper())
                     upgraded = False
                 else:
-                    sleep(30)
-                    self._trigger_sync(timeout=30)
-                    for i in range(10):
-                        self._click_mouse(100 + i, 0)
+                    for tries in range(1, 10):
+                        sleep(30)
+                        self._trigger_sync(timeout=30)
+                        for i in range(10):
+                            self._click_mouse(100 + i, 0)
 
-                    upgraded = self.check_level(instance_id, "soldier")
+                        upgraded = self.check_level(instance_id, "soldier")
+                        if upgraded:
+                            break
             else:
                 upgraded = self.check_level(instance_id, "elite")
 

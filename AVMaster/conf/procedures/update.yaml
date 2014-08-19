@@ -67,7 +67,6 @@ UPDATE_PYTHON_XP:
     - STOP_VM
     - REFRESH_SNAPSHOT
 
-
 UPDATE_THEME:
     - ON_ERROR: STOP
     - INTERNET: False
@@ -174,6 +173,7 @@ UPDATE_FULL:
         - UPD_WAIT: ['AVM Update', 'Update AV']
         - UPD_REFRESH
     - CALL: END_DISPATCH
+
 # ---------------------------
 
 UPD_WAIT_FAST:
@@ -212,13 +212,27 @@ UPDATE_FAST:
     - CALL: END_DISPATCH
 
 # ---------------------------
+#    Manual UPDATE
+# ---------------------------
 
-UPDATE_MANUAL:
+INIT_UPDATE_MANUAL:
     - VM_ALL
     - INTERNET: True
-    - SLEEP: [10, 60]
     - REVERT
-    - START_VM
+    - SLEEP: [10, 600]
+    - START_VM: AV_AGENT
+
+FINALIZE_UPDATE_MANUAL:
+    - VM_ALL
+    - INTERNET: False
+    - SLEEP: [10, 600]
+    #- START_VM: AV_AGENT
+    #- STOP_VM: 300
+    #- WAIT_SHUTDOWN
+    - REFRESH_SNAPSHOT
+
+UPDATE_MANUAL:
+    - CALL: INIT_UPDATE_MANUAL
     - CHECK_INFECTION # questo non e' necessario, ma e' meglio assicurarsene
     - CALL: VM_PUSH_AGENT
     - PUSH: [assets/update_system_manual.bat]
@@ -232,6 +246,7 @@ UPDATE_MANUAL:
     - REFRESH_SNAPSHOT
 
 # ---------------------------
+
 UPDATE_DELETE_CACHE:
     #- VM_ALL
     - VM: [zenoav, noav]
