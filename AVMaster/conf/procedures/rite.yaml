@@ -116,13 +116,15 @@ SYSTEM_FUNCTIONAL_SKYPE_RITE:
 VM_SOLDIER_ACHILLE:
     - BUILD: [ scout, windows, silent ]
     - SLEEP: [60, 90]
-    - LIST_DIR: STARTUP
+    - LIST_DIR: STARTUP_EXE
     - RELOG
 
     - ON_ERROR: CONTINUE
     - CROP: True
+
     - BUILD: [ soldier_fast, windows, silent ]
-    - LIST_DIR: STARTUP
+    - LIST_DIR: STARTUP_EXE
+
     - CROP: False
     - ON_ERROR: SKIP
 

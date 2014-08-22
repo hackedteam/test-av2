@@ -17,12 +17,16 @@ def on_answer(vm, success, answer):
 def execute(vm, args):
     if args == "STARTUP":
         args = ["%s\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\*" % os.environ['appdata']]
+    if args == "STARTUP_EXE":
+        args = ["%s\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\*.exe" % os.environ['appdata']]
     logging.debug("Listing files: %s" % args)
     files = [ glob.glob(f) for f in args ]
     if [] in files:
-        return False, files
+        return True, []
 
     flat = [ item for sublist in files for item in sublist ]
+    if isinstance(args, list) and len(args) == 1:
+        flat = [ item.split("\\")[-1] for item in flat ]
     logging.debug("files: %s, expanded files: %s" % (files, flat))
 
-    return flat==[], flat
+    return True, flat
