@@ -22,11 +22,11 @@ busybox_filename = 'busybox-android'
 
 def call(cmd, device = None):
     if device:
-        print "##DEBUG## calling %s for device %s" % (cmd,device)
+        #print "##DEBUG## calling %s for device %s" % (cmd,device)
         proc = subprocess.call([adb_path,
                                 "-s", device] + cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     else:
-        print "##DEBUG## calling %s" % cmd
+        #print "##DEBUG## calling %s" % cmd
         proc = subprocess.call([adb_path] + cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     return proc != 0
@@ -49,7 +49,7 @@ def skype_call(device = None):
     return execute(cmd, device)
 
 def execute(cmd, device=None):
-    print "##DEBUG## calling %s for device %s" % (cmd, device)
+    #print "##DEBUG## calling %s for device %s" % (cmd, device)
     if device:
         proc = subprocess.Popen([adb_path,
                             "-s", device,
@@ -151,7 +151,7 @@ def executeGui(apk, device=None):
     @return True/False
     shell am  startservice -n $CLASS_PACK/
     """
-    app = apk + '/.gui.AGUI'
+    app = apk + '/.gui.ASG'
     if device:
         proc = subprocess.call([adb_path,
                                 "-s", device,
@@ -171,7 +171,7 @@ def uninstall(apk, device=None):
     @param apk class name to run (eg. com.roxy.angrybirds)
     @return True/False
     """
-    print "##DEBUG## calling uninstall for device %s" % device
+    #print "##DEBUG## calling uninstall for device %s" % device
     if device:
         proc = subprocess.call([adb_path,
                             "-s", device,
@@ -207,7 +207,7 @@ def get_attached_devices():
 #The destination dir will be /data/local/tmp/in/ (it will be created if nonexistent)
 def copy_tmp_file(file_local_path, device=None):
 
-    print "##DEBUG##  Copying a single file to an implicit tmp directory on device %s" % device
+    #print "##DEBUG##  Copying a single file to an implicit tmp directory on device %s" % device
 
     copy_file(file_local_path, temp_remote_path, False, device)
 
@@ -219,7 +219,7 @@ def copy_tmp_file(file_local_path, device=None):
 #if the destination is directory "/data/local/tmp/in/", then it doesn't move the file
 def copy_file(file_local_path, remote_path, root=False, device=None):
 
-    print "##DEBUG##  Copying a single file to a directory on device %s" % device
+    #print "##DEBUG##  Copying a single file to a directory on device %s" % device
 
     print "create dir %s" % remote_path
     #can always create temp dir without root

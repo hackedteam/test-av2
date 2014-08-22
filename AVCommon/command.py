@@ -61,7 +61,7 @@ def init():
         m.side = side
         known_commands[name] = m
 
-    logging.info("Commands: %s" % known_commands.keys())
+    #logging.info("Commands: %s" % known_commands.keys())
 
 
 def normalize(data):
