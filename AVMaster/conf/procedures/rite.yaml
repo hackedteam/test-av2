@@ -113,22 +113,39 @@ SYSTEM_FUNCTIONAL_SKYPE_RITE:
         - VM_FUNCTIONAL_EV_SKYPE: ['Functional testing', 'Skype Chat']
 
 
-
-
-
 VM_SOLDIER_ACHILLE:
     - BUILD: [ scout, windows, silent ]
     - SLEEP: [60, 90]
+    - LIST_DIR: STARTUP
     - RELOG
 
     - ON_ERROR: CONTINUE
     - CROP: True
     - BUILD: [ soldier_fast, windows, silent ]
+    - LIST_DIR: STARTUP
     - CROP: False
     - ON_ERROR: SKIP
 
 
 SYSTEM_FUNCTIONAL_ACHILLE:
+    - VM_ALL
+    - INTERNET: False
+
+    - CALL: INIT_DISPATCH
+    - SET:
+        backend: 172.20.20.119
+        frontend: 172.20.20.119
+
+    - SET_SERVER:
+        mail_recipients: [zeno@hackingteam.com, seppia@hackingteam.com, m.losito@hackingteam.com]
+
+    - REPORT:
+        - VM_SOLDIER_ACHILLE: ['AV Invisibility Experimental', 'Soldier']
+
+    - CALL: VM_GET_LOG
+    - CALL: END_DISPATCH
+
+SYSTEM_SOLDIER_ACHILLE:
     - VM_ALL
     - INTERNET: False
 

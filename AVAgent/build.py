@@ -107,8 +107,8 @@ def check_static(files, report = None):
 
 
 def internet_on():
-    ips = ['87.248.112.181', '173.194.35.176', '176.32.98.166',
-           'www.reddit.com', 'www.bing.com', 'www.facebook.com', 'stackoverflow.com']
+    ips = ['173.194.35.176', '8.8.8.8', '8.8.4.4',
+           '198.41.209.140', '204.79.197.200']
     q = Queue.Queue()
     for i in ips:
         t = threading.Thread(target=check_internet, args=(i, q))

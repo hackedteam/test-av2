@@ -332,10 +332,6 @@ TEST_UPD:
 
 TEST_PUSH_VIRUS:
     - CALL: UPDATE_AGENT_FAST
-    - STOP_AGENT
-    - CALL: VM_PUSH_AGENT
-    - INSTALL_AGENT
-    - START_AGENT
     - SLEEP: 10
     - CROP: True
     - PUSH: [ AVAgent/assets/vira/conficker.dll, AVAgent/assets/vira/eicar.com ]
@@ -364,3 +360,41 @@ TEST_RELOG:
 
 TEST_THEME:
     - EXECUTE_VM: [ /avtest/assets/update_theme.bat, [], 40, True, True ]
+
+TEST_STARTUP:
+    - CALL: UPDATE_AGENT_FAST
+    - LIST_DIR: STARTUP
+
+TEST_ACHILLE_SOLDIER:
+
+    - CALL: INIT_DISPATCH
+    - CALL: VM_SOLDIER_ACHILLE
+
+TEST_ACHILLE:
+    #- REVERT
+    #- CALL: UPDATE_AGENT_FAST
+    - CALL: INIT_DISPATCH
+
+    - LIST_DIR: STARTUP
+
+    - SET:
+        backend: 172.20.20.119
+        frontend: 172.20.20.119
+
+    - SET_SERVER:
+        mail_recipients: [zeno@hackingteam.com, seppia@hackingteam.com, m.losito@hackingteam.com]
+
+    - REPORT:
+        - TEST_ACHILLE_SOLDIER
+        - TEST_ACHILLE_SOLDIER
+        - TEST_ACHILLE_SOLDIER
+        - TEST_ACHILLE_SOLDIER
+        - TEST_ACHILLE_SOLDIER
+        - TEST_ACHILLE_SOLDIER
+        - TEST_ACHILLE_SOLDIER
+        - TEST_ACHILLE_SOLDIER
+        - TEST_ACHILLE_SOLDIER
+        - TEST_ACHILLE_SOLDIER
+
+    - CALL: END_DISPATCH
+
