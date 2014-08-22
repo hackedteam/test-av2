@@ -194,7 +194,8 @@ TEST_SOLDIER:
     - RELOG
 
     - BUILD: [ soldier_fast, windows, silent ]
-    - UNINSTALL
+    - SLEEP: 60
+    #- UNINSTALL
     - RELOG
 
 # ----------------------
@@ -330,11 +331,18 @@ TEST_UPD:
     #- CALL: END_DISPATCH
 
 TEST_PUSH_VIRUS:
+    - CALL: UPDATE_AGENT_FAST
     - STOP_AGENT
     - CALL: VM_PUSH_AGENT
     - INSTALL_AGENT
     - START_AGENT
-    - CALL: SYS_PUSH_VIRUS
+    - SLEEP: 10
+    - CROP: True
+    - PUSH: [ AVAgent/assets/vira/conficker.dll, AVAgent/assets/vira/eicar.com ]
+    - SLEEP: 90
+    - CHECK_STATIC: [ AVAgent/assets/vira/conficker.dll, AVAgent/assets/vira/eicar.com ]
+    - SLEEP: 30
+    - CROP: False, False
 
 TEST_RELOG:
     - REVERT

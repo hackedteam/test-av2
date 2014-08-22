@@ -322,7 +322,7 @@ SYS_PUSH_VIRUS:
     - SLEEP: 90
     - CHECK_STATIC: [ AVAgent/assets/vira/conficker.dll, AVAgent/assets/vira/eicar.com ]
     - SLEEP: 30
-    - CROP: False
+    - CROP: False, False
 
 SYSTEM_POSITIVE:
     - VM_ALL
