@@ -219,13 +219,14 @@ INIT_UPDATE_MANUAL:
     - VM_ALL
     - INTERNET: True
     - REVERT
-    - SLEEP: [10, 600]
+    - SLEEP: [10, 60]
     - START_VM: AV_AGENT
+    - CALL: VM_PUSH_AGENT
 
 FINALIZE_UPDATE_MANUAL:
     - VM_ALL
     - INTERNET: False
-    - SLEEP: [10, 600]
+    - SLEEP: [10, 60]
     #- START_VM: AV_AGENT
     #- STOP_VM: 300
     #- WAIT_SHUTDOWN
