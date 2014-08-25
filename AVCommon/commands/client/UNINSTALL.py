@@ -120,10 +120,12 @@ def delete_startup():
 
 
 def remove_agent_startup():
-    startup_dir = 'C:/Users/avtest/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup'
-    remote_name = "%s/av_agent.bat" % startup_dir
-    if os.path.exists(remote_name):
-        os.remove(remote_name)
+    start_dirs = ['C:/Users/avtest/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup',
+            'C:/Documents and Settings/avtest/Start Menu/Programs/Startup']
+    for startup_dir in start_dirs:
+        remote_name = "%s/av_agent.bat" % startup_dir
+        if os.path.exists(remote_name):
+            os.remove(remote_name)
 
 
 def delete_build():
