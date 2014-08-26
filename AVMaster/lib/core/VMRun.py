@@ -155,12 +155,15 @@ class VMRun:
 
         # create new snapshot
         date = datetime.now().strftime('%Y%m%d-%H%M')
-        self.createSnapshot(vmx, "auto_%s" % date)
+        snapshot = "auto_%s" % date
+        untouchables.append(snapshot)
+
+        self.createSnapshot(vmx, snapshot)
         if delete is True:
             snaps = self.listSnapshots(vmx)
             logging.debug("%s: snapshots %s" % (vmx,snaps))
             if len(snaps) > 1:
-                for s in snaps[0:-1]:
+                for s in snaps:
                     logging.debug("checking %s" % s)
                     if s not in untouchables: # and "manual" not in s:
                         logging.debug("deleting %s" % s)

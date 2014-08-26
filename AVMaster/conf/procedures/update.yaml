@@ -136,7 +136,7 @@ UPDATE_AGENT_FAST:
 
 # ---------------------------
 
-UPD_WAIT:
+UPD_AGENT:
     - INTERNET: True
     - SLEEP: [10, 600]
     - REVERT
@@ -149,10 +149,13 @@ UPD_WAIT:
     - SLEEP: 60
     - STOP_VM: 300
     - WAIT_SHUTDOWN
-
     - START_VM: AV_AGENT
     - UNINSTALL
     - CLEAN_EVIDENCES
+
+UPD_WAIT:
+    - CALL: UPD_AGENT
+
     - EXECUTE_VM: /AVTest/assets/update_system.bat # scarica gli aggiornamenti windows
     - SLEEP: 3600 # attesa per gli update degli av
     - STOP_VM: 300 # cerca di spegnere con shutdown, se non ci riesce, spegne secco
@@ -162,8 +165,24 @@ UPD_WAIT:
     - STOP_VM: 300
     - WAIT_SHUTDOWN
 
+UPD_AV:
+    - CALL: UPD_AGENT
+
+    - SLEEP: 1000
+    - STOP_VM: 300
+    - WAIT_SHUTDOWN
+
 UPD_REFRESH:
     - REFRESH_SNAPSHOT
+
+UPDATE_AV:
+    - VM_ALL
+    - ON_ERROR: STOP
+    - CALL: SET_MAIL
+    - REPORT:
+        - UPD_AV: ['AVM Update', 'Update AV']
+        - UPD_REFRESH
+    - CALL: END_DISPATCH
 
 UPDATE_FULL:
     - VM_ALL
