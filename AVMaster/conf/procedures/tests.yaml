@@ -378,6 +378,7 @@ VM_SOLDIER_ACHILLE_NOCROP:
 
     - BUILD: [ soldier_fast, windows, silent ]
     - LIST_DIR: STARTUP_EXE
+    - SLEEP: 600
     - SCREENSHOT
 
     #- CROP: False
@@ -404,17 +405,31 @@ TEST_ACHILLE_AVG:
     - REPORT:
         - TEST_ACHILLE_SOLDIER
         - TEST_ACHILLE_SOLDIER
-        - TEST_ACHILLE_SOLDIER
-        - TEST_ACHILLE_SOLDIER
-        - TEST_ACHILLE_SOLDIER
+        #- TEST_ACHILLE_SOLDIER
+        #- TEST_ACHILLE_SOLDIER
+        #- TEST_ACHILLE_SOLDIER
 
-        - TEST_ACHILLE_SOLDIER
-        - TEST_ACHILLE_SOLDIER
-        - TEST_ACHILLE_SOLDIER
-        - TEST_ACHILLE_SOLDIER
-        - TEST_ACHILLE_SOLDIER
+        #- TEST_ACHILLE_SOLDIER
+        #- TEST_ACHILLE_SOLDIER
+        #- TEST_ACHILLE_SOLDIER
+        #- TEST_ACHILLE_SOLDIER
+        #- TEST_ACHILLE_SOLDIER
 
     - CALL: END_DISPATCH
 
 PUSH_AGENT_EXE:
     - PUSH: [ /tmp/agent_fcccaea6b99b.exe ]
+
+TEST_ENABLE_1:
+    - ENABLE: NO
+    - SLEEP: 10
+
+TEST_ENABLE_2:
+    - ENABLE: YES
+    - SCREENSHOT
+
+TEST_ENABLE:
+    - ENABLE: [ monday, tuesday ]
+    - CALL: TEST_ENABLE_1
+    - CALL: TEST_ENABLE_2
+    - SLEEP: 20

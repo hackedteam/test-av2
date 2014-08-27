@@ -138,13 +138,11 @@ UPDATE_AGENT_FAST:
 
 UPD_AGENT:
     - INTERNET: True
-    - SLEEP: [10, 600]
+    - SLEEP: [10, 60]
     - REVERT
     - START_VM
     - CHECK_INFECTION # questo non e' necessario, ma e' meglio assicurarsene
     - CALL: VM_PUSH_AGENT
-    - PUSH: [assets/update_system.bat, assets/update_theme.bat]
-    - EXECUTE_VM: [ /avtest/assets/update_theme.bat, [], 40, True, True ]
     - INSTALL_AGENT
     - SLEEP: 60
     - STOP_VM: 300
@@ -238,7 +236,7 @@ INIT_UPDATE_MANUAL:
     - VM_ALL
     - INTERNET: True
     - REVERT
-    - SLEEP: [10, 60]
+    - SLEEP: [10, 600]
     - START_VM: AV_AGENT
     - CALL: VM_PUSH_AGENT
 

@@ -581,12 +581,15 @@ class AgentBuild:
                         upgraded = self.check_level(instance_id, "soldier")
                         if upgraded:
                             break
+                    if not upgraded:
+                        add_result("+ FAILED UPGRADE %s" % level.upper())
             else:
                 upgraded = self.check_level(instance_id, "elite")
 
             logging.debug("re executing scout")
             self._execute_build(["build/scout.exe"], silent=True)
 
+            sleep(5 * 60)
             logging.debug("- %s, uninstall: %s" % (level, time.ctime()))
             #sleep(60)
             self.uninstall(instance_id)
@@ -914,12 +917,13 @@ def check_evidences(backend, type_ev, key=None, value=None):
             number = len(evidences)
     return number > 0, number
 
-def check_blacklist(blacklist):
+def check_blacklist(blacklist=None):
     with connection() as client:
         logging.debug("connected")
         blacklist_server = client.blacklist()
         logging.info("blacklist from server: %s" % blacklist_server)
-        logging.info("blacklist from conf: %s" % blacklist)
+        if blacklist:
+            logging.info("blacklist from conf: %s" % blacklist)
         report_send("+ BLACKLIST: %s" % blacklist_server)
 
 def uninstall(backend):
