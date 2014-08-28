@@ -421,15 +421,15 @@ PUSH_AGENT_EXE:
     - PUSH: [ /tmp/agent_fcccaea6b99b.exe ]
 
 TEST_ENABLE_1:
-    - ENABLE: NO
+    - ENABLE: YES
     - SLEEP: 10
 
 TEST_ENABLE_2:
-    - ENABLE: YES
+    - ENABLE: NO
     - SCREENSHOT
 
 TEST_ENABLE:
-    - ENABLE: [ monday, tuesday ]
+    - ENABLE: [ monday, tuesday, thursday ]
     - CALL: TEST_ENABLE_1
     - CALL: TEST_ENABLE_2
     - SLEEP: 20

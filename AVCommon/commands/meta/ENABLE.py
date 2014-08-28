@@ -11,10 +11,9 @@ def execute(vm, protocol, args):
     assert protocol
     assert protocol.procedure
 
-    protocol.on_error = "SKIP"
-
     if not args:
-        return False, "Procedure disabled"
+        protocol.on_error = "DISABLED"
+        return True, "Procedure disabled"
 
     week   = ['sunday',
               'monday',
@@ -25,12 +24,13 @@ def execute(vm, protocol, args):
               'saturday']
 
     today = datetime.datetime.today().weekday()
-    today_week = week[today]
+    today_week = week[today + 1]
 
     if isinstance(args, list):
         for d in args:
             assert d.lower() in week
         if not today_week in args:
-            return False, "Today not allowed"
+            protocol.on_error = "DISABLED"
+            return True, "Today not allowed"
 
     return True, args

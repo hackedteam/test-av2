@@ -129,7 +129,8 @@ class Protocol(ProtocolClient):
         if blocking:
             t.join()
 
-    def send_next_call(self):
+
+    def send_next_kind(self, kind):
         while(True):
             if not self.procedure:
                 self.last_command = None
@@ -137,14 +138,20 @@ class Protocol(ProtocolClient):
 
             self.last_command = self.procedure.next_command()
             name = self.last_command.name
-            if name == "CALL":
+            if name == kind:
                 break
             if name.startswith("STOP") or name.startswith("REPORT"):
                 break
-            logging.debug("skipping to the next: %s" % self.last_command.name)
+            logging.debug("skipping to the next %s: %s" % (kind, self.last_command.name))
 
         #return self.send_command(copy.deepcopy(self.last_command))
         return self.send_command(self.last_command)
+
+    def send_next_call(self):
+        return self.send_next_kind("CALL")
+
+    def send_next_proc(self):
+        return self.send_next_kind("END_CALL")
 
     def send_next_command(self):
         if not self.procedure:

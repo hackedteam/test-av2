@@ -43,6 +43,9 @@ class Procedure:
     def insert_command(self, new_command):
         self.command_list.insert(0, command.factory(new_command))
 
+    def append_command(self, new_command):
+        self.command_list.append(command.factory(new_command))
+
     def insert(self, new_proc):
         self.command_list = new_proc.command_list + self.command_list
 
