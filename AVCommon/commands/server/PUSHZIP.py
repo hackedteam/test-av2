@@ -76,9 +76,11 @@ def execute(vm, protocol, args):
         zf.write(src_file)
 
     zf.close()
+    #zip file is ready
 
     vm_manager.execute(vm, "mkdirInGuest", ntdir(dst_dir))
 
+    # copy unzip (it should be already in AVAgent/assets...)
     unzipexe = "assets/unzip.exe"
     dst = ntdir(os.path.join(dst_dir, "unzip.exe"))
 
