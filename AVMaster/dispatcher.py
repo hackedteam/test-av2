@@ -124,7 +124,7 @@ class Dispatcher(object):
                     logging.info("- RECEIVE END: %s, %s" % (c, self.ended))
                     logging.debug("self.ended: (%s/%s) %s" % (len(self.ended), len(self.vms), self.ended))
 
-                elif answer.success or p.on_error == "CONTINUE":
+                elif p.on_error != "DISABLED" and (answer.success or p.on_error == "CONTINUE"):
                     r = p.send_next_command()
                     cmd = p.last_command
 
@@ -141,8 +141,18 @@ class Dispatcher(object):
                     # deve skippare fino al command: END_PROC
 
                     if p.on_error == "SKIP":
-                        logging.debug("on_error == SKIP")
+                        logging.debug("on_error == %s" % p.on_error)
                         r = p.send_next_call()
+                        cmd = p.last_command
+                        if cmd:
+                            report.sent(p.vm, cmd)
+                        else:
+                            logging.info("- RECEIVE ERROR, ENDING: %s" %c)
+                            self.end(c)
+                            logging.debug("self.ended: (%s/%s) %s" % (len(self.ended), len(self.vms), self.ended))
+                    elif p.on_error == "DISABLED":
+                        logging.debug("on_error == DISABLED")
+                        r = p.send_next_proc()
                         cmd = p.last_command
                         if cmd:
                             report.sent(p.vm, cmd)

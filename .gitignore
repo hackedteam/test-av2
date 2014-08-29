@@ -49,9 +49,6 @@ docs/_build/
 *.pyc
 results.txt
 
-/.idea/workspace.xml
-
-
 /AVAgent/running/
 
 /remote_logs/

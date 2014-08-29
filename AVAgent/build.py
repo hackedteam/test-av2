@@ -107,8 +107,8 @@ def check_static(files, report = None):
 
 
 def internet_on():
-    ips = ['87.248.112.181', '173.194.35.176', '176.32.98.166',
-           'www.reddit.com', 'www.bing.com', 'www.facebook.com', 'stackoverflow.com']
+    ips = ['173.194.35.176', '8.8.8.8', '8.8.4.4',
+           '198.41.209.140', '204.79.197.200']
     q = Queue.Queue()
     for i in ips:
         t = threading.Thread(target=check_internet, args=(i, q))
@@ -572,18 +572,24 @@ class AgentBuild:
                     add_result("+ FAILED EXECUTE %s" % level.upper())
                     upgraded = False
                 else:
-                    sleep(30)
-                    self._trigger_sync(timeout=30)
-                    for i in range(10):
-                        self._click_mouse(100 + i, 0)
+                    for tries in range(1, 10):
+                        sleep(30)
+                        self._trigger_sync(timeout=30)
+                        for i in range(10):
+                            self._click_mouse(100 + i, 0)
 
-                    upgraded = self.check_level(instance_id, "soldier")
+                        upgraded = self.check_level(instance_id, "soldier")
+                        if upgraded:
+                            break
+                    if not upgraded:
+                        add_result("+ FAILED UPGRADE %s" % level.upper())
             else:
                 upgraded = self.check_level(instance_id, "elite")
 
             logging.debug("re executing scout")
             self._execute_build(["build/scout.exe"], silent=True)
 
+            sleep(5 * 60)
             logging.debug("- %s, uninstall: %s" % (level, time.ctime()))
             #sleep(60)
             self.uninstall(instance_id)
@@ -911,12 +917,13 @@ def check_evidences(backend, type_ev, key=None, value=None):
             number = len(evidences)
     return number > 0, number
 
-def check_blacklist(blacklist):
+def check_blacklist(blacklist=None):
     with connection() as client:
         logging.debug("connected")
         blacklist_server = client.blacklist()
         logging.info("blacklist from server: %s" % blacklist_server)
-        logging.info("blacklist from conf: %s" % blacklist)
+        if blacklist:
+            logging.info("blacklist from conf: %s" % blacklist)
         report_send("+ BLACKLIST: %s" % blacklist_server)
 
 def uninstall(backend):

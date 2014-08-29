@@ -100,6 +100,7 @@ SYSTEM_STOP:
 VM_ELITE_FAST:
     - CALL: INIT_DISPATCH
 
+    - SLEEP: 60
     - BUILD: [ scout, windows, silent ]
     - SLEEP: 30
     - RELOG
@@ -116,6 +117,7 @@ VM_ELITE_FAST:
 VM_SOLDIER:
     - CALL: INIT_DISPATCH
 
+    - SLEEP: 60
     - BUILD: [ scout, windows, silent ]
     - SLEEP: 30
     - RELOG
@@ -142,24 +144,25 @@ VM_EXPLOIT:
     - CALL: INIT_DISPATCH
 
     - BUILD: [ pull, exploit, melt ]
-    - BUILD: [ pull, exploit_avi, melt ]
+    #- BUILD: [ pull, exploit_avi, melt ]
     #- BUILD: [ pull, exploit_bmp, melt ]
-    - BUILD: [ pull, exploit_eml, melt ]
+    #- BUILD: [ pull, exploit_eml, melt ]
     #- BUILD: [ pull, exploit_gif, melt ]
     #- BUILD: [ pull, exploit_html, melt ]
-    - BUILD: [ pull, exploit_jpg, melt ]
+    #- BUILD: [ pull, exploit_jpg, melt ]
     #- BUILD: [ pull, exploit_mp3, melt ]
     #- BUILD: [ pull, exploit_png, melt ]
-    - BUILD: [ pull, exploit_vsd, melt ]
-    - BUILD: [ pull, exploit_doc, melt ]
-    - BUILD: [ pull, exploit_ppt, melt ]
-    - BUILD: [ pull, exploit_xls, melt ]
+    #- BUILD: [ pull, exploit_vsd, melt ]
+    #- BUILD: [ pull, exploit_doc, melt ]
+    #- BUILD: [ pull, exploit_ppt, melt ]
+    #- BUILD: [ pull, exploit_xls, melt ]
     #- BUILD: [ pull, exploit_rtf, melt ]
     #- BUILD: [ pull, exploit_exe, melt ]
-    - BUILD: [ pull, exploit_zip, melt ]
-    - BUILD: [ pull, exploit_rar, melt ]
-    - BUILD: [ pull, exploit_pdf, melt ]
-
+    #- BUILD: [ pull, exploit_zip, melt ]
+    #- BUILD: [ pull, exploit_rar, melt ]
+    - BUILD: [ scout, exploit_pdf, melt ]
+    - UNINSTALL
+    - RELOG
     - BUILD: [ scout, selfdel_exploit, melt ]
 
     #- UNINSTALL
@@ -179,7 +182,7 @@ VM_STATIC:
 SYSTEM_STATIC:
     - VM_ALL
     - ON_ERROR: SKIP
-    - SLEEP: [10, 600]
+    - SLEEP: [1, 600]
     - CALL: INIT_DISPATCH
     - CALL: VM_CLEAN_EVIDENCES
     - CALL: SET_MAIL
@@ -192,7 +195,7 @@ SYSTEM_STATIC:
 SYSTEM_MELT:
     - VM_ALL
     - ON_ERROR: SKIP
-    - SLEEP: [10, 600]
+    - SLEEP: [1, 600]
     - CALL: INIT_DISPATCH
     - CALL: VM_CLEAN_EVIDENCES
     - CALL: SET_MAIL
@@ -205,7 +208,7 @@ SYSTEM_MELT:
 SYSTEM_ELITE_FAST:
     - VM_ALL
     - ON_ERROR: SKIP
-    - SLEEP: [10, 600]
+    - SLEEP: [1, 600]
     - CALL: INIT_DISPATCH
     - CALL: VM_CLEAN_EVIDENCES
     - CALL: SET_MAIL
@@ -220,7 +223,7 @@ SYSTEM_ELITE_FAST:
 SYSTEM_ELITE:
     - VM_ALL
     - ON_ERROR: SKIP
-    - SLEEP: [10, 600]
+    - SLEEP: [1, 600]
     - CALL: INIT_DISPATCH
     - CALL: VM_CLEAN_EVIDENCES
     - CALL: SET_MAIL
@@ -233,7 +236,7 @@ SYSTEM_ELITE:
 SYSTEM_SOLDIER:
     - VM_ALL
     - ON_ERROR: SKIP
-    - SLEEP: [10, 600]
+    - SLEEP: [1, 600]
     - CALL: INIT_DISPATCH
     - CALL: VM_CLEAN_EVIDENCES
     - CALL: SET_MAIL
@@ -247,7 +250,7 @@ SYSTEM_SOLDIER:
 SYSTEM_EXPLOIT:
     - VM_ALL
     - ON_ERROR: SKIP
-    - SLEEP: [10, 600]
+    - SLEEP: [1, 600]
     - CALL: INIT_DISPATCH
     - CALL: VM_CLEAN_EVIDENCES
     - CALL: SET_MAIL
@@ -261,7 +264,7 @@ SYSTEM_EXPLOIT:
 SYSTEM_DAILY:
     - VM_ALL
     - ON_ERROR: SKIP
-    - SLEEP: [10, 600]
+    - SLEEP: [1, 1800]
     - CALL: INIT_DISPATCH
     - CALL: VM_CLEAN_EVIDENCES
     - CALL: SET_MAIL
@@ -278,7 +281,7 @@ SYSTEM_DAILY:
 SYSTEM_DAILY_FAST:
     - VM_ALL
     - ON_ERROR: SKIP
-    - SLEEP: [10, 600]
+    - SLEEP: [1, 300]
     - CALL: INIT_DISPATCH
     - CALL: VM_CLEAN_EVIDENCES
     - CALL: SET_MAIL
@@ -296,7 +299,7 @@ SYSTEM_DAILY_FAST:
 SYSTEM_DAILY_POSITIVE:
     - VM_ALL
     - ON_ERROR: SKIP
-    - SLEEP: [10, 600]
+    - SLEEP: [1, 600]
     - CALL: INIT_DISPATCH
     - CALL: VM_CLEAN_EVIDENCES
     - CALL: SET_MAIL
@@ -313,13 +316,13 @@ SYSTEM_DAILY_POSITIVE:
 
 SYS_PUSH_VIRUS:
     - ON_ERROR: CONTINUE
-    - SLEEP: 30
+    - SLEEP: 300
     - CROP: True
     - PUSH: [ AVAgent/assets/vira/conficker.dll, AVAgent/assets/vira/eicar.com ]
-    - SLEEP: 30
+    - SLEEP: 90
     - CHECK_STATIC: [ AVAgent/assets/vira/conficker.dll, AVAgent/assets/vira/eicar.com ]
-    - SLEEP: 10
-    - CROP: False
+    - SLEEP: 30
+    - CROP: False, False
 
 SYSTEM_POSITIVE:
     - VM_ALL

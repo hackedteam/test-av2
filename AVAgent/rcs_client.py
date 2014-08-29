@@ -345,6 +345,10 @@ class Rcs_client:
         params = {'_id': instance_id, 'status': 'closed'}
         self._call_post('agent/update', params)
 
+    def instance_rename(self, instance_id, name):
+        params = {'_id': instance_id, 'name': name}
+        self._call_post('agent/update', params)
+
     def instance_delete(self, instance_id):
         """ Delete a given instance
         @param instance

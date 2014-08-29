@@ -194,7 +194,8 @@ TEST_SOLDIER:
     - RELOG
 
     - BUILD: [ soldier_fast, windows, silent ]
-    - UNINSTALL
+    - SLEEP: 60
+    #- UNINSTALL
     - RELOG
 
 # ----------------------
@@ -330,11 +331,14 @@ TEST_UPD:
     #- CALL: END_DISPATCH
 
 TEST_PUSH_VIRUS:
-    - STOP_AGENT
-    - CALL: VM_PUSH_AGENT
-    - INSTALL_AGENT
-    - START_AGENT
-    - CALL: SYS_PUSH_VIRUS
+    - CALL: UPDATE_AGENT_FAST
+    - SLEEP: 10
+    - CROP: True
+    - PUSH: [ AVAgent/assets/vira/conficker.dll, AVAgent/assets/vira/eicar.com ]
+    - SLEEP: 90
+    - CHECK_STATIC: [ AVAgent/assets/vira/conficker.dll, AVAgent/assets/vira/eicar.com ]
+    - SLEEP: 30
+    - CROP: False, False
 
 TEST_RELOG:
     - REVERT
@@ -356,3 +360,76 @@ TEST_RELOG:
 
 TEST_THEME:
     - EXECUTE_VM: [ /avtest/assets/update_theme.bat, [], 40, True, True ]
+
+TEST_STARTUP:
+    #- CALL: UPDATE_AGENT_FAST
+    - LIST_DIR: STARTUP
+    - PUSH: [assets/update_reg.bat]
+    - EXECUTE_VM: c:/avtest/assets/update_reg.bat
+
+VM_SOLDIER_ACHILLE_NOCROP:
+    - BUILD: [ scout, windows, silent ]
+    - SLEEP: [60, 90]
+    - LIST_DIR: STARTUP_EXE
+    - RELOG
+
+    - ON_ERROR: CONTINUE
+    #- CROP: True
+
+    - BUILD: [ soldier_fast, windows, silent ]
+    - LIST_DIR: STARTUP_EXE
+    - SLEEP: 600
+    - SCREENSHOT
+
+    #- CROP: False
+    - ON_ERROR: SKIP
+
+TEST_ACHILLE_SOLDIER:
+    - CALL: INIT_DISPATCH
+    - CALL: VM_SOLDIER_ACHILLE_NOCROP
+
+TEST_ACHILLE_AVG:
+    - VM: [ avg, avg32 ]
+    #- REVERT
+    #- CALL: UPDATE_AGENT_FAST
+    - CALL: INIT_DISPATCH
+    - LIST_DIR: STARTUP_EXE
+
+    - SET:
+        backend: 172.20.20.119
+        frontend: 172.20.20.119
+
+    - SET_SERVER:
+        mail_recipients: [zeno@hackingteam.com, seppia@hackingteam.com, m.losito@hackingteam.com]
+
+    - REPORT:
+        - TEST_ACHILLE_SOLDIER
+        - TEST_ACHILLE_SOLDIER
+        #- TEST_ACHILLE_SOLDIER
+        #- TEST_ACHILLE_SOLDIER
+        #- TEST_ACHILLE_SOLDIER
+
+        #- TEST_ACHILLE_SOLDIER
+        #- TEST_ACHILLE_SOLDIER
+        #- TEST_ACHILLE_SOLDIER
+        #- TEST_ACHILLE_SOLDIER
+        #- TEST_ACHILLE_SOLDIER
+
+    - CALL: END_DISPATCH
+
+PUSH_AGENT_EXE:
+    - PUSH: [ /tmp/agent_fcccaea6b99b.exe ]
+
+TEST_ENABLE_1:
+    - ENABLE: YES
+    - SLEEP: 10
+
+TEST_ENABLE_2:
+    - ENABLE: NO
+    - SCREENSHOT
+
+TEST_ENABLE:
+    - ENABLE: [ monday, tuesday, thursday ]
+    - CALL: TEST_ENABLE_1
+    - CALL: TEST_ENABLE_2
+    - SLEEP: 20

@@ -16,7 +16,10 @@ sh update.sh -e $today
 killall -9 vmrun
 
 echo "Executing tests"
-./run.sh SYSTEM_DAILY -c -e $today -p 15
+./run.sh SYSTEM_DAILY -c -e $today -p 16
+
+chmod 755 /opt/AVTest2/rite_retest.sh
+/opt/AVTest2/rite_retest.sh -p 16
 
 ./run.sh SYSTEM_STOP -p 30
 
@@ -26,7 +29,9 @@ echo "Executing tests"
 
 ./run.sh SYSTEM_STOP -m funie,funch,funff -c -e $today
 
-chmod 755 /opt/AVTest2/rite_retest.sh
-/opt/AVTest2/rite_retest.sh
+#chmod 755 /opt/AVTest2/rite_retest.sh
+#/opt/AVTest2/rite_retest.sh
 
-killall -9 vmrun
+#./run.sh SYSTEM_STOP -p 30
+#killall -9 vmrun
+

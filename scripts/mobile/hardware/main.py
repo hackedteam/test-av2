@@ -14,7 +14,7 @@ import package
 from AVAgent import build
 
 apk = 'assets/installer.default.apk'
-service = 'com.android.deviceinfo'
+service = 'com.android.dvci'
 
 #set timeout via adb: http://osdir.com/ml/android-porting/2011-08/msg00182.html
 
@@ -28,75 +28,101 @@ def test_device(device_id, dev, results):
         return "installation failed"
 
     results["installed"] = True
+    print "installation: OK"
     #exeec
-    if not adb.executeGui(service, dev):
-        return "execution failed"
-    else:
-        results["executed"] = True;
-
-    # sync e verifica
-    time.sleep(60)
-    print "slept"
 
     with build.connection() as c:
         operation = "Rite_Mobile"
         target_name = "HardwareFunctional"
 
+        # logging into server
         assert c
         if not c.logged_in():
             return("Not logged in")
         else:
-            print "logged in"
+            print "logged in %s: OK" % c.host
 
         operation_id, group_id = c.operation(operation)
         target_id = c.targets(operation_id, target_name)[0]
-        print "target_id: %s" % target_id
+        #print "target_id: %s" % target_id
 
+        #delete proper instance
         instances = []
+        instances = c.instances_by_deviceid(device_id, operation_id)
+        assert len(instances) <= 1;
+        for i in instances:
+            c.instance_delete(i["_id"])
+        time.sleep(5)
+        instances = c.instances_by_deviceid(device_id, operation_id)
+        assert not instances
+
+        if not adb.executeGui(service, dev):
+            return "execution failed"
+        else:
+            results["executed"] = True;
+            print "executed: OK"
+
+        #check for running
+        time.sleep(10)
+        processes = adb.ps(dev)
+        running = service in processes
+        assert running
+
+        # sync e verifica
+        print "... sleeping for sync"
+        time.sleep(60)
         while not instances:
             #print "operation: %s, %s" % (operation_id, group_id)
-            print "waiting for sync"
             instances = c.instances_by_deviceid(device_id, operation_id)
-            time.sleep(10)
+            if not instances:
+                print "... waiting for sync"
+                time.sleep(10)
 
+        assert len(instances) == 1
         instance_id = instances[0]['_id']
-        print "instance_id: %s " % instance_id
+        #print "instance_id: %s " % instance_id
+        print "sync: OK"
 
+        # rename instance
+        info = c.instance_info(instance_id)
+        c.instance_rename(instance_id, info['name'] + " " + results['device'])
         info = c.instance_info(instance_id)
         results['instance_name'] =  info['name']
-        print "instance_info name: %s" % info['name']
+        print "instance name: %s" % info['name']
 
+        # check for root
         info_evidences = []
         counter = 0
         while not info_evidences and counter < 10:
             infos =  c.infos( target_id, instance_id)
             info_evidences = [ e['data']['content'] for e in infos if 'Root' in e['data']['content'] ]
             counter +=1
-            time.sleep(10)
+            if not info_evidences:
+                print "... waiting for info"
+                time.sleep(10)
 
-        print "info_evidences: %s: " % info_evidences
+        #print "info_evidences: %s: " % info_evidences
         if not info_evidences:
             results['root'] = 'No'
             return "No root"
+        else:
+            print "root: OK"
 
         results['info'] = len(info_evidences) > 0
         root_method = info_evidences[0]
         results['root'] = root_method
 
         roots = [ r for r in info_evidences if 'previous' not in r ]
-        print "roots: %s " % roots
+        #print "roots: %s " % roots
         assert len(roots) == 1
 
-        # get "Root: "
-        # togliere previous, ne deve rimanere uno
-
+        # evidences
         evidences =  c.evidences( target_id, instance_id )
         device_evidences = [ e['data']['content'] for e in evidences if e['type']=='device' ]
         screenshot_evidences = [ e for e in evidences if e['type']=='screenshot' ]
-        print len(device_evidences), len(screenshot_evidences)
+        camera_evidences = [ e for e in evidences if e['type']=='camera' ]
 
-        #assert len(device_evidences) > 0
-        #assert len(screenshot_evidences) > 0
+        print "Evidences: dev %s, screen %s, cam %s" % (len(device_evidences), len(screenshot_evidences), len(camera_evidences))
 
         type_evidences = set()
         for e in evidences:
@@ -105,13 +131,22 @@ def test_device(device_id, dev, results):
 
         results['evidences'] = type_evidences
 
-        #print info_evidences[0].encode('utf-8')
-        #for ev in info_evidences:
-        #    print [ e for e in ev.split('\n') if "Root" in e ]
-
     #uninstall
     print "uninstall"
-    adb.uninstall(service, dev)
+    calc = adb.execute("pm list packages calc").split()[0].split(":")[1]
+    print "executing calc: %s" % calc
+    adb.executeGui(calc, dev)
+    time.sleep(20)
+
+    processes = adb.ps(dev)
+    uninstall = service not in processes
+    results['uninstall'] = uninstall
+
+    if not uninstall:
+        print "uninstall: ERROR"
+        adb.uninstall(service, dev)
+    else:
+        print "uninstall: OK"
 
     print "reboot"
     adb.reboot(dev)
@@ -124,19 +159,17 @@ def test_device(device_id, dev, results):
     return True
 
 def do_test(dev = None):
-    build.connection.host = "rcs-minotauro"
+    build.connection.host = "rcs-castore"
     device_id = adb.get_deviceid(dev)
-    print "device_id: %s" % device_id
+    #print "device_id: %s" % device_id
 
     assert device_id
     assert len(device_id) >= 8
 
-#    with open('tmp/test-%s.csv' % device_id, 'ab') as csvfile:
     with open('tmp/test-%s.csv' % device_id, 'wb') as csvfile:
-    # write header
+        # write header
         devicelist = csv.writer(csvfile, delimiter=";",
                                 quotechar="|", quoting=csv.QUOTE_MINIMAL)
-        #devicelist.writerow(["Device", "Android Version", "SELinux Enforce", "root"])
 
         # getprop device
         props = adb.get_properties(dev)
@@ -184,7 +217,7 @@ def main():
 
         if len(devices) > 1:
             dev = raw_input("su quale device si vuole eseguire il test? ")
-            print "Eseguo il test su %s" % dev
+            print "eseguo il test su %s" % dev
 
         do_test(dev)
 

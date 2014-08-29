@@ -1,6 +1,7 @@
 #!/bin/sh
 ./run.sh REVERT -p 30 -c $*
-./run.sh UPDATE_FULL -p 15 -c $*
+#./run.sh UPDATE_FULL -p 15 -c $*
+./run.sh UPDATE_AV -p 15 -c $*
 ./run.sh SYSTEM_POSITIVE -p 15 -c $*
 
 killall vmrun

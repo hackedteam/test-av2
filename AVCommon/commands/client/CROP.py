@@ -53,7 +53,12 @@ def execute(vm, args):
     #    shutil.rmtree(config.basedir_crop)
         os.makedirs(config.basedir_crop)
 
-    if args:
+    if isinstance(args, list) and len(args)==2:
+        start, save = args
+    else:
+        start, save = args, True
+
+    if start:
         # starts a crop server
         logging.debug("start a crop server")
 
@@ -83,6 +88,9 @@ def execute(vm, args):
             return True, found
         else:
             success = len(found) == 0
+
+        if not save:
+            return success, []
         return success, found
 
 def grab_loop(vm):
@@ -120,7 +128,7 @@ def crop(iter):
     d2=im2.getdata()
 
     w = d1.size[0]
-    h = d1.size[1] - 60
+    h = d1.size[1] - 40
     l,r,t,b = w,0,h,0
 
     for y in range(h):
@@ -138,7 +146,7 @@ def crop(iter):
 
     c=im2.crop((l,t,r,b))
     im1 = im2
-    if c.size[0] > 50 and c.size[1] > 50:
+    if c.size[0] > 50 and c.size[1] > 50 and ( c.size[0] * c.size[1] > 75*68 ):
         name = "%s/%s.png" % ( config.basedir_crop, iter)
         logging.debug("actual crop save: %s" % name)
         logging.debug("name: %s size: %s" % ( name, c.size ))

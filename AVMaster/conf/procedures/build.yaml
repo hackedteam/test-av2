@@ -14,7 +14,8 @@ BUILD_WINDOWS:
     - BUILD: [ pull, windows, silent ]
 
 CHECK_STATIC_MODULES:
-    - PUSH: [ AVAgent/assets/check/*, AVAgent/assets/jarexploit/*, AVAgent/assets/windows/* ]
+    - ENABLE: [ sunday ]
+    - PUSHZIP: [ AVAgent/assets/check/*, AVAgent/assets/jarexploit/*, AVAgent/assets/windows/* ]
     - CHECK_STATIC: [ AVAgent/assets/check/codec, AVAgent/assets/check/codec_mod, AVAgent/assets/check/mac_core,
         AVAgent/assets/check/mac_osax, AVAgent/assets/check/sqlite, AVAgent/assets/check/sqlite_mod,
         AVAgent/assets/check/ppt.ppsx, AVAgent/assets/check/agent.dat, AVAgent/assets/check/doc.docx, AVAgent/assets/check/sploit.swf ]
@@ -58,8 +59,7 @@ BUILD_EXPLOIT:
 VM_PUSH_AGENT:
     - DELETE_DIR: /AVTest/
     - DELETE_DIR: /Users/avtest/Desktop/AVTest/
-    - PUSH: [ AVAgent/*.py, AVAgent/*.yaml, AVCommon/*.py, AVCommon/*.yml, AVCommon/commands/client/*.py, AVCommon/commands/meta/*.py, AVCommon/commands/*.py]
-    - PUSH: [ AVAgent/assets/config*, AVAgent/assets/keyinject.exe, AVAgent/assets/getusertime.exe, AVAgent/assets/windows/*  ]
+    - PUSHZIP: [ AVAgent/*.py, AVAgent/*.yaml, AVCommon/*.py, AVCommon/*.yml, AVCommon/commands/client/*.py, AVCommon/commands/meta/*.py, AVCommon/commands/*.py, AVAgent/assets/config*, AVAgent/assets/keyinject.exe, AVAgent/assets/getusertime.exe, AVAgent/assets/windows/*  ]
 
 VM_UPLOAD_SKYPE:
     - PUSH:
